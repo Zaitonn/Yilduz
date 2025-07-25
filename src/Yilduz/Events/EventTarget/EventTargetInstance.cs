@@ -11,7 +11,6 @@ namespace Yilduz.Events.EventTarget;
 
 public class EventTargetInstance : ObjectInstance
 {
-    protected readonly List<string> _acceptableEventTypes = [];
     protected readonly Dictionary<
         string,
         List<(JsValue Listener, EventTargetOptions Options)>
@@ -89,9 +88,9 @@ public class EventTargetInstance : ObjectInstance
             {
                 foreach (var pair in listeners)
                 {
-                    if (pair.Listener is ObjectInstance objectInstance)
+                    if (pair.Listener is ObjectInstance objectInstance1)
                     {
-                        objectInstance.Engine.Invoke(objectInstance, this, evt);
+                        objectInstance1.Engine.Invoke(objectInstance1, this, evt);
                     }
 
                     if (pair.Options.Once)
@@ -102,6 +101,11 @@ public class EventTargetInstance : ObjectInstance
             }
 
             list.ForEach(pair => listeners.Remove(pair));
+        }
+
+        if (this["on" + evt.Type] is ObjectInstance objectInstance2)
+        {
+            Engine.Invoke(objectInstance2, this, [evt]);
         }
 
         return !(evt.Cancelable && evt.DefaultPrevented);

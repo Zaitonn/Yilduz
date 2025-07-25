@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Jint;
 using Xunit;
 
-namespace Yilduz.Tests.Timer;
+namespace Yilduz.Tests.Timers;
 
 public sealed class SetIntervalTests : TestBase
 {

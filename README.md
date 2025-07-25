@@ -4,7 +4,37 @@ Web api and nodejs module api implementation ([`AbortController`](https://develo
 
 ## Usage
 
-WIP
+```sh
+dotnet add package Yilduz
+```
+
+```cs
+using Jint;
+using Yilduz;
+
+var engine = new Engine()
+    .AddAbortingApi()
+    // ...
+    // Turn to Yilduz.EngineExtensions for further information.
+    .AddEventsApi();
+```
+
+## Development progress
+
+- [x] Aborting
+  - [x] `AbortController`
+  - [x] `AbortSignal`
+- [x] Events
+  - [x] `Event`
+  - [x] `EventTarget`
+- [x] Storages
+  - [x] `localStorage`
+  - [x] `sessionStorage`
+- [x] Timers
+  - [x] `setTimeout`
+  - [x] `setInterval`
+  - [x] `clearTimeout`
+  - [x] `clearInterval`
 
 ## Origin of the name
 

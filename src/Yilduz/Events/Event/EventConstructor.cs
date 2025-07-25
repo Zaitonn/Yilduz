@@ -2,6 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Utils;
 
 namespace Yilduz.Events.Event;
 
@@ -32,13 +33,11 @@ internal class EventConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        return arguments.Length == 0
-            ? throw new JavaScriptException(
-                "Failed to construct 'Event': 1 argument required, but only 0 present."
-            )
-            : new EventInstance(Engine, arguments.At(0).ToString(), arguments.At(1))
-            {
-                Prototype = PrototypeObject,
-            };
+        arguments.EnsureCount(1, Engine, "Failed to construct 'Event'");
+
+        return new EventInstance(Engine, arguments.At(0).ToString(), arguments.At(1))
+        {
+            Prototype = PrototypeObject,
+        };
     }
 }

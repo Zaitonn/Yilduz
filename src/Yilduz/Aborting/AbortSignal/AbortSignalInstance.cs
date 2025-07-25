@@ -2,6 +2,7 @@ using System;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
+using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 
 namespace Yilduz.Aborting.AbortSignal;
@@ -9,7 +10,7 @@ namespace Yilduz.Aborting.AbortSignal;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
 /// </summary>
-public class AbortSignalInstance : EventTargetInstance
+public sealed class AbortSignalInstance : EventTargetInstance
 {
     internal AbortSignalInstance(Engine engine)
         : base(engine) { }
@@ -24,15 +25,14 @@ public class AbortSignalInstance : EventTargetInstance
     /// </summary>
     public JsValue Reason { get; private set; } = Undefined;
 
+    public JsValue Onabort { get; set; } = Undefined;
+
     /// <summary>
     /// Notifies when the signal is aborted.
     /// </summary>
     public event EventHandler? Abort;
 
-    /// <summary>
-    /// Sets the signal as aborted.
-    /// </summary>
-    protected internal void SetAborted(JsValue reason)
+    internal void SetAborted(JsValue reason)
     {
         if (Aborted)
         {
@@ -43,6 +43,7 @@ public class AbortSignalInstance : EventTargetInstance
         Reason = reason;
 
         Abort?.Invoke(this, EventArgs.Empty);
+        DispatchEvent(new(Engine, "abort", Undefined) { Prototype = new EventPrototype(Engine) });
     }
 
     /// <summary>
@@ -58,5 +59,10 @@ public class AbortSignalInstance : EventTargetInstance
                     : $"signal is aborted with reason: {Reason}"
             );
         }
+    }
+
+    public override string ToString()
+    {
+        return "[object AbortSignal]";
     }
 }

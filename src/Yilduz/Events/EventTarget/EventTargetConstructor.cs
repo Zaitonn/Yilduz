@@ -10,6 +10,7 @@ internal class EventTargetConstructor : Constructor
         : base(engine, nameof(EventTarget))
     {
         PrototypeObject = new(engine, this);
+
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 

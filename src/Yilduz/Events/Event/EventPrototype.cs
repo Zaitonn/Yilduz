@@ -9,151 +9,169 @@ namespace Yilduz.Events.Event;
 
 public class EventPrototype : ObjectInstance
 {
-    protected internal EventPrototype(Engine engine, ObjectInstance ctor)
+    internal EventPrototype(Engine engine)
         : base(engine)
     {
-        FastSetProperty("constructor", new(ctor, false, false, true));
-
         FastSetProperty(
-            nameof(EventInstance.Bubbles).ToJsStylePropertyName(),
+            nameof(EventInstance.Bubbles).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.Bubbles).ToJsGetterName(),
                     GetBubbles
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.Cancelable).ToJsStylePropertyName(),
+            nameof(EventInstance.Cancelable).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.Cancelable).ToJsGetterName(),
                     GetCancelable
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.Composed).ToJsStylePropertyName(),
+            nameof(EventInstance.Composed).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.Composed).ToJsGetterName(),
                     GetComposed
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.CurrentTarget).ToJsStylePropertyName(),
+            nameof(EventInstance.CurrentTarget).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.CurrentTarget).ToJsGetterName(),
                     GetCurrentTarget
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.DefaultPrevented).ToJsStylePropertyName(),
+            nameof(EventInstance.DefaultPrevented).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.DefaultPrevented).ToJsGetterName(),
                     GetDefaultPrevented
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.EventPhase).ToJsStylePropertyName(),
+            nameof(EventInstance.EventPhase).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.EventPhase).ToJsGetterName(),
                     GetEventPhase
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.IsTrusted).ToJsStylePropertyName(),
+            nameof(EventInstance.IsTrusted).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.IsTrusted).ToJsGetterName(),
                     GetIsTrusted
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.Target).ToJsStylePropertyName(),
+            nameof(EventInstance.Target).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.Target).ToJsGetterName(),
                     GetTarget
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.TimeStamp).ToJsStylePropertyName(),
+            nameof(EventInstance.TimeStamp).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.TimeStamp).ToJsGetterName(),
                     GetTimeStamp
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(EventInstance.Type).ToJsStylePropertyName(),
+            nameof(EventInstance.Type).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     engine,
                     nameof(EventInstance.Type).ToJsGetterName(),
                     GetEventType
                 ),
+                set: null,
                 false,
                 true
             )
         );
 
         FastSetProperty(
-            nameof(ComposedPath).ToJsStylePropertyName(),
-            new(new ClrFunction(Engine, nameof(ComposedPath), ComposedPath), false, false, true)
-        );
-        FastSetProperty(
-            nameof(PreventDefault).ToJsStylePropertyName(),
-            new(new ClrFunction(Engine, nameof(PreventDefault), PreventDefault), false, false, true)
-        );
-        FastSetProperty(
-            nameof(StopPropagation).ToJsStylePropertyName(),
+            nameof(ComposedPath).ToJsStyleName(),
             new(
-                new ClrFunction(Engine, nameof(StopPropagation), StopPropagation),
+                new ClrFunction(Engine, nameof(ComposedPath).ToJsStyleName(), ComposedPath),
                 false,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(StopImmediatePropagation).ToJsStylePropertyName(),
+            nameof(PreventDefault).ToJsStyleName(),
+            new(
+                new ClrFunction(Engine, nameof(PreventDefault).ToJsStyleName(), PreventDefault),
+                false,
+                false,
+                true
+            )
+        );
+        FastSetProperty(
+            nameof(StopPropagation).ToJsStyleName(),
+            new(
+                new ClrFunction(Engine, nameof(StopPropagation).ToJsStyleName(), StopPropagation),
+                false,
+                false,
+                true
+            )
+        );
+        FastSetProperty(
+            nameof(StopImmediatePropagation).ToJsStyleName(),
             new(
                 new ClrFunction(Engine, nameof(StopImmediatePropagation), StopImmediatePropagation),
                 false,
@@ -161,6 +179,12 @@ public class EventPrototype : ObjectInstance
                 true
             )
         );
+    }
+
+    protected internal EventPrototype(Engine engine, ObjectInstance ctor)
+        : this(engine)
+    {
+        FastSetProperty("constructor", new(ctor, false, false, true));
     }
 
     private JsValue ComposedPath(JsValue thisObject, JsValue[] arguments)

@@ -13,13 +13,16 @@ namespace Yilduz.Events.EventTarget;
 
 public class EventTargetPrototype : ObjectInstance
 {
+    protected string Name => _name ??= GetOwnProperty("name")?.Value?.ToString() ?? "EventTarget";
+    private protected string? _name;
+
     protected internal EventTargetPrototype(Engine engine, ObjectInstance ctor)
         : base(engine)
     {
         FastSetProperty("constructor", new(ctor, false, false, true));
 
         FastSetProperty(
-            nameof(AddEventListener).ToJsStylePropertyName(),
+            nameof(AddEventListener).ToJsStyleName(),
             new(
                 new ClrFunction(Engine, nameof(AddEventListener), AddEventListener),
                 false,
@@ -28,7 +31,7 @@ public class EventTargetPrototype : ObjectInstance
             )
         );
         FastSetProperty(
-            nameof(RemoveEventListener).ToJsStylePropertyName(),
+            nameof(RemoveEventListener).ToJsStyleName(),
             new(
                 new ClrFunction(Engine, nameof(RemoveEventListener), RemoveEventListener),
                 false,
@@ -37,7 +40,7 @@ public class EventTargetPrototype : ObjectInstance
             )
         );
         FastSetProperty(
-            nameof(DispatchEvent).ToJsStylePropertyName(),
+            nameof(DispatchEvent).ToJsStyleName(),
             new(new ClrFunction(Engine, nameof(DispatchEvent), DispatchEvent), false, false, true)
         );
     }
@@ -46,12 +49,7 @@ public class EventTargetPrototype : ObjectInstance
     {
         var eventTarget = thisObject.EnsureThisObject<EventTargetInstance>();
 
-        if (arguments.Length < 2)
-        {
-            throw new JavaScriptException(
-                $"Failed to execute 'addEventListener' on 'EventTarget': 2 arguments required, but only {arguments.Length} present."
-            );
-        }
+        arguments.EnsureCount(2, Engine, "addEventListener", Name);
 
         var type = arguments[0].AsString();
         var listener = arguments[1];
@@ -59,7 +57,10 @@ public class EventTargetPrototype : ObjectInstance
 
         if (!listener.IsObject())
         {
-            throw new JavaScriptException("parameter 2 is not of type 'Object'.");
+            throw new JavaScriptException(
+                Engine.Intrinsics.TypeError,
+                "parameter 2 is not of type 'Object'."
+            );
         }
 
         eventTarget.AddEventListener(
@@ -83,12 +84,7 @@ public class EventTargetPrototype : ObjectInstance
     {
         var eventTarget = thisObject.EnsureThisObject<EventTargetInstance>();
 
-        if (arguments.Length < 2)
-        {
-            throw new JavaScriptException(
-                $"Failed to execute 'removeEventListener' on 'EventTarget': 2 arguments required, but only {arguments.Length} present."
-            );
-        }
+        arguments.EnsureCount(2, Engine, "removeEventListener", Name);
 
         var type = arguments[0].AsString();
         var listener = arguments[1];
@@ -96,7 +92,12 @@ public class EventTargetPrototype : ObjectInstance
 
         if (!listener.IsObject())
         {
-            throw new JavaScriptException("parameter 2 is not of type 'Object'.");
+            TypeErrorHelper.Throw(
+                "parameter 2 is not of type 'Object'.",
+                Engine,
+                "removeEventListener",
+                Name
+            );
         }
 
         eventTarget.RemoveEventListener(
@@ -119,16 +120,19 @@ public class EventTargetPrototype : ObjectInstance
     private JsValue DispatchEvent(JsValue thisObject, JsValue[] arguments)
     {
         var eventTarget = thisObject.EnsureThisObject<EventTargetInstance>();
-        if (arguments.Length < 1)
-        {
-            throw new JavaScriptException(
-                "Failed to execute 'dispatchEvent' on 'EventTarget': 1 argument required, but 0 present."
-            );
-        }
+
+        arguments.EnsureCount(1, Engine, "dispatchEvent", Name);
 
         if (arguments[0] is not EventInstance evt)
         {
-            throw new JavaScriptException("parameter 1 is not of type 'Event'.");
+            TypeErrorHelper.Throw(
+                "parameter 1 is not of type 'Event'.",
+                Engine,
+                "dispatchEvent",
+                Name
+            );
+
+            return Undefined;
         }
 
         return eventTarget.DispatchEvent(evt);

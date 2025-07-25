@@ -12,7 +12,7 @@ namespace Yilduz.Events.Event;
 /// </summary>
 public class EventInstance : ObjectInstance
 {
-    internal EventInstance(Engine engine, string type, JsValue options)
+    public EventInstance(Engine engine, string type, JsValue options)
         : base(engine)
     {
         Type = type;
@@ -106,4 +106,9 @@ public class EventInstance : ObjectInstance
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation
     /// </summary>
     public virtual void StopImmediatePropagation() { }
+
+    public override string ToString()
+    {
+        return "[object Event]";
+    }
 }

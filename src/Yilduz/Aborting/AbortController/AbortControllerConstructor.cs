@@ -5,7 +5,7 @@ using Yilduz.Aborting.AbortSignal;
 
 namespace Yilduz.Aborting.AbortController;
 
-internal class AbortControllerConstructor : Constructor
+internal sealed class AbortControllerConstructor : Constructor
 {
     private readonly AbortSignalConstructor _abortSignalConstructor;
 

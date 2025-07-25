@@ -6,16 +6,19 @@ using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
-using Yilduz.Timer;
+using Yilduz.Storages.Storage;
+using Yilduz.Timers;
 
 namespace Yilduz;
 
 public static class EngineExtensions
 {
+    /// <summary>
+    /// Adds aborting API to the engine.
+    /// </summary>
+    /// <param name="engine"></param>
     public static Engine AddAbortingApi(this Engine engine)
     {
-        ArgumentNullException.ThrowIfNull(engine);
-
         var abortSignalConstructor = new AbortSignalConstructor(engine);
         engine.SetValue(nameof(Aborting.AbortSignal), abortSignalConstructor);
         engine.SetValue(
@@ -25,22 +28,66 @@ public static class EngineExtensions
         return engine;
     }
 
+    /// <summary>
+    /// Adds events API to the engine.
+    /// </summary>
     public static Engine AddEventsApi(this Engine engine)
     {
-        ArgumentNullException.ThrowIfNull(engine);
-
         engine.SetValue(nameof(Events.Event), new EventConstructor(engine));
         engine.SetValue(nameof(Events.EventTarget), new EventTargetConstructor(engine));
         return engine;
     }
 
+    /// <summary>
+    /// Adds storage API to the engine with default local and session storage.
+    /// </summary>
+    /// <param name="engine"></param>
+    public static Engine AddStorageApi(this Engine engine)
+    {
+        engine.AddStorageApi(new(engine), new(engine));
+        return engine;
+    }
+
+    /// <summary>
+    /// Adds storage API to the engine with custom local and session storage factories.
+    /// </summary>
+    public static Engine AddStorageApi(
+        this Engine engine,
+        StorageInstance localStorage,
+        StorageInstance sessionStorage
+    )
+    {
+        if (localStorage is null)
+        {
+            throw new ArgumentNullException(nameof(localStorage));
+        }
+        if (sessionStorage is null)
+        {
+            throw new ArgumentNullException(nameof(sessionStorage));
+        }
+
+        engine.SetValue("localStorage", localStorage);
+        engine.SetValue("sessionStorage", sessionStorage);
+
+        return engine;
+    }
+
+    /// <summary>
+    /// Adds timer API to the engine.
+    /// </summary>
     public static Engine AddTimerApi(
         this Engine engine,
         TimeSpan waitingTimeout,
         CancellationToken cancellationToken
     )
     {
-        ArgumentNullException.ThrowIfNull(engine);
+        if (waitingTimeout <= TimeSpan.Zero)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(waitingTimeout),
+                "Waiting timeout must be greater than zero."
+            );
+        }
 
         var provider = new TimerProvider(engine, waitingTimeout, cancellationToken);
 

@@ -8,7 +8,7 @@ using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortController;
 
-internal class AbortControllerPrototype : ObjectInstance
+internal sealed class AbortControllerPrototype : ObjectInstance
 {
     internal AbortControllerPrototype(Engine engine, AbortControllerConstructor ctor)
         : base(engine)
@@ -16,25 +16,21 @@ internal class AbortControllerPrototype : ObjectInstance
         FastSetProperty("constructor", new(ctor, false, false, true));
 
         FastSetProperty(
-            nameof(AbortControllerInstance.Signal).ToJsStylePropertyName(),
+            nameof(AbortControllerInstance.Signal).ToJsStyleName(),
             new GetSetPropertyDescriptor(
                 get: new ClrFunction(
                     Engine,
                     nameof(AbortControllerInstance.Signal).ToJsGetterName(),
                     GetSignal
                 ),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(Abort).ToJsStylePropertyName(),
-            new(
-                new ClrFunction(Engine, nameof(Abort).ToJsStylePropertyName(), Abort),
-                false,
-                false,
-                true
-            )
+            nameof(Abort).ToJsStyleName(),
+            new(new ClrFunction(Engine, nameof(Abort).ToJsStyleName(), Abort), false, false, true)
         );
     }
 

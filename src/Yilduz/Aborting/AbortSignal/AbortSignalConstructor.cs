@@ -9,8 +9,12 @@ using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
 
-internal class AbortSignalConstructor : Constructor
+internal sealed class AbortSignalConstructor : Constructor
 {
+    private static readonly string AbortName = nameof(Abort).ToJsStyleName();
+    private static readonly string TimeoutName = nameof(Timeout).ToJsStyleName();
+    private static readonly string AnyName = nameof(Any).ToJsStyleName();
+
     public AbortSignalConstructor(Engine engine)
         : base(engine, nameof(AbortSignal))
     {
@@ -18,32 +22,14 @@ internal class AbortSignalConstructor : Constructor
 
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
         SetOwnProperty(
-            nameof(Abort).ToJsStylePropertyName(),
-            new(
-                new ClrFunction(engine, nameof(Abort).ToJsStylePropertyName(), Abort),
-                true,
-                false,
-                true
-            )
+            AbortName,
+            new(new ClrFunction(engine, AbortName, Abort), true, false, true)
         );
         SetOwnProperty(
-            nameof(Timeout).ToJsStylePropertyName(),
-            new(
-                new ClrFunction(engine, nameof(Timeout).ToJsStylePropertyName(), Timeout),
-                true,
-                false,
-                true
-            )
+            TimeoutName,
+            new(new ClrFunction(engine, TimeoutName, Timeout), true, false, true)
         );
-        SetOwnProperty(
-            nameof(Any).ToJsStylePropertyName(),
-            new(
-                new ClrFunction(engine, nameof(Any).ToJsStylePropertyName(), Any),
-                true,
-                false,
-                true
-            )
-        );
+        SetOwnProperty(AnyName, new(new ClrFunction(engine, AnyName, Any), true, false, true));
     }
 
     public AbortSignalPrototype PrototypeObject { get; }
@@ -67,9 +53,9 @@ internal class AbortSignalConstructor : Constructor
         return signal;
     }
 
-    private AbortSignalInstance Abort(JsValue thisObject, params JsValue[] arguments)
+    private AbortSignalInstance Abort(JsValue thisObject, JsValue[] arguments)
     {
-        return arguments.Length > 0 ? Abort(arguments[0]) : Abort(Undefined);
+        return Abort(arguments.At(0));
     }
 
     /// <summary>
@@ -86,12 +72,9 @@ internal class AbortSignalConstructor : Constructor
 
     private AbortSignalInstance Timeout(JsValue thisObject, JsValue[] arguments)
     {
-        return arguments.Length == 0
-            ? throw new JavaScriptException(
-                Engine.Intrinsics.TypeError,
-                "1 argument required, but only 0 present."
-            )
-            : Timeout((ulong)arguments[0].AsNumber());
+        arguments.EnsureCount(1, Engine, TimeoutName, "AbortSignal");
+
+        return Timeout((ulong)arguments[0].AsNumber());
     }
 
     /// <summary>
@@ -124,11 +107,8 @@ internal class AbortSignalConstructor : Constructor
 
     private AbortSignalInstance Any(JsValue thisObject, JsValue[] arguments)
     {
-        return arguments.Length == 0 && !arguments[0].IsArray()
-            ? throw new JavaScriptException(
-                Engine.Intrinsics.TypeError,
-                "1 argument required, but only 0 present."
-            )
-            : Any(arguments[0].AsArray());
+        arguments.EnsureCount(1, Engine, AnyName, "AbortSignal");
+
+        return Any(arguments[0].AsArray());
     }
 }

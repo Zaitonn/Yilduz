@@ -8,7 +8,7 @@ namespace Yilduz.Aborting.AbortController;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/AbortController
 /// </summary>
-public class AbortControllerInstance : ObjectInstance
+public sealed class AbortControllerInstance : ObjectInstance
 {
     internal AbortControllerInstance(Engine engine, AbortSignalPrototype abortSignalPrototype)
         : base(engine)
@@ -27,5 +27,10 @@ public class AbortControllerInstance : ObjectInstance
     public void Abort(JsValue reason)
     {
         Signal.SetAborted(reason);
+    }
+
+    public override string ToString()
+    {
+        return "[object AbortController]";
     }
 }

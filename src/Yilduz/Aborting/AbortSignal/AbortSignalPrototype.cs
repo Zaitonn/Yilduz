@@ -1,5 +1,6 @@
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Events.EventTarget;
@@ -7,45 +8,46 @@ using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
 
-internal class AbortSignalPrototype : EventTargetPrototype
+internal sealed class AbortSignalPrototype : EventTargetPrototype
 {
+    private static readonly string AbortedName = nameof(AbortSignalInstance.Aborted)
+        .ToJsStyleName();
+    private static readonly string ReasonName = nameof(AbortSignalInstance.Reason).ToJsStyleName();
+    private static readonly string ThrowIfAbortedName = nameof(AbortSignalInstance.ThrowIfAborted)
+        .ToJsStyleName();
+    private static readonly string OnabortName = nameof(AbortSignalInstance.Onabort)
+        .ToJsStyleName();
+
     internal AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
         : base(engine, ctor)
     {
         FastSetProperty(
-            nameof(AbortSignalInstance.Aborted).ToJsStylePropertyName(),
+            ThrowIfAbortedName,
+            new(new ClrFunction(engine, ThrowIfAbortedName, ThrowIfAborted), false, false, true)
+        );
+        FastSetProperty(
+            AbortedName,
             new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(AbortSignalInstance.Aborted).ToJsGetterName(),
-                    GetAborted
-                ),
+                get: new ClrFunction(engine, AbortedName.ToJsGetterName(), GetAborted),
+                set: null,
                 false,
                 true
             )
         );
         FastSetProperty(
-            nameof(AbortSignalInstance.Reason).ToJsStylePropertyName(),
+            ReasonName,
             new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(AbortSignalInstance.Reason).ToJsGetterName(),
-                    GetReason
-                ),
+                get: new ClrFunction(engine, ReasonName.ToJsGetterName(), GetReason),
+                set: null,
                 false,
                 true
             )
         );
-
         FastSetProperty(
-            nameof(ThrowIfAborted).ToJsStylePropertyName(),
-            new(
-                new ClrFunction(
-                    engine,
-                    nameof(ThrowIfAborted).ToJsStylePropertyName(),
-                    ThrowIfAborted
-                ),
-                false,
+            OnabortName,
+            new GetSetPropertyDescriptor(
+                get: new ClrFunction(engine, OnabortName.ToJsGetterName(), GetOnabort),
+                set: new ClrFunction(engine, OnabortName.ToJsSetterName(), SetOnabort),
                 false,
                 true
             )
@@ -66,5 +68,17 @@ internal class AbortSignalPrototype : EventTargetPrototype
     private JsValue GetAborted(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<AbortSignalInstance>().Aborted;
+    }
+
+    private JsValue GetOnabort(JsValue thisObject, JsValue[] arguments)
+    {
+        return thisObject.EnsureThisObject<AbortSignalInstance>().Onabort;
+    }
+
+    private JsValue SetOnabort(JsValue thisObject, JsValue[] arguments)
+    {
+        var instance = thisObject.EnsureThisObject<AbortSignalInstance>();
+        instance.Onabort = arguments.At(0);
+        return instance.Onabort;
     }
 }

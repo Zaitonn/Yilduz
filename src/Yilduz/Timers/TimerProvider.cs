@@ -7,10 +7,11 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Function;
 using Jint.Runtime;
+using Yilduz.Utils;
 
-namespace Yilduz.Timer;
+namespace Yilduz.Timers;
 
-public sealed class TimerProvider(
+internal sealed class TimerProvider(
     Engine engine,
     TimeSpan waitingTimeout,
     CancellationToken cancellationToken
@@ -23,7 +24,6 @@ public sealed class TimerProvider(
     public JsValue SetTimeout(JsValue thisObject, params JsValue[] arguments)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ArgumentNullException.ThrowIfNull(arguments);
 
         return StartTimer(false, arguments);
     }
@@ -31,7 +31,6 @@ public sealed class TimerProvider(
     public JsValue SetInterval(JsValue thisObject, params JsValue[] arguments)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ArgumentNullException.ThrowIfNull(arguments);
 
         return StartTimer(true, arguments);
     }
@@ -39,7 +38,6 @@ public sealed class TimerProvider(
     public JsValue Clear(JsValue thisObject, params JsValue[] arguments)
     {
         cancellationToken.ThrowIfCancellationRequested();
-        ArgumentNullException.ThrowIfNull(arguments);
 
         if (arguments.Length == 0 || arguments[0].IsUndefined() || arguments[0].IsNull())
         {
@@ -56,20 +54,12 @@ public sealed class TimerProvider(
 
     private long StartTimer(bool repeat, JsValue[] arguments)
     {
+        arguments.EnsureCount(1, engine, repeat ? "setInterval" : "setTimeout", null);
+
         var id = Interlocked.Read(ref _currentId);
         Interlocked.Add(ref _currentId, 1);
 
         _ids.Add(id);
-
-        if (arguments.Length == 0 || arguments[0].IsUndefined())
-        {
-            throw new JavaScriptException(
-                engine.Intrinsics.TypeError,
-                "Failed to execute '"
-                    + (repeat ? "setInterval" : "setTimeout")
-                    + "': 1 argument required, but only 0 present."
-            );
-        }
 
         var firstArgument = arguments[0];
         var handler = firstArgument as Function;
@@ -127,7 +117,7 @@ public sealed class TimerProvider(
             }
             else if (!string.IsNullOrEmpty(code))
             {
-                Execute(code);
+                Execute(code!);
             }
         }
     }
@@ -135,9 +125,6 @@ public sealed class TimerProvider(
     private void Execute(Function function, JsValue[] arguments)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
-        ArgumentNullException.ThrowIfNull(function);
-        ArgumentNullException.ThrowIfNull(arguments);
 
         bool entered = false;
         try
@@ -161,8 +148,6 @@ public sealed class TimerProvider(
     private void Execute(string code)
     {
         cancellationToken.ThrowIfCancellationRequested();
-
-        ArgumentNullException.ThrowIfNull(code);
 
         bool entered = false;
         try

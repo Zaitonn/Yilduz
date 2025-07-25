@@ -4,7 +4,7 @@ using Jint;
 using Jint.Runtime;
 using Xunit;
 
-namespace Yilduz.Tests.Timer;
+namespace Yilduz.Tests.Timers;
 
 public sealed class RuntimeTests : TestBase
 {

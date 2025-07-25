@@ -11,33 +11,25 @@ public sealed class PrototypeTests : TestBase
         Engine.AddAbortingApi();
     }
 
-    [Fact]
-    public void ShouldHaveCorrectPrototype()
+    [Theory]
+    [InlineData("constructor")]
+    [InlineData("signal")]
+    [InlineData("abort")]
+    public void ShouldHaveCorrectPrototype(string propertyName)
     {
         Assert.True(
-            Engine.Evaluate("AbortController.prototype.hasOwnProperty('constructor')").AsBoolean()
-        );
-        Assert.True(
-            Engine.Evaluate("AbortController.prototype.hasOwnProperty('signal')").AsBoolean()
-        );
-        Assert.True(
-            Engine.Evaluate("AbortController.prototype.hasOwnProperty('abort')").AsBoolean()
+            Engine
+                .Evaluate($"AbortController.prototype.hasOwnProperty('{propertyName}')")
+                .AsBoolean()
         );
     }
 
-    [Fact]
-    public void ShouldThrowOnInvalidInvocation()
+    [Theory]
+    [InlineData("AbortController.prototype.constructor()")]
+    [InlineData("AbortController.prototype.abort()")]
+    [InlineData("AbortController.prototype.signal")]
+    public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("AbortController.prototype.constructor()")
-        );
-
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("AbortController.prototype.abort()")
-        );
-
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("AbortController.prototype.signal")
-        );
+        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
     }
 }
