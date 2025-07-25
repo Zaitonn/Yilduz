@@ -1,0 +1,52 @@
+using Jint;
+using Jint.Native;
+using Jint.Native.Object;
+using Jint.Runtime;
+using Jint.Runtime.Descriptors;
+using Jint.Runtime.Interop;
+using Yilduz.Utils;
+
+namespace Yilduz.Aborting.AbortController;
+
+internal class AbortControllerPrototype : ObjectInstance
+{
+    internal AbortControllerPrototype(Engine engine, AbortControllerConstructor ctor)
+        : base(engine)
+    {
+        FastSetProperty("constructor", new(ctor, false, false, true));
+
+        FastSetProperty(
+            nameof(AbortControllerInstance.Signal).ToJsStylePropertyName(),
+            new GetSetPropertyDescriptor(
+                get: new ClrFunction(
+                    Engine,
+                    nameof(AbortControllerInstance.Signal).ToJsGetterName(),
+                    GetSignal
+                ),
+                false,
+                true
+            )
+        );
+        FastSetProperty(
+            nameof(Abort).ToJsStylePropertyName(),
+            new(
+                new ClrFunction(Engine, nameof(Abort).ToJsStylePropertyName(), Abort),
+                false,
+                false,
+                true
+            )
+        );
+    }
+
+    private JsValue GetSignal(JsValue thisObject, JsValue[] arguments)
+    {
+        return thisObject.EnsureThisObject<AbortControllerInstance>().Signal;
+    }
+
+    private JsValue Abort(JsValue thisObject, params JsValue[] arguments)
+    {
+        thisObject.EnsureThisObject<AbortControllerInstance>().Abort(arguments.At(0));
+
+        return Undefined;
+    }
+}

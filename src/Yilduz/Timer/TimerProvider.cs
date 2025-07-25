@@ -1,0 +1,185 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Jint;
+using Jint.Native;
+using Jint.Native.Function;
+using Jint.Runtime;
+
+namespace Yilduz.Timer;
+
+public sealed class TimerProvider(
+    Engine engine,
+    TimeSpan waitingTimeout,
+    CancellationToken cancellationToken
+)
+{
+    private readonly List<long> _ids = [];
+
+    private long _currentId = 1;
+
+    public JsValue SetTimeout(JsValue thisObject, params JsValue[] arguments)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(arguments);
+
+        return StartTimer(false, arguments);
+    }
+
+    public JsValue SetInterval(JsValue thisObject, params JsValue[] arguments)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(arguments);
+
+        return StartTimer(true, arguments);
+    }
+
+    public JsValue Clear(JsValue thisObject, params JsValue[] arguments)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(arguments);
+
+        if (arguments.Length == 0 || arguments[0].IsUndefined() || arguments[0].IsNull())
+        {
+            return JsValue.Undefined;
+        }
+
+        lock (_ids)
+        {
+            _ids.Remove((long)arguments[0].AsNumber());
+        }
+
+        return JsValue.Undefined;
+    }
+
+    private long StartTimer(bool repeat, JsValue[] arguments)
+    {
+        var id = Interlocked.Read(ref _currentId);
+        Interlocked.Add(ref _currentId, 1);
+
+        _ids.Add(id);
+
+        if (arguments.Length == 0 || arguments[0].IsUndefined())
+        {
+            throw new JavaScriptException(
+                engine.Intrinsics.TypeError,
+                "Failed to execute '"
+                    + (repeat ? "setInterval" : "setTimeout")
+                    + "': 1 argument required, but only 0 present."
+            );
+        }
+
+        var firstArgument = arguments[0];
+        var handler = firstArgument as Function;
+        var args = handler is not null ? arguments.Skip(2).ToArray() : null;
+        var code = handler is null
+            ? firstArgument.IsString()
+                ? firstArgument.AsString()
+                : firstArgument.ToString()
+            : null;
+
+        var timeout =
+            arguments.Length > 1
+                ? arguments[1].IsNumber()
+                    ? (int)arguments[1].AsNumber()
+                    : int.TryParse(arguments[1].ToString(), out var parsed)
+                        ? parsed
+                        : 0
+                : 0;
+
+        if (timeout < 4)
+        {
+            timeout = 4;
+        }
+
+        Task.Run(
+            async () =>
+            {
+                do
+                {
+                    await Task.Delay(timeout, cancellationToken).ConfigureAwait(false);
+
+                    if (cancellationToken.IsCancellationRequested || !_ids.Contains(id))
+                    {
+                        break;
+                    }
+
+                    FastExecute();
+
+                    if (cancellationToken.IsCancellationRequested || !_ids.Contains(id))
+                    {
+                        break;
+                    }
+                } while (repeat);
+            },
+            cancellationToken
+        );
+
+        return id;
+
+        void FastExecute()
+        {
+            if (handler is not null)
+            {
+                Execute(handler, args!);
+            }
+            else if (!string.IsNullOrEmpty(code))
+            {
+                Execute(code);
+            }
+        }
+    }
+
+    private void Execute(Function function, JsValue[] arguments)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        ArgumentNullException.ThrowIfNull(function);
+        ArgumentNullException.ThrowIfNull(arguments);
+
+        bool entered = false;
+        try
+        {
+            Monitor.TryEnter(function.Engine, waitingTimeout, ref entered);
+
+            if (entered)
+            {
+                function.Call(JsValue.Undefined, arguments);
+            }
+        }
+        finally
+        {
+            if (entered)
+            {
+                Monitor.Exit(function.Engine);
+            }
+        }
+    }
+
+    private void Execute(string code)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        ArgumentNullException.ThrowIfNull(code);
+
+        bool entered = false;
+        try
+        {
+            Monitor.TryEnter(engine, waitingTimeout, ref entered);
+
+            if (entered)
+            {
+                engine.Execute(code);
+            }
+        }
+        finally
+        {
+            if (entered)
+            {
+                Monitor.Exit(engine);
+            }
+        }
+    }
+}
