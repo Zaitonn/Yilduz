@@ -5,7 +5,7 @@
     <Title>QQBotNet.Core</Title>
     <Authors>Zaitonn</Authors>
     <Description>Web api and nodejs module api implementation for Jint</Description>
-    <Version>0.0.1</Version>
+    <Version>0.0.2</Version>
     <Copyright>Zaitonn</Copyright>
     <RepositoryUrl>https://github.com/Zaitonn/Yilduz</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -13,11 +13,14 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Yilduz.Tests" />
+    <None Include="../../README.md" Pack="true" PackagePath="/" />
+
     <PackageReference Include="Jint" Version="4.4.0" />
-    <None Include="README.md" Pack="true" PackagePath="/" />
     <PackageReference Include="PolySharp" Version="1.15.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>

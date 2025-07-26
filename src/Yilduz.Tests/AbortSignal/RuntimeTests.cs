@@ -1,5 +1,7 @@
 using System.Threading.Tasks;
 using Jint;
+using Jint.Native;
+using Jint.Native.Error;
 using Jint.Runtime;
 using Xunit;
 
@@ -74,5 +76,17 @@ public sealed class RuntimeTests : TestBase
         Engine.Execute("controller1.abort();");
         Assert.True(Engine.Evaluate("signal.aborted").AsBoolean());
         Assert.Throws<JavaScriptException>(() => Engine.Execute("signal.throwIfAborted();"));
+    }
+
+    [Fact]
+    public void ShouldHaveCorrectReason()
+    {
+        var reason = Engine.Evaluate("AbortSignal.abort().reason").AsObject();
+        Assert.True(reason is ErrorInstance);
+        Assert.Equal("AbortError", reason["name"]);
+        Assert.Equal("signal is aborted without reason", reason["message"]);
+
+        Assert.Equal(1, Engine.Evaluate("AbortSignal.abort(1).reason"));
+        Assert.Equal(JsValue.Null, Engine.Evaluate("AbortSignal.abort(null).reason"));
     }
 }

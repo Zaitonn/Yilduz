@@ -19,11 +19,15 @@ var engine = new Engine()
     .AddEventsApi();
 ```
 
-## Development progress
+## Development progress & Project structure
 
 - [x] Aborting
   - [x] `AbortController`
   - [x] `AbortSignal`
+- [ ] Data
+  - [ ] `Blob`
+  - [ ] `ReadableStream`
+  - [ ] `URLSearchParams`
 - [x] Events
   - [x] `Event`
   - [x] `EventTarget`

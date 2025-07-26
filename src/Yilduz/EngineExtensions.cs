@@ -11,12 +11,14 @@ using Yilduz.Timers;
 
 namespace Yilduz;
 
+/// <summary>
+/// Extension methods for the Jint engine.
+/// </summary>
 public static class EngineExtensions
 {
     /// <summary>
     /// Adds aborting API to the engine.
     /// </summary>
-    /// <param name="engine"></param>
     public static Engine AddAbortingApi(this Engine engine)
     {
         var abortSignalConstructor = new AbortSignalConstructor(engine);
@@ -41,7 +43,6 @@ public static class EngineExtensions
     /// <summary>
     /// Adds storage API to the engine with default local and session storage.
     /// </summary>
-    /// <param name="engine"></param>
     public static Engine AddStorageApi(this Engine engine)
     {
         engine.AddStorageApi(new(engine), new(engine));

@@ -9,7 +9,11 @@ public abstract class TestBase : IDisposable
     protected TestBase()
     {
         _cancellationTokenSource = new CancellationTokenSource();
-        Engine = EngineFactory.Create(_cancellationTokenSource.Token);
+        Engine = new Engine(
+            new Options { Modules = { RegisterRequire = true } }.CancellationToken(
+                _cancellationTokenSource.Token
+            )
+        );
     }
 
     private readonly CancellationTokenSource _cancellationTokenSource;

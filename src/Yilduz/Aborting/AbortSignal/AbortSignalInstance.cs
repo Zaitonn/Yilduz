@@ -2,6 +2,7 @@ using System;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
+using Yilduz.Errors;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 
@@ -42,6 +43,11 @@ public sealed class AbortSignalInstance : EventTargetInstance
         Aborted = true;
         Reason = reason;
 
+        if (reason.IsUndefined())
+        {
+            Reason = Engine.CreateAbortError("signal is aborted without reason");
+        }
+
         Abort?.Invoke(this, EventArgs.Empty);
         DispatchEvent(new(Engine, "abort", Undefined) { Prototype = new EventPrototype(Engine) });
     }
@@ -53,11 +59,7 @@ public sealed class AbortSignalInstance : EventTargetInstance
     {
         if (Aborted)
         {
-            throw new JavaScriptException(
-                Reason.IsUndefined()
-                    ? "signal is aborted without reason"
-                    : $"signal is aborted with reason: {Reason}"
-            );
+            throw new JavaScriptException(Reason);
         }
     }
 

@@ -1,14 +1,14 @@
 using Jint;
 using Jint.Native;
+using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
-using Yilduz.Events.EventTarget;
 using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
 
-internal sealed class AbortSignalPrototype : EventTargetPrototype
+internal sealed class AbortSignalPrototype : ObjectInstance
 {
     private static readonly string AbortedName = nameof(AbortSignalInstance.Aborted)
         .ToJsStyleName();
@@ -19,8 +19,10 @@ internal sealed class AbortSignalPrototype : EventTargetPrototype
         .ToJsStyleName();
 
     internal AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
-        : base(engine, ctor)
+        : base(engine)
     {
+        FastSetProperty("constructor", new(ctor, false, false, true));
+
         FastSetProperty(
             ThrowIfAbortedName,
             new(new ClrFunction(engine, ThrowIfAbortedName, ThrowIfAborted), false, false, true)

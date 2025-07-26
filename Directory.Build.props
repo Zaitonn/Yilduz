@@ -1,6 +1,5 @@
 <Project>
   <PropertyGroup>
-    <IncludeSymbols>true</IncludeSymbols>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>

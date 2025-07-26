@@ -5,6 +5,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Events.EventTarget;
 using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
@@ -18,7 +19,10 @@ internal sealed class AbortSignalConstructor : Constructor
     public AbortSignalConstructor(Engine engine)
         : base(engine, nameof(AbortSignal))
     {
-        PrototypeObject = new AbortSignalPrototype(engine, this);
+        PrototypeObject = new AbortSignalPrototype(engine, this)
+        {
+            Prototype = new EventTargetConstructor(engine).PrototypeObject,
+        };
 
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
         SetOwnProperty(
