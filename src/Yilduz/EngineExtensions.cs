@@ -17,6 +17,34 @@ namespace Yilduz;
 public static class EngineExtensions
 {
     /// <summary>
+    /// Adds all APIs to the engine with default options.
+    /// </summary>
+    public static Engine AddAllApi(this Engine engine)
+    {
+        return engine.AddAllApi(new());
+    }
+
+    /// <summary>
+    /// Adds all APIs to the engine with the specified options.
+    /// </summary>
+    public static Engine AddAllApi(this Engine engine, Options options)
+    {
+        if (options is null)
+        {
+            throw new ArgumentNullException(nameof(options));
+        }
+
+        engine.AddAbortingApi();
+        engine.AddEventsApi();
+        engine.AddStorageApi(
+            options.Storage.LocalStorageFactory.Invoke(engine),
+            options.Storage.SessionStorageFactory.Invoke(engine)
+        );
+        engine.AddTimerApi(options.WaitingTimeout, options.CancellationToken);
+        return engine;
+    }
+
+    /// <summary>
     /// Adds aborting API to the engine.
     /// </summary>
     public static Engine AddAbortingApi(this Engine engine)

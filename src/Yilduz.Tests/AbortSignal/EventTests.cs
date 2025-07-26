@@ -5,11 +5,6 @@ namespace Yilduz.Tests.AbortSignal;
 
 public sealed class EventTests : TestBase
 {
-    public EventTests()
-    {
-        Engine.AddAbortingApi().AddEventsApi();
-    }
-
     [Fact]
     public void CanAddEventListener()
     {

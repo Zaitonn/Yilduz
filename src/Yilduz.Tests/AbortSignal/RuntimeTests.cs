@@ -9,11 +9,6 @@ namespace Yilduz.Tests.AbortSignal;
 
 public sealed class RuntimeTests : TestBase
 {
-    public RuntimeTests()
-    {
-        Engine.AddAbortingApi();
-    }
-
     [Fact]
     public void CanNotCreateNewAbortSignalDirectly()
     {

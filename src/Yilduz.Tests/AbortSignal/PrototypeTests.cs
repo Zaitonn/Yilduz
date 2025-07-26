@@ -9,11 +9,6 @@ namespace Yilduz.Tests.AbortSignal;
 
 public sealed class PrototypeTests : TestBase
 {
-    public PrototypeTests()
-    {
-        Engine.AddAbortingApi();
-    }
-
     [Theory]
     [InlineData("aborted")]
     [InlineData("reason")]

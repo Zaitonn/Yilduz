@@ -6,11 +6,6 @@ namespace Yilduz.Tests.Storages;
 
 public sealed class ArgumentTests : TestBase
 {
-    public ArgumentTests()
-    {
-        Engine.AddStorageApi();
-    }
-
     [Theory]
     [InlineData("localStorage")]
     [InlineData("sessionStorage")]

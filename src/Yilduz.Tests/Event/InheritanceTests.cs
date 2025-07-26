@@ -5,11 +5,6 @@ namespace Yilduz.Tests.Event;
 
 public sealed class InheritanceTests : TestBase
 {
-    public InheritanceTests()
-    {
-        Engine.AddEventsApi();
-    }
-
     [Fact]
     public void ShouldInheritEventPrototype()
     {

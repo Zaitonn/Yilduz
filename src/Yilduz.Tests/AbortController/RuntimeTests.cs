@@ -8,11 +8,6 @@ namespace Yilduz.Tests.AbortController;
 
 public sealed class RuntimeTests : TestBase
 {
-    public RuntimeTests()
-    {
-        Engine.AddAbortingApi();
-    }
-
     [Fact]
     public void CanCreateNewAbortController()
     {
@@ -56,12 +51,14 @@ public sealed class RuntimeTests : TestBase
         var controller = Engine.Evaluate("controller") as AbortControllerInstance;
 
         Assert.NotNull(controller);
-        Assert.True(controller.Signal.Aborted);
-        Assert.Equal(JsValue.Undefined, controller.Signal.Reason);
-
         Assert.NotNull(Engine.Evaluate("controller"));
+
+        Assert.True(controller.Signal.Aborted);
         Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
-        Assert.Equal(JsValue.Undefined, Engine.Evaluate("controller.signal.reason"));
+
+        var reason = Engine.Evaluate("controller.signal.reason");
+        Assert.IsType<JsError>(reason);
+        Assert.Equal("AbortError: signal is aborted without reason", reason.ToString());
     }
 
     [Fact]

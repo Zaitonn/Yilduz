@@ -7,11 +7,6 @@ namespace Yilduz.Tests.Storages;
 
 public sealed class RuntimeTests : TestBase
 {
-    public RuntimeTests()
-    {
-        Engine.AddStorageApi();
-    }
-
     [Theory]
     [InlineData("localStorage")]
     [InlineData("sessionStorage")]

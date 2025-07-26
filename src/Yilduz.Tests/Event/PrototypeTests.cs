@@ -6,11 +6,6 @@ namespace Yilduz.Tests.Event;
 
 public sealed class PrototypeTests : TestBase
 {
-    public PrototypeTests()
-    {
-        Engine.AddEventsApi();
-    }
-
     [Theory]
     [InlineData("bubbles")]
     [InlineData("cancelable")]

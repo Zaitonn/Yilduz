@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Jint;
 using Jint.Runtime;
@@ -8,11 +7,6 @@ namespace Yilduz.Tests.Timers;
 
 public sealed class RuntimeTests : TestBase
 {
-    public RuntimeTests()
-    {
-        Engine.AddTimerApi(TimeSpan.FromSeconds(500), Token);
-    }
-
     [Theory]
     [InlineData("setTimeout")]
     [InlineData("setInterval")]

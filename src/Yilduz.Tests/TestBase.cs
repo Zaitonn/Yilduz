@@ -10,10 +10,11 @@ public abstract class TestBase : IDisposable
     {
         _cancellationTokenSource = new CancellationTokenSource();
         Engine = new Engine(
-            new Options { Modules = { RegisterRequire = true } }.CancellationToken(
+            new Jint.Options { Modules = { RegisterRequire = true } }.CancellationToken(
                 _cancellationTokenSource.Token
             )
         );
+        Engine.AddAllApi(new() { CancellationToken = _cancellationTokenSource.Token });
     }
 
     private readonly CancellationTokenSource _cancellationTokenSource;

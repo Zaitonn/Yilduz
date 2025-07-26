@@ -1,4 +1,3 @@
-using System;
 using System.Threading.Tasks;
 using Jint;
 using Xunit;
@@ -7,11 +6,6 @@ namespace Yilduz.Tests.Timers;
 
 public sealed class SetIntervalTests : TestBase
 {
-    public SetIntervalTests()
-    {
-        Engine.AddTimerApi(TimeSpan.FromSeconds(500), Token);
-    }
-
     [Fact]
     public async Task CanSetIntervalWithFunction()
     {

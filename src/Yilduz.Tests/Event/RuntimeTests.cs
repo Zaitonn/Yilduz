@@ -5,11 +5,6 @@ namespace Yilduz.Tests.Event;
 
 public sealed class RuntimeTests : TestBase
 {
-    public RuntimeTests()
-    {
-        Engine.AddEventsApi();
-    }
-
     [Fact]
     public void DefaultPreventedShouldBeFalse()
     {
