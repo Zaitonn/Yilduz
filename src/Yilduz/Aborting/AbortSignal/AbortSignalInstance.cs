@@ -45,7 +45,7 @@ public sealed class AbortSignalInstance : EventTargetInstance
 
         if (reason.IsUndefined())
         {
-            Reason = Engine.CreateAbortError("signal is aborted without reason");
+            Reason = Engine.CreateAbortErrorInstance("signal is aborted without reason");
         }
 
         Abort?.Invoke(this, EventArgs.Empty);
@@ -61,10 +61,5 @@ public sealed class AbortSignalInstance : EventTargetInstance
         {
             throw new JavaScriptException(Reason);
         }
-    }
-
-    public override string ToString()
-    {
-        return "[object AbortSignal]";
     }
 }

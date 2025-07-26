@@ -7,15 +7,15 @@ namespace Yilduz.Utils;
 internal static class TypeErrorHelper
 {
     [DoesNotReturn]
-    public static void Throw(string message, Engine engine)
+    public static void Throw(Engine engine, string message)
     {
         throw new JavaScriptException(engine.Intrinsics.TypeError, message);
     }
 
     [DoesNotReturn]
     public static void Throw(
-        string message,
         Engine engine,
+        string message,
         string functionName,
         string? objectName = null
     )

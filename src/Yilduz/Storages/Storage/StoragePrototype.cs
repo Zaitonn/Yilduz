@@ -1,6 +1,7 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
+using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
@@ -17,9 +18,12 @@ internal sealed class StoragePrototype : ObjectInstance
     private static readonly string KeyName = nameof(Key).ToJsStyleName();
     private static readonly string LengthName = nameof(StorageInstance.Length).ToJsStyleName();
 
-    public StoragePrototype(Engine engine)
+    public StoragePrototype(Engine engine, StorageConstructor constructor)
         : base(engine)
     {
+        Set(GlobalSymbolRegistry.ToStringTag, nameof(Storage));
+        FastSetProperty("constructor", new(constructor, false, false, true));
+
         FastSetProperty(
             LengthName,
             new GetSetPropertyDescriptor(
@@ -77,8 +81,17 @@ internal sealed class StoragePrototype : ObjectInstance
         arguments.EnsureCount(2, Engine, SetItemName, "Storage");
 
         var key = arguments.At(0).ToString();
-        var value = arguments.At(1).ToString();
-        thisObject.EnsureThisObject<StorageInstance>().SetItem(key, value);
+        var value = arguments.At(1);
+        thisObject
+            .EnsureThisObject<StorageInstance>()
+            .SetItem(
+                key,
+                // not standard
+                // to keep same behavior as in Browser
+                value.IsArray()
+                    ? string.Join(",", value.AsArray())
+                    : value.ToString()
+            );
 
         return Undefined;
     }

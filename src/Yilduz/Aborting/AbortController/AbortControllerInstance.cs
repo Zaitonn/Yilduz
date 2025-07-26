@@ -28,9 +28,4 @@ public sealed class AbortControllerInstance : ObjectInstance
     {
         Signal.SetAborted(reason);
     }
-
-    public override string ToString()
-    {
-        return "[object AbortController]";
-    }
 }

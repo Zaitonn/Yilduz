@@ -10,13 +10,7 @@ public sealed partial class Options
 
     public sealed class StorageOptions
     {
-        internal StorageOptions()
-        {
-            LocalStorageFactory = engine => new StorageInstance(engine);
-            SessionStorageFactory = engine => new StorageInstance(engine);
-        }
-
-        public Func<Engine, StorageInstance> LocalStorageFactory { get; set; }
-        public Func<Engine, StorageInstance> SessionStorageFactory { get; set; }
+        public Action<StorageInstance>? LocalStorageConfigurator { get; set; }
+        public Action<StorageInstance>? SessionStorageConfigurator { get; set; }
     }
 }

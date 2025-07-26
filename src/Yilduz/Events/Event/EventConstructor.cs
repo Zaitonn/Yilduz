@@ -6,7 +6,7 @@ using Yilduz.Utils;
 
 namespace Yilduz.Events.Event;
 
-internal class EventConstructor : Constructor
+public class EventConstructor : Constructor
 {
     public EventConstructor(Engine engine)
         : base(engine, nameof(Event))

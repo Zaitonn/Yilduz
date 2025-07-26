@@ -5,6 +5,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Errors;
 using Yilduz.Events.EventTarget;
 using Yilduz.Utils;
 
@@ -16,12 +17,12 @@ internal sealed class AbortSignalConstructor : Constructor
     private static readonly string TimeoutName = nameof(Timeout).ToJsStyleName();
     private static readonly string AnyName = nameof(Any).ToJsStyleName();
 
-    public AbortSignalConstructor(Engine engine)
+    public AbortSignalConstructor(Engine engine, EventTargetConstructor eventTargetConstructor)
         : base(engine, nameof(AbortSignal))
     {
         PrototypeObject = new AbortSignalPrototype(engine, this)
         {
-            Prototype = new EventTargetConstructor(engine).PrototypeObject,
+            Prototype = eventTargetConstructor.PrototypeObject,
         };
 
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
@@ -40,10 +41,8 @@ internal sealed class AbortSignalConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        throw new JavaScriptException(
-            Engine.Intrinsics.TypeError,
-            "Failed to construct 'AbortSignal': Illegal constructor"
-        );
+        TypeErrorHelper.Throw(Engine, "Failed to construct 'AbortSignal': Illegal constructor");
+        return null!;
     }
 
     /// <summary>
@@ -69,7 +68,10 @@ internal sealed class AbortSignalConstructor : Constructor
     {
         var signal = new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
 
-        Task.Delay(TimeSpan.FromMilliseconds(time)).ContinueWith(_ => signal.SetAborted("Timeout"));
+        Task.Delay(TimeSpan.FromMilliseconds(time))
+            .ContinueWith(_ =>
+                signal.SetAborted(Engine.CreateTimeoutErrorInstance("signal timed out"))
+            );
 
         return signal;
     }
@@ -89,21 +91,25 @@ internal sealed class AbortSignalConstructor : Constructor
         var abortSignal = new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
         foreach (var signal in signals)
         {
-            if (signal is not AbortSignalInstance instance)
+            if (signal is AbortSignalInstance instance)
             {
-                throw new JavaScriptException(
-                    Engine.Intrinsics.TypeError,
-                    "Value is not of type 'AbortSignal'."
+                if (instance.Aborted)
+                {
+                    abortSignal.SetAborted(instance.Reason);
+                    break;
+                }
+
+                instance.Abort += (_, _) => abortSignal.SetAborted(instance.Reason);
+            }
+            else
+            {
+                TypeErrorHelper.Throw(
+                    Engine,
+                    "Failed to convert value to 'AbortSignal'.",
+                    AnyName,
+                    nameof(AbortSignal)
                 );
             }
-
-            if (instance.Aborted)
-            {
-                abortSignal.SetAborted(instance.Reason);
-                break;
-            }
-
-            instance.Abort += (_, _) => abortSignal.SetAborted(instance.Reason);
         }
 
         return abortSignal;

@@ -1,6 +1,7 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
+using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortSignal;
@@ -19,6 +20,7 @@ public class EventTargetPrototype : ObjectInstance
     protected internal EventTargetPrototype(Engine engine, ObjectInstance ctor)
         : base(engine)
     {
+        Set(GlobalSymbolRegistry.ToStringTag, nameof(EventTarget));
         FastSetProperty("constructor", new(ctor, false, false, true));
 
         FastSetProperty(
@@ -51,16 +53,13 @@ public class EventTargetPrototype : ObjectInstance
 
         arguments.EnsureCount(2, Engine, "addEventListener", Name);
 
-        var type = arguments[0].AsString();
-        var listener = arguments[1];
+        var type = arguments.At(0).ToString();
+        var listener = arguments.At(1);
         var options = arguments.At(2);
 
         if (!listener.IsObject())
         {
-            throw new JavaScriptException(
-                Engine.Intrinsics.TypeError,
-                "parameter 2 is not of type 'Object'."
-            );
+            return Undefined;
         }
 
         eventTarget.AddEventListener(
@@ -86,18 +85,13 @@ public class EventTargetPrototype : ObjectInstance
 
         arguments.EnsureCount(2, Engine, "removeEventListener", Name);
 
-        var type = arguments[0].AsString();
-        var listener = arguments[1];
+        var type = arguments.At(0).AsString();
+        var listener = arguments.At(1);
         var options = arguments.At(2);
 
         if (!listener.IsObject())
         {
-            TypeErrorHelper.Throw(
-                "parameter 2 is not of type 'Object'.",
-                Engine,
-                "removeEventListener",
-                Name
-            );
+            return Undefined;
         }
 
         eventTarget.RemoveEventListener(
@@ -126,8 +120,8 @@ public class EventTargetPrototype : ObjectInstance
         if (arguments[0] is not EventInstance evt)
         {
             TypeErrorHelper.Throw(
-                "parameter 1 is not of type 'Event'.",
                 Engine,
+                "parameter 1 is not of type 'Event'.",
                 "dispatchEvent",
                 Name
             );

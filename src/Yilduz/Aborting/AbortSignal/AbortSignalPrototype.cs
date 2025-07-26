@@ -1,6 +1,7 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
+using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
@@ -21,6 +22,7 @@ internal sealed class AbortSignalPrototype : ObjectInstance
     internal AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
         : base(engine)
     {
+        Set(GlobalSymbolRegistry.ToStringTag, nameof(AbortSignal));
         FastSetProperty("constructor", new(ctor, false, false, true));
 
         FastSetProperty(

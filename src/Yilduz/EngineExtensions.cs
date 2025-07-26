@@ -1,9 +1,9 @@
 using System;
-using System.Threading;
 using Jint;
 using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
+using Yilduz.Data.URLSearchParams;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 using Yilduz.Storages.Storage;
@@ -19,114 +19,95 @@ public static class EngineExtensions
     /// <summary>
     /// Adds all APIs to the engine with default options.
     /// </summary>
-    public static Engine AddAllApi(this Engine engine)
+    public static Engine AddAPIs(this Engine engine)
     {
-        return engine.AddAllApi(new());
+        return engine.AddAPIs(new());
     }
 
     /// <summary>
     /// Adds all APIs to the engine with the specified options.
     /// </summary>
-    public static Engine AddAllApi(this Engine engine, Options options)
+    public static Engine AddAPIs(this Engine engine, Options options)
     {
         if (options is null)
         {
             throw new ArgumentNullException(nameof(options));
         }
 
-        engine.AddAbortingApi();
-        engine.AddEventsApi();
-        engine.AddStorageApi(
-            options.Storage.LocalStorageFactory.Invoke(engine),
-            options.Storage.SessionStorageFactory.Invoke(engine)
-        );
-        engine.AddTimerApi(options.WaitingTimeout, options.CancellationToken);
-        return engine;
-    }
+        #region Events
 
-    /// <summary>
-    /// Adds aborting API to the engine.
-    /// </summary>
-    public static Engine AddAbortingApi(this Engine engine)
-    {
-        var abortSignalConstructor = new AbortSignalConstructor(engine);
+        var eventTargetConstructor = new EventTargetConstructor(engine);
+        engine.SetValue(nameof(Events.Event), new EventConstructor(engine));
+        engine.SetValue(nameof(Events.EventTarget), eventTargetConstructor);
+
+        #endregion
+
+        #region Aborting
+
+        var abortSignalConstructor = new AbortSignalConstructor(engine, eventTargetConstructor);
         engine.SetValue(nameof(Aborting.AbortSignal), abortSignalConstructor);
         engine.SetValue(
             nameof(Aborting.AbortController),
             new AbortControllerConstructor(engine, abortSignalConstructor)
         );
-        return engine;
-    }
 
-    /// <summary>
-    /// Adds events API to the engine.
-    /// </summary>
-    public static Engine AddEventsApi(this Engine engine)
-    {
-        engine.SetValue(nameof(Events.Event), new EventConstructor(engine));
-        engine.SetValue(nameof(Events.EventTarget), new EventTargetConstructor(engine));
-        return engine;
-    }
+        #endregion
 
-    /// <summary>
-    /// Adds storage API to the engine with default local and session storage.
-    /// </summary>
-    public static Engine AddStorageApi(this Engine engine)
-    {
-        engine.AddStorageApi(new(engine), new(engine));
-        return engine;
-    }
+        #region Data
 
-    /// <summary>
-    /// Adds storage API to the engine with custom local and session storage factories.
-    /// </summary>
-    public static Engine AddStorageApi(
-        this Engine engine,
-        StorageInstance localStorage,
-        StorageInstance sessionStorage
-    )
-    {
-        if (localStorage is null)
+        engine.SetValue(nameof(Data.URLSearchParams), new URLSearchParamsConstructor(engine));
+
+        #endregion
+
+        #region Timers
+
+        if (options.WaitingTimeout <= TimeSpan.Zero)
         {
-            throw new ArgumentNullException(nameof(localStorage));
+            throw new ArgumentOutOfRangeException(
+                nameof(options),
+                "options.WaitingTimeout must be greater than zero."
+            );
         }
-        if (sessionStorage is null)
-        {
-            throw new ArgumentNullException(nameof(sessionStorage));
-        }
+
+        var timerProvider = new TimerProvider(
+            engine,
+            options.WaitingTimeout,
+            options.CancellationToken
+        );
+        engine.SetValue(
+            "setTimeout",
+            new ClrFunction(engine, "setTimeout", timerProvider.SetTimeout)
+        );
+        engine.SetValue(
+            "setInterval",
+            new ClrFunction(engine, "setInterval", timerProvider.SetInterval)
+        );
+        engine.SetValue(
+            "clearTimeout",
+            new ClrFunction(engine, "clearTimeout", timerProvider.Clear)
+        );
+        engine.SetValue(
+            "clearInterval",
+            new ClrFunction(engine, "clearInterval", timerProvider.Clear)
+        );
+
+        #endregion
+
+        #region Storage
+
+        var storageConstructor = new StorageConstructor(engine);
+        engine.SetValue(nameof(Storages.Storage), storageConstructor);
+
+        var localStorage = storageConstructor.CreateInstance();
+        var sessionStorage = storageConstructor.CreateInstance();
+
+        options.Storage.LocalStorageConfigurator?.Invoke(localStorage);
+        options.Storage.SessionStorageConfigurator?.Invoke(sessionStorage);
 
         engine.SetValue("localStorage", localStorage);
         engine.SetValue("sessionStorage", sessionStorage);
 
-        return engine;
-    }
-
-    /// <summary>
-    /// Adds timer API to the engine.
-    /// </summary>
-    public static Engine AddTimerApi(
-        this Engine engine,
-        TimeSpan waitingTimeout,
-        CancellationToken cancellationToken
-    )
-    {
-        if (waitingTimeout <= TimeSpan.Zero)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(waitingTimeout),
-                "Waiting timeout must be greater than zero."
-            );
-        }
-
-        var provider = new TimerProvider(engine, waitingTimeout, cancellationToken);
-
-        engine.SetValue("setTimeout", new ClrFunction(engine, "setTimeout", provider.SetTimeout));
-        engine.SetValue(
-            "setInterval",
-            new ClrFunction(engine, "setInterval", provider.SetInterval)
-        );
-        engine.SetValue("clearTimeout", new ClrFunction(engine, "clearTimeout", provider.Clear));
-        engine.SetValue("clearInterval", new ClrFunction(engine, "clearInterval", provider.Clear));
+        #endregion
 
         return engine;
     }

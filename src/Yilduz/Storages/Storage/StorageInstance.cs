@@ -23,8 +23,6 @@ public sealed class StorageInstance : ObjectInstance
         : base(engine)
     {
         _map = writableDict ?? new Dictionary<string, string>();
-
-        Prototype = new StoragePrototype(_engine);
     }
 
     public event EventHandler<StorageEventArgs>? Updated;

@@ -43,7 +43,7 @@ public class EventInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/currentTarget
     /// </summary>
-    public object? CurrentTarget { get; protected set; }
+    public object? CurrentTarget { get; protected internal set; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/defaultPrevented
@@ -53,17 +53,17 @@ public class EventInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/eventPhase
     /// </summary>
-    public int EventPhase { get; protected set; } = EventPhases.NONE;
+    public int EventPhase { get; protected internal set; } = EventPhases.NONE;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/isTrusted
     /// </summary>
-    public bool IsTrusted { get; protected set; }
+    public bool IsTrusted { get; protected internal set; } = true;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/target
     /// </summary>
-    public object? Target { get; protected set; }
+    public object? Target { get; protected internal set; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/timeStamp
@@ -98,17 +98,26 @@ public class EventInstance : ObjectInstance
     }
 
     /// <summary>
-    /// https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation
-    /// </summary>
-    public virtual void StopPropagation() { }
-
-    /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/stopPropagation
     /// </summary>
-    public virtual void StopImmediatePropagation() { }
-
-    public override string ToString()
+    public virtual void StopPropagation()
     {
-        return "[object Event]";
+        if (Bubbles)
+        {
+            IsPropagationStopped = true;
+        }
     }
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/Event/stopImmediatePropagation
+    /// </summary>
+    public virtual void StopImmediatePropagation()
+    {
+        StopPropagation();
+        IsImmediatePropagationStopped = true;
+    }
+
+    protected internal bool IsPropagationStopped { get; protected set; }
+
+    protected internal bool IsImmediatePropagationStopped { get; protected set; }
 }

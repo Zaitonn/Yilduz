@@ -12,14 +12,6 @@ internal static class ArgumentExtensions
             : $"{count} arguments required, but only {present} present.";
     }
 
-    public static void EnsureCount(this JsValue[] arguments, int count, Engine engine)
-    {
-        if (arguments.Length < count)
-        {
-            TypeErrorHelper.Throw(GetMessage(count, arguments.Length), engine);
-        }
-    }
-
     public static void EnsureCount(
         this JsValue[] arguments,
         int count,
@@ -29,7 +21,7 @@ internal static class ArgumentExtensions
     {
         if (arguments.Length < count)
         {
-            TypeErrorHelper.Throw($"{message}: " + GetMessage(count, arguments.Length), engine);
+            TypeErrorHelper.Throw(engine, $"{message}: " + GetMessage(count, arguments.Length));
         }
     }
 
@@ -44,8 +36,8 @@ internal static class ArgumentExtensions
         if (arguments.Length < count)
         {
             TypeErrorHelper.Throw(
-                GetMessage(count, arguments.Length),
                 engine,
+                GetMessage(count, arguments.Length),
                 functionName,
                 objectName
             );

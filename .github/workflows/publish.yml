@@ -3,6 +3,8 @@ name: Publish NuGet Package
 on:
   push:
     branches: ["main"]
+    paths:
+      - "src/Yilduz/Yilduz.csproj"
 
   workflow_dispatch:
 

@@ -4,6 +4,10 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Yilduz.Events.Event;
+using EventPair = (
+    Jint.Native.JsValue Listener,
+    Yilduz.Events.EventTarget.EventTargetOptions Options
+);
 
 namespace Yilduz.Events.EventTarget;
 
@@ -11,10 +15,7 @@ namespace Yilduz.Events.EventTarget;
 
 public class EventTargetInstance : ObjectInstance
 {
-    protected readonly Dictionary<
-        string,
-        List<(JsValue Listener, EventTargetOptions Options)>
-    > _listeners = [];
+    protected readonly Dictionary<string, List<EventPair>> _listeners = [];
 
     protected internal EventTargetInstance(Engine engine)
         : base(engine) { }
@@ -56,21 +57,26 @@ public class EventTargetInstance : ObjectInstance
     public virtual void RemoveEventListener(
         string type,
         JsValue listener,
-        EventTargetOptions? options
+        EventTargetOptions options
     )
     {
         if (_listeners.TryGetValue(type, out var listeners))
         {
-            var i = listeners.FindIndex(l => l.Listener == listener && l.Options.Equals(options));
-
-            if (i >= 0)
+            lock (listeners)
             {
-                listeners.RemoveAt(i);
-            }
+                var toRemove = listeners.FirstOrDefault(l =>
+                    l.Listener == listener && l.Options.Equals(options)
+                );
 
-            if (listeners.Count == 0)
-            {
-                _listeners.Remove(type);
+                if (toRemove != default)
+                {
+                    listeners.Remove(toRemove);
+                }
+
+                if (listeners.Count == 0)
+                {
+                    _listeners.Remove(type);
+                }
             }
         }
     }
@@ -80,27 +86,44 @@ public class EventTargetInstance : ObjectInstance
     /// </summary>
     public bool DispatchEvent(EventInstance evt)
     {
+        evt.Target = this;
+        evt.CurrentTarget = this; // not standard
+
         if (_listeners.TryGetValue(evt.Type, out var listeners))
         {
-            var list = new List<(JsValue Listener, EventTargetOptions Options)>(listeners);
+            var toRemove = new List<EventPair>();
+            IEnumerable<EventPair> copy;
 
             lock (listeners)
             {
-                foreach (var pair in listeners)
-                {
-                    if (pair.Listener is ObjectInstance objectInstance1)
-                    {
-                        objectInstance1.Engine.Invoke(objectInstance1, this, evt);
-                    }
+                copy = [.. listeners];
+            }
 
-                    if (pair.Options.Once)
+            evt.EventPhase = EventPhases.AT_TARGET;
+
+            foreach (var pair in copy)
+            {
+                if (pair.Listener is ObjectInstance objectInstance1)
+                {
+                    try
                     {
-                        list.Add(pair);
+                        objectInstance1.Engine.Invoke(objectInstance1, this, [evt]);
                     }
+                    catch { }
+                }
+
+                if (pair.Options.Once || pair.Options.Signal?.Aborted == true)
+                {
+                    toRemove.Add(pair);
+                }
+
+                if (evt.IsImmediatePropagationStopped)
+                {
+                    break;
                 }
             }
 
-            list.ForEach(pair => listeners.Remove(pair));
+            toRemove.ForEach(pair => listeners.Remove(pair));
         }
 
         if (this["on" + evt.Type] is ObjectInstance objectInstance2)

@@ -84,4 +84,64 @@ public sealed class RuntimeTests : TestBase
         Assert.Equal(1, Engine.Evaluate("AbortSignal.abort(1).reason"));
         Assert.Equal(JsValue.Null, Engine.Evaluate("AbortSignal.abort(null).reason"));
     }
+
+    [Fact]
+    public void ShouldSupportStaticAbortMethod()
+    {
+        Engine.Execute("const signal = AbortSignal.abort('Static abort reason');");
+
+        Assert.True(Engine.Evaluate("signal.aborted").AsBoolean());
+        Assert.Equal("Static abort reason", Engine.Evaluate("signal.reason").AsString());
+    }
+
+    [Fact]
+    public async Task ShouldSupportStaticTimeoutMethod()
+    {
+        Engine.Execute(
+            """
+            const signal = AbortSignal.timeout(50);
+            let timeoutFired = false;
+
+            signal.addEventListener('abort', () => {
+                timeoutFired = true;
+            });
+            """
+        );
+
+        await Task.Delay(100);
+
+        Assert.True(Engine.Evaluate("timeoutFired").AsBoolean());
+        Assert.True(Engine.Evaluate("signal.aborted").AsBoolean());
+        Assert.Equal("TimeoutError", Engine.Evaluate("signal.reason.name"));
+        Assert.Equal("signal timed out", Engine.Evaluate("signal.reason.message"));
+    }
+
+    [Fact]
+    public void ShouldHandleAbortSignalAny()
+    {
+        Engine.Execute(
+            @"
+            const controller1 = new AbortController();
+            const controller2 = new AbortController();
+            const controller3 = new AbortController();
+            
+            const compositeSignal = AbortSignal.any([
+                controller1.signal,
+                controller2.signal,
+                controller3.signal
+            ]);
+            
+            let abortEventFired = false;
+            compositeSignal.addEventListener('abort', () => {
+                abortEventFired = true;
+            });
+            
+            controller2.abort('Second controller aborted');
+        "
+        );
+
+        Assert.True(Engine.Evaluate("compositeSignal.aborted").AsBoolean());
+        Assert.True(Engine.Evaluate("abortEventFired").AsBoolean());
+        Assert.Equal("Second controller aborted", Engine.Evaluate("compositeSignal.reason"));
+    }
 }

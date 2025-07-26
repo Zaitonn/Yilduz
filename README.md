@@ -12,11 +12,7 @@ dotnet add package Yilduz
 using Jint;
 using Yilduz;
 
-var engine = new Engine()
-    .AddAbortingApi()
-    // ...
-    // Turn to Yilduz.EngineExtensions for further information.
-    .AddEventsApi();
+var engine = new Engine().AddAPIs();
 ```
 
 ## Development progress & Project structure
@@ -27,7 +23,8 @@ var engine = new Engine()
 - [ ] Data
   - [ ] `Blob`
   - [ ] `ReadableStream`
-  - [ ] `URLSearchParams`
+  - [ ] `URL`
+  - [x] `URLSearchParams`
 - [x] Events
   - [x] `Event`
   - [x] `EventTarget`

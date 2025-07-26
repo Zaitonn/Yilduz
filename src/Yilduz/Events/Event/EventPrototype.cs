@@ -1,6 +1,7 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
+using Jint.Native.Symbol;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Utils;
@@ -12,6 +13,7 @@ public class EventPrototype : ObjectInstance
     internal EventPrototype(Engine engine)
         : base(engine)
     {
+        Set(GlobalSymbolRegistry.ToStringTag, nameof(Event));
         FastSetProperty(
             nameof(EventInstance.Bubbles).ToJsStyleName(),
             new GetSetPropertyDescriptor(
@@ -178,6 +180,20 @@ public class EventPrototype : ObjectInstance
                 false,
                 true
             )
+        );
+
+        FastSetProperty(nameof(EventPhases.NONE), new(EventPhases.NONE, true, false, true));
+        FastSetProperty(
+            nameof(EventPhases.CAPTURING_PHASE),
+            new(EventPhases.CAPTURING_PHASE, false, false, true)
+        );
+        FastSetProperty(
+            nameof(EventPhases.AT_TARGET),
+            new(EventPhases.AT_TARGET, false, false, true)
+        );
+        FastSetProperty(
+            nameof(EventPhases.BUBBLING_PHASE),
+            new(EventPhases.BUBBLING_PHASE, false, false, true)
         );
     }
 

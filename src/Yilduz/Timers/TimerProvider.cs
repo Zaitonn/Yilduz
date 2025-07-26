@@ -39,7 +39,13 @@ internal sealed class TimerProvider(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        if (arguments.Length == 0 || arguments[0].IsUndefined() || arguments[0].IsNull())
+        if (arguments.Length == 0)
+        {
+            return JsValue.Undefined;
+        }
+
+        var id = arguments[0];
+        if (!id.IsNumber())
         {
             return JsValue.Undefined;
         }
@@ -96,7 +102,11 @@ internal sealed class TimerProvider(
                         break;
                     }
 
-                    FastExecute();
+                    try
+                    {
+                        FastExecute();
+                    }
+                    catch { }
 
                     if (cancellationToken.IsCancellationRequested || !_ids.Contains(id))
                     {
