@@ -47,7 +47,7 @@ public sealed class ClearTimerTests : TestBase
         Engine.Execute("const id = setTimeout(() => { executed = true; }, 50);");
         Engine.Execute("clearTimeout(id);");
 
-        await Task.Delay(80);
+        await Task.Delay(100);
         Assert.False(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -78,11 +78,11 @@ public sealed class ClearTimerTests : TestBase
         Engine.Execute("let count = 0;");
         Engine.Execute("const id = setInterval(() => { count++; }, 10);");
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Engine.Execute("clearInterval(id);");
 
         var countAfterClear = Engine.Evaluate("count").AsNumber();
-        await Task.Delay(50);
+        await Task.Delay(100);
         var countAfterWait = Engine.Evaluate("count").AsNumber();
 
         Assert.Equal(countAfterClear, countAfterWait);

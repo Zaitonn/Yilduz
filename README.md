@@ -13,6 +13,13 @@ using Jint;
 using Yilduz;
 
 var engine = new Engine().AddAPIs();
+
+engine.Execute(
+    """
+    console.log('Hello world!');
+    setTimeout(()=> console.log('I can use `setTimeout`!'), 2000);
+    """
+)
 ```
 
 ## Development progress & Project structure
@@ -20,6 +27,8 @@ var engine = new Engine().AddAPIs();
 - [x] Aborting
   - [x] `AbortController`
   - [x] `AbortSignal`
+- [x] Console
+  - [x] `console`
 - [ ] Data
   - [ ] `Blob`
   - [ ] `ReadableStream`

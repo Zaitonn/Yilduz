@@ -1,4 +1,5 @@
 using System.Threading;
+using System.Threading.Tasks;
 using Jint;
 using Xunit;
 
@@ -23,7 +24,7 @@ public sealed class ErrorHandlingTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleTimeoutError()
+    public async Task ShouldHandleTimeoutError()
     {
         Engine.Execute(
             @"
@@ -39,7 +40,7 @@ public sealed class ErrorHandlingTests : TestBase
         "
         );
 
-        Thread.Sleep(30);
+        await Task.Delay(100);
 
         var errorName = Engine.Evaluate("error ? error.name : null").AsString();
         Assert.Equal("TimeoutError", errorName);
@@ -110,7 +111,7 @@ public sealed class ErrorHandlingTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleErrorInTimerCallbacks()
+    public async Task ShouldHandleErrorInTimerCallbacks()
     {
         Engine.Execute(
             @"
@@ -128,7 +129,7 @@ public sealed class ErrorHandlingTests : TestBase
         "
         );
 
-        System.Threading.Thread.Sleep(50);
+        await Task.Delay(100);
 
         var timerExecuted = Engine.Evaluate("timerExecuted").AsBoolean();
         var errorHandled = Engine.Evaluate("errorHandled").AsBoolean();

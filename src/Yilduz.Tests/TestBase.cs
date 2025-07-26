@@ -14,7 +14,7 @@ public abstract class TestBase : IDisposable
                 _cancellationTokenSource.Token
             )
         );
-        Engine.AddAPIs(new() { CancellationToken = _cancellationTokenSource.Token });
+        Engine.AddAPIs(GetOptions());
     }
 
     private readonly CancellationTokenSource _cancellationTokenSource;
@@ -32,4 +32,9 @@ public abstract class TestBase : IDisposable
     }
 
     protected virtual void OnDisposing() { }
+
+    protected virtual Options GetOptions()
+    {
+        return new() { CancellationToken = Token };
+    }
 }

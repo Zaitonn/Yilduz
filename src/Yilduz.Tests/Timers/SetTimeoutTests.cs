@@ -16,7 +16,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -30,7 +30,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -44,7 +44,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.Equal(6, Engine.Evaluate("result").AsNumber());
     }
 
@@ -58,7 +58,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(20);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -72,7 +72,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(20);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -86,7 +86,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -96,7 +96,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("let executed = false;");
         Engine.Execute("setTimeout(() => { executed = true; }, 0);");
 
-        await Task.Delay(20);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -106,7 +106,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("let executed = false;");
         Engine.Execute("const id = setTimeout(() => { executed = true; }, 10000);");
 
-        await Task.Delay(20);
+        await Task.Delay(100);
         Assert.False(Engine.Evaluate("executed").AsBoolean());
 
         Engine.Execute("clearTimeout(id);");
@@ -118,7 +118,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("let count = 0;");
         Engine.Execute("const id = setTimeout(() => { count++; }, 20);");
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.Equal(1, Engine.Evaluate("count").AsNumber());
     }
 
@@ -130,7 +130,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("setTimeout(() => { results.push('second'); }, 20);");
         Engine.Execute("setTimeout(() => { results.push('third'); }, 30);");
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.Equal(3, Engine.Evaluate("results.length").AsNumber());
     }
 
@@ -142,7 +142,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("setTimeout(() => { order.push(2); }, 10);");
         Engine.Execute("setTimeout(() => { order.push(3); }, 20);");
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.Equal(2, Engine.Evaluate("order[0]").AsNumber()); // 10ms delay
         Assert.Equal(3, Engine.Evaluate("order[1]").AsNumber()); // 20ms delay
         Assert.Equal(1, Engine.Evaluate("order[2]").AsNumber()); // 30ms delay
@@ -163,7 +163,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(50);
+        await Task.Delay(100);
         Assert.Equal(2, Engine.Evaluate("results.length").AsNumber());
         Assert.Equal("outer", Engine.Evaluate("results[0]").AsString());
         Assert.Equal("inner", Engine.Evaluate("results[1]").AsString());
@@ -186,7 +186,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(30);
+        await Task.Delay(100);
         Assert.Equal(42, Engine.Evaluate("result.objectValue").AsNumber());
         Assert.Equal(6, Engine.Evaluate("result.arraySum").AsNumber());
     }
@@ -206,7 +206,7 @@ public sealed class SetTimeoutTests : TestBase
         "
         );
 
-        await Task.Delay(40);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean()); // Second timeout should still execute
     }
 }

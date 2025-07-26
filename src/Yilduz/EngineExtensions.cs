@@ -3,6 +3,7 @@ using Jint;
 using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
+using Yilduz.Console;
 using Yilduz.Data.URLSearchParams;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
@@ -106,6 +107,13 @@ public static class EngineExtensions
 
         engine.SetValue("localStorage", localStorage);
         engine.SetValue("sessionStorage", sessionStorage);
+
+        #endregion
+
+        #region Console
+
+        var console = options.ConsoleFactory?.Invoke(engine) ?? new DefaultConsole(engine);
+        engine.SetValue("console", new ConsoleInstance(engine, console));
 
         #endregion
 

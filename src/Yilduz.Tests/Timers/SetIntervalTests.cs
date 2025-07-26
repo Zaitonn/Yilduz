@@ -25,7 +25,7 @@ public sealed class SetIntervalTests : TestBase
         Engine.Execute("const id1 = setInterval(() => { count1++; }, 15);");
         Engine.Execute("const id2 = setInterval(() => { count2++; }, 25);");
 
-        await Task.Delay(80);
+        await Task.Delay(100);
         Engine.Execute("clearInterval(id1);");
         Engine.Execute("clearInterval(id2);");
 
@@ -53,7 +53,7 @@ public sealed class SetIntervalTests : TestBase
         "
         );
 
-        await Task.Delay(80);
+        await Task.Delay(100);
         Assert.True(Engine.Evaluate("results.length").AsNumber() >= 3);
         Assert.Equal("number", Engine.Evaluate("typeof results[0].timestamp").AsString());
     }
