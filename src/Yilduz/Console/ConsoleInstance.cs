@@ -20,12 +20,7 @@ public sealed partial class ConsoleInstance : ObjectInstance, IConsole
     {
         FastSetProperty(
             nameof(Assert).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(Assert).ToJsStyleName(), Assert),
-                false,
-                false,
-                true
-            )
+            new(new ClrFunction(Engine, nameof(Assert).ToJsStyleName(), Assert), false, false, true)
         );
         FastSetProperty(
             nameof(Clear).ToJsStyleName(),
@@ -54,12 +49,7 @@ public sealed partial class ConsoleInstance : ObjectInstance, IConsole
         );
         FastSetProperty(
             nameof(Dirxml).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(Dirxml).ToJsStyleName(), Dirxml),
-                false,
-                false,
-                true
-            )
+            new(new ClrFunction(Engine, nameof(Dirxml).ToJsStyleName(), Dirxml), false, false, true)
         );
         FastSetProperty(
             nameof(Error).ToJsStyleName(),

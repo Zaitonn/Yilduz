@@ -15,18 +15,21 @@ public sealed class URLSearchParamsInstance : ObjectInstance
 {
     private readonly List<KeyValuePair<string, string>> _list;
 
-    private readonly URLInstance? _urlObject;
+    private readonly URLInstance? _urlInstance;
+    private bool _shouldUpdateUrlInstance;
 
-    internal URLSearchParamsInstance(Engine engine)
+    public IReadOnlyList<KeyValuePair<string, string>> QueryList => _list;
+
+    private URLSearchParamsInstance(Engine engine)
         : base(engine)
     {
         _list = [];
     }
 
-    internal URLSearchParamsInstance(Engine engine, URLInstance urlObject)
+    internal URLSearchParamsInstance(Engine engine, URLInstance urlInstance)
         : this(engine)
     {
-        _urlObject = urlObject;
+        _urlInstance = urlInstance;
     }
 
     internal URLSearchParamsInstance(Engine engine, JsValue init)
@@ -35,6 +38,13 @@ public sealed class URLSearchParamsInstance : ObjectInstance
         if (init.IsObject())
         {
             var obj = init.AsObject();
+
+            if (obj is URLSearchParamsInstance existingInstance)
+            {
+                _list.AddRange(existingInstance.QueryList);
+                _shouldUpdateUrlInstance = true;
+                return;
+            }
 
             var iterator = obj.Get(GlobalSymbolRegistry.Iterator, obj);
             if (!iterator.IsUndefined())
@@ -53,6 +63,8 @@ public sealed class URLSearchParamsInstance : ObjectInstance
         {
             ParseStringInit(init.AsString());
         }
+
+        _shouldUpdateUrlInstance = true;
     }
 
     private void ProcessSequenceInit(ObjectInstance obj, JsValue iterator)
@@ -164,6 +176,16 @@ public sealed class URLSearchParamsInstance : ObjectInstance
                 Append(name, string.Empty);
             }
         }
+    }
+
+    internal void UpdateWithNewQuery(string query)
+    {
+        _shouldUpdateUrlInstance = false;
+
+        _list.Clear();
+        ParseStringInit(query);
+
+        _shouldUpdateUrlInstance = true;
     }
 
     /// <summary>
@@ -295,13 +317,15 @@ public sealed class URLSearchParamsInstance : ObjectInstance
 
     private void Update()
     {
-        if (_urlObject is null)
+        if (_urlInstance is null || !_shouldUpdateUrlInstance)
         {
             return;
         }
 
         var serializedQuery = ToString();
-        _urlObject.Query = string.IsNullOrEmpty(serializedQuery) ? null : serializedQuery;
+        _urlInstance.Search = string.IsNullOrEmpty(serializedQuery)
+            ? string.Empty
+            : "?" + serializedQuery;
     }
 
     /// <summary>

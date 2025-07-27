@@ -95,4 +95,24 @@ public sealed class ConstructorTests : TestBase
         Assert.Equal("", foo);
         Assert.Equal("baz", bar);
     }
+
+    [Fact]
+    public void ShouldAcceptURLSearchParamsInstance()
+    {
+        Engine.Execute(
+            """
+            const params = new URLSearchParams(new URLSearchParams({
+                foo: 'bar',
+                baz: 'qux'
+            }));
+            """
+        );
+        var size = Engine.Evaluate("params.size").AsNumber();
+        Assert.Equal(2, size);
+
+        var foo = Engine.Evaluate("params.get('foo')").AsString();
+        var baz = Engine.Evaluate("params.get('baz')").AsString();
+        Assert.Equal("bar", foo);
+        Assert.Equal("qux", baz);
+    }
 }

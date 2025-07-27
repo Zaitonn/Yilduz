@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -16,9 +17,12 @@ internal sealed class StorageConstructor : Constructor
 
     public StoragePrototype PrototypeObject { get; }
 
-    public StorageInstance CreateInstance()
+    public StorageInstance CreateInstance(IDictionary<string, string>? dataProvider = null)
     {
-        return new StorageInstance(Engine) { Prototype = PrototypeObject };
+        return new(Engine, dataProvider ?? new Dictionary<string, string>())
+        {
+            Prototype = PrototypeObject,
+        };
     }
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)

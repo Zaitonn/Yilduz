@@ -4,6 +4,7 @@ using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Console;
+using Yilduz.Data.URL;
 using Yilduz.Data.URLSearchParams;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
@@ -18,17 +19,17 @@ namespace Yilduz;
 public static class EngineExtensions
 {
     /// <summary>
-    /// Adds all APIs to the engine with default options.
+    /// Adds all web APIs to the engine with default options.
     /// </summary>
-    public static Engine AddAPIs(this Engine engine)
+    public static Engine AddWebAPIs(this Engine engine)
     {
-        return engine.AddAPIs(new());
+        return engine.AddWebAPIs(new());
     }
 
     /// <summary>
-    /// Adds all APIs to the engine with the specified options.
+    /// Adds all web APIs to the engine with the specified options.
     /// </summary>
-    public static Engine AddAPIs(this Engine engine, Options options)
+    public static Engine AddWebAPIs(this Engine engine, Options options)
     {
         if (options is null)
         {
@@ -56,7 +57,9 @@ public static class EngineExtensions
 
         #region Data
 
-        engine.SetValue(nameof(Data.URLSearchParams), new URLSearchParamsConstructor(engine));
+        var urlSearchParamsConstructor = new URLSearchParamsConstructor(engine);
+        engine.SetValue(nameof(Data.URLSearchParams), urlSearchParamsConstructor);
+        engine.SetValue(nameof(Data.URL), new URLConstructor(engine, urlSearchParamsConstructor));
 
         #endregion
 
@@ -99,8 +102,12 @@ public static class EngineExtensions
         var storageConstructor = new StorageConstructor(engine);
         engine.SetValue(nameof(Storages.Storage), storageConstructor);
 
-        var localStorage = storageConstructor.CreateInstance();
-        var sessionStorage = storageConstructor.CreateInstance();
+        var localStorage = storageConstructor.CreateInstance(
+            options.Storage.LocalStorageDataProvider
+        );
+        var sessionStorage = storageConstructor.CreateInstance(
+            options.Storage.SessionStorageDataProvider
+        );
 
         options.Storage.LocalStorageConfigurator?.Invoke(localStorage);
         options.Storage.SessionStorageConfigurator?.Invoke(sessionStorage);

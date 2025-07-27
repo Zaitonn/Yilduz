@@ -19,10 +19,10 @@ public sealed class StorageInstance : ObjectInstance
 {
     private readonly IDictionary<string, string> _map;
 
-    public StorageInstance(Engine engine, IDictionary<string, string>? writableDict = null)
+    internal StorageInstance(Engine engine, IDictionary<string, string> data)
         : base(engine)
     {
-        _map = writableDict ?? new Dictionary<string, string>();
+        _map = data;
     }
 
     public event EventHandler<StorageEventArgs>? Updated;

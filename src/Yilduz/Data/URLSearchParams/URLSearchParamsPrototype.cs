@@ -1,7 +1,11 @@
+using System;
+using System.Linq;
 using Jint;
 using Jint.Native;
+using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
+using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Utils;
@@ -10,6 +14,23 @@ namespace Yilduz.Data.URLSearchParams;
 
 internal sealed class URLSearchParamsPrototype : ObjectInstance
 {
+    private static readonly string SizePropertyName = nameof(URLSearchParamsInstance.Size)
+        .ToJsStyleName();
+    private static readonly string SizeGetterName = SizePropertyName.ToJsGetterName();
+    private static readonly string AppendName = nameof(Append).ToJsStyleName();
+    private static readonly string DeleteName = nameof(Delete).ToJsStyleName();
+    private static readonly string GetName = nameof(Get).ToJsStyleName();
+    private static readonly string GetAllName = nameof(GetAll).ToJsStyleName();
+    private static readonly string HasName = nameof(Has).ToJsStyleName();
+    private static readonly string SetName = nameof(Set).ToJsStyleName();
+    private static readonly string SortName = nameof(Sort).ToJsStyleName();
+    private static readonly string ToStringName = nameof(ToString).ToJsStyleName();
+    private static readonly string ToJSONName = nameof(ToJSON).ToJsStyleName();
+    private static readonly string ForEachName = nameof(ForEach).ToJsStyleName();
+    private static readonly string EntriesName = nameof(Entries).ToJsStyleName();
+    private static readonly string KeysName = nameof(Keys).ToJsStyleName();
+    private static readonly string ValuesName = nameof(Values).ToJsStyleName();
+
     public URLSearchParamsPrototype(Engine engine, URLSearchParamsConstructor constructor)
         : base(engine)
     {
@@ -18,13 +39,9 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
         // Size property
         FastSetProperty(
-            nameof(URLSearchParamsInstance.Size).ToJsStyleName(),
+            SizePropertyName,
             new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(URLSearchParamsInstance.Size).ToJsGetterName(),
-                    GetSize
-                ),
+                get: new ClrFunction(engine, SizeGetterName, GetSize),
                 set: null,
                 false,
                 true
@@ -33,90 +50,50 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
         // Methods
         FastSetProperty(
-            nameof(URLSearchParamsInstance.Append).ToJsStyleName(),
+            AppendName,
+            new(new ClrFunction(Engine, AppendName, Append), false, false, true)
+        );
+        FastSetProperty(
+            DeleteName,
+            new(new ClrFunction(Engine, DeleteName, Delete), false, false, true)
+        );
+        FastSetProperty(
+            GetAllName,
+            new(new ClrFunction(Engine, GetAllName, GetAll), false, false, true)
+        );
+        FastSetProperty(GetName, new(new ClrFunction(Engine, GetName, Get), false, false, true));
+        FastSetProperty(HasName, new(new ClrFunction(Engine, HasName, Has), false, false, true));
+        FastSetProperty(SetName, new(new ClrFunction(Engine, SetName, Set), false, false, true));
+        FastSetProperty(SortName, new(new ClrFunction(Engine, SortName, Sort), false, false, true));
+        FastSetProperty(
+            EntriesName,
+            new(new ClrFunction(Engine, EntriesName, Entries), false, false, true)
+        );
+        FastSetProperty(KeysName, new(new ClrFunction(Engine, KeysName, Keys), false, false, true));
+        FastSetProperty(
+            ValuesName,
+            new(new ClrFunction(Engine, ValuesName, Values), false, false, true)
+        );
+        FastSetProperty(
+            ForEachName,
+            new(new ClrFunction(Engine, ForEachName, ForEach), false, false, true)
+        );
+        FastSetProperty(
+            ToStringName,
+            new(new ClrFunction(Engine, ToStringName, ToString), false, false, true)
+        );
+        FastSetProperty(
+            ToJSONName,
+            new(new ClrFunction(Engine, ToJSONName, ToJSON), false, false, true)
+        );
+        FastSetProperty(
+            GlobalSymbolRegistry.Iterator,
             new(
-                new ClrFunction(
-                    Engine,
-                    nameof(URLSearchParamsInstance.Append).ToJsStyleName(),
-                    Append
-                ),
+                new ClrFunction(Engine, GlobalSymbolRegistry.Iterator.ToString(), Entries),
                 false,
                 false,
                 true
             )
-        );
-
-        FastSetProperty(
-            nameof(URLSearchParamsInstance.Delete).ToJsStyleName(),
-            new(
-                new ClrFunction(
-                    Engine,
-                    nameof(URLSearchParamsInstance.Delete).ToJsStyleName(),
-                    Delete
-                ),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            nameof(URLSearchParamsInstance.Get).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(URLSearchParamsInstance.Get).ToJsStyleName(), Get),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            nameof(URLSearchParamsInstance.GetAll).ToJsStyleName(),
-            new(
-                new ClrFunction(
-                    Engine,
-                    nameof(URLSearchParamsInstance.GetAll).ToJsStyleName(),
-                    GetAll
-                ),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            nameof(URLSearchParamsInstance.Has).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(URLSearchParamsInstance.Has).ToJsStyleName(), Has),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            nameof(URLSearchParamsInstance.Set).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(URLSearchParamsInstance.Set).ToJsStyleName(), Set),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            nameof(URLSearchParamsInstance.Sort).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(URLSearchParamsInstance.Sort).ToJsStyleName(), Sort),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            "toString",
-            new(new ClrFunction(Engine, "toString", ToString), false, false, true)
         );
     }
 
@@ -127,7 +104,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private JsValue Append(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(2, Engine, "Failed to execute 'append' on 'URLSearchParams'");
+        arguments.EnsureCount(Engine, 2, AppendName, nameof(URLSearchParams));
 
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         var name = arguments[0].ToString();
@@ -138,7 +115,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private JsValue Delete(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, "delete", nameof(URLSearchParams));
+        arguments.EnsureCount(Engine, 1, DeleteName, nameof(URLSearchParams));
 
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         var name = arguments[0].ToString();
@@ -148,7 +125,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private JsValue Get(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, "get", nameof(URLSearchParams));
+        arguments.EnsureCount(Engine, 1, GetName, nameof(URLSearchParams));
 
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         var name = arguments[0].ToString();
@@ -158,7 +135,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private JsValue GetAll(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, "getAll", nameof(URLSearchParams));
+        arguments.EnsureCount(Engine, 1, GetAllName, nameof(URLSearchParams));
 
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         var name = arguments[0].ToString();
@@ -168,7 +145,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private JsValue Has(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, "has", nameof(URLSearchParams));
+        arguments.EnsureCount(Engine, 1, HasName, nameof(URLSearchParams));
 
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         var name = arguments[0].ToString();
@@ -184,7 +161,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private JsValue Set(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(2, Engine, "set", nameof(URLSearchParams));
+        arguments.EnsureCount(Engine, 2, SetName, nameof(URLSearchParams));
 
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         var name = arguments[0].ToString();
@@ -204,5 +181,50 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         return instance.ToString();
+    }
+
+    private JsValue ToJSON(JsValue thisObject, JsValue[] arguments)
+    {
+        var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
+        return instance.ToString();
+    }
+
+    private JsValue ForEach(JsValue thisObject, JsValue[] arguments)
+    {
+        arguments.EnsureCount(Engine, 1, ForEachName, nameof(URLSearchParams));
+        var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
+
+        if (arguments.At(0) is not Function callback)
+        {
+            TypeErrorHelper.Throw(
+                Engine,
+                "parameter 1 is not of type 'Function'.",
+                ForEachName,
+                nameof(URLSearchParams)
+            );
+            return Undefined;
+        }
+
+        foreach (var pair in instance.QueryList.ToArray())
+        {
+            Engine.Call(callback, arguments.At(1), [pair.Value, pair.Key, instance]);
+        }
+
+        return Undefined;
+    }
+
+    private ObjectInstance Entries(JsValue thisObject, JsValue[] arguments)
+    {
+        throw new NotImplementedException();
+    }
+
+    private ObjectInstance Keys(JsValue thisObject, JsValue[] arguments)
+    {
+        throw new NotImplementedException();
+    }
+
+    private ObjectInstance Values(JsValue thisObject, JsValue[] arguments)
+    {
+        throw new NotImplementedException();
     }
 }

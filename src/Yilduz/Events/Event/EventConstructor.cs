@@ -33,7 +33,7 @@ public class EventConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(1, Engine, "Failed to construct 'Event'");
+        arguments.EnsureCount(Engine, 1, "Failed to construct 'Event'");
 
         return new EventInstance(Engine, arguments.At(0).ToString(), arguments.At(1))
         {

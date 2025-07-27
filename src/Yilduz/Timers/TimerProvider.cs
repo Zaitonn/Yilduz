@@ -60,7 +60,7 @@ internal sealed class TimerProvider(
 
     private long StartTimer(bool repeat, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, engine, repeat ? "setInterval" : "setTimeout", null);
+        arguments.EnsureCount(engine, 1, repeat ? "setInterval" : "setTimeout", null);
 
         var id = Interlocked.Read(ref _currentId);
         Interlocked.Add(ref _currentId, 1);

@@ -51,7 +51,7 @@ public class EventTargetPrototype : ObjectInstance
     {
         var eventTarget = thisObject.EnsureThisObject<EventTargetInstance>();
 
-        arguments.EnsureCount(2, Engine, "addEventListener", Name);
+        arguments.EnsureCount(Engine, 2, "addEventListener", Name);
 
         var type = arguments.At(0).ToString();
         var listener = arguments.At(1);
@@ -83,7 +83,7 @@ public class EventTargetPrototype : ObjectInstance
     {
         var eventTarget = thisObject.EnsureThisObject<EventTargetInstance>();
 
-        arguments.EnsureCount(2, Engine, "removeEventListener", Name);
+        arguments.EnsureCount(Engine, 2, "removeEventListener", Name);
 
         var type = arguments.At(0).AsString();
         var listener = arguments.At(1);
@@ -115,7 +115,7 @@ public class EventTargetPrototype : ObjectInstance
     {
         var eventTarget = thisObject.EnsureThisObject<EventTargetInstance>();
 
-        arguments.EnsureCount(1, Engine, "dispatchEvent", Name);
+        arguments.EnsureCount(Engine, 1, "dispatchEvent", Name);
 
         if (arguments[0] is not EventInstance evt)
         {

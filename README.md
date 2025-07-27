@@ -12,7 +12,7 @@ dotnet add package Yilduz
 using Jint;
 using Yilduz;
 
-var engine = new Engine().AddAPIs();
+var engine = new Engine().AddWebAPIs();
 
 engine.Execute(
     """
@@ -32,8 +32,8 @@ engine.Execute(
 - [ ] Data
   - [ ] `Blob`
   - [ ] `ReadableStream`
-  - [ ] `URL`
-  - [x] `URLSearchParams`
+  - [x] `URL`
+  - [x] `URLSearchParams` (`entries()`, `keys()` and `values()` are not implemented yet)
 - [x] Events
   - [x] `Event`
   - [x] `EventTarget`

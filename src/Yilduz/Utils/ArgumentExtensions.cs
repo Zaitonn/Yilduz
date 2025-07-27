@@ -14,8 +14,8 @@ internal static class ArgumentExtensions
 
     public static void EnsureCount(
         this JsValue[] arguments,
-        int count,
         Engine engine,
+        int count,
         string message
     )
     {
@@ -27,8 +27,8 @@ internal static class ArgumentExtensions
 
     public static void EnsureCount(
         this JsValue[] arguments,
-        int count,
         Engine engine,
+        int count,
         string functionName,
         string? objectName
     )

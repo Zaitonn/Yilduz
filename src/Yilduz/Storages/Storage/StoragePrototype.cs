@@ -60,7 +60,7 @@ internal sealed class StoragePrototype : ObjectInstance
 
     private JsValue GetItem(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, GetItemName, "Storage");
+        arguments.EnsureCount(Engine, 1, GetItemName, "Storage");
 
         var key = arguments.At(0).ToString();
         return thisObject.EnsureThisObject<StorageInstance>().GetItem(key) ?? Null;
@@ -68,7 +68,7 @@ internal sealed class StoragePrototype : ObjectInstance
 
     private JsValue RemoveItem(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, RemoveItemName, "Storage");
+        arguments.EnsureCount(Engine, 1, RemoveItemName, "Storage");
 
         var key = arguments.At(0).ToString();
         thisObject.EnsureThisObject<StorageInstance>().RemoveItem(key);
@@ -78,7 +78,7 @@ internal sealed class StoragePrototype : ObjectInstance
 
     private JsValue SetItem(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(2, Engine, SetItemName, "Storage");
+        arguments.EnsureCount(Engine, 2, SetItemName, "Storage");
 
         var key = arguments.At(0).ToString();
         var value = arguments.At(1);
@@ -105,7 +105,7 @@ internal sealed class StoragePrototype : ObjectInstance
 
     private JsValue Key(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, KeyName, "Storage");
+        arguments.EnsureCount(Engine, 1, KeyName, "Storage");
 
         var index = arguments.At(0).AsNumber();
         return thisObject.EnsureThisObject<StorageInstance>().Key((int)index) ?? Null;

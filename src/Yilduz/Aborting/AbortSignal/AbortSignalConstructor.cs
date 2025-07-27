@@ -78,7 +78,7 @@ internal sealed class AbortSignalConstructor : Constructor
 
     private AbortSignalInstance Timeout(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, TimeoutName, "AbortSignal");
+        arguments.EnsureCount(Engine, 1, TimeoutName, nameof(AbortSignal));
 
         return Timeout((ulong)arguments[0].AsNumber());
     }
@@ -117,7 +117,7 @@ internal sealed class AbortSignalConstructor : Constructor
 
     private AbortSignalInstance Any(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(1, Engine, AnyName, "AbortSignal");
+        arguments.EnsureCount(Engine, 1, AnyName, nameof(AbortSignal));
 
         return Any(arguments[0].AsArray());
     }
