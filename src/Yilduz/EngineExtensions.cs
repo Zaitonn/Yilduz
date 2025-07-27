@@ -4,6 +4,8 @@ using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Console;
+using Yilduz.Data;
+using Yilduz.Data.Blob;
 using Yilduz.Data.URL;
 using Yilduz.Data.URLSearchParams;
 using Yilduz.Events.Event;
@@ -57,9 +59,16 @@ public static class EngineExtensions
 
         #region Data
 
+        engine.SetValue(nameof(Data.Blob), new BlobConstructor(engine));
+
         var urlSearchParamsConstructor = new URLSearchParamsConstructor(engine);
         engine.SetValue(nameof(Data.URLSearchParams), urlSearchParamsConstructor);
         engine.SetValue(nameof(Data.URL), new URLConstructor(engine, urlSearchParamsConstructor));
+
+        var base64Provider = new Base64Provider(engine);
+
+        engine.SetValue("atob", new ClrFunction(engine, "atob", base64Provider.Decode));
+        engine.SetValue("btoa", new ClrFunction(engine, "btoa", base64Provider.Encode));
 
         #endregion
 

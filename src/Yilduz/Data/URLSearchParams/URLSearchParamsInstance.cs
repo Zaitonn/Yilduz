@@ -3,7 +3,6 @@ using System.Text;
 using System.Web;
 using Jint;
 using Jint.Native;
-using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Yilduz.Data.URL;
@@ -49,7 +48,10 @@ public sealed class URLSearchParamsInstance : ObjectInstance
             var iterator = obj.Get(GlobalSymbolRegistry.Iterator, obj);
             if (!iterator.IsUndefined())
             {
-                ProcessSequenceInit(obj, iterator);
+                foreach (var key in obj)
+                {
+                    ProcessSequenceInit(key);
+                }
             }
             else
             {
@@ -67,80 +69,47 @@ public sealed class URLSearchParamsInstance : ObjectInstance
         _shouldUpdateUrlInstance = true;
     }
 
-    private void ProcessSequenceInit(ObjectInstance obj, JsValue iterator)
+    private void ProcessSequenceInit(JsValue value)
     {
-        var iteratorFunction = iterator as Function;
-        if (iteratorFunction == null)
+        if (!value.IsObject())
         {
             TypeErrorHelper.Throw(
                 Engine,
-                "Iterator must be a function",
-                "URLSearchParams constructor"
+                "Iterator value must be a sequence",
+                "constructor",
+                nameof(URLSearchParams)
             );
         }
 
-        var iteratorObject = Engine.Call(iteratorFunction, obj, []).AsObject();
+        var innerSequence = value.AsObject();
 
-        while (true)
+        // Check if the inner sequence has a length property
+        var lengthValue = innerSequence.Get("length");
+        if (!lengthValue.IsNumber())
         {
-            var nextValue = iteratorObject.Get("next");
-            var nextMethod = nextValue as Function;
-            if (nextMethod == null)
-            {
-                TypeErrorHelper.Throw(
-                    Engine,
-                    "Iterator next must be a function",
-                    "URLSearchParams constructor"
-                );
-            }
-
-            var result = Engine.Call(nextMethod, iteratorObject, []).AsObject();
-
-            var done = result.Get("done").AsBoolean();
-            if (done)
-            {
-                break;
-            }
-
-            var value = result.Get("value");
-
-            if (!value.IsObject())
-            {
-                TypeErrorHelper.Throw(
-                    Engine,
-                    "Iterator value must be a sequence",
-                    "URLSearchParams constructor"
-                );
-            }
-
-            var innerSequence = value.AsObject();
-
-            // Check if the inner sequence has a length property
-            var lengthValue = innerSequence.Get("length");
-            if (!lengthValue.IsNumber())
-            {
-                TypeErrorHelper.Throw(
-                    Engine,
-                    "Iterator value must be a sequence with length",
-                    "URLSearchParams constructor"
-                );
-            }
-
-            var length = (int)lengthValue.AsNumber();
-            if (length != 2)
-            {
-                TypeErrorHelper.Throw(
-                    Engine,
-                    "Iterator value must be a sequence of length 2",
-                    "URLSearchParams constructor"
-                );
-            }
-
-            var name = innerSequence.Get("0").ToString();
-            var sequenceValue = innerSequence.Get("1").ToString();
-
-            Append(name, sequenceValue);
+            TypeErrorHelper.Throw(
+                Engine,
+                "Iterator value must be a sequence with length",
+                "constructor",
+                nameof(URLSearchParams)
+            );
         }
+
+        var length = (int)lengthValue.AsNumber();
+        if (length != 2)
+        {
+            TypeErrorHelper.Throw(
+                Engine,
+                "Iterator value must be a sequence of length 2",
+                "constructor",
+                nameof(URLSearchParams)
+            );
+        }
+
+        var name = innerSequence.Get("0").ToString();
+        var sequenceValue = innerSequence.Get("1").ToString();
+
+        Append(name, sequenceValue);
     }
 
     private void ParseStringInit(string query)

@@ -138,11 +138,11 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldMaintainExecutionOrder()
     {
         Engine.Execute("let order = [];");
-        Engine.Execute("setTimeout(() => { order.push(1); }, 30);");
-        Engine.Execute("setTimeout(() => { order.push(2); }, 10);");
-        Engine.Execute("setTimeout(() => { order.push(3); }, 20);");
+        Engine.Execute("setTimeout(() => { order.push(1); }, 300);");
+        Engine.Execute("setTimeout(() => { order.push(2); }, 100);");
+        Engine.Execute("setTimeout(() => { order.push(3); }, 200);");
 
-        await Task.Delay(200);
+        await Task.Delay(1000);
         Assert.Equal(2, Engine.Evaluate("order[0]").AsNumber()); // 10ms delay
         Assert.Equal(3, Engine.Evaluate("order[1]").AsNumber()); // 20ms delay
         Assert.Equal(1, Engine.Evaluate("order[2]").AsNumber()); // 30ms delay

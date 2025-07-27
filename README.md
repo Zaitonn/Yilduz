@@ -29,8 +29,9 @@ engine.Execute(
   - [x] `AbortSignal`
 - Console
   - [x] `console`
-- [ ] Data
-  - [ ] `Blob`
+- Data
+  - [x] Base64 (`atob()` and `btoa()`)
+  - [x] `Blob`
   - [ ] `ReadableStream`
   - [x] `URL`
   - [x] `URLSearchParams` (`entries()`, `keys()` and `values()` are not implemented yet)

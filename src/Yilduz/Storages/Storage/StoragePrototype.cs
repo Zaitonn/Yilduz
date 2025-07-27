@@ -27,8 +27,8 @@ internal sealed class StoragePrototype : ObjectInstance
         FastSetProperty(
             LengthName,
             new GetSetPropertyDescriptor(
-                new ClrFunction(Engine, LengthName.ToJsGetterName(), GetLength),
-                null,
+                get: new ClrFunction(Engine, LengthName.ToJsGetterName(), GetLength),
+                set: null,
                 false,
                 true
             )

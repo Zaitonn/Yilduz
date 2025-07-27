@@ -1,4 +1,5 @@
 using Jint;
+using Jint.Runtime;
 using Xunit;
 
 namespace Yilduz.Tests.URLSearchParams;
@@ -71,6 +72,16 @@ public sealed class ConstructorTests : TestBase
         var baz = Engine.Evaluate("params.get('baz')").AsString();
         Assert.Equal("bar", foo);
         Assert.Equal("qux", baz);
+    }
+
+    [Fact]
+    public void ShouldThrowForInvalidArray()
+    {
+        Assert.Throws<JavaScriptException>(() => Engine.Execute("new URLSearchParams([{}]);"));
+        Assert.Throws<JavaScriptException>(() => Engine.Execute("new URLSearchParams([['foo']]);"));
+        Assert.Throws<JavaScriptException>(
+            () => Engine.Execute("new URLSearchParams([['foo', '1', '2']]);")
+        );
     }
 
     [Fact]
