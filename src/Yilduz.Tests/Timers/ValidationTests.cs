@@ -71,11 +71,11 @@ public sealed class ValidationTests : TestBase
     public void ShouldGenerateUniqueIds()
     {
         Engine.Execute(
-            @"
+            """
             const id1 = setTimeout(() => {}, 100);
             const id2 = setTimeout(() => {}, 100);
             const id3 = setInterval(() => {}, 100);
-        "
+            """
         );
 
         var id1 = Engine.Evaluate("id1").AsNumber();

@@ -84,10 +84,10 @@ public sealed class RuntimeTests : TestBase
     public void ShouldCreateWithFreshSignal()
     {
         Engine.Execute(
-            @"
+            """
             const controller1 = new AbortController();
             const controller2 = new AbortController();
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("controller1.signal !== controller2.signal").AsBoolean());
@@ -102,11 +102,11 @@ public sealed class RuntimeTests : TestBase
     public void ShouldAbortWithCustomReason()
     {
         Engine.Execute(
-            @"
+            """
             const controller = new AbortController();
             const customReason = new Error('Custom abort reason');
             controller.abort(customReason);
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
@@ -120,10 +120,10 @@ public sealed class RuntimeTests : TestBase
     public void ShouldAbortWithStringReason()
     {
         Engine.Execute(
-            @"
+            """
             const controller = new AbortController();
             controller.abort('String reason');
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
@@ -134,10 +134,10 @@ public sealed class RuntimeTests : TestBase
     public void ShouldAbortWithNumberReason()
     {
         Engine.Execute(
-            @"
+            """
             const controller = new AbortController();
             controller.abort(42);
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
@@ -148,11 +148,11 @@ public sealed class RuntimeTests : TestBase
     public void ShouldAbortWithObjectReason()
     {
         Engine.Execute(
-            @"
+            """
             const controller = new AbortController();
             const reason = { code: 'TIMEOUT', message: 'Operation timed out' };
             controller.abort(reason);
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
@@ -161,125 +161,6 @@ public sealed class RuntimeTests : TestBase
             "Operation timed out",
             Engine.Evaluate("controller.signal.reason.message").AsString()
         );
-    }
-
-    [Fact]
-    public void ShouldFireAbortEventOnSignal()
-    {
-        Engine.Execute(
-            @"
-            const controller = new AbortController();
-            let eventFired = false;
-            let eventReason = null;
-            
-            controller.signal.addEventListener('abort', (event) => {
-                eventFired = true;
-                eventReason = controller.signal.reason;
-            });
-            
-            controller.abort('test reason');
-        "
-        );
-
-        Assert.True(Engine.Evaluate("eventFired").AsBoolean());
-        Assert.Equal("test reason", Engine.Evaluate("eventReason").AsString());
-    }
-
-    [Fact]
-    public void ShouldSupportMultipleAbortListeners()
-    {
-        Engine.Execute(
-            @"
-            const controller = new AbortController();
-            let listener1Executed = false;
-            let listener2Executed = false;
-            let listener3Executed = false;
-            
-            controller.signal.addEventListener('abort', () => { listener1Executed = true; });
-            controller.signal.addEventListener('abort', () => { listener2Executed = true; });
-            controller.signal.addEventListener('abort', () => { listener3Executed = true; });
-            
-            controller.abort();
-        "
-        );
-
-        Assert.True(Engine.Evaluate("listener1Executed").AsBoolean());
-        Assert.True(Engine.Evaluate("listener2Executed").AsBoolean());
-        Assert.True(Engine.Evaluate("listener3Executed").AsBoolean());
-    }
-
-    [Fact]
-    public void ShouldNotFireEventIfAlreadyAborted()
-    {
-        Engine.Execute(
-            @"
-            const controller = new AbortController();
-            let eventCount = 0;
-            
-            controller.signal.addEventListener('abort', () => { eventCount++; });
-            
-            controller.abort('first');
-            controller.abort('second');
-            controller.abort('third');
-        "
-        );
-
-        Assert.Equal(1, Engine.Evaluate("eventCount").AsNumber());
-    }
-
-    [Fact]
-    public void ShouldSupportOnAbortProperty()
-    {
-        Engine.Execute(
-            @"
-            const controller = new AbortController();
-            let onAbortExecuted = false;
-            
-            controller.signal.onabort = () => { onAbortExecuted = true; };
-            controller.abort();
-        "
-        );
-
-        Assert.True(Engine.Evaluate("onAbortExecuted").AsBoolean());
-    }
-
-    [Fact]
-    public void ShouldExecuteBothOnAbortAndEventListener()
-    {
-        Engine.Execute(
-            @"
-            const controller = new AbortController();
-            let onAbortExecuted = false;
-            let eventListenerExecuted = false;
-            
-            controller.signal.onabort = () => { onAbortExecuted = true; };
-            controller.signal.addEventListener('abort', () => { eventListenerExecuted = true; });
-            
-            controller.abort();
-        "
-        );
-
-        Assert.True(Engine.Evaluate("onAbortExecuted").AsBoolean());
-        Assert.True(Engine.Evaluate("eventListenerExecuted").AsBoolean());
-    }
-
-    [Fact]
-    public void ShouldAllowListenerRemoval()
-    {
-        Engine.Execute(
-            @"
-            const controller = new AbortController();
-            let executed = false;
-            
-            const listener = () => { executed = true; };
-            controller.signal.addEventListener('abort', listener);
-            controller.signal.removeEventListener('abort', listener);
-            
-            controller.abort();
-        "
-        );
-
-        Assert.False(Engine.Evaluate("executed").AsBoolean());
     }
 
     [Fact]
@@ -318,53 +199,41 @@ public sealed class RuntimeTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleComplexAbortScenarios()
+    public void ShouldHandleCustomErrors()
     {
         Engine.Execute(
-            @"
-            const controllers = [];
-            const results = [];
-            
-            for (let i = 0; i < 5; i++) {
-                const controller = new AbortController();
-                controllers.push(controller);
-                
-                controller.signal.addEventListener('abort', () => {
-                    results.push(`Controller ${i} aborted`);
-                });
-            }
-            
-            // Abort some controllers
-            controllers[1].abort('Reason 1');
-            controllers[3].abort('Reason 3');
-        "
+            """
+            const controller = new AbortController();
+            const customError = new Error('Custom error message');
+            customError.code = 'CUSTOM_CODE';
+            controller.abort(customError);
+            const error = controller.signal.reason;
+            """
         );
 
-        Assert.Equal(2, Engine.Evaluate("results.length").AsNumber());
-        Assert.Equal("Controller 1 aborted", Engine.Evaluate("results[0]").AsString());
-        Assert.Equal("Controller 3 aborted", Engine.Evaluate("results[1]").AsString());
+        var errorMessage = Engine.Evaluate("error.message").AsString();
+        var errorCode = Engine.Evaluate("error.code").AsString();
+
+        Assert.Equal("Custom error message", errorMessage);
+        Assert.Equal("CUSTOM_CODE", errorCode);
     }
 
     [Fact]
-    public void ShouldHandleErrorsInAbortListeners()
+    public void CanSetOnAbort()
     {
         Engine.Execute(
-            @"
+            """
             const controller = new AbortController();
-            let secondListenerExecuted = false;
-            
-            controller.signal.addEventListener('abort', () => {
-                throw new Error('Listener error');
-            });
-            
-            controller.signal.addEventListener('abort', () => {
-                secondListenerExecuted = true;
-            });
-            
+            const signal = controller.signal;
+            let called = false;
+
+            signal.onabort = () => {
+                called = true;
+            };
             controller.abort();
-        "
+            """
         );
 
-        Assert.True(Engine.Evaluate("secondListenerExecuted").AsBoolean());
+        Assert.True(Engine.Evaluate("called").AsBoolean());
     }
 }

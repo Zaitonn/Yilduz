@@ -19,7 +19,6 @@ public sealed class PrototypeTests : TestBase
     {
         Engine.Execute("const params = new URLSearchParams();");
 
-        // Check if all methods exist
         Assert.Equal("function", Engine.Evaluate("typeof params.append"));
         Assert.Equal("function", Engine.Evaluate("typeof params.delete"));
         Assert.Equal("function", Engine.Evaluate("typeof params.get"));

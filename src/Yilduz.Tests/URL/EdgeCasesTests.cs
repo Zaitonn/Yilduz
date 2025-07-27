@@ -224,7 +224,7 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldThrowForURLWithInvalidCharacters()
     {
-        // Throws on node but not on browser
+        // Throws on nodejs but not on browser
         Assert.Throws<JavaScriptException>(
             () => Engine.Execute("const url = new URL('https://example.com path');")
         );

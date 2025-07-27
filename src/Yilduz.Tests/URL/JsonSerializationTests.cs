@@ -31,9 +31,9 @@ public sealed class JsonSerializationTests : TestBase
     public void ShouldSerializeURLWithComplexPath()
     {
         Engine.Execute(
-            @"
+            """
             const url = new URL('https://user:pass@example.com:8080/path/to/resource?param1=value1&param2=value2#section');
-        "
+            """
         );
 
         var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();
@@ -48,12 +48,12 @@ public sealed class JsonSerializationTests : TestBase
     public void ShouldSerializeURLInArray()
     {
         Engine.Execute(
-            @"
+            """
             const urls = [
                 new URL('https://example.com/first'),
                 new URL('https://example.com/second')
             ];
-        "
+            """
         );
 
         var jsonResult = Engine.Evaluate("JSON.stringify(urls)").AsString();
@@ -65,12 +65,12 @@ public sealed class JsonSerializationTests : TestBase
     public void ShouldSerializeURLInObject()
     {
         Engine.Execute(
-            @"
+            """
             const obj = {
                 homepage: new URL('https://example.com'),
                 apiEndpoint: new URL('https://api.example.com/v1')
             };
-        "
+            """
         );
 
         var jsonResult = Engine.Evaluate("JSON.stringify(obj)").AsString();
@@ -85,9 +85,9 @@ public sealed class JsonSerializationTests : TestBase
     public void ShouldHandleURLWithSpecialCharacters()
     {
         Engine.Execute(
-            @"
+            """
             const url = new URL('https://example.com/path?query=hello%20world&test=中文');
-        "
+            """
         );
 
         var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();
@@ -100,12 +100,12 @@ public sealed class JsonSerializationTests : TestBase
     public void ShouldSerializeModifiedURL()
     {
         Engine.Execute(
-            @"
+            """
             const url = new URL('https://example.com');
             url.pathname = '/new-path';
             url.search = '?modified=true';
             url.hash = '#new-hash';
-        "
+            """
         );
 
         var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();

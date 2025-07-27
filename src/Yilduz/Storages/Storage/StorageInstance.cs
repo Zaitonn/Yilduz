@@ -78,14 +78,13 @@ public sealed class StorageInstance : ObjectInstance
         lock (_map)
         {
 #if !NETSTANDARD2_0
-            _map.Remove(key, out var oldValue);
+            if (!_map.Remove(key, out var oldValue))
 #else
-            if (!_map.TryGetValue(key, out var oldValue))
+            if (!_map.TryGetValue(key, out var oldValue) || !_map.Remove(key))
+#endif
             {
                 return;
             }
-            _map.Remove(key);
-#endif
             OnUpdated(key, null, oldValue);
         }
     }
@@ -119,14 +118,6 @@ public sealed class StorageInstance : ObjectInstance
     {
         get => GetItem(key);
         set => SetItem(key, value!);
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public override string ToString()
-    {
-        return "[object Storage]";
     }
 
     /// <summary>

@@ -11,13 +11,13 @@ using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
 
-internal sealed class AbortSignalConstructor : Constructor
+public sealed class AbortSignalConstructor : Constructor
 {
     private static readonly string AbortName = nameof(Abort).ToJsStyleName();
     private static readonly string TimeoutName = nameof(Timeout).ToJsStyleName();
     private static readonly string AnyName = nameof(Any).ToJsStyleName();
 
-    public AbortSignalConstructor(Engine engine, EventTargetConstructor eventTargetConstructor)
+    internal AbortSignalConstructor(Engine engine, EventTargetConstructor eventTargetConstructor)
         : base(engine, nameof(AbortSignal))
     {
         PrototypeObject = new AbortSignalPrototype(engine, this)
@@ -37,7 +37,7 @@ internal sealed class AbortSignalConstructor : Constructor
         SetOwnProperty(AnyName, new(new ClrFunction(engine, AnyName, Any), true, false, true));
     }
 
-    public AbortSignalPrototype PrototypeObject { get; }
+    internal AbortSignalPrototype PrototypeObject { get; }
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {

@@ -8,11 +8,6 @@ internal static class NamingExtensions
 {
     public static string ToJsStyleName(this string name)
     {
-        if (string.IsNullOrEmpty(name))
-        {
-            throw new ArgumentException("Name cannot be null or empty.", nameof(name));
-        }
-
         if (name.Length > 1)
         {
             return char.ToLowerInvariant(name[0]) + name[1..];

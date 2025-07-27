@@ -1,0 +1,31 @@
+using System;
+using Jint;
+using Xunit;
+
+namespace Yilduz.Tests;
+
+public static class OptionsTests
+{
+    [Fact]
+    public static void ShouldNotThrowWhenOptionsNotProvided()
+    {
+        var engine = new Engine();
+        engine.AddWebAPIs();
+    }
+
+    [Fact]
+    public static void ShouldThrowWhenNull()
+    {
+        var engine = new Engine();
+        Assert.Throws<ArgumentNullException>(() => engine.AddWebAPIs(null!));
+    }
+
+    [Fact]
+    public static void ShouldThrowWhenEmpty()
+    {
+        var engine = new Engine();
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => engine.AddWebAPIs(new() { WaitingTimeout = TimeSpan.FromSeconds(-1) })
+        );
+    }
+}

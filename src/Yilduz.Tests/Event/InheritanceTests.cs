@@ -9,7 +9,10 @@ public sealed class InheritanceTests : TestBase
     public void ShouldInheritEventPrototype()
     {
         Engine.Execute(
-            "class CustomEvent extends Event {}; " + "const customEvent = new CustomEvent('test'); "
+            """
+            class CustomEvent extends Event {}; 
+            const customEvent = new CustomEvent('test');
+            """
         );
         Assert.True(Engine.Evaluate("customEvent instanceof Event").AsBoolean());
     }

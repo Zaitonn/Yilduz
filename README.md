@@ -24,23 +24,23 @@ engine.Execute(
 
 ## Development progress & Project structure
 
-- [x] Aborting
+- Aborting
   - [x] `AbortController`
   - [x] `AbortSignal`
-- [x] Console
+- Console
   - [x] `console`
 - [ ] Data
   - [ ] `Blob`
   - [ ] `ReadableStream`
   - [x] `URL`
   - [x] `URLSearchParams` (`entries()`, `keys()` and `values()` are not implemented yet)
-- [x] Events
+- Events
   - [x] `Event`
   - [x] `EventTarget`
-- [x] Storages
+- Storages
   - [x] `localStorage`
   - [x] `sessionStorage`
-- [x] Timers
+- Timers
   - [x] `setTimeout`
   - [x] `setInterval`
   - [x] `clearTimeout`

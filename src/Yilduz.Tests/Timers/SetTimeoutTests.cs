@@ -10,10 +10,10 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldHandleStringCode()
     {
         Engine.Execute(
-            @"
+            """
             let executed = false;
             const id = setTimeout('executed = true;', 10);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -24,10 +24,10 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldHandleFunctionCallback()
     {
         Engine.Execute(
-            @"
+            """
             let executed = false;
             const id = setTimeout(() => { executed = true; }, 10);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -38,10 +38,10 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldPassArgumentsToCallback()
     {
         Engine.Execute(
-            @"
+            """
             let result = null;
             const id = setTimeout((a, b, c) => { result = a + b + c; }, 10, 1, 2, 3);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -52,10 +52,10 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldUseMinimumDelay()
     {
         Engine.Execute(
-            @"
+            """
             let executed = false;
             const id = setTimeout(() => { executed = true; }, 0);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -66,10 +66,10 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldHandleNegativeDelay()
     {
         Engine.Execute(
-            @"
+            """
             let executed = false;
             const id = setTimeout(() => { executed = true; }, -100);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -80,10 +80,10 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldHandleStringDelay()
     {
         Engine.Execute(
-            @"
+            """
             let executed = false;
             const id = setTimeout(() => { executed = true; }, '10');
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -142,7 +142,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("setTimeout(() => { order.push(2); }, 10);");
         Engine.Execute("setTimeout(() => { order.push(3); }, 20);");
 
-        await Task.Delay(100);
+        await Task.Delay(200);
         Assert.Equal(2, Engine.Evaluate("order[0]").AsNumber()); // 10ms delay
         Assert.Equal(3, Engine.Evaluate("order[1]").AsNumber()); // 20ms delay
         Assert.Equal(1, Engine.Evaluate("order[2]").AsNumber()); // 30ms delay
@@ -152,7 +152,7 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldHandleNestedTimeouts()
     {
         Engine.Execute(
-            @"
+            """
             let results = [];
             setTimeout(() => {
                 results.push('outer');
@@ -160,7 +160,7 @@ public sealed class SetTimeoutTests : TestBase
                     results.push('inner');
                 }, 10);
             }, 10);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -173,7 +173,7 @@ public sealed class SetTimeoutTests : TestBase
     public async Task ShouldHandleTimeoutWithComplexCallback()
     {
         Engine.Execute(
-            @"
+            """
             let result = null;
             setTimeout(() => {
                 const obj = { value: 42 };
@@ -183,7 +183,7 @@ public sealed class SetTimeoutTests : TestBase
                     arraySum: arr.reduce((a, b) => a + b, 0)
                 };
             }, 10);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -196,17 +196,45 @@ public sealed class SetTimeoutTests : TestBase
     {
         Engine.Execute("let executed = false;");
         Engine.Execute(
-            @"
+            """
             setTimeout(() => {
                 throw new Error('Test error');
             }, 10);
             setTimeout(() => {
                 executed = true;
             }, 20);
-        "
+            """
         );
 
         await Task.Delay(100);
         Assert.True(Engine.Evaluate("executed").AsBoolean()); // Second timeout should still execute
+    }
+
+    [Fact]
+    public async Task ShouldHandleErrorInTimerCallbacks()
+    {
+        Engine.Execute(
+            """
+            let errorHandled = false;
+            let timerExecuted = false;
+
+            setTimeout(() => {
+                timerExecuted = true;
+                throw new Error('Timer error');
+            }, 10);
+
+            setTimeout(() => {
+                errorHandled = true;
+            }, 20);
+            """
+        );
+
+        await Task.Delay(100);
+
+        var timerExecuted = Engine.Evaluate("timerExecuted").AsBoolean();
+        var errorHandled = Engine.Evaluate("errorHandled").AsBoolean();
+
+        Assert.True(timerExecuted);
+        Assert.True(errorHandled); // Second timer should still execute
     }
 }

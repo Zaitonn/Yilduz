@@ -200,7 +200,7 @@ public sealed class StaticMethodsTests : TestBase
     public void ParseShouldWorkAsAlternativeToTryCatchWithConstructor()
     {
         Engine.Execute(
-            @"
+            """
             function safeParseWithConstructor(url, base) {
                 try {
                     return new URL(url, base);
@@ -208,24 +208,24 @@ public sealed class StaticMethodsTests : TestBase
                     return null;
                 }
             }
-            
+
             const url1 = 'https://example.com/path';
             const url2 = 'invalid-url';
             const url3 = '/path';
             const base = 'https://example.com';
-            
+
             const parseResult1 = URL.parse(url1);
             const constructorResult1 = safeParseWithConstructor(url1);
-            
+
             const parseResult2 = URL.parse(url2);
             const constructorResult2 = safeParseWithConstructor(url2);
-            
+
             const parseResult3 = URL.parse(url3, base);
             const constructorResult3 = safeParseWithConstructor(url3, base);
-            
+
             const parseResult4 = URL.parse(url3); // without base
             const constructorResult4 = safeParseWithConstructor(url3);
-        "
+            """
         );
 
         // Valid URL should return URL objects in both cases

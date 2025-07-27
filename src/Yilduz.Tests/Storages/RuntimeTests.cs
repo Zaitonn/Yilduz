@@ -230,12 +230,12 @@ public sealed class RuntimeTests : TestBase
     {
         Engine.Execute($"{storageName}.clear();");
         Engine.Execute(
-            $@"
-            const obj = {{ nested: {{ value: 'test' }}, array: [1, 2, 3] }};
-            {storageName}.setItem('object', obj);
-            {storageName}.setItem('array', [1, 2, 3]);
-            {storageName}.setItem('function', function() {{ return 'test'; }});
-        "
+            $$"""
+            const obj = { nested: { value: 'test' }, array: [1, 2, 3] };
+            {{storageName}}.setItem('object', obj);
+            {{storageName}}.setItem('array', [1, 2, 3]);
+            {{storageName}}.setItem('function', function() { return 'test'; });
+            """
         );
 
         Assert.Equal(

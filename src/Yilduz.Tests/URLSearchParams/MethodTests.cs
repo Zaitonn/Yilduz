@@ -199,10 +199,10 @@ public sealed class MethodTests : TestBase
         var exception = Assert.Throws<JavaScriptException>(() =>
         {
             Engine.Execute(
-                @"
+                """
                 const params = new URLSearchParams();
                 params.append(); // No arguments provided
-            "
+                """
             );
         });
 

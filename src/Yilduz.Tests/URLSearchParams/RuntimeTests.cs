@@ -72,12 +72,12 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleLargeDataSets()
     {
         Engine.Execute(
-            @"
+            """
             const params = new URLSearchParams();
             for (let i = 0; i < 100; i++) {
                 params.append('key' + i, 'value' + i);
             }
-        "
+            """
         );
 
         var size = Engine.Evaluate("params.size").AsNumber();
@@ -94,15 +94,13 @@ public sealed class RuntimeTests : TestBase
     {
         Engine.Execute("const params = new URLSearchParams('a=1&b=2&c=3');");
 
-        // Test if the object has iterator-like behavior
-        var hasKeys = Engine.Evaluate("typeof params.keys").AsString();
-        var hasValues = Engine.Evaluate("typeof params.values").AsString();
-        var hasEntries = Engine.Evaluate("typeof params.entries").AsString();
+        var keys = Engine.Evaluate("typeof params.keys").AsString();
+        var values = Engine.Evaluate("typeof params.values").AsString();
+        var entries = Engine.Evaluate("typeof params.entries").AsString();
 
-        // These might not be implemented yet, but we should test what's available
-        Assert.True(hasKeys == "function" || hasKeys == "undefined");
-        Assert.True(hasValues == "function" || hasValues == "undefined");
-        Assert.True(hasEntries == "function" || hasEntries == "undefined");
+        Assert.Equal("function", keys);
+        Assert.Equal("function", values);
+        Assert.Equal("function", entries);
     }
 
     [Fact]

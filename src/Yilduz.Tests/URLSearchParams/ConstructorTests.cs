@@ -101,10 +101,12 @@ public sealed class ConstructorTests : TestBase
     {
         Engine.Execute(
             """
-            const params = new URLSearchParams(new URLSearchParams({
-                foo: 'bar',
-                baz: 'qux'
-            }));
+            const params = new URLSearchParams(
+                new URLSearchParams({
+                    foo: 'bar',
+                    baz: 'qux'
+                })
+            );
             """
         );
         var size = Engine.Evaluate("params.size").AsNumber();

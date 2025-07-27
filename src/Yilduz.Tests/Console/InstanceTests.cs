@@ -54,11 +54,11 @@ public sealed class ConsoleInstanceTests : TestBase
     public void ShouldCallTimeOperations()
     {
         Engine.Execute(
-            @"
+            """
             console.time('timer1');
             console.timeLog('timer1', 'checkpoint');
             console.timeEnd('timer1');
-        "
+            """
         );
 
         Assert.Equal(3, _mockConsole.LogCalls.Count);
@@ -71,11 +71,11 @@ public sealed class ConsoleInstanceTests : TestBase
     public void ShouldCallGroupOperations()
     {
         Engine.Execute(
-            @"
+            """
             console.group('group1');
             console.log('inside group');
             console.groupEnd();
-        "
+            """
         );
 
         Assert.Equal(3, _mockConsole.LogCalls.Count);
@@ -88,12 +88,12 @@ public sealed class ConsoleInstanceTests : TestBase
     public void ShouldCallAllLogLevels()
     {
         Engine.Execute(
-            @"
+            """
             console.debug('debug msg');
             console.info('info msg');
             console.warn('warn msg'); 
             console.error('error msg');
-        "
+            """
         );
 
         Assert.Equal(4, _mockConsole.LogCalls.Count);

@@ -9,7 +9,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleErrorsInEventListeners()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let executed = false;
             target.addEventListener('test', () => {
@@ -19,7 +19,7 @@ public sealed class RuntimeTests : TestBase
                 executed = true;
             });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var executed = Engine.Evaluate("executed").AsBoolean();
@@ -30,14 +30,14 @@ public sealed class RuntimeTests : TestBase
     public void ShouldMaintainEventListenerOrder()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let order = [];
             target.addEventListener('test', () => { order.push(1); });
             target.addEventListener('test', () => { order.push(2); });
             target.addEventListener('test', () => { order.push(3); });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var first = Engine.Evaluate("order[0]").AsNumber();
@@ -53,7 +53,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleNestedEventDispatching()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let innerExecuted = false;
             target.addEventListener('outer', () => {
@@ -63,7 +63,7 @@ public sealed class RuntimeTests : TestBase
                 target.dispatchEvent(new Event('inner'));
             });
             target.dispatchEvent(new Event('outer'));
-        "
+            """
         );
 
         var innerExecuted = Engine.Evaluate("innerExecuted").AsBoolean();
@@ -74,7 +74,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventStopPropagation()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let count = 0;
             target.addEventListener('test', (event) => {
@@ -85,7 +85,7 @@ public sealed class RuntimeTests : TestBase
                 count += 10;
             });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var count = Engine.Evaluate("count").AsNumber();
@@ -118,14 +118,14 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleLargeNumberOfListeners()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let count = 0;
             for (let i = 0; i < 100; i++) {
                 target.addEventListener('test', () => { count++; });
             }
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var count = Engine.Evaluate("count").AsNumber();
@@ -136,7 +136,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleListenerWithComplexOptions()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let passiveExecuted = false;
             let captureExecuted = false;
@@ -147,7 +147,7 @@ public sealed class RuntimeTests : TestBase
                 captureExecuted = true;
             }, { capture: true });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var passiveExecuted = Engine.Evaluate("passiveExecuted").AsBoolean();
@@ -161,7 +161,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventWithCustomProperties()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let customData = null;
             target.addEventListener('custom', (event) => {
@@ -170,7 +170,7 @@ public sealed class RuntimeTests : TestBase
             });
             const event = new Event('custom');
             target.dispatchEvent(event);
-        "
+            """
         );
 
         var customData = Engine.Evaluate("customData").AsString();
@@ -181,12 +181,12 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleInvalidEventTypes()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let executed = false;
             target.addEventListener('', () => { executed = true; });
             target.dispatchEvent(new Event(''));
-        "
+            """
         );
 
         var executed = Engine.Evaluate("executed").AsBoolean();
@@ -197,13 +197,13 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleNullAndUndefinedListeners()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             target.addEventListener('test', null);
             target.addEventListener('test', undefined);
             target.removeEventListener('test', null);
             target.removeEventListener('test', undefined);
-        "
+            """
         );
         // Should not throw
     }
@@ -212,7 +212,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventWithCircularReferences()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let eventReceived = null;
             target.addEventListener('test', (event) => {
@@ -220,7 +220,7 @@ public sealed class RuntimeTests : TestBase
                 eventReceived = event;
             });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var hasCircularRef = Engine

@@ -9,12 +9,12 @@ public sealed class MethodTests : TestBase
     public void AddEventListenerShouldRegisterListener()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let executed = false;
             target.addEventListener('test', () => { executed = true; });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var executed = Engine.Evaluate("executed").AsBoolean();
@@ -25,14 +25,14 @@ public sealed class MethodTests : TestBase
     public void RemoveEventListenerShouldUnregisterListener()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let executed = false;
             const handler = () => { executed = true; };
             target.addEventListener('test', handler);
             target.removeEventListener('test', handler);
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var executed = Engine.Evaluate("executed").AsBoolean();
@@ -43,14 +43,14 @@ public sealed class MethodTests : TestBase
     public void ShouldSupportMultipleListenersForSameEvent()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let count = 0;
             target.addEventListener('test', () => { count++; });
             target.addEventListener('test', () => { count++; });
             target.addEventListener('test', () => { count++; });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var count = Engine.Evaluate("count").AsNumber();
@@ -61,14 +61,14 @@ public sealed class MethodTests : TestBase
     public void ShouldSupportDifferentEventTypes()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let testExecuted = false;
             let customExecuted = false;
             target.addEventListener('test', () => { testExecuted = true; });
             target.addEventListener('custom', () => { customExecuted = true; });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var testExecuted = Engine.Evaluate("testExecuted").AsBoolean();
@@ -82,7 +82,7 @@ public sealed class MethodTests : TestBase
     public void ShouldPassEventToListener()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let eventType = null;
             let eventTarget = null;
@@ -91,7 +91,7 @@ public sealed class MethodTests : TestBase
                 eventTarget = event.target;
             });
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var eventType = Engine.Evaluate("eventType").AsString();
@@ -104,14 +104,14 @@ public sealed class MethodTests : TestBase
     public void ShouldSupportOnceOption()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let count = 0;
             target.addEventListener('test', () => { count++; }, { once: true });
             target.dispatchEvent(new Event('test'));
             target.dispatchEvent(new Event('test'));
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var count = Engine.Evaluate("count").AsNumber();
@@ -144,7 +144,7 @@ public sealed class MethodTests : TestBase
     public void ShouldNotAddDuplicateListeners()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let count = 0;
             const handler = () => { count++; };
@@ -152,7 +152,7 @@ public sealed class MethodTests : TestBase
             target.addEventListener('test', handler);
             target.addEventListener('test', handler);
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         var count = Engine.Evaluate("count").AsNumber();

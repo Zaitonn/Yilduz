@@ -41,7 +41,7 @@ public sealed class SetIntervalTests : TestBase
     public async Task ShouldHandleIntervalWithComplexCallback()
     {
         Engine.Execute(
-            @"
+            """
             let results = [];
             const id = setInterval(() => {
                 const timestamp = Date.now();
@@ -50,7 +50,7 @@ public sealed class SetIntervalTests : TestBase
                     clearInterval(id);
                 }
             }, 15);
-        "
+            """
         );
 
         await Task.Delay(100);
@@ -63,7 +63,7 @@ public sealed class SetIntervalTests : TestBase
     {
         Engine.Execute("let count = 0;");
         Engine.Execute(
-            @"
+            """
             const id = setInterval(() => {
                 count++;
                 if (count === 2) {
@@ -73,7 +73,7 @@ public sealed class SetIntervalTests : TestBase
                     clearInterval(id);
                 }
             }, 15);
-        "
+            """
         );
 
         await Task.Delay(100);

@@ -97,10 +97,10 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventPropagationStates()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let propagationData = [];
-            
+
             target.addEventListener('test', (event) => {
                 propagationData.push({
                     defaultPrevented: event.defaultPrevented,
@@ -112,9 +112,9 @@ public sealed class RuntimeTests : TestBase
                     event.preventDefault();
                 }
             });
-            
+
             target.dispatchEvent(new Event('test', { cancelable: true, bubbles: true }));
-        "
+            """
         );
 
         Assert.Equal(1, Engine.Evaluate("propagationData.length").AsNumber());
@@ -126,10 +126,10 @@ public sealed class RuntimeTests : TestBase
     public void ShouldSupportEventTimestamp()
     {
         Engine.Execute(
-            @"
+            """
             const event = new Event('test');
             const timestamp = event.timeStamp;
-        "
+            """
         );
 
         Assert.Equal("number", Engine.Evaluate("typeof timestamp").AsString());
@@ -140,9 +140,9 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventInheritance()
     {
         Engine.Execute(
-            @"
+            """
             const event = new Event('test');
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("event instanceof Event").AsBoolean());
@@ -154,13 +154,13 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventWithInitDict()
     {
         Engine.Execute(
-            @"
+            """
             const event = new Event('custom', {
                 bubbles: true,
                 cancelable: true,
                 composed: false
             });
-        "
+            """
         );
 
         Assert.Equal("custom", Engine.Evaluate("event.type").AsString());
@@ -173,10 +173,10 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHandleEventTargetRelatedProperties()
     {
         Engine.Execute(
-            @"
+            """
             const target = new EventTarget();
             let eventData = null;
-            
+
             target.addEventListener('test', (event) => {
                 eventData = {
                     target: event.target === target,
@@ -184,9 +184,9 @@ public sealed class RuntimeTests : TestBase
                     eventPhase: event.eventPhase
                 };
             });
-            
+
             target.dispatchEvent(new Event('test'));
-        "
+            """
         );
 
         Assert.True(Engine.Evaluate("eventData.target").AsBoolean());
