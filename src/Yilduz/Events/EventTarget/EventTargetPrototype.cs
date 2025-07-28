@@ -6,6 +6,7 @@ using Jint.Runtime;
 using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Events.Event;
+using Yilduz.Extensions;
 using Yilduz.Utils;
 
 namespace Yilduz.Events.EventTarget;

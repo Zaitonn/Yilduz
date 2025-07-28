@@ -6,7 +6,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Function;
 using Jint.Runtime;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Services;
 

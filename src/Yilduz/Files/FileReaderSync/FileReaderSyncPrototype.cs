@@ -3,7 +3,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime.Interop;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Files.FileReaderSync;
 

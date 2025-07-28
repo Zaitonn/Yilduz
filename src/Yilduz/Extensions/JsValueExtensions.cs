@@ -6,7 +6,7 @@ using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime;
 
-namespace Yilduz.Utils;
+namespace Yilduz.Extensions;
 
 internal static class JsValueExtensions
 {

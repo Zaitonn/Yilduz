@@ -22,7 +22,7 @@ engine.Execute(
 )
 ```
 
-## Development progress
+## Development Progress
 
 - Aborting
   - [x] `AbortController`
@@ -33,9 +33,9 @@ engine.Execute(
 - Console
   - [x] `console`
 - Encoding
-  - [ ] `TextDecoder`
+  - [x] `TextDecoder`
   - [ ] `TextDecoderStream`
-  - [ ] `TextEncoder`
+  - [x] `TextEncoder`
   - [ ] `TextEncoderStream`
 - Files
   - [x] `Blob`
@@ -76,6 +76,24 @@ engine.Execute(
 - URLs
   - [x] `URL`
   - [x] `URLSearchParams`
+
+## Encoding Support
+
+The `TextEncoder` and `TextDecoder` implementations support common character encodings including UTF-8, UTF-16, ASCII, and ISO-8859-1.
+
+If you need to use additional character encodings beyond the common ones, you'll need to install the [`System.Text.Encoding.CodePages` NuGet package](https://www.nuget.org/packages/System.Text.Encoding.CodePages/) and register the encoding providers:
+
+```cs
+using System.Text;
+
+// Register additional encoding providers
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+var engine = new Engine().InitializeWebApi(new());
+engine.Evaluate("new TextDecoder('gb_2312').encoding"); // = 'gbk'
+```
+
+This enables support for legacy encodings such as Windows-1252, Shift-JIS, and other code page encodings.
 
 ## Origin of the name
 

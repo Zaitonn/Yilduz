@@ -4,7 +4,7 @@ using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Events.ProgressEvent;
 

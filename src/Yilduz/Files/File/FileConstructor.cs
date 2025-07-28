@@ -3,6 +3,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Extensions;
 using Yilduz.Utils;
 
 namespace Yilduz.Files.File;

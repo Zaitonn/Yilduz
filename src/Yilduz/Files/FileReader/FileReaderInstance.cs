@@ -3,10 +3,10 @@ using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
-using Yilduz.Files.Blob;
-using Yilduz.Files.FileReaderSync;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
+using Yilduz.Files.Blob;
+using Yilduz.Files.FileReaderSync;
 using Yilduz.Utils;
 
 namespace Yilduz.Files.FileReader;

@@ -1,20 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Extensions;
 using Yilduz.Streams.ReadableStream;
-using Yilduz.Utils;
+using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Files.Blob;
 
 public class BlobInstance : ObjectInstance
 {
-    private static readonly Encoding Utf8Encoding = new UTF8Encoding(false, true);
-
     private WebApiIntrinsics? _webApiIntrinsics;
 
     /// <summary>
@@ -70,20 +68,7 @@ public class BlobInstance : ObjectInstance
             {
                 Value.AddRange(part.AsDataView()!);
             }
-            else if (
-                part.IsBigInt64Array()
-                || part.IsBigUint64Array()
-                || part.IsFloat16Array()
-                || part.IsFloat32Array()
-                || part.IsFloat64Array()
-                || part.IsInt8Array()
-                || part.IsInt16Array()
-                || part.IsInt32Array()
-                || part.IsUint8Array()
-                || part.IsUint16Array()
-                || part.IsUint32Array()
-                || part.IsUint8ClampedArray()
-            )
+            else if (part is JsTypedArray)
             {
                 Value.AddRange(part.Get("buffer").AsArrayBuffer()!);
             }
@@ -96,17 +81,17 @@ public class BlobInstance : ObjectInstance
                     result = result.Replace("\r\n", "\n").Replace("\n", "\r\n");
                 }
 
-                Value.AddRange(Utf8Encoding.GetBytes(result));
+                Value.AddRange(SystemEncoding.UTF8.GetBytes(result));
             }
         }
     }
 
     /// <summary>
-    /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/size
+    /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/text
     /// </summary>
     public string Text()
     {
-        return Utf8Encoding.GetString([.. Value]);
+        return SystemEncoding.UTF8.GetString([.. Value]);
     }
 
     /// <summary>

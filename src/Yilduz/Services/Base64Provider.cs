@@ -1,9 +1,10 @@
 using System;
-using System.Text;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
+using Yilduz.Extensions;
 using Yilduz.Utils;
+using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Services;
 
@@ -18,7 +19,7 @@ internal sealed class Base64Provider(Engine engine)
         var input = arguments[0].ToString();
         CheckRange(input);
 
-        var bytes = Encoding.ASCII.GetBytes(input);
+        var bytes = SystemEncoding.ASCII.GetBytes(input);
         return Convert.ToBase64String(bytes);
     }
 
@@ -29,12 +30,12 @@ internal sealed class Base64Provider(Engine engine)
 
         try
         {
-            return Encoding.ASCII.GetString(Convert.FromBase64String(input));
+            return SystemEncoding.ASCII.GetString(Convert.FromBase64String(input));
         }
         catch (FormatException)
         {
             throw new JavaScriptException(
-                ErrorHelper.CreateError(
+                ErrorHelper.Create(
                     _engine,
                     "InvalidCharacterError",
                     "The string to be decoded is not correctly encoded."
@@ -50,7 +51,7 @@ internal sealed class Base64Provider(Engine engine)
             if (c > (char)0xff)
             {
                 throw new JavaScriptException(
-                    ErrorHelper.CreateError(
+                    ErrorHelper.Create(
                         _engine,
                         "InvalidCharacterError",
                         "The string to be encoded contains characters outside of the Latin1 range."

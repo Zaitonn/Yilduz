@@ -5,6 +5,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
+using Yilduz.Extensions;
 using Yilduz.URLs.URL;
 using Yilduz.Utils;
 

@@ -1,7 +1,6 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
-using Yilduz.Aborting.AbortSignal;
 
 namespace Yilduz.Aborting.AbortController;
 

@@ -6,7 +6,7 @@ namespace Yilduz.Utils;
 
 internal static class ErrorHelper
 {
-    public static ObjectInstance CreateError(Engine engine, string name, JsValue message)
+    public static ObjectInstance Create(Engine engine, string name, JsValue message)
     {
         var error = engine.Intrinsics.Error.Construct([message], JsValue.Undefined);
         error.Set("name", name);

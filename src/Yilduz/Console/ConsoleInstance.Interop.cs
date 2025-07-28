@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using Jint;
 using Jint.Native;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Console;
 

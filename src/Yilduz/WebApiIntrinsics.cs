@@ -4,6 +4,8 @@ using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Console;
+using Yilduz.Encoding.TextEncoder;
+using Yilduz.Encoding.TextDecoder;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
@@ -28,6 +30,9 @@ public sealed class WebApiIntrinsics
     internal FileConstructor File { get; }
     internal FileReaderConstructor FileReader { get; }
     internal FileReaderSyncConstructor FileReaderSync { get; }
+
+    internal TextEncoderConstructor TextEncoder { get; }
+    internal TextDecoderConstructor TextDecoder { get; }
 
     public EventTargetConstructor EventTarget { get; }
     public EventConstructor Event { get; }
@@ -71,7 +76,10 @@ public sealed class WebApiIntrinsics
         FileReader = new(_engine, this);
         FileReaderSync = new(_engine);
 
-        URL = new(_engine, this);
+        TextEncoder = new(_engine);
+        TextDecoder = new(_engine);
+
+        URL = new(_engine);
         URLSearchParams = new(_engine);
 
         Storage = new(_engine);
@@ -100,6 +108,8 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(File), File);
         _engine.SetValue(nameof(FileReader), FileReader);
         _engine.SetValue(nameof(FileReaderSync), FileReaderSync);
+        _engine.SetValue(nameof(TextEncoder), TextEncoder);
+        _engine.SetValue(nameof(TextDecoder), TextDecoder);
         _engine.SetValue(nameof(Event), Event);
         _engine.SetValue(nameof(ProgressEvent), ProgressEvent);
         _engine.SetValue(nameof(EventTarget), EventTarget);

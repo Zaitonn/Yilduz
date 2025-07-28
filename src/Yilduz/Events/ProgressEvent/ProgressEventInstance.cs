@@ -1,7 +1,7 @@
 using Jint;
 using Jint.Native;
 using Yilduz.Events.Event;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Events.ProgressEvent;
 

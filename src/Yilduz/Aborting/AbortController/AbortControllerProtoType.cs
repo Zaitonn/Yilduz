@@ -5,7 +5,7 @@ using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Aborting.AbortController;
 

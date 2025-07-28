@@ -4,6 +4,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Extensions;
 using Yilduz.Utils;
 
 namespace Yilduz.URLs.URL;
@@ -12,12 +13,10 @@ internal sealed partial class URLConstructor : Constructor
 {
     private static readonly string CanParseName = nameof(CanParse).ToJsStyleName();
     private static readonly string ParseName = nameof(Parse).ToJsStyleName();
-    private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public URLConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    public URLConstructor(Engine engine)
         : base(engine, nameof(URL))
     {
-        _webApiIntrinsics = webApiIntrinsics;
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
 

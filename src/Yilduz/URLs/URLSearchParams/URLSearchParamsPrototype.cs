@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Jint;
 using Jint.Native;
@@ -8,6 +7,7 @@ using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
+using Yilduz.Extensions;
 using Yilduz.Utils;
 
 namespace Yilduz.URLs.URLSearchParams;

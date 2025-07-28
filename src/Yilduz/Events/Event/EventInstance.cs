@@ -3,7 +3,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Yilduz.Events.EventTarget;
-using Yilduz.Utils;
+using Yilduz.Extensions;
 
 namespace Yilduz.Events.Event;
 

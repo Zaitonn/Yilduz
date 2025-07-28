@@ -5,6 +5,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Extensions;
 using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
@@ -73,9 +74,7 @@ public sealed class AbortSignalConstructor : Constructor
 
         Task.Delay(TimeSpan.FromMilliseconds(time))
             .ContinueWith(_ =>
-                signal.SetAborted(
-                    ErrorHelper.CreateError(Engine, "TimeoutError", "signal timed out")
-                )
+                signal.SetAborted(ErrorHelper.Create(Engine, "TimeoutError", "signal timed out"))
             );
 
         return signal;

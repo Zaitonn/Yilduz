@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading;
 using Jint;
 
@@ -6,6 +7,11 @@ namespace Yilduz.Tests;
 
 public abstract class TestBase : IDisposable
 {
+    static TestBase()
+    {
+        System.Text.Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+    }
+
     protected TestBase()
     {
         _cancellationTokenSource = new CancellationTokenSource();

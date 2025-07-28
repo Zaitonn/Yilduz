@@ -1,6 +1,4 @@
-using System;
-
-namespace Yilduz.Utils;
+namespace Yilduz.Extensions;
 
 #pragma warning disable IDE0046
 

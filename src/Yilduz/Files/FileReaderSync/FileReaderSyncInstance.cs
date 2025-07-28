@@ -6,6 +6,7 @@ using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Files.Blob;
 using Yilduz.Utils;
+using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Files.FileReaderSync;
 
@@ -54,14 +55,14 @@ public sealed class FileReaderSyncInstance : ObjectInstance
 
         try
         {
-            Encoding textEncoding;
+            SystemEncoding textEncoding;
             try
             {
-                textEncoding = Encoding.GetEncoding(encoding);
+                textEncoding = SystemEncoding.GetEncoding(encoding);
             }
             catch
             {
-                textEncoding = Encoding.UTF8;
+                textEncoding = SystemEncoding.UTF8;
             }
 
             var data = blobInstance.Value.ToArray();

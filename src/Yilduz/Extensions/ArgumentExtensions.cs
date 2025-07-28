@@ -1,7 +1,8 @@
 using Jint;
 using Jint.Native;
+using Yilduz.Utils;
 
-namespace Yilduz.Utils;
+namespace Yilduz.Extensions;
 
 internal static class ArgumentExtensions
 {
@@ -42,5 +43,10 @@ internal static class ArgumentExtensions
                 objectName
             );
         }
+    }
+
+    public static string ToArgumentString(this JsValue jsValue)
+    {
+        return jsValue is JsArray jsArray ? string.Join(",", jsArray) : jsValue.ToString();
     }
 }
