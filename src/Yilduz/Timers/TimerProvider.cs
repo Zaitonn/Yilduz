@@ -11,11 +11,7 @@ using Yilduz.Utils;
 
 namespace Yilduz.Timers;
 
-internal sealed class TimerProvider(
-    Engine engine,
-    TimeSpan waitingTimeout,
-    CancellationToken cancellationToken
-)
+internal sealed class TimerProvider(Engine engine, Options options)
 {
     private readonly List<long> _ids = [];
 
@@ -23,21 +19,21 @@ internal sealed class TimerProvider(
 
     public JsValue SetTimeout(JsValue thisObject, params JsValue[] arguments)
     {
-        cancellationToken.ThrowIfCancellationRequested();
+        options.CancellationToken.ThrowIfCancellationRequested();
 
         return StartTimer(false, arguments);
     }
 
     public JsValue SetInterval(JsValue thisObject, params JsValue[] arguments)
     {
-        cancellationToken.ThrowIfCancellationRequested();
+        options.CancellationToken.ThrowIfCancellationRequested();
 
         return StartTimer(true, arguments);
     }
 
     public JsValue Clear(JsValue thisObject, params JsValue[] arguments)
     {
-        cancellationToken.ThrowIfCancellationRequested();
+        options.CancellationToken.ThrowIfCancellationRequested();
 
         if (arguments.Length == 0)
         {
@@ -95,9 +91,9 @@ internal sealed class TimerProvider(
             {
                 do
                 {
-                    await Task.Delay(timeout, cancellationToken).ConfigureAwait(false);
+                    await Task.Delay(timeout, options.CancellationToken).ConfigureAwait(false);
 
-                    if (cancellationToken.IsCancellationRequested || !_ids.Contains(id))
+                    if (options.CancellationToken.IsCancellationRequested || !_ids.Contains(id))
                     {
                         break;
                     }
@@ -108,13 +104,13 @@ internal sealed class TimerProvider(
                     }
                     catch { }
 
-                    if (cancellationToken.IsCancellationRequested || !_ids.Contains(id))
+                    if (options.CancellationToken.IsCancellationRequested || !_ids.Contains(id))
                     {
                         break;
                     }
                 } while (repeat);
             },
-            cancellationToken
+            options.CancellationToken
         );
 
         return id;
@@ -134,12 +130,12 @@ internal sealed class TimerProvider(
 
     private void Execute(Function function, JsValue[] arguments)
     {
-        cancellationToken.ThrowIfCancellationRequested();
+        options.CancellationToken.ThrowIfCancellationRequested();
 
         bool entered = false;
         try
         {
-            Monitor.TryEnter(function.Engine, waitingTimeout, ref entered);
+            Monitor.TryEnter(function.Engine, options.WaitingTimeout, ref entered);
 
             if (entered)
             {
@@ -157,12 +153,12 @@ internal sealed class TimerProvider(
 
     private void Execute(string code)
     {
-        cancellationToken.ThrowIfCancellationRequested();
+        options.CancellationToken.ThrowIfCancellationRequested();
 
         bool entered = false;
         try
         {
-            Monitor.TryEnter(engine, waitingTimeout, ref entered);
+            Monitor.TryEnter(engine, options.WaitingTimeout, ref entered);
 
             if (entered)
             {

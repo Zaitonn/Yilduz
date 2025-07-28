@@ -22,7 +22,7 @@ internal sealed class BlobConstructor : Constructor
     {
         try
         {
-            return new BlobInstance(Engine, this, arguments.At(0), arguments.At(1))
+            return new BlobInstance(Engine, arguments.At(0), arguments.At(1))
             {
                 Prototype = PrototypeObject,
             };

@@ -12,12 +12,12 @@ dotnet add package Yilduz
 using Jint;
 using Yilduz;
 
-var engine = new Engine().AddWebAPIs();
+var engine = new Engine().InitializeWebApi();
 
 engine.Execute(
     """
     console.log('Hello world!');
-    setTimeout(()=> console.log('I can use `setTimeout`!'), 2000);
+    setTimeout(() => console.log('I can use `setTimeout`!'), 2000);
     """
 )
 ```
@@ -31,14 +31,17 @@ engine.Execute(
   - [x] `console`
 - Data
   - [x] Base64 (`atob()` and `btoa()`)
-  - [x] `Blob`
-  - [x] `File`
+  - Files
+    - [x] `Blob`
+    - [x] `File`
+    - [x] `FileReader`
   - [ ] `ReadableStream`
   - [x] `URL`
   - [x] `URLSearchParams`
 - Events
   - [x] `Event`
   - [x] `EventTarget`
+  - [x] `ProgressEvent`
 - Storages
   - [x] `localStorage`
   - [x] `sessionStorage`

@@ -14,7 +14,7 @@ public abstract class TestBase : IDisposable
                 _cancellationTokenSource.Token
             )
         );
-        Engine.AddWebAPIs(GetOptions());
+        Engine.InitializeWebApi(GetOptions());
     }
 
     private readonly CancellationTokenSource _cancellationTokenSource;

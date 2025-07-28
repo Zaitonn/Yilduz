@@ -6,7 +6,6 @@ using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
 using Yilduz.Errors;
-using Yilduz.Events.EventTarget;
 using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
@@ -17,12 +16,12 @@ public sealed class AbortSignalConstructor : Constructor
     private static readonly string TimeoutName = nameof(Timeout).ToJsStyleName();
     private static readonly string AnyName = nameof(Any).ToJsStyleName();
 
-    internal AbortSignalConstructor(Engine engine, EventTargetConstructor eventTargetConstructor)
+    internal AbortSignalConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(AbortSignal))
     {
         PrototypeObject = new AbortSignalPrototype(engine, this)
         {
-            Prototype = eventTargetConstructor.PrototypeObject,
+            Prototype = webApiIntrinsics.EventTarget.PrototypeObject,
         };
 
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
@@ -45,12 +44,17 @@ public sealed class AbortSignalConstructor : Constructor
         return null!;
     }
 
+    internal AbortSignalInstance ConstructAbortSignal()
+    {
+        return new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
+    }
+
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_static
     /// </summary>
     public AbortSignalInstance Abort(JsValue reason)
     {
-        var signal = new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
+        var signal = ConstructAbortSignal();
         signal.SetAborted(reason);
 
         return signal;
@@ -66,7 +70,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Timeout(ulong time)
     {
-        var signal = new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
+        var signal = ConstructAbortSignal();
 
         Task.Delay(TimeSpan.FromMilliseconds(time))
             .ContinueWith(_ =>
@@ -88,7 +92,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Any(JsArray signals)
     {
-        var abortSignal = new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
+        var abortSignal = ConstructAbortSignal();
         foreach (var signal in signals)
         {
             if (signal is AbortSignalInstance instance)

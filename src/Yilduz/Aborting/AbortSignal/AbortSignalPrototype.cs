@@ -16,8 +16,8 @@ internal sealed class AbortSignalPrototype : ObjectInstance
     private static readonly string ReasonName = nameof(AbortSignalInstance.Reason).ToJsStyleName();
     private static readonly string ThrowIfAbortedName = nameof(AbortSignalInstance.ThrowIfAborted)
         .ToJsStyleName();
-    private static readonly string OnabortName = nameof(AbortSignalInstance.Onabort)
-        .ToJsStyleName();
+    private static readonly string OnabortName = nameof(AbortSignalInstance.OnAbort)
+        .ToLowerInvariant();
 
     internal AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
         : base(engine)
@@ -76,13 +76,13 @@ internal sealed class AbortSignalPrototype : ObjectInstance
 
     private JsValue GetOnabort(JsValue thisObject, JsValue[] arguments)
     {
-        return thisObject.EnsureThisObject<AbortSignalInstance>().Onabort;
+        return thisObject.EnsureThisObject<AbortSignalInstance>().OnAbort;
     }
 
     private JsValue SetOnabort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<AbortSignalInstance>();
-        instance.Onabort = arguments.At(0);
-        return instance.Onabort;
+        instance.OnAbort = arguments.At(0);
+        return instance.OnAbort;
     }
 }

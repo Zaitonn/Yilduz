@@ -10,10 +10,12 @@ namespace Yilduz.Events.Event;
 
 public class EventPrototype : ObjectInstance
 {
-    internal EventPrototype(Engine engine)
+    internal EventPrototype(Engine engine, EventConstructor constructor)
         : base(engine)
     {
         Set(GlobalSymbolRegistry.ToStringTag, nameof(Event));
+        FastSetProperty("constructor", new(constructor, false, false, true));
+
         FastSetProperty(
             nameof(EventInstance.Bubbles).ToJsStyleName(),
             new GetSetPropertyDescriptor(
@@ -195,12 +197,6 @@ public class EventPrototype : ObjectInstance
             nameof(EventPhases.BUBBLING_PHASE),
             new(EventPhases.BUBBLING_PHASE, false, false, true)
         );
-    }
-
-    protected internal EventPrototype(Engine engine, ObjectInstance ctor)
-        : this(engine)
-    {
-        FastSetProperty("constructor", new(ctor, false, false, true));
     }
 
     private JsValue ComposedPath(JsValue thisObject, JsValue[] arguments)

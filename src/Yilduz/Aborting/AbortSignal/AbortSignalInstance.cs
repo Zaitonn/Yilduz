@@ -3,7 +3,6 @@ using Jint;
 using Jint.Native;
 using Jint.Runtime;
 using Yilduz.Errors;
-using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 
 namespace Yilduz.Aborting.AbortSignal;
@@ -13,6 +12,8 @@ namespace Yilduz.Aborting.AbortSignal;
 /// </summary>
 public sealed class AbortSignalInstance : EventTargetInstance
 {
+    private WebApiIntrinsics? _webApiIntrinsics;
+
     internal AbortSignalInstance(Engine engine)
         : base(engine) { }
 
@@ -26,7 +27,7 @@ public sealed class AbortSignalInstance : EventTargetInstance
     /// </summary>
     public JsValue Reason { get; private set; } = Undefined;
 
-    public JsValue Onabort { get; set; } = Undefined;
+    public JsValue OnAbort { get; set; } = Undefined;
 
     /// <summary>
     /// Notifies when the signal is aborted.
@@ -49,7 +50,9 @@ public sealed class AbortSignalInstance : EventTargetInstance
         }
 
         Abort?.Invoke(this, EventArgs.Empty);
-        DispatchEvent(new(Engine, "abort", Undefined) { Prototype = new EventPrototype(Engine) });
+
+        _webApiIntrinsics ??= Engine.GetWebApiIntrinsics();
+        DispatchEvent(_webApiIntrinsics.Event.ConstructWithEventName("abort", Undefined));
     }
 
     /// <summary>

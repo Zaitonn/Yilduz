@@ -4,7 +4,7 @@ using Jint.Native.Object;
 
 namespace Yilduz.Events.EventTarget;
 
-internal class EventTargetConstructor : Constructor
+public sealed class EventTargetConstructor : Constructor
 {
     public EventTargetConstructor(Engine engine)
         : base(engine, nameof(EventTarget))

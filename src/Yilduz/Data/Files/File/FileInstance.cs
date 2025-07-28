@@ -17,14 +17,8 @@ public sealed class FileInstance : BlobInstance
     /// </summary>
     public string Name { get; }
 
-    internal FileInstance(
-        Engine engine,
-        BlobConstructor blobConstructor,
-        JsValue blobParts,
-        JsValue fileName,
-        JsValue options
-    )
-        : base(engine, blobConstructor, blobParts, options)
+    internal FileInstance(Engine engine, JsValue blobParts, JsValue fileName, JsValue options)
+        : base(engine, blobParts, options)
     {
         Name = fileName.ToString();
 

@@ -14,7 +14,8 @@ namespace Yilduz.Data.Files.Blob;
 public class BlobInstance : ObjectInstance
 {
     private static readonly Encoding Utf8Encoding = new UTF8Encoding(false, true);
-    private readonly BlobConstructor _blobConstructor;
+
+    private WebApiIntrinsics? _webApiIntrinsics;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/type
@@ -28,16 +29,9 @@ public class BlobInstance : ObjectInstance
 
     protected internal List<byte> Value { get; set; } = [];
 
-    internal BlobInstance(
-        Engine engine,
-        BlobConstructor blobConstructor,
-        JsValue blobParts,
-        JsValue options
-    )
+    internal BlobInstance(Engine engine, JsValue blobParts, JsValue options)
         : base(engine)
     {
-        _blobConstructor = blobConstructor;
-
         var optionsObject = !options.IsUndefined() ? options.AsObject() : null;
 
         Type = (optionsObject?.Get("type").ToString() ?? string.Empty).ToLowerInvariant().Trim();
@@ -144,6 +138,11 @@ public class BlobInstance : ObjectInstance
     /// </summary>
     public BlobInstance Slice(int start = 0, int? end = null, string contentType = "")
     {
+        if (_webApiIntrinsics is null)
+        {
+            _webApiIntrinsics = Engine.GetWebApiIntrinsics();
+        }
+
         if (start < 0)
         {
             start += Size;
@@ -164,7 +163,8 @@ public class BlobInstance : ObjectInstance
             start < 0 || start >= Size || end < 0 || start > end
                 ? []
                 : Value.Skip(start).Take((int)(end - start)).ToList();
-        var blobInstance = (BlobInstance)_blobConstructor.Construct(Arguments.Empty, Undefined);
+        var blobInstance = (BlobInstance)
+            _webApiIntrinsics.Blob.Construct(Arguments.Empty, Undefined);
 
         blobInstance.Value = slicedValue;
         blobInstance.Type = contentType;

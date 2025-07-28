@@ -12,10 +12,10 @@ namespace Yilduz.Events.Event;
 /// </summary>
 public class EventInstance : ObjectInstance
 {
-    public EventInstance(Engine engine, string type, JsValue options)
+    public EventInstance(Engine engine, JsValue type, JsValue options)
         : base(engine)
     {
-        Type = type;
+        Type = type.ToString();
 
         if (options.IsObject())
         {

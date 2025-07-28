@@ -3,21 +3,17 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
-using Yilduz.Data.Files.Blob;
 using Yilduz.Utils;
 
 namespace Yilduz.Data.Files.File;
 
 internal sealed class FileConstructor : Constructor
 {
-    private readonly BlobConstructor _blobConstructor;
-
-    public FileConstructor(Engine engine, BlobConstructor blobConstructor)
+    public FileConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(File))
     {
-        PrototypeObject = new(engine, this) { Prototype = blobConstructor.PrototypeObject };
+        PrototypeObject = new(engine, this) { Prototype = webApiIntrinsics.Blob.PrototypeObject };
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
-        _blobConstructor = blobConstructor;
     }
 
     public FilePrototype PrototypeObject { get; }
@@ -28,13 +24,7 @@ internal sealed class FileConstructor : Constructor
 
         try
         {
-            return new FileInstance(
-                Engine,
-                _blobConstructor,
-                arguments.At(0),
-                arguments.At(1),
-                arguments.At(2)
-            )
+            return new FileInstance(Engine, arguments.At(0), arguments.At(1), arguments.At(2))
             {
                 Prototype = PrototypeObject,
             };

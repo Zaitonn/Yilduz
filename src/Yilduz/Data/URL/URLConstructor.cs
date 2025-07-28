@@ -4,7 +4,6 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
-using Yilduz.Data.URLSearchParams;
 using Yilduz.Utils;
 
 namespace Yilduz.Data.URL;
@@ -13,12 +12,12 @@ internal sealed partial class URLConstructor : Constructor
 {
     private static readonly string CanParseName = nameof(CanParse).ToJsStyleName();
     private static readonly string ParseName = nameof(Parse).ToJsStyleName();
-    private readonly URLSearchParamsConstructor _urlSearchParamsConstructor;
+    private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public URLConstructor(Engine engine, URLSearchParamsConstructor urlSearchParamsConstructor)
+    public URLConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(URL))
     {
-        _urlSearchParamsConstructor = urlSearchParamsConstructor;
+        _webApiIntrinsics = webApiIntrinsics;
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
 
@@ -97,7 +96,7 @@ internal sealed partial class URLConstructor : Constructor
                 : throw new ArgumentException("Invalid base URL");
         }
 
-        var urlInstance = new URLInstance(Engine, _urlSearchParamsConstructor)
+        var urlInstance = new URLInstance(Engine)
         {
             Prototype = PrototypeObject,
             Href = uri.AbsoluteUri,

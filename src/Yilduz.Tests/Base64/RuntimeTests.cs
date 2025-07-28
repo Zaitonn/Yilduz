@@ -145,7 +145,7 @@ public sealed class RuntimeTests : TestBase
     {
         Engine.Execute(
             """
-            const specialChars = '\t\n\r\\\'\""';
+            const specialChars = '\t\n\r\\\'\"';
             const encoded = btoa(specialChars);
             const decoded = atob(encoded);
             """

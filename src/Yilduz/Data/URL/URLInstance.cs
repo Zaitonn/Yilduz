@@ -13,10 +13,10 @@ public sealed class URLInstance : ObjectInstance
     private string _pathname = string.Empty;
     private string _search = string.Empty;
 
-    internal URLInstance(Engine engine, URLSearchParamsConstructor constructor)
+    internal URLInstance(Engine engine)
         : base(engine)
     {
-        SearchParams = constructor.ConstructLinkedInstance(this);
+        SearchParams = engine.GetWebApiIntrinsics().URLSearchParams.ConstructLinkedInstance(this);
     }
 
     /// <summary>

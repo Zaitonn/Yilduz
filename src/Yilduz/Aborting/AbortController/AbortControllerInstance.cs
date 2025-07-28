@@ -10,16 +10,13 @@ namespace Yilduz.Aborting.AbortController;
 /// </summary>
 public sealed class AbortControllerInstance : ObjectInstance
 {
-    internal AbortControllerInstance(Engine engine, AbortSignalPrototype abortSignalPrototype)
-        : base(engine)
-    {
-        Signal = new(engine) { Prototype = abortSignalPrototype };
-    }
+    internal AbortControllerInstance(Engine engine)
+        : base(engine) { }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/AbortController/signal
     /// </summary>
-    public AbortSignalInstance Signal { get; }
+    public required AbortSignalInstance Signal { get; init; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/AbortController/abort
