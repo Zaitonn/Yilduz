@@ -19,10 +19,11 @@ internal sealed class FileReaderPrototype : ObjectInstance
     private static readonly string ErrorName = nameof(FileReaderInstance.Error).ToJsStyleName();
     private static readonly string ErrorGetterName = ErrorName.ToJsGetterName();
 
-    private static readonly string ReadAsArrayBufferName = nameof(ReadAsArrayBuffer)
+    public static readonly string ReadAsArrayBufferName = nameof(ReadAsArrayBuffer).ToJsStyleName();
+    public static readonly string ReadAsTextName = nameof(ReadAsText).ToJsStyleName();
+    public static readonly string ReadAsDataURLName = nameof(ReadAsDataURL).ToJsStyleName();
+    public static readonly string ReadAsBinaryStringName = nameof(ReadAsBinaryString)
         .ToJsStyleName();
-    private static readonly string ReadAsTextName = nameof(ReadAsText).ToJsStyleName();
-    private static readonly string ReadAsDataURLName = nameof(ReadAsDataURL).ToJsStyleName();
     private static readonly string AbortName = nameof(Abort).ToJsStyleName();
 
     private static readonly string OnLoadStartName = nameof(FileReaderInstance.OnLoadStart)
@@ -209,13 +210,20 @@ internal sealed class FileReaderPrototype : ObjectInstance
         return Undefined;
     }
 
+    private JsValue ReadAsBinaryString(JsValue thisObject, JsValue[] arguments)
+    {
+        var reader = thisObject.EnsureThisObject<FileReaderInstance>();
+        arguments.EnsureCount(Engine, 1, ReadAsBinaryStringName, nameof(FileReaderSync));
+
+        return reader.ReadAsBinaryString(arguments[0]);
+    }
+
     private JsValue Abort(JsValue thisObject, JsValue[] arguments)
     {
         thisObject.EnsureThisObject<FileReaderInstance>().Abort();
         return Undefined;
     }
 
-    // Event handler property getters and setters
     private JsValue GetOnLoadStart(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<FileReaderInstance>().OnLoadStart;

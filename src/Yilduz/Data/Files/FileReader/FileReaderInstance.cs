@@ -1,9 +1,10 @@
 using System;
-using System.Text;
 using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using Yilduz.Data.Files.Blob;
+using Yilduz.Data.Files.FileReaderSync;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
 using Yilduz.Utils;
@@ -18,6 +19,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     private WebApiIntrinsics? _webApiIntrinsics;
     private bool _isReading;
     private ulong? _currentTotal;
+    private readonly FileReaderSyncInstance _fileReaderSyncInstance;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readyState
@@ -42,7 +44,10 @@ public sealed class FileReaderInstance : EventTargetInstance
     public JsValue OnProgress { get; internal set; } = Undefined;
 
     internal FileReaderInstance(Engine engine)
-        : base(engine) { }
+        : base(engine)
+    {
+        _fileReaderSyncInstance = new(Engine);
+    }
 
     private void EnsureBlob(JsValue blob, string methodName, out BlobInstance blobInstance)
     {
@@ -62,12 +67,31 @@ public sealed class FileReaderInstance : EventTargetInstance
         );
     }
 
-    private void EnsureStateNotReading()
+    private void PrepareForReading(JsValue blob, string methodName)
     {
         if (_isReading)
         {
-            throw new InvalidOperationException("The FileReader is already reading a Blob or File");
+            throw new InvalidOperationException(
+                "FileReader is already reading a Blob or File. You cannot start a new read operation until the current one is complete."
+            );
         }
+
+        if (blob is not BlobInstance blobInstance)
+        {
+            TypeErrorHelper.Throw(
+                Engine,
+                "parameter 1 is not of type 'Blob'.",
+                methodName,
+                nameof(FileReader)
+            );
+            return;
+        }
+
+        _currentTotal = (ulong)blobInstance.Value.Count;
+        _isReading = true;
+        ReadyState = FileReaderState.LOADING;
+        Result = Undefined;
+        Error = Null;
     }
 
     /// <summary>
@@ -75,14 +99,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void ReadAsArrayBuffer(JsValue blob)
     {
-        EnsureBlob(blob, nameof(ReadAsArrayBuffer).ToJsStyleName(), out var blobInstance);
-        EnsureStateNotReading();
-        var total = (ulong)blobInstance.Value.Count;
-
-        _isReading = true;
-        ReadyState = FileReaderState.LOADING;
-        Result = Undefined;
-        Error = Null;
+        PrepareForReading(blob, FileReaderPrototype.ReadAsArrayBufferName);
 
         Task.Run(() =>
         {
@@ -90,7 +107,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             {
                 DispatchEvent("loadstart");
 
-                Result = blobInstance.ArrayBuffer();
+                Result = _fileReaderSyncInstance.ReadAsArrayBuffer(blob);
                 ReadyState = FileReaderState.DONE;
 
                 DispatchEvent("progress");
@@ -113,14 +130,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void ReadAsText(JsValue blob, string encoding = "UTF-8")
     {
-        EnsureBlob(blob, nameof(ReadAsArrayBuffer).ToJsStyleName(), out var blobInstance);
-        EnsureStateNotReading();
-        _currentTotal = (ulong)blobInstance.Value.Count;
-
-        _isReading = true;
-        ReadyState = FileReaderState.LOADING;
-        Result = Undefined;
-        Error = Null;
+        PrepareForReading(blob, FileReaderPrototype.ReadAsTextName);
 
         Task.Run(() =>
         {
@@ -128,20 +138,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             {
                 DispatchEvent("loadstart");
 
-                Encoding textEncoding;
-                try
-                {
-                    textEncoding = Encoding.GetEncoding(encoding);
-                }
-                catch
-                {
-                    textEncoding = Encoding.UTF8;
-                }
-
-                var data = blobInstance.Value.ToArray();
-                var text = textEncoding.GetString(data);
-
-                Result = text;
+                Result = _fileReaderSyncInstance.ReadAsText(blob, encoding);
                 ReadyState = FileReaderState.DONE;
 
                 DispatchEvent("progress");
@@ -164,14 +161,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void ReadAsDataURL(JsValue blob)
     {
-        EnsureBlob(blob, nameof(ReadAsArrayBuffer).ToJsStyleName(), out var blobInstance);
-        EnsureStateNotReading();
-        _currentTotal = (ulong)blobInstance.Value.Count;
-
-        _isReading = true;
-        ReadyState = FileReaderState.LOADING;
-        Result = Undefined;
-        Error = Null;
+        PrepareForReading(blob, FileReaderPrototype.ReadAsDataURLName);
 
         Task.Run(() =>
         {
@@ -179,15 +169,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             {
                 DispatchEvent("loadstart");
 
-                var base64 = Convert.ToBase64String([.. blobInstance.Value]);
-                var mimeType = blobInstance.Type;
-
-                if (string.IsNullOrEmpty(mimeType))
-                {
-                    mimeType = "application/octet-stream";
-                }
-
-                Result = $"data:{mimeType};base64,{base64}";
+                Result = _fileReaderSyncInstance.ReadAsDataURL(blob);
                 ReadyState = FileReaderState.DONE;
 
                 DispatchEvent("progress");
@@ -206,6 +188,27 @@ public sealed class FileReaderInstance : EventTargetInstance
     }
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReaderSync/readAsBinaryString
+    /// Note: This method is deprecated but still implemented for compatibility
+    /// </summary>
+    public JsValue ReadAsBinaryString(JsValue blob)
+    {
+        EnsureBlob(blob, FileReaderPrototype.ReadAsBinaryStringName, out var blobInstance);
+
+        try
+        {
+            return _fileReaderSyncInstance.ReadAsBinaryString(blobInstance);
+        }
+        catch (Exception ex)
+        {
+            throw new JavaScriptException(
+                Engine.Intrinsics.Error,
+                "An error occurred while reading the Blob or File: " + ex.Message
+            );
+        }
+    }
+
+    /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/abort
     /// </summary>
     public void Abort()
@@ -219,25 +222,19 @@ public sealed class FileReaderInstance : EventTargetInstance
         Result = Undefined;
         _isReading = false;
 
-        try
-        {
-            DispatchEvent("abort");
-        }
-        catch { }
+        DispatchEvent("abort");
     }
 
     private void SetError(Exception ex)
     {
-        Error = Engine.Intrinsics.Error.Construct(
-            "An error occurred while reading the Blob or File: " + ex.Message
-        );
-        ReadyState = FileReaderState.DONE;
+        Error = ex is JavaScriptException javaScriptException
+            ? javaScriptException.Error
+            : Engine.Intrinsics.Error.Construct(
+                "An error occurred while reading the Blob or File: " + ex.Message
+            );
 
-        try
-        {
-            DispatchEvent("error");
-        }
-        catch { }
+        ReadyState = FileReaderState.DONE;
+        DispatchEvent("error");
     }
 
     private void DispatchEvent(string eventType)

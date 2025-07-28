@@ -9,7 +9,7 @@ using PrettyPrompt;
 using Spectre.Console;
 using Yilduz;
 
-var engine = new Engine(cfg => cfg.AllowClr()).AddWebAPIs();
+var engine = new Engine(cfg => cfg.AllowClr()).InitializeWebApi(new());
 var assembly = Assembly.GetExecutingAssembly();
 var version = assembly.GetName().Version?.ToString();
 

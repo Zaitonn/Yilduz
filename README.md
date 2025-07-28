@@ -12,7 +12,7 @@ dotnet add package Yilduz
 using Jint;
 using Yilduz;
 
-var engine = new Engine().InitializeWebApi();
+var engine = new Engine().InitializeWebApi(new());
 
 engine.Execute(
     """
@@ -35,6 +35,7 @@ engine.Execute(
     - [x] `Blob`
     - [x] `File`
     - [x] `FileReader`
+    - [x] `FileReaderSync`
   - [ ] `ReadableStream`
   - [x] `URL`
   - [x] `URLSearchParams`

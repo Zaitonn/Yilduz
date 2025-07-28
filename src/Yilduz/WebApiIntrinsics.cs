@@ -8,6 +8,7 @@ using Yilduz.Data;
 using Yilduz.Data.Files.Blob;
 using Yilduz.Data.Files.File;
 using Yilduz.Data.Files.FileReader;
+using Yilduz.Data.Files.FileReaderSync;
 using Yilduz.Data.URL;
 using Yilduz.Data.URLSearchParams;
 using Yilduz.Events.Event;
@@ -27,6 +28,7 @@ public sealed class WebApiIntrinsics
     internal BlobConstructor Blob { get; }
     internal FileConstructor File { get; }
     internal FileReaderConstructor FileReader { get; }
+    internal FileReaderSyncConstructor FileReaderSync { get; }
 
     public EventTargetConstructor EventTarget { get; }
     public EventConstructor Event { get; }
@@ -68,6 +70,7 @@ public sealed class WebApiIntrinsics
         Blob = new(_engine);
         File = new(_engine, this);
         FileReader = new(_engine, this);
+        FileReaderSync = new(_engine);
 
         URL = new(_engine, this);
         URLSearchParams = new(_engine);
@@ -97,6 +100,7 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(Blob), Blob);
         _engine.SetValue(nameof(File), File);
         _engine.SetValue(nameof(FileReader), FileReader);
+        _engine.SetValue(nameof(FileReaderSync), FileReaderSync);
         _engine.SetValue(nameof(Event), Event);
         _engine.SetValue(nameof(ProgressEvent), ProgressEvent);
         _engine.SetValue(nameof(EventTarget), EventTarget);
