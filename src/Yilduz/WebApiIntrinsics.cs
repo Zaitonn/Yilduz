@@ -4,18 +4,17 @@ using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Console;
-using Yilduz.Data;
-using Yilduz.Data.Files.Blob;
-using Yilduz.Data.Files.File;
-using Yilduz.Data.Files.FileReader;
-using Yilduz.Data.Files.FileReaderSync;
-using Yilduz.Data.URL;
-using Yilduz.Data.URLSearchParams;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
+using Yilduz.Files.Blob;
+using Yilduz.Files.File;
+using Yilduz.Files.FileReader;
+using Yilduz.Files.FileReaderSync;
+using Yilduz.Services;
 using Yilduz.Storages.Storage;
-using Yilduz.Timers;
+using Yilduz.URLs.URL;
+using Yilduz.URLs.URLSearchParams;
 
 namespace Yilduz;
 

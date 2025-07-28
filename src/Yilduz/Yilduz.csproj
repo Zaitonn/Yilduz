@@ -4,8 +4,8 @@
 
     <Title>Yilduz</Title>
     <Authors>Zaitonn</Authors>
-    <Description>Web api and nodejs module api implementation for Jint</Description>
-    <Version>0.0.5</Version>
+    <Description>Web api implementation for Jint</Description>
+    <Version>0.0.6</Version>
     <Copyright>Zaitonn</Copyright>
     <RepositoryUrl>https://github.com/Zaitonn/Yilduz</RepositoryUrl>
     <RepositoryType>git</RepositoryType>

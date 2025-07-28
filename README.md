@@ -1,6 +1,6 @@
 # Yilduz
 
-Web api and nodejs module api implementation ([`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.) for [Jint](https://github.com/sebastienros/jint)
+Web api implementation ([`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.) for [Jint](https://github.com/sebastienros/jint)
 
 ## Usage
 
@@ -22,27 +22,49 @@ engine.Execute(
 )
 ```
 
-## Development progress & Project structure
+## Development progress
 
 - Aborting
   - [x] `AbortController`
   - [x] `AbortSignal`
+- Base64
+  - [x] `atob()`
+  - [x] `btoa()`
 - Console
   - [x] `console`
-- Data
-  - [x] Base64 (`atob()` and `btoa()`)
-  - Files
-    - [x] `Blob`
-    - [x] `File`
-    - [x] `FileReader`
-    - [x] `FileReaderSync`
-  - [ ] `ReadableStream`
-  - [x] `URL`
-  - [x] `URLSearchParams`
+- Encoding
+  - [ ] `TextDecoder`
+  - [ ] `TextDecoderStream`
+  - [ ] `TextEncoder`
+  - [ ] `TextEncoderStream`
+- Files
+  - [x] `Blob`
+  - [x] `File`
+  - [x] `FileReader`
+  - [x] `FileReaderSync`
 - Events
   - [x] `Event`
   - [x] `EventTarget`
   - [x] `ProgressEvent`
+- Network
+  - [ ] `FormData`
+  - [ ] `XMLHttpRequest`
+  - [ ] `XMLHttpRequestEventTarget`
+  - [ ] `XMLHttpRequestUpload`
+  - [ ] `fetch()`
+  - [ ] `Headers`
+  - [ ] `Request`
+  - [ ] `RequestInit`
+  - [ ] `Response`
+- Streams
+  - [ ] `ReadableStream`
+  - [ ] `ReadableStreamDefaultReader`
+  - [ ] `ReadableStreamDefaultController`
+  - [ ] `WritableStream`
+  - [ ] `WritableStreamDefaultReader`
+  - [ ] `WritableStreamDefaultController`
+  - [ ] `TransformStream`
+  - [ ] `TransformStreamDefaultController`
 - Storages
   - [x] `localStorage`
   - [x] `sessionStorage`
@@ -51,6 +73,9 @@ engine.Execute(
   - [x] `setInterval`
   - [x] `clearTimeout`
   - [x] `clearInterval`
+- URLs
+  - [x] `URL`
+  - [x] `URLSearchParams`
 
 ## Origin of the name
 

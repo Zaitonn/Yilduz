@@ -2,8 +2,8 @@ using System;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
-using Yilduz.Errors;
 using Yilduz.Events.EventTarget;
+using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
 
@@ -46,7 +46,11 @@ public sealed class AbortSignalInstance : EventTargetInstance
 
         if (reason.IsUndefined())
         {
-            Reason = Engine.CreateError("AbortError", "signal is aborted without reason");
+            Reason = ErrorHelper.CreateError(
+                Engine,
+                "AbortError",
+                "signal is aborted without reason"
+            );
         }
 
         Abort?.Invoke(this, EventArgs.Empty);
