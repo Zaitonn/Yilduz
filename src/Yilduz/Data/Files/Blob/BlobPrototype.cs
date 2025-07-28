@@ -7,9 +7,9 @@ using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Utils;
 
-namespace Yilduz.Data.Blob;
+namespace Yilduz.Data.Files.Blob;
 
-public sealed class BlobPrototype : ObjectInstance
+internal sealed class BlobPrototype : ObjectInstance
 {
     private static readonly string SizeName = nameof(BlobInstance.Size).ToJsStyleName();
     private static readonly string SizeGetterName = SizeName.ToJsGetterName();

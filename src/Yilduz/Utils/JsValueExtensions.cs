@@ -36,7 +36,7 @@ internal static class JsValueExtensions
         if (iterator is Function iteratorFunction)
         {
             var iteratorObject = objectInstance
-                .Engine.Call(iteratorFunction, objectInstance, [])
+                .Engine.Call(iteratorFunction, objectInstance, Arguments.Empty)
                 .AsObject();
 
             while (true)
@@ -48,7 +48,9 @@ internal static class JsValueExtensions
                         "Iterator next must be a function"
                     );
 
-                var result = objectInstance.Engine.Call(nextMethod, iteratorObject, []).AsObject();
+                var result = objectInstance
+                    .Engine.Call(nextMethod, iteratorObject, Arguments.Empty)
+                    .AsObject();
 
                 var done = result["done"].AsBoolean();
                 if (done)

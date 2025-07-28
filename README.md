@@ -32,9 +32,10 @@ engine.Execute(
 - Data
   - [x] Base64 (`atob()` and `btoa()`)
   - [x] `Blob`
+  - [x] `File`
   - [ ] `ReadableStream`
   - [x] `URL`
-  - [x] `URLSearchParams` (`entries()`, `keys()` and `values()` are not implemented yet)
+  - [x] `URLSearchParams`
 - Events
   - [x] `Event`
   - [x] `EventTarget`

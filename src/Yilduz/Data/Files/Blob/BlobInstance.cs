@@ -9,7 +9,7 @@ using Jint.Runtime;
 using Yilduz.Data.ReadableStream;
 using Yilduz.Utils;
 
-namespace Yilduz.Data.Blob;
+namespace Yilduz.Data.Files.Blob;
 
 public class BlobInstance : ObjectInstance
 {
@@ -28,7 +28,7 @@ public class BlobInstance : ObjectInstance
 
     protected internal List<byte> Value { get; set; } = [];
 
-    public BlobInstance(
+    internal BlobInstance(
         Engine engine,
         BlobConstructor blobConstructor,
         JsValue blobParts,
@@ -164,7 +164,7 @@ public class BlobInstance : ObjectInstance
             start < 0 || start >= Size || end < 0 || start > end
                 ? []
                 : Value.Skip(start).Take((int)(end - start)).ToList();
-        var blobInstance = (BlobInstance)_blobConstructor.Construct([], Undefined);
+        var blobInstance = (BlobInstance)_blobConstructor.Construct(Arguments.Empty, Undefined);
 
         blobInstance.Value = slicedValue;
         blobInstance.Type = contentType;

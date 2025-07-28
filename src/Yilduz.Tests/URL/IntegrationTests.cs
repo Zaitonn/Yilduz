@@ -158,7 +158,7 @@ public sealed class IntegrationTests : TestBase
         Assert.True(initialValue.IsNull()); // Should be gone after setting new search
     }
 
-    [Fact(Skip = "`keys()` is not implemented yet")]
+    [Fact]
     public void SearchParamsShouldMaintainInsertionOrder()
     {
         Engine.Execute("const url = new URL('https://example.com');");
@@ -177,7 +177,7 @@ public sealed class IntegrationTests : TestBase
         Assert.Equal("m", thirdKey);
     }
 
-    [Fact(Skip = "`keys()` is not implemented yet")]
+    [Fact]
     public void SearchParamsShouldSupportSorting()
     {
         Engine.Execute("const url = new URL('https://example.com?z=1&a=2&m=3');");
@@ -210,7 +210,7 @@ public sealed class IntegrationTests : TestBase
         Assert.Equal(urlSearch, searchParamsString);
     }
 
-    [Fact(Skip = "`entries()` is not implemented yet")]
+    [Fact]
     public void ClearingSearchParamsShouldClearURLSearch()
     {
         Engine.Execute("const url = new URL('https://example.com?foo=bar&baz=qux&test=value');");

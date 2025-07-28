@@ -37,7 +37,6 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
         Set(GlobalSymbolRegistry.ToStringTag, nameof(URLSearchParams));
         SetOwnProperty("constructor", new(constructor, false, false, true));
 
-        // Size property
         FastSetProperty(
             SizePropertyName,
             new GetSetPropertyDescriptor(
@@ -48,7 +47,6 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
             )
         );
 
-        // Methods
         FastSetProperty(
             AppendName,
             new(new ClrFunction(Engine, AppendName, Append), false, false, true)
@@ -215,16 +213,23 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
 
     private ObjectInstance Entries(JsValue thisObject, JsValue[] arguments)
     {
-        throw new NotImplementedException();
+        var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
+        return new URLSearchParamsIterator(
+            Engine,
+            instance,
+            URLSearchParamsIteratorType.KeyAndValue
+        );
     }
 
     private ObjectInstance Keys(JsValue thisObject, JsValue[] arguments)
     {
-        throw new NotImplementedException();
+        var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
+        return new URLSearchParamsIterator(Engine, instance, URLSearchParamsIteratorType.Key);
     }
 
     private ObjectInstance Values(JsValue thisObject, JsValue[] arguments)
     {
-        throw new NotImplementedException();
+        var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
+        return new URLSearchParamsIterator(Engine, instance, URLSearchParamsIteratorType.Value);
     }
 }

@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.Text;
 using Jint;
 using Jint.Native;
