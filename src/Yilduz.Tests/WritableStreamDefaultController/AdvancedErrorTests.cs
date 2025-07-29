@@ -277,7 +277,7 @@ public sealed class AdvancedErrorTests : TestBase
             const writer = stream.getWriter();
             const ready = writer.ready;
             const closed = writer.closed;
-            
+
             controller.error(new Error('Stream error'));
             """
         );

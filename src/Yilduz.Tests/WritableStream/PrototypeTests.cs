@@ -69,7 +69,9 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.True(
             Engine
-                .Evaluate($"WritableStreamDefaultController.prototype.hasOwnProperty('{propertyName}')")
+                .Evaluate(
+                    $"WritableStreamDefaultController.prototype.hasOwnProperty('{propertyName}')"
+                )
                 .AsBoolean()
         );
     }

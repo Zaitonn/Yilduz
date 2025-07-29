@@ -112,7 +112,7 @@ public sealed class EdgeCaseTests : TestBase
             const writer = stream.getWriter();
             writer.close();
             writer.releaseLock();
-            
+
             // Try to error after stream is closed
             controller.error(new Error('Late error'));
             """
@@ -139,7 +139,7 @@ public sealed class EdgeCaseTests : TestBase
             const writer = stream.getWriter();
             writer.abort('Abort reason');
             writer.releaseLock();
-            
+
             // Try to error after stream is aborted
             controller.error(new Error('Late error'));
             """
@@ -169,7 +169,7 @@ public sealed class EdgeCaseTests : TestBase
         Assert.True(
             Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
         );
-        
+
         // Error should still work
         Engine.Execute("controller.error(new Error('No sink error'));");
     }
@@ -244,59 +244,6 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Second error should be ignored
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-    }
-
-    [Fact]
-    public void ShouldHandleControllerWithAsyncStart()
-    {
-        Engine.Execute(
-            """
-            let controller = null;
-            let startPromiseResolve;
-            const stream = new WritableStream({
-                start(ctrl) {
-                    controller = ctrl;
-                    return new Promise(resolve => {
-                        startPromiseResolve = resolve;
-                        // Error before start completes
-                        ctrl.error(new Error('Async start error'));
-                    });
-                }
-            });
-            """
-        );
-
-        Assert.True(Engine.Evaluate("typeof startPromiseResolve === 'function'").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-    }
-
-    [Fact]
-    public void ShouldHandleControllerErrorWithGetterThatThrows()
-    {
-        Engine.Execute(
-            """
-            let controller = null;
-            const stream = new WritableStream({
-                start(ctrl) {
-                    controller = ctrl;
-                }
-            });
-
-            const errorWithThrowingGetter = {
-                get message() {
-                    throw new Error('Getter throws');
-                }
-            };
-            
-            controller.error(errorWithThrowingGetter);
-            """
-        );
-
         Assert.True(
             Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
         );

@@ -49,7 +49,7 @@ public sealed class DesiredSizeTests : TestBase
                 highWaterMark: 3,
                 size() { return 1; }
             });
-            
+
             const writer = stream.getWriter();
             const initialSize = writer.desiredSize;
             writer.write('chunk1');
@@ -76,7 +76,7 @@ public sealed class DesiredSizeTests : TestBase
                     return chunk.length || 1;
                 }
             });
-            
+
             const writer = stream.getWriter();
             const initialSize = writer.desiredSize;
             writer.write('hello'); // size = 5
@@ -104,7 +104,7 @@ public sealed class DesiredSizeTests : TestBase
                 highWaterMark: 2,
                 size() { return 1; }
             });
-            
+
             const writer = stream.getWriter();
             writer.write('chunk1');
             writer.write('chunk2');
@@ -140,7 +140,7 @@ public sealed class DesiredSizeTests : TestBase
                     controller = ctrl;
                 }
             });
-            
+
             const writer = stream.getWriter();
             controller.error(new Error('Stream error'));
             """
@@ -194,7 +194,7 @@ public sealed class DesiredSizeTests : TestBase
                     return chunk.size || 1;
                 }
             });
-            
+
             const writer = stream.getWriter();
             const initialSize = writer.desiredSize;
             writer.write({ size: 10 }); // Large chunk

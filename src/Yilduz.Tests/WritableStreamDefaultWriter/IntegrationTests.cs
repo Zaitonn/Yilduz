@@ -13,7 +13,7 @@ public sealed class IntegrationTests : TestBase
             """
             const writtenChunks = [];
             let closeCalled = false;
-            
+
             const stream = new WritableStream({
                 write(chunk, controller) {
                     writtenChunks.push(chunk);
@@ -22,7 +22,7 @@ public sealed class IntegrationTests : TestBase
                     closeCalled = true;
                 }
             });
-            
+
             const writer = stream.getWriter();
             writer.write('chunk1');
             writer.write('chunk2');
@@ -43,7 +43,7 @@ public sealed class IntegrationTests : TestBase
             """
             const writtenChunks = [];
             const writePromises = [];
-            
+
             const stream = new WritableStream({
                 write(chunk, controller) {
                     return new Promise(resolve => {
@@ -54,11 +54,11 @@ public sealed class IntegrationTests : TestBase
                     });
                 }
             });
-            
+
             const writer = stream.getWriter();
             writePromises.push(writer.write('chunk1'));
             writePromises.push(writer.write('chunk2'));
-            
+
             Promise.all(writePromises).then(() => {
                 global.allWritesComplete = true;
             });
@@ -78,7 +78,7 @@ public sealed class IntegrationTests : TestBase
         Engine.Execute(
             """
             let writeError = null;
-            
+
             const stream = new WritableStream({
                 write(chunk, controller) {
                     if (chunk === 'error') {
@@ -87,7 +87,7 @@ public sealed class IntegrationTests : TestBase
                     return Promise.resolve();
                 }
             });
-            
+
             const writer = stream.getWriter();
             writer.write('good');
             writer.write('error').catch(e => {
@@ -105,7 +105,7 @@ public sealed class IntegrationTests : TestBase
         Engine.Execute(
             """
             const writtenChunks = [];
-            
+
             const stream = new WritableStream({
                 write(chunk, controller) {
                     return new Promise(resolve => {
@@ -118,7 +118,7 @@ public sealed class IntegrationTests : TestBase
                     });
                 }
             });
-            
+
             const writer = stream.getWriter();
             writer.write('chunk1');
             writer.write('chunk2');
@@ -146,22 +146,22 @@ public sealed class IntegrationTests : TestBase
         Engine.Execute(
             """
             const transformedChunks = [];
-            
+
             const transform = new TransformStream({
                 transform(chunk, controller) {
                     controller.enqueue(chunk.toUpperCase());
                 }
             });
-            
+
             const writableStream = new WritableStream({
                 write(chunk) {
                     transformedChunks.push(chunk);
                 }
             });
-            
+
             const writer = transform.writable.getWriter();
             transform.readable.pipeTo(writableStream);
-            
+
             writer.write('hello');
             writer.write('world');
             writer.close();
@@ -194,12 +194,12 @@ public sealed class IntegrationTests : TestBase
             }, {
                 highWaterMark: 1
             });
-            
+
             const writer1 = stream.getWriter();
             writer1.write('slow'); // This will block
-            
+
             writer1.releaseLock();
-            
+
             const writer2 = stream.getWriter();
             let writer2ReadyResolved = false;
             writer2.ready.then(() => {

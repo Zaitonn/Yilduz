@@ -28,7 +28,7 @@ public sealed class WritableStreamDefaultControllerInstance : ObjectInstance
     /// <summary>
     /// [[closeAlgorithm]] - A promise-returning algorithm, taking no arguments
     /// </summary>
-    internal Func<JsValue> CloseAlgorithm { get; set; }
+    internal Func<JsValue, JsValue> CloseAlgorithm { get; set; }
 
     /// <summary>
     /// [[controlledWritableStream]] - The WritableStream instance controlled by this object
@@ -63,8 +63,7 @@ public sealed class WritableStreamDefaultControllerInstance : ObjectInstance
     /// <summary>
     /// [[writeAlgorithm]] - A promise-returning algorithm, taking one argument (the chunk to write)
     /// </summary>
-    internal Func<JsValue, JsValue> WriteAlgorithm { get; set; } =
-        _ => PromiseHelper.CreateResolvedPromise(null!, Undefined).Promise;
+    internal Func<JsValue, JsValue, JsValue> WriteAlgorithm { get; set; }
 
     /// <summary>
     /// [[abortController]] - An AbortController instance for signaling abort
@@ -85,8 +84,8 @@ public sealed class WritableStreamDefaultControllerInstance : ObjectInstance
 
         // Initialize algorithms with default implementations
         AbortAlgorithm = _ => PromiseHelper.CreateResolvedPromise(engine, Undefined).Promise;
-        CloseAlgorithm = () => PromiseHelper.CreateResolvedPromise(engine, Undefined).Promise;
-        WriteAlgorithm = _ => PromiseHelper.CreateResolvedPromise(engine, Undefined).Promise;
+        CloseAlgorithm = _ => PromiseHelper.CreateResolvedPromise(engine, Undefined).Promise;
+        WriteAlgorithm = (_, _) => PromiseHelper.CreateResolvedPromise(engine, Undefined).Promise;
     }
 
     /// <summary>

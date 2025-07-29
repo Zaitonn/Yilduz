@@ -109,26 +109,31 @@ public sealed class PrototypeTests : TestBase
 
         // Check that properties are non-enumerable
         Assert.False(
-            Engine
-                .Evaluate("Object.propertyIsEnumerable.call(writer, 'closed')")
-                .AsBoolean()
+            Engine.Evaluate("Object.propertyIsEnumerable.call(writer, 'closed')").AsBoolean()
         );
         Assert.False(
             Engine.Evaluate("Object.propertyIsEnumerable.call(writer, 'ready')").AsBoolean()
         );
         Assert.False(
-            Engine
-                .Evaluate("Object.propertyIsEnumerable.call(writer, 'desiredSize')")
-                .AsBoolean()
+            Engine.Evaluate("Object.propertyIsEnumerable.call(writer, 'desiredSize')").AsBoolean()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectMethodNames()
     {
-        Assert.Equal("write", Engine.Evaluate("WritableStreamDefaultWriter.prototype.write.name").AsString());
-        Assert.Equal("close", Engine.Evaluate("WritableStreamDefaultWriter.prototype.close.name").AsString());
-        Assert.Equal("abort", Engine.Evaluate("WritableStreamDefaultWriter.prototype.abort.name").AsString());
+        Assert.Equal(
+            "write",
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.write.name").AsString()
+        );
+        Assert.Equal(
+            "close",
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.close.name").AsString()
+        );
+        Assert.Equal(
+            "abort",
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.abort.name").AsString()
+        );
         Assert.Equal(
             "releaseLock",
             Engine.Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.name").AsString()
@@ -138,10 +143,22 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveCorrectMethodLengths()
     {
-        Assert.Equal(1, Engine.Evaluate("WritableStreamDefaultWriter.prototype.write.length").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("WritableStreamDefaultWriter.prototype.close.length").AsNumber());
-        Assert.Equal(1, Engine.Evaluate("WritableStreamDefaultWriter.prototype.abort.length").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.length").AsNumber());
+        Assert.Equal(
+            1,
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.write.length").AsNumber()
+        );
+        Assert.Equal(
+            0,
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.close.length").AsNumber()
+        );
+        Assert.Equal(
+            1,
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.abort.length").AsNumber()
+        );
+        Assert.Equal(
+            0,
+            Engine.Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.length").AsNumber()
+        );
     }
 
     [Fact]
@@ -156,7 +173,9 @@ public sealed class PrototypeTests : TestBase
         );
 
         // Try to modify prototype method
-        Engine.Execute("WritableStreamDefaultWriter.prototype.write = function() { return 'modified'; };");
+        Engine.Execute(
+            "WritableStreamDefaultWriter.prototype.write = function() { return 'modified'; };"
+        );
 
         // Writer instance should still use original method
         Assert.True(Engine.Evaluate("writer.write !== originalWrite").AsBoolean());

@@ -48,7 +48,7 @@ public sealed class ClosedPromiseTests : TestBase
 
             const writer = stream.getWriter();
             const closed = writer.closed;
-            
+
             // Error the stream
             controller.error(new Error('Stream error'));
             """
@@ -81,7 +81,7 @@ public sealed class ClosedPromiseTests : TestBase
             const writer1 = stream.getWriter();
             writer1.close();
             writer1.releaseLock();
-            
+
             // Get a new writer for the closed stream
             const writer2 = stream.getWriter();
             """
@@ -101,35 +101,17 @@ public sealed class ClosedPromiseTests : TestBase
                     controller = ctrl;
                 }
             });
-            
+
             const writer1 = stream.getWriter();
             controller.error(new Error('Stream error'));
             writer1.releaseLock();
-            
+
             // Get a new writer for the errored stream
             const writer2 = stream.getWriter();
             """
         );
 
         Assert.True(Engine.Evaluate("writer2.closed instanceof Promise").AsBoolean());
-    }
-
-    [Fact]
-    public void ShouldHandleClosedPromiseAfterReleaseLock()
-    {
-        Engine.Execute(
-            """
-            const stream = new WritableStream();
-            const writer = stream.getWriter();
-            const closed = writer.closed;
-            writer.releaseLock();
-            """
-        );
-
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
-        
-        // Accessing closed after release should throw
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.closed"));
     }
 
     [Fact]

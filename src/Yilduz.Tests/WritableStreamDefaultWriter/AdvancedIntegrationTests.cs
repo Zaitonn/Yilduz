@@ -39,15 +39,15 @@ public sealed class AdvancedIntegrationTests : TestBase
         Engine.Execute(
             """
             const stream = new WritableStream();
-            
+
             const writer1 = stream.getWriter();
             writer1.write('chunk1');
             writer1.releaseLock();
-            
+
             const writer2 = stream.getWriter();
             writer2.write('chunk2');
             writer2.releaseLock();
-            
+
             const writer3 = stream.getWriter();
             """
         );
@@ -92,11 +92,12 @@ public sealed class AdvancedIntegrationTests : TestBase
         Engine.Execute(
             """
             let writeCount = 0;
+            let writeResolvers = [];
             const stream = new WritableStream({
                 write(chunk, controller) {
                     writeCount++;
                     return new Promise(resolve => {
-                        setTimeout(resolve, 10);
+                        writeResolvers.push(resolve);
                     });
                 }
             }, {
@@ -106,10 +107,10 @@ public sealed class AdvancedIntegrationTests : TestBase
 
             const writer = stream.getWriter();
             const ready1 = writer.ready;
-            
+
             writer.write('chunk1');
             const ready2 = writer.ready;
-            
+
             writer.write('chunk2');
             const ready3 = writer.ready;
             """
@@ -118,6 +119,8 @@ public sealed class AdvancedIntegrationTests : TestBase
         Assert.True(Engine.Evaluate("ready1 instanceof Promise").AsBoolean());
         Assert.True(Engine.Evaluate("ready2 instanceof Promise").AsBoolean());
         Assert.True(Engine.Evaluate("ready3 instanceof Promise").AsBoolean());
+        Assert.Equal(2, Engine.Evaluate("writeCount").AsNumber());
+        Assert.Equal(2, Engine.Evaluate("writeResolvers.length").AsNumber());
     }
 
     [Fact]
@@ -135,10 +138,10 @@ public sealed class AdvancedIntegrationTests : TestBase
             const writer = stream.getWriter();
             const initialReady = writer.ready;
             const initialClosed = writer.closed;
-            
+
             writer.write('test');
             controller.error(new Error('Test error'));
-            
+
             const errorReady = writer.ready;
             const errorClosed = writer.closed;
             """
@@ -156,12 +159,13 @@ public sealed class AdvancedIntegrationTests : TestBase
         Engine.Execute(
             """
             let processedChunks = [];
+            let resolvers = [];
             const stream = new WritableStream({
                 write(chunk, controller) {
                     processedChunks.push(chunk);
-                    if (chunk.delay) {
+                    if (chunk.async) {
                         return new Promise(resolve => {
-                            setTimeout(resolve, chunk.delay);
+                            resolvers.push({ resolve, chunk });
                         });
                     }
                     return Promise.resolve();
@@ -172,19 +176,21 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        // Write chunks with different processing times
+        // Write chunks with different processing behaviors
         Engine.Execute(
             """
             const promises = [
-                writer.write({ data: 'fast', delay: 5 }),
-                writer.write({ data: 'medium', delay: 15 }),
-                writer.write({ data: 'slow', delay: 25 }),
-                writer.write({ data: 'instant' })
+                writer.write({ data: 'sync1' }),
+                writer.write({ data: 'async1', async: true }),
+                writer.write({ data: 'sync2' }),
+                writer.write({ data: 'async2', async: true })
             ];
             """
         );
 
         Assert.True(Engine.Evaluate("promises.every(p => p instanceof Promise)").AsBoolean());
+        Assert.Equal(4, Engine.Evaluate("processedChunks.length").AsNumber());
+        Assert.Equal(2, Engine.Evaluate("resolvers.length").AsNumber());
     }
 
     [Fact]
@@ -205,7 +211,7 @@ public sealed class AdvancedIntegrationTests : TestBase
             const writer = stream.getWriter();
             writer.write('chunk1');
             writer.write('chunk2');
-            
+
             const abortPromise = writer.abort('user abort');
             """
         );
@@ -230,7 +236,7 @@ public sealed class AdvancedIntegrationTests : TestBase
 
             const writer = stream.getWriter();
             writer.write('chunk1');
-            
+
             // Access signal property
             const signal = controller.signal;
             """
@@ -264,10 +270,10 @@ public sealed class AdvancedIntegrationTests : TestBase
 
             const writer = stream.getWriter();
             const initialSize = writer.desiredSize;
-            
+
             writer.write({ data: 'light', weight: 1 });
             const afterLightSize = writer.desiredSize;
-            
+
             writer.write({ data: 'heavy', weight: 2 });
             const afterHeavySize = writer.desiredSize;
             """
@@ -298,12 +304,12 @@ public sealed class AdvancedIntegrationTests : TestBase
             const writer = stream.getWriter();
             writer.write('chunk1');
             writer.write('chunk2');
-            
+
             const closePromise = writer.close();
             """
         );
 
         Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("writeResolvers.length === 2").AsBoolean());
+        Assert.Equal(2, Engine.Evaluate("writeResolvers.length"));
     }
 }

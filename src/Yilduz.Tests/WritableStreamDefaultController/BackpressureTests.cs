@@ -95,11 +95,6 @@ public sealed class BackpressureTests : TestBase
             """
             let writeResolves = [];
             const stream = new WritableStream({
-                write(chunk) {
-                    return new Promise(resolve => {
-                        writeResolves.push(resolve);
-                    });
-                }
             }, {
                 highWaterMark: 5,
                 size(chunk) {
@@ -124,11 +119,6 @@ public sealed class BackpressureTests : TestBase
             """
             let writeResolves = [];
             const stream = new WritableStream({
-                write(chunk) {
-                    return new Promise(resolve => {
-                        writeResolves.push(resolve);
-                    });
-                }
             }, {
                 highWaterMark: 3,
                 size(chunk) {

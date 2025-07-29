@@ -30,9 +30,9 @@ internal static class AbstractOperations
     /// https://streams.spec.whatwg.org/#create-writable-stream
     /// </summary>
     public static WritableStreamInstance CreateWritableStream(
-        Func<JsValue> startAlgorithm,
-        Func<JsValue, JsValue> writeAlgorithm,
-        Func<JsValue> closeAlgorithm,
+        Func<JsValue, JsValue> startAlgorithm,
+        Func<JsValue, JsValue, JsValue> writeAlgorithm,
+        Func<JsValue, JsValue> closeAlgorithm,
         Func<JsValue, JsValue> abortAlgorithm,
         double highWaterMark,
         Func<JsValue, double> sizeAlgorithm,
@@ -360,9 +360,9 @@ internal static class AbstractOperations
     public static void SetUpWritableStreamDefaultController(
         WritableStreamInstance stream,
         WritableStreamDefaultControllerInstance controller,
-        Func<JsValue> startAlgorithm,
-        Func<JsValue, JsValue> writeAlgorithm,
-        Func<JsValue> closeAlgorithm,
+        Func<JsValue, JsValue> startAlgorithm,
+        Func<JsValue, JsValue, JsValue> writeAlgorithm,
+        Func<JsValue, JsValue> closeAlgorithm,
         Func<JsValue, JsValue> abortAlgorithm,
         double highWaterMark,
         Func<JsValue, double> sizeAlgorithm
@@ -389,7 +389,7 @@ internal static class AbstractOperations
             );
         WritableStreamUpdateBackpressure(stream, backpressure);
 
-        var startResult = startAlgorithm();
+        var startResult = startAlgorithm(controller);
         var startPromise = startResult.IsPromise()
             ? startResult
             : PromiseHelper.CreateResolvedPromise(stream.Engine, startResult).Promise;

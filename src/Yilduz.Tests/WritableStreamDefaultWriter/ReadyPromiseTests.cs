@@ -105,7 +105,7 @@ public sealed class ReadyPromiseTests : TestBase
 
             const writer = stream.getWriter();
             const ready = writer.ready;
-            
+
             // Error the stream
             controller.error(new Error('Stream error'));
             """
@@ -141,7 +141,7 @@ public sealed class ReadyPromiseTests : TestBase
         );
 
         Assert.True(Engine.Evaluate("ready instanceof Promise").AsBoolean());
-        
+
         // Accessing ready after release should throw
         Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.ready"));
     }

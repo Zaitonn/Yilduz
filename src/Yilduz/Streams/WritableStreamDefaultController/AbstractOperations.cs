@@ -23,10 +23,10 @@ internal static class AbstractOperations
 
         controller.ControlledWritableStream = stream;
 
-        Func<JsValue> startAlgorithm = () => JsValue.Undefined;
-        Func<JsValue, JsValue> writeAlgorithm = _ =>
+        Func<JsValue, JsValue> startAlgorithm = (_) => JsValue.Undefined;
+        Func<JsValue, JsValue, JsValue> writeAlgorithm = (_, _) =>
             PromiseHelper.CreateResolvedPromise(stream.Engine, JsValue.Undefined).Promise;
-        Func<JsValue> closeAlgorithm = () =>
+        Func<JsValue, JsValue> closeAlgorithm = (_) =>
             PromiseHelper.CreateResolvedPromise(stream.Engine, JsValue.Undefined).Promise;
         Func<JsValue, JsValue> abortAlgorithm = _ =>
             PromiseHelper.CreateResolvedPromise(stream.Engine, JsValue.Undefined).Promise;
@@ -39,7 +39,7 @@ internal static class AbstractOperations
             var start = sinkObj.Get("start");
             if (!start.IsUndefined())
             {
-                startAlgorithm = () =>
+                startAlgorithm = (controller) =>
                 {
                     try
                     {
@@ -62,17 +62,13 @@ internal static class AbstractOperations
             var write = sinkObj.Get("write");
             if (!write.IsUndefined())
             {
-                writeAlgorithm = chunk =>
+                writeAlgorithm = (chunk, controller) =>
                 {
                     var manualPromise = stream.Engine.Advanced.RegisterPromise();
                     try
                     {
                         manualPromise.Resolve(
-                            stream.Engine.Call(
-                                write,
-                                underlyingSink,
-                                [chunk, JsValue.FromObject(stream.Engine, controller)]
-                            )
+                            stream.Engine.Call(write, underlyingSink, [chunk, controller])
                         );
                     }
                     catch (Exception ex)
@@ -90,13 +86,15 @@ internal static class AbstractOperations
             var close = sinkObj.Get("close");
             if (!close.IsUndefined())
             {
-                closeAlgorithm = () =>
+                closeAlgorithm = (controller) =>
                 {
                     var manualPromise = stream.Engine.Advanced.RegisterPromise();
 
                     try
                     {
-                        manualPromise.Resolve(stream.Engine.Call(close, underlyingSink, []));
+                        manualPromise.Resolve(
+                            stream.Engine.Call(close, underlyingSink, [controller])
+                        );
                     }
                     catch (Exception ex)
                     {
@@ -181,14 +179,14 @@ internal static class AbstractOperations
         WritableStreamDefaultControllerInstance controller
     )
     {
-        controller.WriteAlgorithm = _ =>
+        controller.WriteAlgorithm = (_, _) =>
             PromiseHelper
                 .CreateResolvedPromise(
                     controller.ControlledWritableStream!.Engine,
                     JsValue.Undefined
                 )
                 .Promise;
-        controller.CloseAlgorithm = () =>
+        controller.CloseAlgorithm = (_) =>
             PromiseHelper
                 .CreateResolvedPromise(
                     controller.ControlledWritableStream!.Engine,
@@ -266,7 +264,7 @@ internal static class AbstractOperations
             throw new InvalidOperationException("Queue should be empty when processing close");
         }
 
-        var sinkClosePromise = controller.CloseAlgorithm();
+        var sinkClosePromise = controller.CloseAlgorithm(controller);
         WritableStreamDefaultControllerClearAlgorithms(controller);
 
         try
@@ -293,7 +291,7 @@ internal static class AbstractOperations
     {
         var stream = controller.ControlledWritableStream!;
         WritableStreamMarkFirstWriteRequestInFlight(stream);
-        var sinkWritePromise = controller.WriteAlgorithm(chunk);
+        var sinkWritePromise = controller.WriteAlgorithm(chunk, controller);
 
         try
         {

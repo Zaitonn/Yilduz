@@ -38,7 +38,9 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Verify controller is managing the queue
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 
     [Fact]
@@ -74,7 +76,9 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 
     [Fact]
@@ -114,7 +118,9 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 
     [Fact]
@@ -132,7 +138,9 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Queue should be empty initially
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 
     [Fact]
@@ -165,7 +173,9 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
         // In a full implementation, we would verify the order of processed chunks
     }
 
@@ -202,7 +212,9 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 
     [Fact]
@@ -235,7 +247,9 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 
     [Fact]
@@ -269,6 +283,8 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(
+            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
+        );
     }
 }

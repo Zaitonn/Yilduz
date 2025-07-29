@@ -3,6 +3,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime;
+using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 
@@ -31,7 +32,12 @@ internal sealed class WritableStreamDefaultControllerPrototype : ObjectInstance
         );
         FastSetProperty(
             SignalName,
-            new(new ClrFunction(Engine, SignalName.ToJsGetterName(), GetSignal), false, false, true)
+            new GetSetPropertyDescriptor(
+                get: new ClrFunction(Engine, SignalName.ToJsGetterName(), GetSignal),
+                set: null,
+                false,
+                true
+            )
         );
     }
 
