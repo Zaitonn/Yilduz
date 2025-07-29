@@ -9,6 +9,7 @@ using Yilduz.Encoding.TextDecoder;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
+using Yilduz.DOM.DOMException;
 using Yilduz.Files.Blob;
 using Yilduz.Files.File;
 using Yilduz.Files.FileReader;
@@ -33,6 +34,8 @@ public sealed class WebApiIntrinsics
 
     internal TextEncoderConstructor TextEncoder { get; }
     internal TextDecoderConstructor TextDecoder { get; }
+
+    internal DOMExceptionConstructor DOMException { get; }
 
     public EventTargetConstructor EventTarget { get; }
     public EventConstructor Event { get; }
@@ -79,6 +82,8 @@ public sealed class WebApiIntrinsics
         TextEncoder = new(_engine);
         TextDecoder = new(_engine);
 
+        DOMException = new(_engine);
+
         URL = new(_engine);
         URLSearchParams = new(_engine);
 
@@ -110,6 +115,7 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(FileReaderSync), FileReaderSync);
         _engine.SetValue(nameof(TextEncoder), TextEncoder);
         _engine.SetValue(nameof(TextDecoder), TextDecoder);
+        _engine.SetValue(nameof(DOMException), DOMException);
         _engine.SetValue(nameof(Event), Event);
         _engine.SetValue(nameof(ProgressEvent), ProgressEvent);
         _engine.SetValue(nameof(EventTarget), EventTarget);

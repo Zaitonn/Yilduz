@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
-using Jint.Native.Error;
 using Jint.Runtime;
 using Xunit;
+using Yilduz.DOM.DOMException;
 
 namespace Yilduz.Tests.AbortSignal;
 
@@ -77,7 +77,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldHaveCorrectReason()
     {
         var reason = Engine.Evaluate("AbortSignal.abort().reason").AsObject();
-        Assert.True(reason is ErrorInstance);
+        Assert.True(reason is DOMExceptionInstance);
         Assert.Equal("AbortError", reason["name"]);
         Assert.Equal("signal is aborted without reason", reason["message"]);
 

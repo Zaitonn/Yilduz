@@ -7,6 +7,9 @@ using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Encoding.TextEncoder;
 
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder
+/// </summary>
 public sealed class TextEncoderInstance : ObjectInstance
 {
     /// <summary>

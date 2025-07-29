@@ -135,7 +135,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldWorkWithDifferentEncodings(string encoding)
     {
         Engine.Execute(
-            $@"
+            $"""
             const decoder = new TextDecoder('{encoding}');
             const encoder = new TextEncoder(); // Always UTF-8
             const text = 'Hello World';

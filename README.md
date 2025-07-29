@@ -32,6 +32,9 @@ engine.Execute(
   - [x] `btoa()`
 - Console
   - [x] `console`
+- DOM
+  - [ ] `DOMError`
+  - [x] `DOMException`
 - Encoding
   - [x] `TextDecoder`
   - [ ] `TextDecoderStream`

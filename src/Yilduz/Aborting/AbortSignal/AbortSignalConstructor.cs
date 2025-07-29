@@ -74,7 +74,7 @@ public sealed class AbortSignalConstructor : Constructor
 
         Task.Delay(TimeSpan.FromMilliseconds(time))
             .ContinueWith(_ =>
-                signal.SetAborted(ErrorHelper.Create(Engine, "TimeoutError", "signal timed out"))
+                signal.SetAborted(DOMExceptionHelper.CreateTimeoutError(Engine, "signal timed out"))
             );
 
         return signal;

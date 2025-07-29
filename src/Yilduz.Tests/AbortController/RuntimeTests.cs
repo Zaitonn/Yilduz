@@ -4,6 +4,7 @@ using Jint.Runtime;
 using Xunit;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
+using Yilduz.DOM.DOMException;
 
 namespace Yilduz.Tests.AbortController;
 
@@ -58,7 +59,7 @@ public sealed class RuntimeTests : TestBase
         Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
 
         var reason = Engine.Evaluate("controller.signal.reason");
-        Assert.IsType<JsError>(reason);
+        Assert.IsType<DOMExceptionInstance>(reason);
         Assert.Equal("AbortError: signal is aborted without reason", reason.ToString());
     }
 

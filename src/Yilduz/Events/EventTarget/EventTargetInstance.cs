@@ -76,6 +76,12 @@ public class EventTargetInstance : ObjectInstance
 
                 if (toRemove != default)
                 {
+                    if (toRemove.Options.Signal is not null)
+                    {
+                        toRemove.Options.Signal.Abort -= (_, _) =>
+                            RemoveEventListener(type, listener, options);
+                    }
+
                     listeners.Remove(toRemove);
                 }
 

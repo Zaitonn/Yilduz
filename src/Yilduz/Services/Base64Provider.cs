@@ -1,7 +1,6 @@
 using System;
 using Jint;
 using Jint.Native;
-using Jint.Runtime;
 using Yilduz.Extensions;
 using Yilduz.Utils;
 using SystemEncoding = System.Text.Encoding;
@@ -34,13 +33,14 @@ internal sealed class Base64Provider(Engine engine)
         }
         catch (FormatException)
         {
-            throw new JavaScriptException(
-                ErrorHelper.Create(
+            DOMExceptionHelper
+                .CreateInvalidCharacterError(
                     _engine,
-                    "InvalidCharacterError",
                     "The string to be decoded is not correctly encoded."
                 )
-            );
+                .Throw();
+
+            return JsValue.Undefined;
         }
     }
 
@@ -50,13 +50,12 @@ internal sealed class Base64Provider(Engine engine)
         {
             if (c > (char)0xff)
             {
-                throw new JavaScriptException(
-                    ErrorHelper.Create(
+                DOMExceptionHelper
+                    .CreateInvalidCharacterError(
                         _engine,
-                        "InvalidCharacterError",
                         "The string to be encoded contains characters outside of the Latin1 range."
                     )
-                );
+                    .Throw();
             }
         }
     }

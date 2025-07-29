@@ -46,7 +46,10 @@ public sealed class AbortSignalInstance : EventTargetInstance
 
         if (reason.IsUndefined())
         {
-            Reason = ErrorHelper.Create(Engine, "AbortError", "signal is aborted without reason");
+            Reason = DOMExceptionHelper.CreateAbortError(
+                Engine,
+                "signal is aborted without reason"
+            );
         }
 
         Abort?.Invoke(this, EventArgs.Empty);
