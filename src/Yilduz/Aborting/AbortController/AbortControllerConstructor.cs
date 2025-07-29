@@ -21,6 +21,11 @@ internal sealed class AbortControllerConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
+        return Construct();
+    }
+
+    public AbortControllerInstance Construct()
+    {
         return new AbortControllerInstance(Engine)
         {
             Prototype = PrototypeObject,

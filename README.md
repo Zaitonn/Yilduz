@@ -63,9 +63,9 @@ engine.Execute(
   - [ ] `ReadableStream`
   - [ ] `ReadableStreamDefaultReader`
   - [ ] `ReadableStreamDefaultController`
-  - [ ] `WritableStream`
-  - [ ] `WritableStreamDefaultReader`
-  - [ ] `WritableStreamDefaultController`
+  - [x] `WritableStream`
+  - [x] `WritableStreamDefaultWriter`
+  - [x] `WritableStreamDefaultController`
   - [ ] `TransformStream`
   - [ ] `TransformStreamDefaultController`
 - Storages

@@ -4,18 +4,21 @@ using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Console;
-using Yilduz.Encoding.TextEncoder;
+using Yilduz.DOM.DOMException;
 using Yilduz.Encoding.TextDecoder;
+using Yilduz.Encoding.TextEncoder;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
-using Yilduz.DOM.DOMException;
 using Yilduz.Files.Blob;
 using Yilduz.Files.File;
 using Yilduz.Files.FileReader;
 using Yilduz.Files.FileReaderSync;
 using Yilduz.Services;
 using Yilduz.Storages.Storage;
+using Yilduz.Streams.WritableStream;
+using Yilduz.Streams.WritableStreamDefaultController;
+using Yilduz.Streams.WritableStreamDefaultWriter;
 using Yilduz.URLs.URL;
 using Yilduz.URLs.URLSearchParams;
 
@@ -43,6 +46,10 @@ public sealed class WebApiIntrinsics
 
     internal URLConstructor URL { get; }
     internal URLSearchParamsConstructor URLSearchParams { get; }
+
+    internal WritableStreamConstructor WritableStream { get; }
+    internal WritableStreamDefaultWriterConstructor WritableStreamDefaultWriter { get; }
+    internal WritableStreamDefaultControllerConstructor WritableStreamDefaultController { get; }
 
     internal StorageConstructor Storage { get; }
     public StorageInstance LocalStorage { get; }
@@ -87,6 +94,10 @@ public sealed class WebApiIntrinsics
         URL = new(_engine);
         URLSearchParams = new(_engine);
 
+        WritableStream = new(_engine);
+        WritableStreamDefaultWriter = new(_engine);
+        WritableStreamDefaultController = new(_engine);
+
         Storage = new(_engine);
 
         Base64Provider = new(_engine);
@@ -121,6 +132,9 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(EventTarget), EventTarget);
         _engine.SetValue(nameof(URL), URL);
         _engine.SetValue(nameof(URLSearchParams), URLSearchParams);
+        _engine.SetValue(nameof(WritableStream), WritableStream);
+        _engine.SetValue(nameof(WritableStreamDefaultWriter), WritableStreamDefaultWriter);
+        _engine.SetValue(nameof(WritableStreamDefaultController), WritableStreamDefaultController);
         _engine.SetValue(nameof(Storage), Storage);
 
         _engine.SetValue("console", Console);

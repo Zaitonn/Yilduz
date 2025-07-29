@@ -17,8 +17,8 @@ internal sealed class TextDecoderConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        var label = arguments.Length > 0 ? arguments[0] : JsValue.Undefined;
-        var options = arguments.Length > 1 ? arguments[1] : JsValue.Undefined;
+        var label = arguments.Length > 0 ? arguments[0] : Undefined;
+        var options = arguments.Length > 1 ? arguments[1] : Undefined;
 
         return new TextDecoderInstance(Engine, label, options) { Prototype = PrototypeObject };
     }
