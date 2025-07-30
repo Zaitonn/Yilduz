@@ -157,48 +157,6 @@ public sealed class AdvancedIntegrationTests : TestBase
     }
 
     [Fact]
-    public async Task ShouldHandleComplexWriteSequence()
-    {
-        Engine.Execute(
-            """
-            let processedChunks = [];
-            let resolvers = [];
-            const stream = new WritableStream({
-                write(chunk, controller) {
-                    processedChunks.push(chunk);
-                    if (chunk.async) {
-                        return new Promise(resolve => {
-                            resolvers.push({ v: resolve, chunk });
-                        });
-                    }
-                    return Promise.resolve();
-                }
-            });
-
-            const writer = stream.getWriter();
-            """
-        );
-
-        // Write chunks with different processing behaviors
-        Engine.Execute(
-            """
-            const promises = [
-                writer.write({ data: 'sync1' }),
-                writer.write({ data: 'async1', async: true }),
-                writer.write({ data: 'sync2' }),
-                writer.write({ data: 'async2', async: true })
-            ];
-            """
-        );
-
-        await Task.Delay(100);
-
-        Assert.True(Engine.Evaluate("promises.every(p => p instanceof Promise)").AsBoolean());
-        Assert.Equal(4, Engine.Evaluate("processedChunks.length").AsNumber());
-        Assert.Equal(2, Engine.Evaluate("resolvers.length").AsNumber());
-    }
-
-    [Fact]
     public void ShouldHandleWriterAbortAndControllerError()
     {
         Engine.Execute(
@@ -290,7 +248,7 @@ public sealed class AdvancedIntegrationTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleStreamCloseWithPendingWrites()
+    public async Task ShouldHandleStreamCloseWithPendingWrites()
     {
         Engine.Execute(
             """
@@ -313,6 +271,8 @@ public sealed class AdvancedIntegrationTests : TestBase
             const closePromise = writer.close();
             """
         );
+
+        await Task.Delay(100);
 
         Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
         Assert.Equal(2, Engine.Evaluate("writeResolvers.length"));

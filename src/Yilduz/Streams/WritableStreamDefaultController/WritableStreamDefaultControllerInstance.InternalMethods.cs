@@ -110,7 +110,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
 
         if (Queue.Count > 0)
         {
-            throw new InvalidOperationException("Queue should be empty when processing close");
+            throw new JavaScriptException("Queue should be empty when processing close");
         }
 
         try
@@ -147,15 +147,16 @@ public sealed partial class WritableStreamDefaultControllerInstance
                 .ContinueWith(
                     t =>
                     {
-                        if (t.IsCompletedSuccessfully)
+                        switch (t.Status)
                         {
-                            OnCompletedSuccessfully();
-                        }
-                        if (
-                            t.IsFaulted && t.Exception?.InnerException is PromiseRejectedException e
-                        )
-                        {
-                            OnError(e.RejectedValue);
+                            case TaskStatus.RanToCompletion:
+                                OnCompletedSuccessfully();
+                                break;
+
+                            case TaskStatus.Faulted
+                                when t.Exception?.InnerException is PromiseRejectedException e:
+                                OnError(e.RejectedValue);
+                                break;
                         }
                     },
                     TaskContinuationOptions.ExecuteSynchronously
@@ -164,6 +165,8 @@ public sealed partial class WritableStreamDefaultControllerInstance
         catch (JavaScriptException e)
         {
             OnError(e.Error);
+
+            throw;
         }
 
         void OnCompletedSuccessfully()
@@ -247,7 +250,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
     {
         if (double.IsNaN(size) || size < 0 || double.IsInfinity(size))
         {
-            throw new ArgumentOutOfRangeException(nameof(size), "Invalid size");
+            TypeErrorHelper.Throw(Engine, "Size is invalid");
         }
 
         Stream.Controller.Queue.Add(new() { Value = value, Size = size });

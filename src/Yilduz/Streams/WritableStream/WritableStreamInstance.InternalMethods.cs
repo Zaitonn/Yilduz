@@ -19,7 +19,7 @@ public sealed partial class WritableStreamInstance
     {
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
-            return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+            return Undefined;
         }
 
         // Signal abort on stream.[[controller]].[[abortController]] with reason
@@ -27,7 +27,7 @@ public sealed partial class WritableStreamInstance
 
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
-            return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+            return Undefined;
         }
 
         if (PendingAbortRequest is not null)
@@ -370,7 +370,7 @@ public sealed partial class WritableStreamInstance
     {
         if (WriteRequests.Count == 0)
         {
-            throw new InvalidOperationException("No write requests in queue");
+            throw new JavaScriptException("No write requests in queue");
         }
 
         InFlightWriteRequest = WriteRequests[0];
@@ -408,8 +408,11 @@ public sealed partial class WritableStreamInstance
         InFlightWriteRequest?.Reject(error);
         InFlightWriteRequest = null;
 
-        if (State == WritableStreamState.Writable)
+        if (State is WritableStreamState.Writable or WritableStreamState.Erroring)
         {
+            PendingAbortRequest?.Promise.Reject(error);
+            PendingAbortRequest = null;
+
             DealWithRejection(error);
         }
     }

@@ -64,15 +64,15 @@ internal sealed class WritableStreamPrototype : ObjectInstance
         var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
         var reason = arguments.At(0);
 
-        var (promise, resolve, _) = Engine.Advanced.RegisterPromise();
+        var (promise, resolve, rejected) = Engine.Advanced.RegisterPromise();
 
         try
         {
             resolve(instance.Abort(reason));
         }
-        catch (JavaScriptException exception)
+        catch (JavaScriptException e)
         {
-            resolve(exception.Error);
+            rejected(e.Error);
         }
 
         return promise;

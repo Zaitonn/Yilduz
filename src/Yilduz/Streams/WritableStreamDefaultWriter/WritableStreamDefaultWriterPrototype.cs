@@ -6,6 +6,7 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
+using Yilduz.Utils;
 
 namespace Yilduz.Streams.WritableStreamDefaultWriter;
 
@@ -114,7 +115,18 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
         var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var reason = arguments.At(0);
 
-        return instance.Abort(reason);
+        try
+        {
+            var result = instance.Abort(reason);
+
+            return result.IsPromise()
+                ? result
+                : PromiseHelper.CreateResolvedPromise(Engine, result).Promise;
+        }
+        catch (JavaScriptException e)
+        {
+            return PromiseHelper.CreateRejectedPromise(Engine, e.Error).Promise;
+        }
     }
 
     /// <summary>
@@ -144,9 +156,9 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     /// </summary>
     private JsValue Write(JsValue thisObject, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
+        var writer = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var chunk = arguments.At(0);
 
-        return instance.Write(chunk);
+        return writer.Write(chunk);
     }
 }

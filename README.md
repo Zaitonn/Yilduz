@@ -1,5 +1,8 @@
 # Yilduz
 
+[![wakatime](https://wakatime.com/badge/github/Zaitonn/Yilduz.svg)](https://wakatime.com/badge/github/Zaitonn/Yilduz)
+[![NuGet Version](https://img.shields.io/nuget/v/Yilduz)](https://www.nuget.org/packages/Yilduz)
+
 Web api implementation ([`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.) for [Jint](https://github.com/sebastienros/jint)
 
 ## Usage
@@ -80,19 +83,23 @@ engine.Execute(
   - [x] `URL`
   - [x] `URLSearchParams`
 
-## Encoding Support
+## Known Issues
 
-The `TextEncoder` and `TextDecoder` implementations support common character encodings including UTF-8, UTF-16, ASCII, and ISO-8859-1.
+### Encoding Support
+
+The `TextDecoder` implementation supports common character encodings including UTF-8, UTF-16, ASCII, and ISO-8859-1.
 
 If you need to use additional character encodings beyond the common ones, you'll need to install the [`System.Text.Encoding.CodePages` NuGet package](https://www.nuget.org/packages/System.Text.Encoding.CodePages/) and register the encoding providers:
 
 ```cs
 using System.Text;
 
+var engine = new Engine().InitializeWebApi(new());
+// engine.Evaluate("new TextDecoder('gb_2312').encoding"); // throws an error
+
 // Register additional encoding providers
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
 
-var engine = new Engine().InitializeWebApi(new());
 engine.Evaluate("new TextDecoder('gb_2312').encoding"); // = 'gbk'
 ```
 

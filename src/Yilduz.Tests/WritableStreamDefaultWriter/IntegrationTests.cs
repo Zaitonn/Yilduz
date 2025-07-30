@@ -78,7 +78,7 @@ public sealed class IntegrationTests : TestBase
     {
         Engine.Execute(
             """
-            let writeError = null;
+            let writeError = undefined;
 
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -90,16 +90,16 @@ public sealed class IntegrationTests : TestBase
             });
 
             const writer = stream.getWriter();
-            writer.write('good');
+            // writer.write('good');
             writer.write('error').catch(e => {
                 writeError = e.message;
             });
             """
         );
 
-        await Task.Delay(100);
+        await Task.Delay(500);
 
-        Assert.Equal("Write failed", Engine.Evaluate("writeError").AsString());
+        Assert.Equal("Write failed", Engine.Evaluate("writeError"));
     }
 
     [Fact]

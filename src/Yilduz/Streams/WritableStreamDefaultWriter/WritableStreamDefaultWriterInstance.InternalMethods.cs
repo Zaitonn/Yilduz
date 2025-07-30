@@ -24,28 +24,14 @@ public sealed partial class WritableStreamDefaultWriterInstance
 
     internal void EnsureReadyPromiseRejected(JsValue error)
     {
-        if (ReadyPromise is not null)
-        {
-            ReadyPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
-        }
-        else
-        {
-            // If the promise is already settled, create a new rejected promise
-            ReadyPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
-        }
+        ReadyPromise?.Reject(error);
+        ReadyPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
     }
 
     private void EnsureClosedPromiseRejected(JsValue error)
     {
-        if (ClosedPromise is not null)
-        {
-            ClosedPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
-        }
-        else
-        {
-            // If the promise is already settled, create a new rejected promise
-            ClosedPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
-        }
+        ClosedPromise?.Reject(error);
+        ClosedPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
     }
 
     private void Release()
@@ -74,7 +60,7 @@ public sealed partial class WritableStreamDefaultWriterInstance
             throw new InvalidOperationException();
         }
 
-        var chunkSize = Stream.Controller.StrategySizeAlgorithm?.Call(chunk).AsNumber() ?? 1;
+        var chunkSize = Stream.Controller.StrategySizeAlgorithm.Call(chunk).AsNumber();
 
         if (!Stream.Locked)
         {

@@ -73,12 +73,7 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
     {
         if (Stream == null)
         {
-            return PromiseHelper
-                .CreateRejectedPromise(
-                    Engine,
-                    ErrorHelper.Create(Engine, "TypeError", "Writer is released")
-                )
-                .Promise;
+            TypeErrorHelper.Throw(Engine, "Writer is released");
         }
 
         return AbortInternal(reason);
@@ -142,7 +137,11 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
 
         try
         {
-            return WriteInternal(chunk);
+            var result = WriteInternal(chunk);
+
+            return result.IsPromise()
+                ? result
+                : PromiseHelper.CreateResolvedPromise(Engine, result).Promise;
         }
         catch (JavaScriptException e)
         {

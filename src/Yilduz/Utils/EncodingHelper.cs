@@ -1,5 +1,4 @@
 using System;
-using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Utils;
 

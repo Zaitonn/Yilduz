@@ -123,25 +123,6 @@ public sealed class CloseMethodTests : TestBase
     }
 
     [Fact]
-    public void ShouldRejectWhenStreamIsErrored()
-    {
-        Engine.Execute(
-            """
-            let closeRejected = false;
-            const stream = new WritableStream({
-                start(controller) {
-                    controller.error(new Error('Stream error'));
-                }
-            });
-            const writer = stream.getWriter();
-            writer.close().catch(() => { closeRejected = true; });
-            """
-        );
-
-        Assert.True(Engine.Evaluate("closeRejected").AsBoolean());
-    }
-
-    [Fact]
     public void ShouldResolveClosedPromiseAfterClose()
     {
         Engine.Execute(

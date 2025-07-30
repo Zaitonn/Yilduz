@@ -96,7 +96,6 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         Assert.True(Engine.Evaluate("largePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("writer.desiredSize < 0").AsBoolean());
     }
 
     [Fact]

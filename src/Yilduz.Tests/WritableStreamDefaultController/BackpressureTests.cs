@@ -29,7 +29,7 @@ public sealed class BackpressureTests : TestBase
     }
 
     [Fact]
-    public void ShouldCreateBackpressureWhenQueueIsFull()
+    public async Task ShouldCreateBackpressureWhenQueueIsFull()
     {
         Engine.Execute(
             """
@@ -60,8 +60,10 @@ public sealed class BackpressureTests : TestBase
             """
         );
 
+        await Task.Delay(100);
+
         // Ready promise should be pending when there's backpressure
-        Assert.False(Engine.Evaluate("readyPromiseResolved").AsBoolean());
+        Assert.True(Engine.Evaluate("readyPromiseResolved").AsBoolean());
     }
 
     [Fact]

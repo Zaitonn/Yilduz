@@ -76,8 +76,8 @@ public sealed class ReleaseLockMethodTests : TestBase
             let readyRejected = false;
             const stream = new WritableStream();
             const writer = stream.getWriter();
-            writer.ready.catch(() => { readyRejected = true; });
             writer.releaseLock();
+            writer.ready.catch(() => { readyRejected = true; });
             """
         );
 
