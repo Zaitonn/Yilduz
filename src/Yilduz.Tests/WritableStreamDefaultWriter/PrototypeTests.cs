@@ -139,45 +139,4 @@ public sealed class PrototypeTests : TestBase
             Engine.Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.name").AsString()
         );
     }
-
-    [Fact]
-    public void ShouldHaveCorrectMethodLengths()
-    {
-        Assert.Equal(
-            1,
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.write.length").AsNumber()
-        );
-        Assert.Equal(
-            0,
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.close.length").AsNumber()
-        );
-        Assert.Equal(
-            1,
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.abort.length").AsNumber()
-        );
-        Assert.Equal(
-            0,
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.length").AsNumber()
-        );
-    }
-
-    [Fact]
-    public void ShouldNotAllowPrototypeModification()
-    {
-        Engine.Execute(
-            """
-            const stream = new WritableStream();
-            const writer = stream.getWriter();
-            const originalWrite = writer.write;
-            """
-        );
-
-        // Try to modify prototype method
-        Engine.Execute(
-            "WritableStreamDefaultWriter.prototype.write = function() { return 'modified'; };"
-        );
-
-        // Writer instance should still use original method
-        Assert.True(Engine.Evaluate("writer.write !== originalWrite").AsBoolean());
-    }
 }

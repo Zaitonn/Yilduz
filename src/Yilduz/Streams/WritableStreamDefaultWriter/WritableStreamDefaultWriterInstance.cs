@@ -1,7 +1,6 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
-using Jint.Native.Promise;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
@@ -11,28 +10,8 @@ namespace Yilduz.Streams.WritableStreamDefaultWriter;
 /// WritableStreamDefaultWriter implementation according to WHATWG Streams Standard
 /// https://streams.spec.whatwg.org/#writablestreamdefaultwriter
 /// </summary>
-public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
+public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
 {
-    /// <summary>
-    /// Internal slots as defined in the WHATWG Streams specification
-    /// https://streams.spec.whatwg.org/#ws-default-writer-internal-slots
-    /// </summary>
-
-    /// <summary>
-    /// [[closedPromise]] - A promise returned by the writer's closed getter
-    /// </summary>
-    internal ManualPromise? ClosedPromise { get; set; }
-
-    /// <summary>
-    /// [[readyPromise]] - A promise returned by the writer's ready getter
-    /// </summary>
-    internal ManualPromise? ReadyPromise { get; set; }
-
-    /// <summary>
-    /// [[stream]] - A WritableStream instance that owns this reader
-    /// </summary>
-    internal WritableStreamInstance? Stream { get; set; }
-
     /// <summary>
     /// https://streams.spec.whatwg.org/#ws-default-writer-closed
     /// </summary>
@@ -63,16 +42,24 @@ public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
                 return 0;
             }
 
-            return WritableStreamDefaultController.AbstractOperations.WritableStreamDefaultControllerGetDesiredSize(
-                Stream.Controller!
-            );
+            return Stream.Controller.GetDesiredSize();
         }
     }
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#ws-default-writer-ready
     /// </summary>
-    public JsValue Ready => ReadyPromise?.Promise ?? Undefined;
+    public JsValue Ready =>
+        Stream is not null
+            ? ReadyPromise?.Promise ?? Undefined
+            : PromiseHelper
+                .CreateRejectedPromise(
+                    Engine,
+                    Engine.Intrinsics.TypeError.Construct(
+                        "This writable stream writer has been released and cannot be used to monitor the stream's state"
+                    )
+                )
+                .Promise;
 
     internal WritableStreamDefaultWriterInstance(Engine engine)
         : base(engine) { }
@@ -92,7 +79,7 @@ public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        return AbstractOperations.WritableStreamDefaultWriterAbort(this, reason ?? Undefined);
+        return Stream.AbortInternal(reason);
     }
 
     /// <summary>
@@ -110,8 +97,7 @@ public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        var stream = Stream;
-        if (WritableStream.AbstractOperations.WritableStreamCloseQueuedOrInFlight(stream))
+        if (Stream.IsCloseQueuedOrInFlight())
         {
             return PromiseHelper
                 .CreateRejectedPromise(
@@ -121,7 +107,7 @@ public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        return AbstractOperations.WritableStreamDefaultWriterClose(this);
+        return Stream.Close();
     }
 
     /// <summary>
@@ -134,13 +120,13 @@ public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
             return;
         }
 
-        AbstractOperations.WritableStreamDefaultWriterRelease(this);
+        Release();
     }
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#ws-default-writer-write
     /// </summary>
-    public JsValue Write(JsValue chunk = null!)
+    public JsValue Write(JsValue chunk)
     {
         if (Stream == null)
         {
@@ -152,6 +138,6 @@ public sealed class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        return AbstractOperations.WritableStreamDefaultWriterWrite(this, chunk ?? Undefined);
+        return WriteInternal(chunk ?? Undefined);
     }
 }

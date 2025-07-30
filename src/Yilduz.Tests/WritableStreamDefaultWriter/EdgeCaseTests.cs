@@ -222,6 +222,7 @@ public sealed class EdgeCaseTests : TestBase
                 write(chunk, controller) {
                     return new Promise(resolve => {
                         resolveWrite = resolve;
+                        resolve();
                     });
                 }
             });

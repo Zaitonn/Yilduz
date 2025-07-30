@@ -143,7 +143,9 @@ public sealed class ReadyPromiseTests : TestBase
         Assert.True(Engine.Evaluate("ready instanceof Promise").AsBoolean());
 
         // Accessing ready after release should throw
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.ready"));
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.ready").UnwrapIfPromise()
+        );
     }
 
     [Fact]
