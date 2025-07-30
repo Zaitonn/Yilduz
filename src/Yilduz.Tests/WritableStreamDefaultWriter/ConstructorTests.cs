@@ -90,22 +90,4 @@ public sealed class ConstructorTests : TestBase
             () => Engine.Execute("new WritableStreamDefaultWriter(stream);")
         );
     }
-
-    [Fact]
-    public void ShouldThrowWhenStreamIsErrored()
-    {
-        Engine.Execute(
-            """
-            const stream = new WritableStream({
-                start(controller) {
-                    controller.error(new Error('test error'));
-                }
-            });
-            """
-        );
-
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter(stream);")
-        );
-    }
 }

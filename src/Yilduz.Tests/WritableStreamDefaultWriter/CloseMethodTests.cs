@@ -101,7 +101,9 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("writer.close();"));
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.close()").UnwrapIfPromise()
+        );
     }
 
     [Fact]

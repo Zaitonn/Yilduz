@@ -80,7 +80,7 @@ public sealed partial class WritableStreamInstance : ObjectInstance
     /// </summary>
     public JsValue Close()
     {
-        if (Locked)
+        if (!Locked)
         {
             return PromiseHelper
                 .CreateRejectedPromise(
@@ -90,7 +90,7 @@ public sealed partial class WritableStreamInstance : ObjectInstance
                 .Promise;
         }
 
-        if (IsCloseQueuedOrInFlight())
+        if (IsCloseQueuedOrInFlight)
         {
             return PromiseHelper
                 .CreateRejectedPromise(

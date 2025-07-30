@@ -12,6 +12,9 @@ namespace Yilduz.Streams.WritableStream;
 
 public sealed partial class WritableStreamInstance
 {
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-abort
+    /// </summary>
     internal JsValue AbortInternal(JsValue reason)
     {
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
@@ -22,8 +25,7 @@ public sealed partial class WritableStreamInstance
         // Signal abort on stream.[[controller]].[[abortController]] with reason
         Controller.AbortController.Abort(reason);
 
-        var state = State;
-        if (state == WritableStreamState.Closed || state == WritableStreamState.Errored)
+        if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
             return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
         }
@@ -33,9 +35,15 @@ public sealed partial class WritableStreamInstance
             return PendingAbortRequest.Value.Promise.Promise;
         }
 
-        var wasAlreadyErroring = state == WritableStreamState.Erroring;
-        if (wasAlreadyErroring)
+        if (State is not WritableStreamState.Writable and not WritableStreamState.Erroring)
         {
+            throw new InvalidOperationException();
+        }
+
+        var wasAlreadyErroring = false;
+        if (State == WritableStreamState.Erroring)
+        {
+            wasAlreadyErroring = true;
             reason = Undefined;
         }
 
@@ -55,7 +63,10 @@ public sealed partial class WritableStreamInstance
         return promise.Promise;
     }
 
-    private JsValue CloseInternal()
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-close
+    /// </summary>
+    internal JsValue CloseInternal()
     {
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
@@ -67,7 +78,7 @@ public sealed partial class WritableStreamInstance
                 .Promise;
         }
 
-        if (IsCloseQueuedOrInFlight())
+        if (IsCloseQueuedOrInFlight)
         {
             return PromiseHelper
                 .CreateRejectedPromise(
@@ -80,13 +91,11 @@ public sealed partial class WritableStreamInstance
         var promise = Engine.Advanced.RegisterPromise();
         CloseRequest = promise;
 
-        var writer = Writer;
-        if (writer != null && Backpressure && State == WritableStreamState.Writable)
+        if (Writer != null && Backpressure && State == WritableStreamState.Writable)
         {
-            writer.ReadyPromise?.Resolve(Undefined);
+            Writer.ReadyPromise?.Resolve(Undefined);
         }
 
-        Controller.ErrorInternal(Undefined);
         Controller.CloseInternal();
         return promise.Promise;
     }
@@ -244,6 +253,9 @@ public sealed partial class WritableStreamInstance
         }
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-update-backpressure
+    /// </summary>
     internal void UpdateBackpressure(bool backpressure)
     {
         if (State != WritableStreamState.Writable)
@@ -251,30 +263,24 @@ public sealed partial class WritableStreamInstance
             return;
         }
 
-        if (IsCloseQueuedOrInFlight())
+        if (IsCloseQueuedOrInFlight)
         {
             return;
         }
 
-        var writer = Writer;
-        if (writer != null && backpressure != Backpressure)
+        if (Writer != null && backpressure != Backpressure)
         {
             if (backpressure)
             {
-                writer.ReadyPromise = Engine.Advanced.RegisterPromise();
+                Writer.ReadyPromise = Engine.Advanced.RegisterPromise();
             }
             else
             {
-                writer.ReadyPromise?.Resolve(Undefined);
+                Writer.ReadyPromise?.Resolve(Undefined);
             }
         }
 
         Backpressure = backpressure;
-    }
-
-    internal bool IsCloseQueuedOrInFlight()
-    {
-        return !(CloseRequest == null && InFlightCloseRequest == null);
     }
 
     private void DealWithRejection(JsValue error)
@@ -289,6 +295,9 @@ public sealed partial class WritableStreamInstance
         FinishErroring();
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-start-erroring
+    /// </summary>
     internal void StartErroring(JsValue reason)
     {
         StoredError = reason;
@@ -424,7 +433,7 @@ public sealed partial class WritableStreamInstance
 
         if (State == WritableStreamState.Writable)
         {
-            if (!IsCloseQueuedOrInFlight() && Backpressure)
+            if (!IsCloseQueuedOrInFlight && Backpressure)
             {
                 writer.ReadyPromise = Engine.Advanced.RegisterPromise();
             }

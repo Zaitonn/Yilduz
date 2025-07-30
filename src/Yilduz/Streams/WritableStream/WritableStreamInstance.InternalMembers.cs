@@ -67,4 +67,10 @@ public sealed partial class WritableStreamInstance
     /// [[writeRequests]] - A list of promises representing the stream's internal queue of write requests
     /// </summary>
     internal List<ManualPromise> WriteRequests { get; private set; } = [];
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-close-queued-or-in-flight
+    /// </summary>
+    internal bool IsCloseQueuedOrInFlight =>
+        !(CloseRequest == null && InFlightCloseRequest == null);
 }

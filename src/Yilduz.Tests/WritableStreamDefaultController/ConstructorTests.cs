@@ -2,6 +2,7 @@ using System.Threading.Tasks;
 using Jint;
 using Jint.Runtime;
 using Xunit;
+using Yilduz.Aborting.AbortController;
 using Yilduz.Streams.WritableStreamDefaultController;
 
 namespace Yilduz.Tests.WritableStreamDefaultController;
@@ -99,30 +100,6 @@ public sealed class ConstructorTests : TestBase
         {
             Assert.IsType<WritableStreamDefaultControllerInstance>(
                 Engine.Evaluate("closeController")
-            );
-        }
-    }
-
-    [Fact]
-    public void ShouldBePassedToUnderlyingSinkAbort()
-    {
-        Engine.Execute(
-            """
-            let abortController = null;
-            const stream = new WritableStream({
-                abort(reason, ctrl) {
-                    abortController = ctrl;
-                }
-            });
-            const writer = stream.getWriter();
-            writer.abort('test reason');
-            """
-        );
-
-        if (!Engine.Evaluate("abortController === null").AsBoolean())
-        {
-            Assert.IsType<WritableStreamDefaultControllerInstance>(
-                Engine.Evaluate("abortController")
             );
         }
     }

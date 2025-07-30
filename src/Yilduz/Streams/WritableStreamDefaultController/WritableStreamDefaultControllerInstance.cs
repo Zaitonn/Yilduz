@@ -1,5 +1,6 @@
 using Jint;
 using Jint.Native;
+using Jint.Native.Function;
 using Jint.Native.Object;
 using Yilduz.Streams.WritableStream;
 
@@ -16,11 +17,16 @@ public sealed partial class WritableStreamDefaultControllerInstance : ObjectInst
     /// </summary>
     public JsValue Signal => AbortController.Signal;
 
-    internal WritableStreamDefaultControllerInstance(Engine engine, WritableStreamInstance stream)
+    internal WritableStreamDefaultControllerInstance(
+        Engine engine,
+        WritableStreamInstance stream,
+        Function sizeAlgorithm
+    )
         : base(engine)
     {
         Stream = stream;
         AbortController = engine.GetWebApiIntrinsics().AbortController.Construct();
+        StrategySizeAlgorithm = sizeAlgorithm;
 
         ClearAlgorithms();
     }

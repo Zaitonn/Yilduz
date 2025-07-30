@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Jint;
 using Jint.Runtime;
 using Xunit;
@@ -87,7 +88,7 @@ public sealed class AdvancedIntegrationTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleBackpressureAndReady()
+    public async Task ShouldHandleBackpressureAndReady()
     {
         Engine.Execute(
             """
@@ -97,7 +98,7 @@ public sealed class AdvancedIntegrationTests : TestBase
                 write(chunk, controller) {
                     writeCount++;
                     return new Promise(resolve => {
-                        writeResolvers.push(resolve);
+                        writeResolvers.push(resolve());
                     });
                 }
             }, {
@@ -115,6 +116,8 @@ public sealed class AdvancedIntegrationTests : TestBase
             const ready3 = writer.ready;
             """
         );
+
+        await Task.Delay(100);
 
         Assert.True(Engine.Evaluate("ready1 instanceof Promise").AsBoolean());
         Assert.True(Engine.Evaluate("ready2 instanceof Promise").AsBoolean());
@@ -154,7 +157,7 @@ public sealed class AdvancedIntegrationTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleComplexWriteSequence()
+    public async Task ShouldHandleComplexWriteSequence()
     {
         Engine.Execute(
             """
@@ -165,7 +168,7 @@ public sealed class AdvancedIntegrationTests : TestBase
                     processedChunks.push(chunk);
                     if (chunk.async) {
                         return new Promise(resolve => {
-                            resolvers.push({ resolve, chunk });
+                            resolvers.push({ v: resolve, chunk });
                         });
                     }
                     return Promise.resolve();
@@ -187,6 +190,8 @@ public sealed class AdvancedIntegrationTests : TestBase
             ];
             """
         );
+
+        await Task.Delay(100);
 
         Assert.True(Engine.Evaluate("promises.every(p => p instanceof Promise)").AsBoolean());
         Assert.Equal(4, Engine.Evaluate("processedChunks.length").AsNumber());
@@ -293,7 +298,7 @@ public sealed class AdvancedIntegrationTests : TestBase
             const stream = new WritableStream({
                 write(chunk, controller) {
                     return new Promise(resolve => {
-                        writeResolvers.push(resolve);
+                        writeResolvers.push(resolve());
                     });
                 },
                 close() {

@@ -1,6 +1,8 @@
+using System;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
+using Jint.Runtime;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
@@ -79,7 +81,7 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        return Stream.AbortInternal(reason);
+        return AbortInternal(reason);
     }
 
     /// <summary>
@@ -97,7 +99,7 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        if (Stream.IsCloseQueuedOrInFlight())
+        if (Stream.IsCloseQueuedOrInFlight)
         {
             return PromiseHelper
                 .CreateRejectedPromise(
@@ -107,7 +109,7 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        return Stream.Close();
+        return Stream.CloseInternal();
     }
 
     /// <summary>
@@ -138,6 +140,17 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
                 .Promise;
         }
 
-        return WriteInternal(chunk ?? Undefined);
+        try
+        {
+            return WriteInternal(chunk);
+        }
+        catch (JavaScriptException e)
+        {
+            return PromiseHelper.CreateRejectedPromise(Engine, e.Error).Promise;
+        }
+        catch (Exception e)
+        {
+            return PromiseHelper.CreateRejectedPromise(Engine, e.Message).Promise;
+        }
     }
 }

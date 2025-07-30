@@ -120,6 +120,6 @@ public sealed class PropertiesTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.desiredSize === 0").AsBoolean());
+        Assert.Equal(0, Engine.Evaluate("writer.desiredSize"));
     }
 }

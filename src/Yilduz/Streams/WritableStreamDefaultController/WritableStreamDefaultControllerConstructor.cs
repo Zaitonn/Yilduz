@@ -33,13 +33,11 @@ internal sealed class WritableStreamDefaultControllerConstructor : Constructor
         Function sizeAlgorithm
     )
     {
-        return new(Engine, writableStreamInstance)
+        return new(Engine, writableStreamInstance, sizeAlgorithm)
         {
             Prototype = PrototypeObject,
             Queue = [],
-            QueueTotalSize = 0,
             Started = false,
-            StrategySizeAlgorithm = sizeAlgorithm,
             StrategyHWM = highWaterMark,
             WriteAlgorithm = writeAlgorithm,
             CloseAlgorithm = closeAlgorithm,

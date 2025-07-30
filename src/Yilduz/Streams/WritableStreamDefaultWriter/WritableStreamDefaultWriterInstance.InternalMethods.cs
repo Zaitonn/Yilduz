@@ -1,6 +1,7 @@
 using System;
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
@@ -8,6 +9,19 @@ namespace Yilduz.Streams.WritableStreamDefaultWriter;
 
 public sealed partial class WritableStreamDefaultWriterInstance
 {
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-default-writer-abort
+    /// </summary>
+    private JsValue AbortInternal(JsValue reason)
+    {
+        if (Stream is null)
+        {
+            throw new InvalidOperationException();
+        }
+
+        return Stream.AbortInternal(reason);
+    }
+
     internal void EnsureReadyPromiseRejected(JsValue error)
     {
         if (ReadyPromise is not null)
@@ -78,7 +92,7 @@ public sealed partial class WritableStreamDefaultWriterInstance
             return PromiseHelper.CreateRejectedPromise(Engine, Stream.StoredError).Promise;
         }
 
-        if (Stream.IsCloseQueuedOrInFlight() || state == WritableStreamState.Closed)
+        if (Stream.IsCloseQueuedOrInFlight || state == WritableStreamState.Closed)
         {
             return PromiseHelper
                 .CreateRejectedPromise(
@@ -91,6 +105,16 @@ public sealed partial class WritableStreamDefaultWriterInstance
         if (state == WritableStreamState.Erroring)
         {
             return PromiseHelper.CreateRejectedPromise(Engine, Stream.StoredError).Promise;
+        }
+
+        if (state != WritableStreamState.Writable)
+        {
+            return PromiseHelper
+                .CreateRejectedPromise(
+                    Engine,
+                    ErrorHelper.Create(Engine, "TypeError", "Stream is not writable")
+                )
+                .Promise;
         }
 
         var promise = WritableStreamAddWriteRequest();

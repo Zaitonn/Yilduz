@@ -101,7 +101,9 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("writer.write('test');"));
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.write('test');").UnwrapIfPromise()
+        );
     }
 
     [Fact]

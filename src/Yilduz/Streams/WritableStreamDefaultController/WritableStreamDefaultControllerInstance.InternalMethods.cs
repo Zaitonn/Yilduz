@@ -1,5 +1,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
@@ -13,7 +14,8 @@ public sealed partial class WritableStreamDefaultControllerInstance
 {
     internal void ErrorSteps()
     {
-        ClearAlgorithms();
+        QueueTotalSize = 0;
+        Queue.Clear();
     }
 
     internal JsValue AbortSteps(JsValue reason)
@@ -39,12 +41,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// <summary>
     /// WritableStreamDefaultControllerClearAlgorithms
     /// </summary>
-    [MemberNotNull(
-        nameof(WriteAlgorithm),
-        nameof(CloseAlgorithm),
-        nameof(AbortAlgorithm),
-        nameof(StrategySizeAlgorithm)
-    )]
+    [MemberNotNull(nameof(WriteAlgorithm), nameof(CloseAlgorithm), nameof(AbortAlgorithm))]
     internal void ClearAlgorithms()
     {
         var emptyPromiseFunction = new ClrFunction(
@@ -55,7 +52,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
         WriteAlgorithm = emptyPromiseFunction;
         CloseAlgorithm = emptyPromiseFunction;
         AbortAlgorithm = emptyPromiseFunction;
-        StrategySizeAlgorithm = new ClrFunction(Engine, string.Empty, (_, _) => 1);
     }
 
     internal bool GetBackpressure()
@@ -140,14 +136,44 @@ public sealed partial class WritableStreamDefaultControllerInstance
         try
         {
             var sinkWritePromise = WriteAlgorithm.Call(chunk, this);
-            sinkWritePromise.UnwrapIfPromise();
 
+            if (!sinkWritePromise.IsPromise())
+            {
+                OnCompletedSuccessfully();
+                return;
+            }
+
+            Task.Run(sinkWritePromise.UnwrapIfPromise)
+                .ContinueWith(
+                    t =>
+                    {
+                        if (t.IsCompletedSuccessfully)
+                        {
+                            OnCompletedSuccessfully();
+                        }
+                        if (
+                            t.IsFaulted && t.Exception?.InnerException is PromiseRejectedException e
+                        )
+                        {
+                            OnError(e.RejectedValue);
+                        }
+                    },
+                    TaskContinuationOptions.ExecuteSynchronously
+                );
+        }
+        catch (JavaScriptException e)
+        {
+            OnError(e.Error);
+        }
+
+        void OnCompletedSuccessfully()
+        {
             Stream.FinishInFlightWrite();
             var state = Stream.State;
             if (state != WritableStreamState.Erroring && state != WritableStreamState.Errored)
             {
                 DequeueValue();
-                if (!Stream.IsCloseQueuedOrInFlight() && state == WritableStreamState.Writable)
+                if (!Stream.IsCloseQueuedOrInFlight && state == WritableStreamState.Writable)
                 {
                     var backpressure = GetBackpressure();
                     Stream.UpdateBackpressure(backpressure);
@@ -156,23 +182,15 @@ public sealed partial class WritableStreamDefaultControllerInstance
                 AdvanceQueueIfNeeded();
             }
         }
-        catch (PromiseRejectedException e)
+
+        void OnError(JsValue error)
         {
             if (Stream.State == WritableStreamState.Writable)
             {
                 ClearAlgorithms();
             }
 
-            Stream.FinishInFlightWriteWithError(e.RejectedValue);
-        }
-        catch (JavaScriptException e)
-        {
-            if (Stream.State == WritableStreamState.Writable)
-            {
-                ClearAlgorithms();
-            }
-
-            Stream.FinishInFlightWriteWithError(e.Error);
+            Stream.FinishInFlightWriteWithError(error);
         }
     }
 
@@ -216,7 +234,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
             return;
         }
 
-        if (!Stream.IsCloseQueuedOrInFlight() && Stream.State == WritableStreamState.Writable)
+        if (!Stream.IsCloseQueuedOrInFlight && Stream.State == WritableStreamState.Writable)
         {
             var backpressure = GetBackpressure();
             Stream.UpdateBackpressure(backpressure);

@@ -22,6 +22,7 @@ jobs:
 
       - name: Build and Pack
         run: |
+          dotnet test
           dotnet pack --configuration Release -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg
 
       - name: Add private GitHub registry to NuGet

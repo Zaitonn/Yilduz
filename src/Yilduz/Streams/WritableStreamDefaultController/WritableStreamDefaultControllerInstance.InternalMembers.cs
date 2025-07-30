@@ -35,7 +35,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// <summary>
     /// [[queueTotalSize]] - The total size of all the chunks stored in [[queue]]
     /// </summary>
-    internal double QueueTotalSize { get; set; } = 0;
+    internal double QueueTotalSize { get; set; }
 
     /// <summary>
     /// [[started]] - A boolean flag indicating whether the underlying sink's start method has finished
@@ -45,12 +45,12 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// <summary>
     /// [[strategyHWM]] - A number supplied by the creator as part of the stream's queuing strategy
     /// </summary>
-    internal double StrategyHWM { get; set; } = 1;
+    internal double StrategyHWM { get; init; } = 1;
 
     /// <summary>
     /// [[strategySizeAlgorithm]] - An algorithm to calculate the size of enqueued chunks
     /// </summary>
-    internal Function? StrategySizeAlgorithm { get; set; }
+    internal Function StrategySizeAlgorithm { get; init; }
 
     /// <summary>
     /// [[writeAlgorithm]] - A promise-returning algorithm, taking one argument (the chunk to write)

@@ -103,7 +103,7 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     {
         var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var size = instance.DesiredSize;
-        return size.HasValue ? size.Value : Null;
+        return size ?? Null;
     }
 
     /// <summary>

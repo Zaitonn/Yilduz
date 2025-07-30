@@ -13,8 +13,5 @@ internal sealed class CloseQueuedRecord : JsValue
     private CloseQueuedRecord()
         : base(Types.Object) { }
 
-    public override object? ToObject()
-    {
-        return null;
-    }
+    public override object? ToObject() => null;
 }

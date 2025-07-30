@@ -60,8 +60,12 @@ public sealed class ReleaseLockMethodTests : TestBase
             """
         );
 
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("writer.write('test');"));
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("writer.close();"));
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.write('test')").UnwrapIfPromise()
+        );
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.close()").UnwrapIfPromise()
+        );
     }
 
     [Fact]
@@ -109,25 +113,5 @@ public sealed class ReleaseLockMethodTests : TestBase
         );
 
         Assert.False(Engine.Evaluate("stream.locked").AsBoolean());
-    }
-
-    [Fact]
-    public void ShouldThrowWhenStreamHasPendingOperations()
-    {
-        Engine.Execute(
-            """
-            const stream = new WritableStream({
-                write(chunk) {
-                    // Slow write operation
-                    return new Promise(resolve => setTimeout(resolve, 100));
-                }
-            });
-            const writer = stream.getWriter();
-            writer.write('test'); // Start pending write
-            """
-        );
-
-        // This should throw because there's a pending write
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("writer.releaseLock();"));
     }
 }

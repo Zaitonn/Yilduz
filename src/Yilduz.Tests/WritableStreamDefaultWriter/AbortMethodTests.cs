@@ -1,5 +1,4 @@
 using Jint;
-using Jint.Runtime;
 using Xunit;
 
 namespace Yilduz.Tests.WritableStreamDefaultWriter;
@@ -16,7 +15,7 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.abort === 'function'").AsBoolean());
+        Assert.Equal("function", Engine.Evaluate("typeof writer.abort"));
     }
 
     [Fact]
@@ -94,19 +93,19 @@ public sealed class AbortMethodTests : TestBase
     }
 
     [Fact]
-    public void ShouldResolveWhenWriterIsReleased()
+    public void ShouldRejectedWhenWriterIsReleased()
     {
         Engine.Execute(
             """
-            let abortResolved = false;
+            let abortRejected = false;
             const stream = new WritableStream();
             const writer = stream.getWriter();
             writer.releaseLock();
-            writer.abort().then(() => { abortResolved = true; });
+            writer.abort().catch(() => { abortRejected = true; });
             """
         );
 
-        Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
+        Assert.True(Engine.Evaluate("abortRejected").AsBoolean());
     }
 
     [Fact]
@@ -141,7 +140,7 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
+        Assert.False(Engine.Evaluate("abortResolved").AsBoolean());
     }
 
     [Fact]
@@ -160,7 +159,7 @@ public sealed class AbortMethodTests : TestBase
         Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
     }
 
-    [Fact]
+    [Fact(Skip = "sebastienros/jint#2157")]
     public void ShouldAbortPendingWrites()
     {
         Engine.Execute(

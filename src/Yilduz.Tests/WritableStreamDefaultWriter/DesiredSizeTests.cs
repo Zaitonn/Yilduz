@@ -1,4 +1,5 @@
 using Jint;
+using Jint.Native;
 using Jint.Runtime;
 using Xunit;
 
@@ -116,7 +117,7 @@ public sealed class DesiredSizeTests : TestBase
     }
 
     [Fact]
-    public void ShouldReturnNullDesiredSizeWhenClosed()
+    public void ShouldReturnZeroDesiredSizeWhenClosed()
     {
         Engine.Execute(
             """
@@ -126,7 +127,7 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.desiredSize === null").AsBoolean());
+        Assert.Equal(0, Engine.Evaluate("writer.desiredSize"));
     }
 
     [Fact]

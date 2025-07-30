@@ -58,8 +58,12 @@ public sealed class EdgeCaseTests : TestBase
         Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
 
         // Property access on detached writer should throw
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.ready"));
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.closed"));
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.ready").UnwrapIfPromise()
+        );
+        Assert.Throws<PromiseRejectedException>(
+            () => Engine.Evaluate("writer.closed").UnwrapIfPromise()
+        );
         Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.desiredSize"));
     }
 
