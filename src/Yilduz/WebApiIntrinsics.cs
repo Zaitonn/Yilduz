@@ -14,8 +14,17 @@ using Yilduz.Files.Blob;
 using Yilduz.Files.File;
 using Yilduz.Files.FileReader;
 using Yilduz.Files.FileReaderSync;
+using Yilduz.Network.FormData;
+using Yilduz.Network.XMLHttpRequest;
+using Yilduz.Network.XMLHttpRequestEventTarget;
+using Yilduz.Network.XMLHttpRequestUpload;
 using Yilduz.Services;
 using Yilduz.Storages.Storage;
+using Yilduz.Streams.ByteLengthQueuingStrategy;
+using Yilduz.Streams.CountQueuingStrategy;
+using Yilduz.Streams.ReadableStream;
+using Yilduz.Streams.ReadableStreamDefaultController;
+using Yilduz.Streams.ReadableStreamDefaultReader;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Streams.WritableStreamDefaultController;
 using Yilduz.Streams.WritableStreamDefaultWriter;
@@ -47,9 +56,15 @@ public sealed class WebApiIntrinsics
     internal URLConstructor URL { get; }
     internal URLSearchParamsConstructor URLSearchParams { get; }
 
+    internal ReadableStreamConstructor ReadableStream { get; }
+    internal ReadableStreamDefaultControllerConstructor ReadableStreamDefaultController { get; }
+    internal ReadableStreamDefaultReaderConstructor ReadableStreamDefaultReader { get; }
     internal WritableStreamConstructor WritableStream { get; }
     internal WritableStreamDefaultWriterConstructor WritableStreamDefaultWriter { get; }
     internal WritableStreamDefaultControllerConstructor WritableStreamDefaultController { get; }
+
+    internal CountQueuingStrategyConstructor CountQueuingStrategy { get; }
+    internal ByteLengthQueuingStrategyConstructor ByteLengthQueuingStrategy { get; }
 
     internal StorageConstructor Storage { get; }
     public StorageInstance LocalStorage { get; }
@@ -58,6 +73,11 @@ public sealed class WebApiIntrinsics
     internal Base64Provider Base64Provider { get; }
     internal TimerProvider TimerProvider { get; }
     public ConsoleInstance Console { get; }
+
+    internal FormDataConstructor FormData { get; }
+    internal XMLHttpRequestConstructor XMLHttpRequest { get; }
+    internal XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
+    internal XMLHttpRequestUploadConstructor XMLHttpRequestUpload { get; }
 
     private readonly Engine _engine;
 
@@ -98,6 +118,18 @@ public sealed class WebApiIntrinsics
         WritableStreamDefaultWriter = new(_engine);
         WritableStreamDefaultController = new(_engine);
 
+        ReadableStream = new(_engine);
+        ReadableStreamDefaultController = new(_engine);
+        ReadableStreamDefaultReader = new(_engine);
+
+        CountQueuingStrategy = new(_engine);
+        ByteLengthQueuingStrategy = new(_engine);
+
+        FormData = new(_engine);
+        XMLHttpRequestEventTarget = new(_engine, this);
+        XMLHttpRequestUpload = new(_engine, this);
+        XMLHttpRequest = new(_engine, this);
+
         Storage = new(_engine);
 
         Base64Provider = new(_engine);
@@ -132,15 +164,22 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(EventTarget), EventTarget);
         _engine.SetValue(nameof(URL), URL);
         _engine.SetValue(nameof(URLSearchParams), URLSearchParams);
+        _engine.SetValue(nameof(CountQueuingStrategy), CountQueuingStrategy);
+        _engine.SetValue(nameof(ByteLengthQueuingStrategy), ByteLengthQueuingStrategy);
+        _engine.SetValue(nameof(ReadableStream), ReadableStream);
+        _engine.SetValue(nameof(ReadableStreamDefaultController), ReadableStreamDefaultController);
+        _engine.SetValue(nameof(ReadableStreamDefaultReader), ReadableStreamDefaultReader);
         _engine.SetValue(nameof(WritableStream), WritableStream);
         _engine.SetValue(nameof(WritableStreamDefaultWriter), WritableStreamDefaultWriter);
         _engine.SetValue(nameof(WritableStreamDefaultController), WritableStreamDefaultController);
         _engine.SetValue(nameof(Storage), Storage);
-
+        _engine.SetValue(nameof(FormData), FormData);
+        _engine.SetValue(nameof(XMLHttpRequest), XMLHttpRequest);
+        _engine.SetValue(nameof(XMLHttpRequestEventTarget), XMLHttpRequestEventTarget);
+        _engine.SetValue(nameof(XMLHttpRequestUpload), XMLHttpRequestUpload);
         _engine.SetValue("console", Console);
         _engine.SetValue("localStorage", LocalStorage);
         _engine.SetValue("sessionStorage", SessionStorage);
-
         _engine.SetValue("atob", new ClrFunction(_engine, "atob", Base64Provider.Decode));
         _engine.SetValue("btoa", new ClrFunction(_engine, "btoa", Base64Provider.Encode));
 

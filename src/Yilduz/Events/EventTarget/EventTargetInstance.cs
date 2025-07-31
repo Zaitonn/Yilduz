@@ -140,7 +140,10 @@ public class EventTargetInstance : ObjectInstance
             toRemove.ForEach(pair => listeners.Remove(pair));
         }
 
-        if (this["on" + evt.Type] is ObjectInstance objectInstance2)
+        if (
+            !evt.IsImmediatePropagationStopped
+            && this["on" + evt.Type] is ObjectInstance objectInstance2
+        )
         {
             Engine.Call(objectInstance2, this, [evt]);
         }

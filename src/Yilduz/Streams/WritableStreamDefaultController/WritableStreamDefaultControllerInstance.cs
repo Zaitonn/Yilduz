@@ -2,15 +2,17 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Function;
 using Jint.Native.Object;
+using Yilduz.Streams.Queue;
 using Yilduz.Streams.WritableStream;
 
 namespace Yilduz.Streams.WritableStreamDefaultController;
 
 /// <summary>
-/// WritableStreamDefaultController implementation according to WHATWG Streams Standard
 /// https://streams.spec.whatwg.org/#writablestreamdefaultcontroller
 /// </summary>
-public sealed partial class WritableStreamDefaultControllerInstance : ObjectInstance
+public sealed partial class WritableStreamDefaultControllerInstance
+    : ObjectInstance,
+        IQueueEntriesContainer
 {
     /// <summary>
     /// https://streams.spec.whatwg.org/#ws-default-controller-signal

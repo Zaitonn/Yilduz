@@ -19,4 +19,9 @@ internal static class PromiseHelper
         manualPromise.Reject(reason);
         return manualPromise;
     }
+
+    public static bool IsPromise(JsValue value)
+    {
+        return value.IsObject() && value.AsObject().HasProperty("then");
+    }
 }

@@ -15,8 +15,9 @@ namespace Yilduz.Events.EventTarget;
 
 public class EventTargetPrototype : ObjectInstance
 {
-    protected string Name => _name ??= GetOwnProperty("name")?.Value?.ToString() ?? "EventTarget";
-    private protected string? _name;
+    private string Name =>
+        _name ??= GetOwnProperty("name")?.Value?.ToString() ?? nameof(EventTarget);
+    private string? _name;
 
     protected internal EventTargetPrototype(Engine engine, ObjectInstance ctor)
         : base(engine)

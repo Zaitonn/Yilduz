@@ -27,7 +27,7 @@ public sealed class AbortSignalInstance : EventTargetInstance
     /// </summary>
     public JsValue Reason { get; private set; } = Undefined;
 
-    public JsValue OnAbort { get; set; } = Undefined;
+    public JsValue OnAbort { get; set; } = Null;
 
     /// <summary>
     /// Notifies when the signal is aborted.

@@ -53,7 +53,7 @@ engine.Execute(
   - [x] `EventTarget`
   - [x] `ProgressEvent`
 - Network
-  - [ ] `FormData`
+  - [x] `FormData`
   - [ ] `XMLHttpRequest`
   - [ ] `XMLHttpRequestEventTarget`
   - [ ] `XMLHttpRequestUpload`
@@ -63,9 +63,14 @@ engine.Execute(
   - [ ] `RequestInit`
   - [ ] `Response`
 - Streams
-  - [ ] `ReadableStream`
-  - [ ] `ReadableStreamDefaultReader`
-  - [ ] `ReadableStreamDefaultController`
+  - [x] `ByteLengthQueuingStrategy`
+  - [x] `CountQueuingStrategy`
+  - [x] `ReadableStream`
+  - [ ] `ReadableByteStreamController`
+  - [ ] `ReadableStreamBYOBReader`
+  - [ ] `ReadableStreamBYOBRequest`
+  - [x] `ReadableStreamDefaultReader`
+  - [x] `ReadableStreamDefaultController`
   - [x] `WritableStream`
   - [x] `WritableStreamDefaultWriter`
   - [x] `WritableStreamDefaultController`

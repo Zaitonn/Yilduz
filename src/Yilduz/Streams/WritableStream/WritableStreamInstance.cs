@@ -2,6 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Streams.QueuingStrategy;
 using Yilduz.Streams.WritableStreamDefaultWriter;
 using Yilduz.Utils;
 
@@ -43,10 +44,12 @@ public sealed partial class WritableStreamInstance : ObjectInstance
         // AbstractOperations.InitializeWritableStream(this);
 
         // Step 5: Let sizeAlgorithm be ! ExtractSizeAlgorithm(strategy)
-        var sizeAlgorithm = ExtractSizeAlgorithm(strategy);
-
         // Step 6: Let highWaterMark be ? ExtractHighWaterMark(strategy, 1)
-        var highWaterMark = ExtractHighWaterMark(strategy, 1);
+        var (highWaterMark, sizeAlgorithm) = AbstractOperations.ExtractQueuingStrategy(
+            engine,
+            strategy,
+            1
+        );
 
         // Step 7: Perform ? SetUpWritableStreamDefaultControllerFromUnderlyingSink
         SetUpControllerFromUnderlyingSink(

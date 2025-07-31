@@ -1,10 +1,10 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Streams.Queue;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
@@ -106,7 +106,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
     private void ProcessClose()
     {
         MarkCloseRequestInFlight();
-        DequeueValue();
+        this.DequeueValue();
 
         if (Queue.Count > 0)
         {
@@ -175,7 +175,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
             var state = Stream.State;
             if (state != WritableStreamState.Erroring && state != WritableStreamState.Errored)
             {
-                DequeueValue();
+                this.DequeueValue();
                 if (!Stream.IsCloseQueuedOrInFlight && state == WritableStreamState.Writable)
                 {
                     var backpressure = GetBackpressure();
@@ -197,25 +197,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
         }
     }
 
-    private JsValue DequeueValue()
-    {
-        if (Queue.Count == 0)
-        {
-            throw new InvalidOperationException("Queue is empty");
-        }
-
-        var pair = Queue[0];
-        Queue.RemoveAt(0);
-        QueueTotalSize -= pair.Size;
-
-        if (QueueTotalSize < 0)
-        {
-            QueueTotalSize = 0;
-        }
-
-        return pair.Value;
-    }
-
     private void MarkCloseRequestInFlight()
     {
         Stream.InFlightCloseRequest = Stream.CloseRequest;
@@ -229,7 +210,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
     {
         try
         {
-            EnqueueValueWithSize(chunk, size);
+            this.EnqueueValueWithSize(Engine, chunk, size);
         }
         catch (JavaScriptException e)
         {
@@ -244,17 +225,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
         }
 
         AdvanceQueueIfNeeded();
-    }
-
-    private void EnqueueValueWithSize(JsValue value, double size)
-    {
-        if (double.IsNaN(size) || size < 0 || double.IsInfinity(size))
-        {
-            TypeErrorHelper.Throw(Engine, "Size is invalid");
-        }
-
-        Stream.Controller.Queue.Add(new() { Value = value, Size = size });
-        Stream.Controller.QueueTotalSize += size;
     }
 
     /// <summary>
@@ -281,7 +251,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
 
     internal void CloseInternal()
     {
-        EnqueueValueWithSize(CloseQueuedRecord.Instance, 0);
+        this.EnqueueValueWithSize(Engine, CloseQueuedRecord.Instance, 0);
         AdvanceQueueIfNeeded();
     }
 }

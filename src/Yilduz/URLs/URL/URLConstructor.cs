@@ -38,7 +38,7 @@ internal sealed partial class URLConstructor : Constructor
 
         try
         {
-            return ParseInternal(
+            return Parse(
                 arguments.At(0).ToString(),
                 arguments.Length == 1 ? null : arguments.At(1).ToString()
             );
@@ -55,7 +55,7 @@ internal sealed partial class URLConstructor : Constructor
         arguments.EnsureCount(Engine, 1, CanParseName, nameof(URL));
         try
         {
-            ParseInternal(
+            Parse(
                 arguments.At(0).ToString(),
                 arguments.Length == 1 ? null : arguments.At(1).ToString()
             );
@@ -73,7 +73,7 @@ internal sealed partial class URLConstructor : Constructor
 
         try
         {
-            return ParseInternal(
+            return Parse(
                 arguments.At(0).ToString(),
                 arguments.Length == 1 ? null : arguments.At(1).ToString()
             );
@@ -84,7 +84,7 @@ internal sealed partial class URLConstructor : Constructor
         }
     }
 
-    private URLInstance ParseInternal(string url, string? baseUrl)
+    internal URLInstance Parse(string url, string? baseUrl)
     {
         var uri = new Uri(url, UriKind.RelativeOrAbsolute);
 

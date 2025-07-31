@@ -101,48 +101,6 @@ public sealed partial class WritableStreamInstance
     }
 
     /// <summary>
-    /// Extract size algorithm from strategy
-    /// https://streams.spec.whatwg.org/#extract-size-algorithm
-    /// </summary>
-    private Function ExtractSizeAlgorithm(JsValue strategy)
-    {
-        if (strategy.IsObject())
-        {
-            var sizeProperty = strategy.Get("size");
-            if (sizeProperty is Function function)
-            {
-                return function;
-            }
-        }
-
-        return new ClrFunction(Engine, string.Empty, (_, _) => 1);
-    }
-
-    /// <summary>
-    /// Extract high water mark from strategy
-    /// https://streams.spec.whatwg.org/#extract-high-water-mark
-    /// </summary>
-    private double ExtractHighWaterMark(JsValue strategy, double defaultHWM)
-    {
-        if (strategy.IsObject())
-        {
-            var highWaterMarkProperty = strategy.Get("highWaterMark");
-            if (!highWaterMarkProperty.IsUndefined())
-            {
-                var number = TypeConverter.ToNumber(highWaterMarkProperty);
-
-                return double.IsNaN(number) || number < 0
-                    ? throw new JavaScriptException(
-                        ErrorHelper.Create(Engine, "RangeError", "Invalid highWaterMark value")
-                    )
-                    : number;
-            }
-        }
-
-        return defaultHWM;
-    }
-
-    /// <summary>
     /// SetUpWritableStreamDefaultControllerFromUnderlyingSink
     /// </summary>
     [MemberNotNull(nameof(Controller))]
@@ -170,30 +128,30 @@ public sealed partial class WritableStreamInstance
 
             // Extract start method
             var start = sinkObj.Get("start");
-            if (start is Function function1)
+            if (!start.IsUndefined())
             {
-                startAlgorithm = function1;
+                startAlgorithm = start.AsFunctionInstance();
             }
 
             // Extract write method
             var write = sinkObj.Get("write");
-            if (write is Function function2)
+            if (!write.IsUndefined())
             {
-                writeAlgorithm = function2;
+                writeAlgorithm = write.AsFunctionInstance();
             }
 
             // Extract close method
             var close = sinkObj.Get("close");
-            if (close is Function function3)
+            if (!close.IsUndefined())
             {
-                closeAlgorithm = function3;
+                closeAlgorithm = close.AsFunctionInstance();
             }
 
             // Extract abort method
             var abort = sinkObj.Get("abort");
-            if (abort is Function function4)
+            if (!abort.IsUndefined())
             {
-                abortAlgorithm = function4;
+                abortAlgorithm = abort.AsFunctionInstance();
             }
         }
 

@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Jint.Native.Function;
 using Yilduz.Aborting.AbortController;
+using Yilduz.Streams.Queue;
 using Yilduz.Streams.WritableStream;
 
 namespace Yilduz.Streams.WritableStreamDefaultController;
@@ -61,4 +62,12 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// [[abortController]] - An AbortController instance for signaling abort
     /// </summary>
     internal AbortControllerInstance AbortController { get; }
+
+    List<QueueEntry> IQueueEntriesContainer.Queue => Queue;
+
+    double IQueueEntriesContainer.QueueTotalSize
+    {
+        get => QueueTotalSize;
+        set => QueueTotalSize = value;
+    }
 }

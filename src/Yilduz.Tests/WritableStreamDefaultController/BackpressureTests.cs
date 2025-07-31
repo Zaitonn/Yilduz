@@ -93,25 +93,30 @@ public sealed class BackpressureTests : TestBase
     [Fact]
     public void ShouldCalculateDesiredSizeCorrectly()
     {
-        Engine.Execute(
-            """
-            let writeResolves = [];
-            const stream = new WritableStream({
-            }, {
-                highWaterMark: 5,
-                size(chunk) {
-                    return typeof chunk === 'string' ? chunk.length : 1;
-                }
-            });
+        Assert.Equal(
+            1,
+            Engine
+                .Evaluate(
+                    """
+                    let writeResolves = [];
+                    const stream = new WritableStream({
+                    }, {
+                        highWaterMark: 5,
+                        size(chunk) {
+                            return typeof chunk === 'string' ? chunk.length : 1;
+                        }
+                    });
 
-            const writer = stream.getWriter();
-            writer.write('ab'); // size 2
-            writer.write('cd'); // size 2
-            """
+                    const writer = stream.getWriter();
+                    writer.write('ab'); // size 2
+                    writer.write('cd'); // size 2
+
+                    // HWM=5, queued size=4, so desired size should be 1
+                    writer.desiredSize
+                    """
+                )
+                .AsNumber()
         );
-
-        // HWM=5, queued size=4, so desired size should be 1
-        Assert.Equal(1, Engine.Evaluate("writer.desiredSize").AsNumber());
     }
 
     [Fact]

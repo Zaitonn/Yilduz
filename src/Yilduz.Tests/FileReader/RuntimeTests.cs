@@ -45,7 +45,7 @@ public sealed class RuntimeTests : TestBase
         );
 
         Assert.Equal(0, Engine.Evaluate("reader.readyState").AsNumber());
-        Assert.True(Engine.Evaluate("reader.result === undefined").AsBoolean());
+        Assert.True(Engine.Evaluate("reader.result === null").AsBoolean());
         Assert.True(Engine.Evaluate("reader.error === null").AsBoolean());
     }
 
@@ -220,7 +220,7 @@ public sealed class RuntimeTests : TestBase
         );
 
         Assert.Equal(0, Engine.Evaluate("reader.readyState").AsNumber());
-        Assert.True(Engine.Evaluate("reader.result === undefined").AsBoolean());
+        Assert.True(Engine.Evaluate("reader.result === null").AsBoolean());
         Assert.True(Engine.Evaluate("reader.error === null").AsBoolean());
     }
 }

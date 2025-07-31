@@ -67,7 +67,7 @@ public sealed class RuntimeTests : TestBase
         Assert.Equal(longString, result);
 
         var encodedLength = Engine.Evaluate("encoded.length").AsNumber();
-        Assert.Equal(Math.Ceiling(1000.0 / 3) * 4, encodedLength);
+        Assert.Equal(Math.Ceiling(1000d / 3) * 4, encodedLength);
     }
 
     [Fact]
