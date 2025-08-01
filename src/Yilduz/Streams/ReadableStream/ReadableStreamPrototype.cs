@@ -6,6 +6,7 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
+using Yilduz.Streams.ReadableStreamDefaultReader;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStream;
@@ -72,26 +73,10 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var reason = arguments.At(0);
 
-        var (promise, resolve, reject) = Engine.Advanced.RegisterPromise();
-
-        try
-        {
-            var result = instance.Cancel(reason);
-            if (result.IsPromise())
-            {
-                return result;
-            }
-            resolve(result);
-        }
-        catch (JavaScriptException e)
-        {
-            reject(e.Error);
-        }
-
-        return promise;
+        return instance.Cancel(reason);
     }
 
-    private JsValue GetReader(JsValue thisObject, JsValue[] arguments)
+    private ReadableStreamDefaultReaderInstance GetReader(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var options = arguments.At(0);
@@ -103,7 +88,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var destination = arguments.At(0).AsObject();
-        var options = arguments.At(1).AsObject();
+        var options = arguments.At(1);
 
         return instance.PipeTo(destination, options);
     }
@@ -137,6 +122,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
     private JsValue Tee(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
-        return instance.Tee();
+        var streams = instance.Tee();
+        return Engine.Intrinsics.Array.Construct([streams.Item1, streams.Item2]);
     }
 }

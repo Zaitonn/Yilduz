@@ -18,7 +18,7 @@ public sealed class FileReaderSyncInstance : ObjectInstance
     internal FileReaderSyncInstance(Engine engine)
         : base(engine) { }
 
-    private void EnsureBlob(JsValue blob, string methodName, out BlobInstance blobInstance)
+    internal void EnsureBlob(JsValue blob, string methodName, out BlobInstance blobInstance)
     {
         blobInstance = null!;
 

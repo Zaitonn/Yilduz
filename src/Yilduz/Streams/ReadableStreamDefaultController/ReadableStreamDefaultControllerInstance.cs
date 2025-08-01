@@ -1,7 +1,6 @@
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
-using Jint.Native.Object;
 using Yilduz.Streams.Queue;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.Utils;
@@ -12,7 +11,7 @@ namespace Yilduz.Streams.ReadableStreamDefaultController;
 /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultController
 /// </summary>
 public sealed partial class ReadableStreamDefaultControllerInstance
-    : ObjectInstance,
+    : ReadableStreamController,
         IQueueEntriesContainer
 {
     /// <summary>

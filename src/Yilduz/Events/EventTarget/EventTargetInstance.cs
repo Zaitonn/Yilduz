@@ -1,7 +1,5 @@
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -20,11 +18,14 @@ namespace Yilduz.Events.EventTarget;
 /// </summary>
 public class EventTargetInstance : ObjectInstance
 {
-    private WebApiIntrinsics? _webApiIntrinsics;
+    private protected readonly WebApiIntrinsics _webApiIntrinsics;
     protected readonly Dictionary<string, List<EventPair>> _listeners = [];
 
     protected internal EventTargetInstance(Engine engine)
-        : base(engine) { }
+        : base(engine)
+    {
+        _webApiIntrinsics ??= Engine.GetWebApiIntrinsics();
+    }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener
@@ -98,8 +99,6 @@ public class EventTargetInstance : ObjectInstance
     /// </summary>
     public bool DispatchEvent(EventInstance evt)
     {
-        _webApiIntrinsics ??= Engine.GetWebApiIntrinsics();
-
         evt.Target = this;
         evt.CurrentTarget = this; // not standard
 
@@ -151,22 +150,5 @@ public class EventTargetInstance : ObjectInstance
         evt.EventPhase = EventPhases.NONE;
 
         return !(evt.Cancelable && evt.DefaultPrevented);
-    }
-
-    protected async Task<bool> DispatchEventAsync(EventInstance evt)
-    {
-        if (TaskScheduler.Current != TaskScheduler.Default)
-        {
-            return await Task.Factory.StartNew(
-                () => DispatchEvent(evt),
-                CancellationToken.None,
-                TaskCreationOptions.None,
-                TaskScheduler.Default
-            );
-        }
-        else
-        {
-            return DispatchEvent(evt);
-        }
     }
 }

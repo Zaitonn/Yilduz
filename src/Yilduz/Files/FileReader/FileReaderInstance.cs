@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
@@ -16,7 +17,6 @@ namespace Yilduz.Files.FileReader;
 /// </summary>
 public sealed class FileReaderInstance : EventTargetInstance
 {
-    private WebApiIntrinsics? _webApiIntrinsics;
     private bool _isReading;
     private ulong? _currentTotal;
     private readonly FileReaderSyncInstance _fileReaderSyncInstance;
@@ -47,24 +47,6 @@ public sealed class FileReaderInstance : EventTargetInstance
         : base(engine)
     {
         _fileReaderSyncInstance = new(Engine);
-    }
-
-    private void EnsureBlob(JsValue blob, string methodName, out BlobInstance blobInstance)
-    {
-        blobInstance = null!;
-
-        if (blob is BlobInstance b)
-        {
-            blobInstance = b;
-            return;
-        }
-
-        TypeErrorHelper.Throw(
-            Engine,
-            "parameter 1 is not of type 'Blob'.",
-            methodName,
-            nameof(FileReader)
-        );
     }
 
     private void PrepareForReading(JsValue blob, string methodName)
@@ -193,7 +175,11 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public JsValue ReadAsBinaryString(JsValue blob)
     {
-        EnsureBlob(blob, FileReaderPrototype.ReadAsBinaryStringName, out var blobInstance);
+        _fileReaderSyncInstance.EnsureBlob(
+            blob,
+            FileReaderPrototype.ReadAsBinaryStringName,
+            out var blobInstance
+        );
 
         try
         {
@@ -239,22 +225,34 @@ public sealed class FileReaderInstance : EventTargetInstance
 
     private void DispatchEvent(string eventType)
     {
-        _webApiIntrinsics ??= Engine.GetWebApiIntrinsics();
+        bool entered = false;
         try
         {
-            var progressEvent = (ProgressEventInstance)
-                _webApiIntrinsics.ProgressEvent.Construct([eventType], Undefined);
+            Monitor.TryEnter(Engine, _webApiIntrinsics.Options.WaitingTimeout, ref entered);
 
-            progressEvent.LengthComputable = true;
-
-            if (_currentTotal.HasValue)
+            if (entered)
             {
-                progressEvent.Total = _currentTotal.Value;
-                progressEvent.Loaded = ReadyState == FileReaderState.DONE ? _currentTotal.Value : 0;
-            }
+                var progressEvent = (ProgressEventInstance)
+                    _webApiIntrinsics.ProgressEvent.Construct([eventType], Undefined);
 
-            DispatchEvent(progressEvent);
+                progressEvent.LengthComputable = true;
+
+                if (_currentTotal.HasValue)
+                {
+                    progressEvent.Total = _currentTotal.Value;
+                    progressEvent.Loaded =
+                        ReadyState == FileReaderState.DONE ? _currentTotal.Value : 0;
+                }
+
+                DispatchEvent(progressEvent);
+            }
         }
-        catch { }
+        finally
+        {
+            if (entered)
+            {
+                Monitor.Exit(Engine);
+            }
+        }
     }
 }

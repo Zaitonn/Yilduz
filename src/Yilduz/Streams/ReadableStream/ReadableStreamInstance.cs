@@ -113,11 +113,9 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// https://streams.spec.whatwg.org/#rs-cancel
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/cancel
     /// </summary>
-    public JsValue Cancel(JsValue? reason = null)
+    public JsValue Cancel(JsValue reason)
     {
-        reason ??= Undefined;
-
-        if (Locked)
+        if (!Locked)
         {
             return PromiseHelper
                 .CreateRejectedPromise(
@@ -125,7 +123,7 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
                     ErrorHelper.Create(
                         Engine,
                         "TypeError",
-                        "Cannot cancel a stream that is locked to a reader"
+                        "ReadableStream is not locked to a reader"
                     )
                 )
                 .Promise;
@@ -160,10 +158,7 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// https://streams.spec.whatwg.org/#rs-pipe-through
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/pipeThrough
     /// </summary>
-    public ReadableStreamInstance PipeThrough(
-        ObjectInstance transform,
-        ObjectInstance? options = null
-    )
+    public ReadableStreamInstance PipeThrough(ObjectInstance transform, ObjectInstance options)
     {
         if (Locked)
         {
@@ -175,13 +170,8 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
 
         if (readable is not ReadableStreamInstance readableStream)
         {
-            throw new JavaScriptException(
-                ErrorHelper.Create(
-                    Engine,
-                    "TypeError",
-                    "transform.readable is not a ReadableStream"
-                )
-            );
+            TypeErrorHelper.Throw(Engine, "transform.readable is not a ReadableStream");
+            return null!;
         }
 
         // TODO: Implement full pipe through logic
@@ -194,7 +184,7 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// https://streams.spec.whatwg.org/#rs-pipe-to
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/pipeTo
     /// </summary>
-    public JsValue PipeTo(ObjectInstance destination, ObjectInstance? options = null)
+    public JsValue PipeTo(ObjectInstance destination, JsValue options)
     {
         if (Locked)
         {
@@ -210,13 +200,12 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// https://streams.spec.whatwg.org/#rs-tee
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/tee
     /// </summary>
-    public JsValue Tee()
+    public (ReadableStreamInstance, ReadableStreamInstance) Tee()
     {
         // TODO: Implement tee logic
         var branch1 = new ReadableStreamInstance(Engine, Undefined, Undefined);
         var branch2 = new ReadableStreamInstance(Engine, Undefined, Undefined);
 
-        var array = Engine.Intrinsics.Array.Construct([branch1, branch2]);
-        return array;
+        return (branch1, branch2);
     }
 }

@@ -8,11 +8,11 @@ using Yilduz.Utils;
 
 namespace Yilduz.Streams.QueuingStrategy;
 
-public abstract class QueuingStrategyBase : ObjectInstance
+public abstract class QueuingStrategyInstance : ObjectInstance
 {
     private ClrFunction? _sizeAlgorithm;
 
-    private protected QueuingStrategyBase(Engine engine, JsValue options)
+    private protected QueuingStrategyInstance(Engine engine, JsValue options)
         : base(engine)
     {
         var highWaterMark = options.AsObject().Get("highWaterMark");

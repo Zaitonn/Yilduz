@@ -12,8 +12,6 @@ namespace Yilduz.Aborting.AbortSignal;
 /// </summary>
 public sealed class AbortSignalInstance : EventTargetInstance
 {
-    private WebApiIntrinsics? _webApiIntrinsics;
-
     internal AbortSignalInstance(Engine engine)
         : base(engine) { }
 
@@ -54,7 +52,6 @@ public sealed class AbortSignalInstance : EventTargetInstance
 
         Abort?.Invoke(this, EventArgs.Empty);
 
-        _webApiIntrinsics ??= Engine.GetWebApiIntrinsics();
         DispatchEvent(_webApiIntrinsics.Event.ConstructWithEventName("abort", Undefined));
     }
 

@@ -58,7 +58,7 @@ public sealed class RuntimeTests : TestBase
                 }
             });
             const reader = stream.getReader();
-            const cancelPromise = reader.cancel('test reason');
+            reader.cancel('test reason');
             """
         );
 

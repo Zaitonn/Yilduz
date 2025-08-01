@@ -1,5 +1,10 @@
-using Jint.Native.Function;
+using System;
+using Jint.Native;
 
 namespace Yilduz.Streams.ReadableStreamDefaultReader;
 
-internal record ReadRequest(Function ChunkSteps, Function CloseSteps, Function ErrorSteps);
+internal record ReadRequest(
+    Action<JsValue> ChunkSteps,
+    Action CloseSteps,
+    Action<JsValue> ErrorSteps
+);

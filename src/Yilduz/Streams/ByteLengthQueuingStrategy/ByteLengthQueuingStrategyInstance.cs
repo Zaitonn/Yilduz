@@ -7,7 +7,7 @@ namespace Yilduz.Streams.ByteLengthQueuingStrategy;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/ByteLengthQueuingStrategy
 /// </summary>
-public sealed class ByteLengthQueuingStrategyInstance : QueuingStrategyBase
+public sealed class ByteLengthQueuingStrategyInstance : QueuingStrategyInstance
 {
     internal ByteLengthQueuingStrategyInstance(Engine engine, JsValue options)
         : base(engine, options) { }

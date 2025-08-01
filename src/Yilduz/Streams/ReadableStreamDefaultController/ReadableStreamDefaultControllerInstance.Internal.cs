@@ -5,6 +5,7 @@ using Jint.Native.Function;
 using Jint.Runtime;
 using Yilduz.Streams.Queue;
 using Yilduz.Streams.ReadableStream;
+using Yilduz.Streams.ReadableStreamDefaultReader;
 
 namespace Yilduz.Streams.ReadableStreamDefaultController;
 
@@ -244,5 +245,73 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         CancelAlgorithm = null;
         // Set controller.[[strategySizeAlgorithm]] to undefined.
         StrategySizeAlgorithm = null;
+    }
+
+    internal override JsValue CancelSteps(JsValue reason)
+    {
+        // Perform ! ResetQueue(this).
+        this.ResetQueue();
+
+        // Let result be the result of performing this.[[cancelAlgorithm]], passing reason.
+        JsValue? result;
+        try
+        {
+            result = CancelAlgorithm?.Call(Undefined, [reason]);
+        }
+        catch (JavaScriptException ex)
+        {
+            // If result is an abrupt completion, perform ! ReadableStreamDefaultControllerError(this, result.[[Value]]).
+            ErrorInternal(ex.Error);
+            // Return result.
+            throw;
+        }
+
+        // Perform ! ReadableStreamDefaultControllerClearAlgorithms(this).
+        ClearAlgorithms();
+
+        // Return result.
+        return result ?? Undefined;
+    }
+
+    internal override void PullSteps(ReadRequest readRequest)
+    {
+        // Let stream be this.[[stream]].
+        // If this.[[queue]] is not empty,
+        if (Queue.Count > 0)
+        {
+            // Let chunk be ! DequeueValue(this).
+            var chunk = this.DequeueValue();
+
+            // If this.[[closeRequested]] is true and this.[[queue]] is empty,
+            if (CloseRequested && Queue.Count == 0)
+            {
+                // ! ReadableStreamDefaultControllerClearAlgorithms(this).
+                ClearAlgorithms();
+                // Perform ! ReadableStreamClose(stream).
+                Stream.CloseInternal();
+            }
+            // Otherwise, perform ! ReadableStreamDefaultControllerCallPullIfNeeded(this).
+            else
+            {
+                CallPullIfNeeded();
+            }
+            // Perform readRequest’s chunk steps, given chunk.
+            readRequest.ChunkSteps(chunk);
+        }
+        // Otherwise,
+        else
+        {
+            // Perform ! ReadableStreamAddReadRequest(stream, readRequest).
+            Stream.AddReadRequest(readRequest);
+
+            // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(this).
+            CallPullIfNeeded();
+        }
+    }
+
+    internal override void ReleaseSteps()
+    {
+        // Return.
+        return;
     }
 }

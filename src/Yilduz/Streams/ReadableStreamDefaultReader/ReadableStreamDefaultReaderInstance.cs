@@ -1,10 +1,6 @@
-using System.Collections.Generic;
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Promise;
 using Jint.Runtime;
-using Jint.Runtime.Interop;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.Utils;
 
@@ -15,13 +11,9 @@ namespace Yilduz.Streams.ReadableStreamDefaultReader;
 /// <br/>
 /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader
 /// </summary>
-public sealed partial class ReadableStreamDefaultReaderInstance : ObjectInstance
+public sealed partial class ReadableStreamDefaultReaderInstance
+    : ReadableStreamGenericReaderInstance
 {
-    internal readonly List<ReadRequest> ReadRequests = [];
-    internal ReadableStreamInstance? Stream { get; set; }
-    internal ManualPromise ClosedPromise { get; set; }
-    internal bool PromiseIsHandled { get; set; }
-
     /// <summary>
     /// https://streams.spec.whatwg.org/#default-reader-constructor
     /// <br/>
@@ -38,14 +30,14 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ObjectInstance
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/closed
     /// </summary>
-    public JsValue Closed => ClosedPromise?.Promise ?? Null;
+    public override JsValue Closed => ClosedPromise?.Promise ?? Null;
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#default-reader-cancel
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/cancel
     /// </summary>
-    public JsValue Cancel(JsValue reason)
+    public override JsValue Cancel(JsValue reason)
     {
         if (Stream == null)
         {
@@ -80,41 +72,21 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ObjectInstance
         var promise = Engine.Advanced.RegisterPromise();
 
         var readRequest = new ReadRequest(
-            ChunkSteps: new ClrFunction(
-                Engine,
-                "chunkSteps",
-                (_, args) =>
-                {
-                    var chunk = args.Length > 0 ? args[0] : Undefined;
-                    var result = Engine.Intrinsics.Object.Construct([]);
-                    result.Set("value", chunk);
-                    result.Set("done", JsBoolean.False);
-                    promise.Resolve(result);
-                    return Undefined;
-                }
-            ),
-            CloseSteps: new ClrFunction(
-                Engine,
-                "closeSteps",
-                (_, _) =>
-                {
-                    var result = Engine.Intrinsics.Object.Construct([]);
-                    result.Set("value", Undefined);
-                    result.Set("done", JsBoolean.True);
-                    promise.Resolve(result);
-                    return Undefined;
-                }
-            ),
-            ErrorSteps: new ClrFunction(
-                Engine,
-                "errorSteps",
-                (_, args) =>
-                {
-                    var error = args.Length > 0 ? args[0] : Undefined;
-                    promise.Reject(error);
-                    return Undefined;
-                }
-            )
+            ChunkSteps: (chunk) =>
+            {
+                var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
+                result.Set("value", chunk);
+                result.Set("done", JsBoolean.False);
+                promise.Resolve(result);
+            },
+            CloseSteps: () =>
+            {
+                var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
+                result.Set("value", Undefined);
+                result.Set("done", JsBoolean.True);
+                promise.Resolve(result);
+            },
+            ErrorSteps: (error) => promise.Reject(error)
         );
 
         ReadRequests.Add(readRequest);

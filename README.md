@@ -80,10 +80,10 @@ engine.Execute(
   - [x] `localStorage`
   - [x] `sessionStorage`
 - Timers
-  - [x] `setTimeout`
-  - [x] `setInterval`
-  - [x] `clearTimeout`
-  - [x] `clearInterval`
+  - [x] `setTimeout()`
+  - [x] `setInterval()`
+  - [x] `clearTimeout()`
+  - [x] `clearInterval()`
 - URLs
   - [x] `URL`
   - [x] `URLSearchParams`

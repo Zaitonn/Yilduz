@@ -17,8 +17,6 @@ namespace Yilduz.Encoding.TextDecoder;
 public sealed class TextDecoderInstance : ObjectInstance
 {
     private readonly SystemEncoding _encoding;
-    private readonly bool _fatal;
-    private readonly bool _ignoreBOM;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/encoding
@@ -28,12 +26,12 @@ public sealed class TextDecoderInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/fatal
     /// </summary>
-    public bool Fatal => _fatal;
+    public bool Fatal { get; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/ignoreBOM
     /// </summary>
-    public bool IgnoreBOM => _ignoreBOM;
+    public bool IgnoreBOM { get; }
 
     internal TextDecoderInstance(Engine engine, JsValue label, JsValue options)
         : base(engine)
@@ -51,8 +49,8 @@ public sealed class TextDecoderInstance : ObjectInstance
             ignoreBOM = optionsObj.Get("ignoreBOM").ToBoolean();
         }
 
-        _fatal = fatal;
-        _ignoreBOM = ignoreBOM;
+        Fatal = fatal;
+        IgnoreBOM = ignoreBOM;
 
         try
         {
@@ -89,7 +87,7 @@ public sealed class TextDecoderInstance : ObjectInstance
 
         try
         {
-            if (!_ignoreBOM && bytes.Length > 0)
+            if (!IgnoreBOM && bytes.Length > 0)
             {
                 bytes = RemoveBOMIfPresent(bytes);
             }
@@ -97,7 +95,7 @@ public sealed class TextDecoderInstance : ObjectInstance
             var result = _encoding.GetString(bytes);
             return result;
         }
-        catch (Exception ex) when (_fatal)
+        catch (Exception ex) when (Fatal)
         {
             TypeErrorHelper.Throw(
                 Engine,

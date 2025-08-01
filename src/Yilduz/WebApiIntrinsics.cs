@@ -35,7 +35,7 @@ namespace Yilduz;
 
 public sealed class WebApiIntrinsics
 {
-    public Options? Options { get; }
+    public Options Options { get; }
     internal AbortControllerConstructor AbortController { get; }
     public AbortSignalConstructor AbortSignal { get; }
 

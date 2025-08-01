@@ -39,6 +39,9 @@ public sealed class DOMExceptionInstance : ObjectInstance
         return new DOMExceptionInstance(engine, message, name);
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override string ToString()
     {
         return $"{Name}: {Message}";

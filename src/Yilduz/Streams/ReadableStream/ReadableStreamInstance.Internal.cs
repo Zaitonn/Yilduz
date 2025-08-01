@@ -15,7 +15,7 @@ public sealed partial class ReadableStreamInstance
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
     internal ReadableStreamDefaultReaderInstance? Reader { get; set; }
-    internal ReadableStreamDefaultControllerInstance? Controller { get; private set; }
+    internal ReadableStreamDefaultControllerInstance Controller { get; private set; }
     internal ReadableStreamState State { get; private set; } = ReadableStreamState.Readable;
     internal bool Detached { get; private set; }
     internal bool Disturbed { get; private set; }
@@ -75,7 +75,7 @@ public sealed partial class ReadableStreamInstance
             {
                 var readRequest = Reader.ReadRequests[0];
                 Reader.ReadRequests.RemoveAt(0);
-                readRequest.ErrorSteps.Call(Undefined, [error]);
+                readRequest.ErrorSteps(error);
             }
         }
     }
@@ -95,11 +95,11 @@ public sealed partial class ReadableStreamInstance
 
         if (done)
         {
-            readRequest.CloseSteps.Call(Undefined);
+            readRequest.CloseSteps();
         }
         else
         {
-            readRequest.ChunkSteps.Call(Undefined, [chunk]);
+            readRequest.ChunkSteps(chunk);
         }
     }
 
@@ -125,7 +125,7 @@ public sealed partial class ReadableStreamInstance
             {
                 var readRequest = Reader.ReadRequests[0];
                 Reader.ReadRequests.RemoveAt(0);
-                readRequest.ErrorSteps.Call(Undefined, new[] { reason });
+                readRequest.ErrorSteps(reason);
             }
         }
 
@@ -135,7 +135,7 @@ public sealed partial class ReadableStreamInstance
         {
             try
             {
-                var result = Controller.CancelAlgorithm.Call(Undefined, new[] { reason });
+                var result = Controller.CancelAlgorithm.Call(Undefined, [reason]);
                 if (result is not null && PromiseHelper.IsPromise(result))
                 {
                     cancelPromise = PromiseHelper.CreateResolvedPromise(Engine, result);
@@ -153,6 +153,7 @@ public sealed partial class ReadableStreamInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#set-up-readable-stream-default-controller-from-underlying-source
     /// </summary>
+    [MemberNotNull(nameof(Controller))]
     private void SetUpControllerFromUnderlyingSource(
         JsValue underlyingSource,
         ObjectInstance? underlyingSourceDict,
@@ -204,7 +205,7 @@ public sealed partial class ReadableStreamInstance
         {
             try
             {
-                var result = startAlgorithm.Call(Undefined, new JsValue[] { controller });
+                var result = startAlgorithm.Call(Undefined, [controller]);
                 controller.Started = true;
 
                 if (PromiseHelper.IsPromise(result))
@@ -233,6 +234,7 @@ public sealed partial class ReadableStreamInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#set-up-readable-byte-stream-controller-from-underlying-source
     /// </summary>
+    [MemberNotNull(nameof(Controller))]
     private void SetUpByteControllerFromUnderlyingSource(
         JsValue underlyingSource,
         ObjectInstance? underlyingSourceDict,

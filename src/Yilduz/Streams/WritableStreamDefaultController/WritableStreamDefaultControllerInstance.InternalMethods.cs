@@ -64,39 +64,56 @@ public sealed partial class WritableStreamDefaultControllerInstance
         return StrategyHWM - QueueTotalSize;
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-default-controller-advance-queue-if-needed
+    /// </summary>
     internal void AdvanceQueueIfNeeded()
     {
+        // Let stream be controller.[[stream]].
+        // If controller.[[started]] is false, return.
         if (!Started)
         {
             return;
         }
 
+        // If stream.[[inFlightWriteRequest]] is not undefined, return.
         if (Stream?.InFlightWriteRequest != null)
         {
             return;
         }
 
-        var state = Stream?.State;
-        if (state == WritableStreamState.Erroring || state == WritableStreamState.Errored)
+        // Let state be stream.[[state]].
+        // Assert: state is not "closed" or "errored".
+        if (
+            Stream?.State == WritableStreamState.Closed
+            || Stream?.State == WritableStreamState.Errored
+        )
         {
             return;
         }
 
-        if (state == WritableStreamState.Closed)
+        // If state is "erroring",
+        if (Stream?.State == WritableStreamState.Erroring)
         {
+            Stream.FinishErroring();
             return;
         }
 
+        // If controller.[[queue]] is empty, return.
         if (Queue.Count == 0)
         {
             return;
         }
 
-        var value = Queue[0].Value;
+        // Let value be ! PeekQueueValue(controller).
+        var value = this.PeekQueueValue();
+
+        // If value is the close sentinel, perform ! WritableStreamDefaultControllerProcessClose(controller).
         if (value == CloseQueuedRecord.Instance)
         {
             ProcessClose();
         }
+        // Otherwise, perform ! WritableStreamDefaultControllerProcessWrite(controller, value).
         else
         {
             ProcessWrite(value);

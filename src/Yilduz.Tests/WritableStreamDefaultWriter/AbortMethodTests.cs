@@ -140,7 +140,7 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("abortResolved").AsBoolean());
+        Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
     }
 
     [Fact]

@@ -71,6 +71,9 @@ internal static class AbstractOperations
         container.QueueTotalSize = 0;
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#enqueue-value-with-size
+    /// </summary>
     public static void EnqueueValueWithSize(
         this IQueueEntriesContainer container,
         Engine engine,
@@ -78,12 +81,19 @@ internal static class AbstractOperations
         double size
     )
     {
+        // Assert: container has [[queue]] and [[queueTotalSize]] internal slots.
+
+        // If ! IsNonNegativeNumber(size) is false, throw a RangeError exception.
+        // If size is +∞, throw a RangeError exception.
         if (double.IsNaN(size) || size < 0 || double.IsInfinity(size))
         {
             TypeErrorHelper.Throw(engine, "Size is invalid");
         }
 
+        // Append a new value-with-size with value value and size size to container.[[queue]].
         container.Queue.Add(new(value, size));
+
+        // Set container.[[queueTotalSize]] to container.[[queueTotalSize]] + size.
         container.QueueTotalSize += size;
     }
 }

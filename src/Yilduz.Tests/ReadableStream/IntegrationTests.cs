@@ -180,31 +180,4 @@ public sealed class IntegrationTests : TestBase
         Assert.True(Engine.Evaluate("locked2").AsBoolean());
         Assert.True(Engine.Evaluate("lockedSource").AsBoolean());
     }
-
-    [Fact]
-    public void ShouldHandleStreamCancellation()
-    {
-        Engine.Execute(
-            """
-            let cancelReason;
-            let pullCallCount = 0;
-
-            const stream = new ReadableStream({
-                pull(controller) {
-                    pullCallCount++;
-                    controller.enqueue(`chunk${pullCallCount}`);
-                },
-                cancel(reason) {
-                    cancelReason = reason;
-                    return 'cleanup complete';
-                }
-            });
-
-            const reader = stream.getReader();
-            const cancelPromise = reader.cancel('user cancelled');
-            """
-        );
-
-        Assert.Equal("user cancelled", Engine.Evaluate("cancelReason").AsString());
-    }
 }

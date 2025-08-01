@@ -8,10 +8,10 @@ using Yilduz.Extensions;
 namespace Yilduz.Streams.QueuingStrategy;
 
 internal abstract class QueuingStrategyPrototype<T> : ObjectInstance
-    where T : QueuingStrategyBase
+    where T : QueuingStrategyInstance
 {
     private static readonly string SizeName = nameof(Size).ToJsStyleName();
-    private static readonly string HighWaterMarkName = nameof(QueuingStrategyBase.HighWaterMark)
+    private static readonly string HighWaterMarkName = nameof(QueuingStrategyInstance.HighWaterMark)
         .ToJsStyleName();
 
     private readonly string _name;

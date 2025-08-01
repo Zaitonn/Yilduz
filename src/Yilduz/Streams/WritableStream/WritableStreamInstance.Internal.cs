@@ -1,10 +1,13 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
+using Jint.Native.Promise;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Streams.WritableStreamDefaultController;
 using Yilduz.Streams.WritableStreamDefaultWriter;
 using Yilduz.Utils;
 
@@ -12,6 +15,20 @@ namespace Yilduz.Streams.WritableStream;
 
 public sealed partial class WritableStreamInstance
 {
+    internal bool Backpressure { get; private set; }
+    internal ManualPromise? CloseRequest { get; set; }
+    internal WritableStreamDefaultControllerInstance Controller { get; private set; }
+    internal bool Detached { get; set; }
+    internal ManualPromise? InFlightWriteRequest { get; set; }
+    internal ManualPromise? InFlightCloseRequest { get; set; }
+    internal PendingAbortRequest? PendingAbortRequest { get; set; }
+    internal WritableStreamState State { get; private set; }
+    internal JsValue StoredError { get; private set; } = Undefined;
+    internal WritableStreamDefaultWriterInstance? Writer { get; set; }
+    internal List<ManualPromise> WriteRequests { get; private set; } = [];
+    internal bool IsCloseQueuedOrInFlight =>
+        !(CloseRequest == null && InFlightCloseRequest == null);
+
     /// <summary>
     /// https://streams.spec.whatwg.org/#writable-stream-abort
     /// </summary>
@@ -19,7 +36,7 @@ public sealed partial class WritableStreamInstance
     {
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
-            return Undefined;
+            return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
         }
 
         // Signal abort on stream.[[controller]].[[abortController]] with reason
@@ -27,7 +44,7 @@ public sealed partial class WritableStreamInstance
 
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
-            return Undefined;
+            return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
         }
 
         if (PendingAbortRequest is not null)
@@ -269,7 +286,7 @@ public sealed partial class WritableStreamInstance
         }
     }
 
-    private void FinishErroring()
+    internal void FinishErroring()
     {
         State = WritableStreamState.Errored;
         Controller?.ErrorSteps();

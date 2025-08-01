@@ -15,8 +15,6 @@ namespace Yilduz.Network.XMLHttpRequest;
 /// </summary>
 public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
 {
-    private readonly WebApiIntrinsics _webApiIntrinsics;
-
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
     /// </summary>
@@ -125,7 +123,6 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
     internal XMLHttpRequestInstance(Engine engine)
         : base(engine)
     {
-        _webApiIntrinsics = engine.GetWebApiIntrinsics();
         _fetchController = new FetchController(engine);
         _receivedBytes = [];
         _authorRequestHeaders = [];

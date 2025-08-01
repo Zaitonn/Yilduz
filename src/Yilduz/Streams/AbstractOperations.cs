@@ -16,7 +16,7 @@ internal static class AbstractOperations
         double defaultHWM
     )
     {
-        if (strategy is QueuingStrategyBase queuingStrategy)
+        if (strategy is QueuingStrategyInstance queuingStrategy)
         {
             return (queuingStrategy.HighWaterMark, queuingStrategy.SizeAlgorithm);
         }
