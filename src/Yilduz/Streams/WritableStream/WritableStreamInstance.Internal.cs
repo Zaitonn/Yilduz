@@ -343,13 +343,16 @@ public sealed partial class WritableStreamInstance
 
     internal void MarkFirstWriteRequestInFlight()
     {
-        if (WriteRequests.Count == 0)
+        lock (WriteRequests)
         {
-            throw new JavaScriptException("No write requests in queue");
-        }
+            if (WriteRequests.Count == 0)
+            {
+                throw new JavaScriptException("No write requests in queue");
+            }
 
-        InFlightWriteRequest = WriteRequests[0];
-        WriteRequests.RemoveAt(0);
+            InFlightWriteRequest = WriteRequests[0];
+            WriteRequests.RemoveAt(0);
+        }
     }
 
     internal void FinishInFlightWrite()

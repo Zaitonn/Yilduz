@@ -103,7 +103,7 @@ public sealed class IntegrationTests : TestBase
     }
 
     [Fact]
-    public void ShouldMaintainWriteOrder()
+    public async Task ShouldMaintainWriteOrder()
     {
         Engine.Execute(
             """
@@ -132,15 +132,20 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Wait for all writes to complete
-        System.Threading.Thread.Sleep(100);
+        await Task.Delay(1000);
 
         // Chunks should be written in order despite random delays
         Assert.Equal(5, Engine.Evaluate("writtenChunks.length").AsNumber());
-        Assert.Equal("chunk1", Engine.Evaluate("writtenChunks[0]").AsString());
-        Assert.Equal("chunk2", Engine.Evaluate("writtenChunks[1]").AsString());
-        Assert.Equal("chunk3", Engine.Evaluate("writtenChunks[2]").AsString());
-        Assert.Equal("chunk4", Engine.Evaluate("writtenChunks[3]").AsString());
-        Assert.Equal("chunk5", Engine.Evaluate("writtenChunks[4]").AsString());
+        Assert.Equal(
+            ("chunk1", "chunk2", "chunk3", "chunk4", "chunk5"),
+            (
+                Engine.Evaluate("writtenChunks[0]").AsString(),
+                Engine.Evaluate("writtenChunks[1]").AsString(),
+                Engine.Evaluate("writtenChunks[2]").AsString(),
+                Engine.Evaluate("writtenChunks[3]").AsString(),
+                Engine.Evaluate("writtenChunks[4]").AsString()
+            )
+        );
     }
 
     [Fact(Skip = "TransformStream is not implemented yet")]

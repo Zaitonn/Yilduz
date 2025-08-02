@@ -15,7 +15,7 @@ public sealed class SetIntervalTests : TestBase
         await Task.Delay(100);
         Engine.Execute("clearInterval(id);");
 
-        Assert.True(Engine.Evaluate("count").AsNumber() >= 3); // Should execute multiple times
+        Assert.InRange(Engine.Evaluate("count").AsNumber(), 3, 1000); // Should execute multiple times
     }
 
     [Fact]

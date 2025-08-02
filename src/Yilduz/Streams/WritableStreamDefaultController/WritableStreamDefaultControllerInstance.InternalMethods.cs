@@ -14,8 +14,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
 {
     internal void ErrorSteps()
     {
-        QueueTotalSize = 0;
-        Queue.Clear();
+        this.ResetQueue();
     }
 
     internal JsValue AbortSteps(JsValue reason)
@@ -146,38 +145,47 @@ public sealed partial class WritableStreamDefaultControllerInstance
         }
     }
 
+    private readonly object _writeLock = new();
+
     private void ProcessWrite(JsValue chunk)
     {
         Stream.MarkFirstWriteRequestInFlight();
 
         try
         {
-            var sinkWritePromise = WriteAlgorithm.Call(chunk, this);
-
-            if (!sinkWritePromise.IsPromise())
+            lock (_writeLock)
             {
-                OnCompletedSuccessfully();
-                return;
-            }
+                var sinkWritePromise = WriteAlgorithm.Call(chunk, this);
 
-            Task.Run(sinkWritePromise.UnwrapIfPromise)
-                .ContinueWith(
-                    t =>
-                    {
-                        switch (t.Status)
+                if (!sinkWritePromise.IsPromise())
+                {
+                    OnCompletedSuccessfully();
+                    return;
+                }
+
+                Task.Run(sinkWritePromise.UnwrapIfPromise)
+                    .ContinueWith(
+                        t =>
                         {
-                            case TaskStatus.RanToCompletion:
-                                OnCompletedSuccessfully();
-                                break;
+                            lock (Engine)
+                            {
+                                switch (t.Status)
+                                {
+                                    case TaskStatus.RanToCompletion:
+                                        OnCompletedSuccessfully();
+                                        break;
 
-                            case TaskStatus.Faulted
-                                when t.Exception?.InnerException is PromiseRejectedException e:
-                                OnError(e.RejectedValue);
-                                break;
-                        }
-                    },
-                    TaskContinuationOptions.ExecuteSynchronously
-                );
+                                    case TaskStatus.Faulted
+                                        when t.Exception?.InnerException
+                                            is PromiseRejectedException e:
+                                        OnError(e.RejectedValue);
+                                        break;
+                                }
+                            }
+                        },
+                        TaskContinuationOptions.ExecuteSynchronously
+                    );
+            }
         }
         catch (JavaScriptException e)
         {
