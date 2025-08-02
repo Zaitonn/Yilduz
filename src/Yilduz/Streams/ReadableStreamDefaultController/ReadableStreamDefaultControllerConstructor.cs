@@ -26,20 +26,11 @@ internal sealed class ReadableStreamDefaultControllerConstructor : Constructor
 
     public ReadableStreamDefaultControllerInstance Construct(
         ReadableStreamInstance readableStreamInstance,
-        Function? pullAlgorithm,
-        Function? cancelAlgorithm,
         double highWaterMark,
         Function? sizeAlgorithm
     )
     {
-        return new(
-            Engine,
-            readableStreamInstance,
-            pullAlgorithm,
-            cancelAlgorithm,
-            highWaterMark,
-            sizeAlgorithm
-        )
+        return new(Engine, readableStreamInstance, highWaterMark, sizeAlgorithm)
         {
             Prototype = PrototypeObject,
         };

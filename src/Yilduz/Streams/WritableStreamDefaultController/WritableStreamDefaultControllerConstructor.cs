@@ -36,7 +36,6 @@ internal sealed class WritableStreamDefaultControllerConstructor : Constructor
         return new(Engine, writableStreamInstance, sizeAlgorithm)
         {
             Prototype = PrototypeObject,
-            Queue = [],
             Started = false,
             StrategyHWM = highWaterMark,
             WriteAlgorithm = writeAlgorithm,

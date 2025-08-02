@@ -83,7 +83,18 @@ public sealed class TextDecoderInstance : ObjectInstance
             stream = !streamValue.IsUndefined() && streamValue.AsBoolean();
         }
 
-        var bytes = input.IsUndefined() ? [] : ExtractBytesFromInput(input);
+        var bytes = input.IsUndefined() ? [] : input.TryAsBytes();
+
+        if (bytes is null)
+        {
+            TypeErrorHelper.Throw(
+                Engine,
+                "Input must be an ArrayBuffer, DataView, TypedArray, or Array of numbers.",
+                "decode",
+                nameof(TextDecoder)
+            );
+            return null!;
+        }
 
         try
         {
@@ -116,58 +127,6 @@ public sealed class TextDecoderInstance : ObjectInstance
 
             return new string(chars);
         }
-    }
-
-    private byte[] ExtractBytesFromInput(JsValue input)
-    {
-        if (input.IsArrayBuffer())
-        {
-            return input.AsArrayBuffer()!;
-        }
-
-        if (input.IsDataView())
-        {
-            return input.AsDataView()!;
-        }
-
-        if (input is JsTypedArray typedArray)
-        {
-            var buffer = typedArray.Get("buffer");
-            if (buffer.IsArrayBuffer())
-            {
-                var arrayBuffer = buffer.AsArrayBuffer()!;
-                var byteOffset = (int)typedArray.Get("byteOffset").AsNumber();
-                var byteLength = (int)typedArray.Get("byteLength").AsNumber();
-
-                return [.. arrayBuffer.Skip(byteOffset).Take(byteLength)];
-            }
-        }
-
-        if (input.IsArray())
-        {
-            var array = input.AsArray();
-            var bytes = new List<byte>();
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                var element = array[i];
-                if (element.IsNumber())
-                {
-                    bytes.Add((byte)((int)element.AsNumber() & 0xFF));
-                }
-            }
-
-            return [.. bytes];
-        }
-
-        TypeErrorHelper.Throw(
-            Engine,
-            "parameter 1 is not of type 'ArrayBuffer'.",
-            "decode",
-            nameof(TextDecoder)
-        );
-
-        return [];
     }
 
     private byte[] RemoveBOMIfPresent(byte[] bytes)

@@ -7,7 +7,17 @@ using Yilduz.Streams.WritableStream;
 namespace Yilduz.Streams.WritableStreamDefaultController;
 
 public sealed partial class WritableStreamDefaultControllerInstance
+    : IQueueEntriesContainer<QueueEntry>
 {
+    internal Queue<QueueEntry> Queue { get; } = [];
+    internal double QueueTotalSize { get; set; }
+    Queue<QueueEntry> IQueueEntriesContainer<QueueEntry>.Queue => Queue;
+    double IQueueEntriesContainer<QueueEntry>.QueueTotalSize
+    {
+        get => QueueTotalSize;
+        set => QueueTotalSize = value;
+    }
+
     /// <summary>
     /// Internal slots as defined in the WHATWG Streams specification
     /// https://streams.spec.whatwg.org/#ws-default-controller-internal-slots
@@ -27,16 +37,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// [[stream]] - The WritableStream instance controlled by this object
     /// </summary>
     internal WritableStreamInstance Stream { get; }
-
-    /// <summary>
-    /// [[queue]] - A list representing the stream's internal queue of chunks
-    /// </summary>
-    internal List<QueueEntry> Queue { get; set; } = [];
-
-    /// <summary>
-    /// [[queueTotalSize]] - The total size of all the chunks stored in [[queue]]
-    /// </summary>
-    internal double QueueTotalSize { get; set; }
 
     /// <summary>
     /// [[started]] - A boolean flag indicating whether the underlying sink's start method has finished
@@ -62,12 +62,4 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// [[abortController]] - An AbortController instance for signaling abort
     /// </summary>
     internal AbortControllerInstance AbortController { get; }
-
-    List<QueueEntry> IQueueEntriesContainer.Queue => Queue;
-
-    double IQueueEntriesContainer.QueueTotalSize
-    {
-        get => QueueTotalSize;
-        set => QueueTotalSize = value;
-    }
 }

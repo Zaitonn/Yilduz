@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
@@ -12,7 +13,7 @@ namespace Yilduz.Streams.ReadableStreamDefaultController;
 /// </summary>
 public sealed partial class ReadableStreamDefaultControllerInstance
     : ReadableStreamController,
-        IQueueEntriesContainer
+        IQueueEntriesContainer<QueueEntry>
 {
     /// <summary>
     /// Internal slots for ReadableStreamDefaultController
@@ -21,16 +22,11 @@ public sealed partial class ReadableStreamDefaultControllerInstance
     internal ReadableStreamDefaultControllerInstance(
         Engine engine,
         ReadableStreamInstance stream,
-        Function? pullAlgorithm,
-        Function? cancelAlgorithm,
         double highWaterMark,
         Function? sizeAlgorithm
     )
-        : base(engine)
+        : base(engine, stream)
     {
-        Stream = stream;
-        PullAlgorithm = pullAlgorithm;
-        CancelAlgorithm = cancelAlgorithm;
         StrategySizeAlgorithm = sizeAlgorithm;
         StrategyHWM = highWaterMark;
         this.ResetQueue();
@@ -66,6 +62,13 @@ public sealed partial class ReadableStreamDefaultControllerInstance
             // Return controller.[[strategyHWM]] − controller.[[queueTotalSize]].
             return StrategyHWM - QueueTotalSize;
         }
+    }
+
+    Queue<QueueEntry> IQueueEntriesContainer<QueueEntry>.Queue => Queue;
+    double IQueueEntriesContainer<QueueEntry>.QueueTotalSize
+    {
+        get => QueueTotalSize;
+        set => QueueTotalSize = value;
     }
 
     /// <summary>

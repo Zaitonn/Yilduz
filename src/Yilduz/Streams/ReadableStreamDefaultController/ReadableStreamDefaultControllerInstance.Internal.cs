@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Jint;
 using Jint.Native;
-using Jint.Native.Function;
 using Jint.Runtime;
 using Yilduz.Streams.Queue;
 using Yilduz.Streams.ReadableStream;
@@ -11,24 +10,8 @@ namespace Yilduz.Streams.ReadableStreamDefaultController;
 
 public sealed partial class ReadableStreamDefaultControllerInstance
 {
-    List<QueueEntry> IQueueEntriesContainer.Queue => Queue;
-    double IQueueEntriesContainer.QueueTotalSize
-    {
-        get => QueueTotalSize;
-        set => QueueTotalSize = value;
-    }
-
-    internal readonly ReadableStreamInstance Stream;
-    internal Function? PullAlgorithm;
-    internal Function? CancelAlgorithm;
-    internal Function? StrategySizeAlgorithm;
-    internal readonly List<QueueEntry> Queue = [];
-    internal double QueueTotalSize;
-    internal readonly double StrategyHWM;
-    internal bool CloseRequested;
-    internal bool Started;
-    internal bool Pulling;
-    internal bool PullAgain;
+    internal Queue<QueueEntry> Queue { get; } = [];
+    internal double QueueTotalSize { get; set; }
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-default-controller-can-close-or-enqueue
@@ -46,7 +29,7 @@ public sealed partial class ReadableStreamDefaultControllerInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-default-controller-close
     /// </summary>
-    internal void CloseInternal()
+    internal override void CloseInternal()
     {
         // If ! ReadableStreamDefaultControllerCanCloseOrEnqueue(controller) is false, return.
         if (!CanCloseOrEnqueue())
@@ -82,7 +65,10 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         // Let stream be controller.[[stream]].
         // If ! IsReadableStreamLocked(stream) is true and ! ReadableStreamGetNumReadRequests(stream) > 0,
         //   perform ! ReadableStreamFulfillReadRequest(stream, chunk, false).
-        if (Stream.HasDefaultReader && Stream.Reader!.ReadRequests.Count > 0)
+        if (
+            Stream.HasDefaultReader
+            && ((ReadableStreamDefaultReaderInstance)Stream.Reader).ReadRequests.Count > 0
+        )
         {
             Stream.FulfillReadRequest(chunk, false);
         }
@@ -131,7 +117,7 @@ public sealed partial class ReadableStreamDefaultControllerInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-default-controller-error
     /// </summary>
-    internal void ErrorInternal(JsValue error)
+    internal override void ErrorInternal(JsValue error)
     {
         // Let stream be controller.[[stream]].
         // If stream.[[state]] is not "readable", return.
@@ -170,7 +156,10 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         }
 
         // If ! IsReadableStreamLocked(stream) is true and ! ReadableStreamGetNumReadRequests(stream) > 0, return true.
-        if (Stream.Locked && Stream.Reader!.ReadRequests.Count > 0)
+        if (
+            Stream.Locked
+            && ((ReadableStreamDefaultReaderInstance)Stream.Reader).ReadRequests.Count > 0
+        )
         {
             return true;
         }
@@ -185,7 +174,7 @@ public sealed partial class ReadableStreamDefaultControllerInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-default-controller-call-pull-if-needed
     /// </summary>
-    internal void CallPullIfNeeded()
+    internal override void CallPullIfNeeded()
     {
         // Let shouldPull be ! ReadableStreamDefaultControllerShouldCallPull(controller).
         // If shouldPull is false, return.

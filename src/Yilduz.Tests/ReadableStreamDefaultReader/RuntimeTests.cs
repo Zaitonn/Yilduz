@@ -58,10 +58,10 @@ public sealed class RuntimeTests : TestBase
                 }
             });
             const reader = stream.getReader();
-            reader.cancel('test reason');
             """
         );
 
+        Engine.Evaluate("reader.cancel('test reason')").UnwrapIfPromise();
         Assert.Equal("test reason", Engine.Evaluate("cancelReason").AsString());
     }
 

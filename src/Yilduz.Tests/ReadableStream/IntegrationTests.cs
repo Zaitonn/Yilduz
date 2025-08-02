@@ -5,7 +5,7 @@ namespace Yilduz.Tests.ReadableStream;
 
 public sealed class IntegrationTests : TestBase
 {
-    [Fact]
+    [Fact(Skip = "Async iteration is not implemented yet in Jint")]
     public void ShouldWorkWithAsyncIteration()
     {
         Engine.Execute(
@@ -29,7 +29,8 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        // Note: Async iteration support depends on the JavaScript engine implementation
+        Engine.Evaluate("testAsyncIteration()").UnwrapIfPromise();
+        Assert.Equal(3, Engine.Evaluate("chunks.length").AsNumber());
     }
 
     [Fact]

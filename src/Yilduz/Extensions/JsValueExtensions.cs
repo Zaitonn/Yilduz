@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
@@ -68,5 +70,47 @@ internal static class JsValueExtensions
                 $"{objectInstance} is not iterable (cannot read property Symbol(Symbol.iterator))"
             );
         }
+    }
+
+    public static byte[]? TryAsBytes(this JsValue input)
+    {
+        if (input.IsArrayBuffer())
+        {
+            return input.AsArrayBuffer()!;
+        }
+
+        if (input.IsDataView())
+        {
+            return input.AsDataView()!;
+        }
+
+        if (input is JsTypedArray typedArray)
+        {
+            var buffer = typedArray.Get("buffer");
+            var arrayBuffer = buffer.AsArrayBuffer()!;
+            var byteOffset = (int)typedArray.Get("byteOffset").AsNumber();
+            var byteLength = (int)typedArray.Get("byteLength").AsNumber();
+
+            return [.. arrayBuffer.Skip(byteOffset).Take(byteLength)];
+        }
+
+        if (input.IsArray())
+        {
+            var array = input.AsArray();
+            var bytes = new List<byte>();
+
+            for (int i = 0; i < array.Length; i++)
+            {
+                var element = array[i];
+                if (element.IsNumber())
+                {
+                    bytes.Add((byte)((int)element.AsNumber() & 0xFF));
+                }
+            }
+
+            return [.. bytes];
+        }
+
+        return null;
     }
 }

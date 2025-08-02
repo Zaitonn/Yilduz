@@ -2,6 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
+using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 
@@ -27,9 +28,9 @@ internal abstract class QueuingStrategyPrototype<T> : ObjectInstance
         FastSetProperty(SizeName, new(new ClrFunction(Engine, SizeName, Size), false, false, true));
         FastSetProperty(
             HighWaterMarkName,
-            new(
-                new ClrFunction(Engine, HighWaterMarkName.ToJsGetterName(), GetHighWaterMark),
-                false,
+            new GetSetPropertyDescriptor(
+                get: new ClrFunction(Engine, HighWaterMarkName.ToJsGetterName(), GetHighWaterMark),
+                set: null,
                 false,
                 true
             )

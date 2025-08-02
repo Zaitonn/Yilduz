@@ -4,7 +4,6 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
-using Yilduz.Streams.ReadableStreamDefaultReader;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStream;
@@ -115,16 +114,12 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// </summary>
     public JsValue Cancel(JsValue reason)
     {
-        if (!Locked)
+        if (Locked)
         {
             return PromiseHelper
                 .CreateRejectedPromise(
                     Engine,
-                    ErrorHelper.Create(
-                        Engine,
-                        "TypeError",
-                        "ReadableStream is not locked to a reader"
-                    )
+                    ErrorHelper.Create(Engine, "TypeError", "ReadableStream is locked")
                 )
                 .Promise;
         }
@@ -137,20 +132,25 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// https://streams.spec.whatwg.org/#rs-get-reader
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader
     /// </summary>
-    public ReadableStreamDefaultReaderInstance GetReader(JsValue options)
+    public ReadableStreamGenericReaderInstance GetReader(JsValue options)
     {
         var mode = options.IsUndefined() ? null : options.AsObject().Get("mode");
 
-        if (mode == "byob")
+        if (mode is null || mode.IsUndefined())
         {
-            // TODO: Implement BYOB reader
-            throw new NotImplementedException(
-                "BYOB readers are not yet implemented in ReadableStream"
+            // Return ? AcquireReadableStreamDefaultReader(this)
+            return AcquireDefaultReader();
+        }
+
+        if (mode != "byob")
+        {
+            TypeErrorHelper.Throw(
+                Engine,
+                "ReadableStream.getReader() options.mode must be 'byob' or undefined"
             );
         }
 
-        // Return ? AcquireReadableStreamDefaultReader(this)
-        return AcquireDefaultReader();
+        return AcquireBYOBReader();
     }
 
     /// <summary>
@@ -191,8 +191,7 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
             TypeErrorHelper.Throw(Engine, "ReadableStream is locked");
         }
 
-        // TODO: Implement full pipe to logic
-        return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+        throw new NotImplementedException("PipeTo is not yet implemented");
     }
 
     /// <summary>

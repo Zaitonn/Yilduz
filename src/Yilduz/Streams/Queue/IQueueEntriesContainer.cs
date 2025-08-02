@@ -2,8 +2,8 @@ using System.Collections.Generic;
 
 namespace Yilduz.Streams.Queue;
 
-internal interface IQueueEntriesContainer
+internal interface IQueueEntriesContainer<T>
 {
-    public List<QueueEntry> Queue { get; }
-    public double QueueTotalSize { get; set; }
+    internal Queue<T> Queue { get; }
+    internal double QueueTotalSize { get; set; }
 }

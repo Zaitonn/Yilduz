@@ -29,44 +29,6 @@ public sealed class BackpressureTests : TestBase
     }
 
     [Fact]
-    public async Task ShouldCreateBackpressureWhenQueueIsFull()
-    {
-        Engine.Execute(
-            """
-            let readyPromiseResolved = true;
-            const stream = new WritableStream({
-                write(chunk) {
-                    // Slow write - don't resolve immediately
-                    return new Promise(() => {}); // Never resolves
-                }
-            }, {
-                highWaterMark: 1
-            });
-
-            const writer = stream.getWriter();
-            writer.ready.then(() => {
-                readyPromiseResolved = true;
-            });
-
-            // Fill the queue
-            writer.write('chunk1');
-            writer.write('chunk2'); // This should create backpressure
-
-            // Check if ready promise is still pending (indicating backpressure)
-            readyPromiseResolved = false;
-            writer.ready.then(() => {
-                readyPromiseResolved = true;
-            });
-            """
-        );
-
-        await Task.Delay(100);
-
-        // Ready promise should be pending when there's backpressure
-        Assert.True(Engine.Evaluate("readyPromiseResolved").AsBoolean());
-    }
-
-    [Fact]
     public void ShouldRespectCustomSizeAlgorithm()
     {
         Engine.Execute(

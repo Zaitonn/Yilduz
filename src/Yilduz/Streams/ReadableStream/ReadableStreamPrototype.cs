@@ -6,7 +6,6 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
-using Yilduz.Streams.ReadableStreamDefaultReader;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStream;
@@ -76,7 +75,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         return instance.Cancel(reason);
     }
 
-    private ReadableStreamDefaultReaderInstance GetReader(JsValue thisObject, JsValue[] arguments)
+    private ReadableStreamGenericReaderInstance GetReader(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var options = arguments.At(0);

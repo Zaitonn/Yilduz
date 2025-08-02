@@ -49,7 +49,7 @@ public sealed partial class ReadableStreamDefaultReaderInstance
                 .Promise;
         }
 
-        return Stream.Cancel(reason);
+        return Stream.CancelInternal(reason);
     }
 
     /// <summary>
@@ -79,7 +79,7 @@ public sealed partial class ReadableStreamDefaultReaderInstance
                 result.Set("done", JsBoolean.False);
                 promise.Resolve(result);
             },
-            CloseSteps: () =>
+            CloseSteps: (_) =>
             {
                 var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
                 result.Set("value", Undefined);

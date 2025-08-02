@@ -10,7 +10,7 @@ internal static class AbstractOperations
     /// <summary>
     /// https://streams.spec.whatwg.org/#dequeue-value
     /// </summary>
-    public static JsValue DequeueValue(this IQueueEntriesContainer container)
+    public static JsValue DequeueValue(this IQueueEntriesContainer<QueueEntry> container)
     {
         // Assert: container has [[queue]] and [[queueTotalSize]] internal slots.
 
@@ -21,10 +21,8 @@ internal static class AbstractOperations
         }
 
         // Let valueWithSize be container.[[queue]][0].
-        var entry = container.Queue[0];
-
         // Remove valueWithSize from container.[[queue]].
-        container.Queue.RemoveAt(0);
+        var entry = container.Queue.Dequeue();
 
         // Set container.[[queueTotalSize]] to container.[[queueTotalSize]] − valueWithSize’s size.
         container.QueueTotalSize -= entry.Size;
@@ -42,7 +40,7 @@ internal static class AbstractOperations
     /// <summary>
     /// https://streams.spec.whatwg.org/#peek-queue-value
     /// </summary>
-    public static JsValue PeekQueueValue(this IQueueEntriesContainer container)
+    public static JsValue PeekQueueValue(this IQueueEntriesContainer<QueueEntry> container)
     {
         // Assert: container has [[queue]] and [[queueTotalSize]] internal slots.
 
@@ -54,13 +52,13 @@ internal static class AbstractOperations
 
         // Let valueWithSize be container.[[queue]][0].
         // Return valueWithSize’s value.
-        return container.Queue[0].Value;
+        return container.Queue.Peek().Value;
     }
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#reset-queue
     /// </summary>
-    public static void ResetQueue(this IQueueEntriesContainer container)
+    public static void ResetQueue<T>(this IQueueEntriesContainer<T> container)
     {
         // Assert: container has [[queue]] and [[queueTotalSize]] internal slots.
 
@@ -75,7 +73,7 @@ internal static class AbstractOperations
     /// https://streams.spec.whatwg.org/#enqueue-value-with-size
     /// </summary>
     public static void EnqueueValueWithSize(
-        this IQueueEntriesContainer container,
+        this IQueueEntriesContainer<QueueEntry> container,
         Engine engine,
         JsValue value,
         double size
@@ -91,7 +89,7 @@ internal static class AbstractOperations
         }
 
         // Append a new value-with-size with value value and size size to container.[[queue]].
-        container.Queue.Add(new(value, size));
+        container.Queue.Enqueue(new(value, size));
 
         // Set container.[[queueTotalSize]] to container.[[queueTotalSize]] + size.
         container.QueueTotalSize += size;

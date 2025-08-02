@@ -17,7 +17,10 @@ internal sealed class CountQueuingStrategyConstructor : Constructor
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         arguments.EnsureCount(Engine, 1, "Failed to construct 'CountQueuingStrategy'");
-        return new CountQueuingStrategyInstance(Engine, arguments[0]);
+        return new CountQueuingStrategyInstance(Engine, arguments[0])
+        {
+            Prototype = PrototypeObject,
+        };
     }
 
     public CountQueuingStrategyPrototype PrototypeObject { get; }

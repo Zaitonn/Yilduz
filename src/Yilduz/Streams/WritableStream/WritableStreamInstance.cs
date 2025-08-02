@@ -2,7 +2,6 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
-using Yilduz.Streams.QueuingStrategy;
 using Yilduz.Streams.WritableStreamDefaultWriter;
 using Yilduz.Utils;
 

@@ -22,7 +22,9 @@ using Yilduz.Services;
 using Yilduz.Storages.Storage;
 using Yilduz.Streams.ByteLengthQueuingStrategy;
 using Yilduz.Streams.CountQueuingStrategy;
+using Yilduz.Streams.ReadableByteStreamController;
 using Yilduz.Streams.ReadableStream;
+using Yilduz.Streams.ReadableStreamBYOBReader;
 using Yilduz.Streams.ReadableStreamDefaultController;
 using Yilduz.Streams.ReadableStreamDefaultReader;
 using Yilduz.Streams.WritableStream;
@@ -59,10 +61,11 @@ public sealed class WebApiIntrinsics
     internal ReadableStreamConstructor ReadableStream { get; }
     internal ReadableStreamDefaultControllerConstructor ReadableStreamDefaultController { get; }
     internal ReadableStreamDefaultReaderConstructor ReadableStreamDefaultReader { get; }
+    internal ReadableStreamBYOBReaderConstructor ReadableStreamBYOBReader { get; }
+    internal ReadableByteStreamControllerConstructor ReadableByteStreamController { get; }
     internal WritableStreamConstructor WritableStream { get; }
     internal WritableStreamDefaultWriterConstructor WritableStreamDefaultWriter { get; }
     internal WritableStreamDefaultControllerConstructor WritableStreamDefaultController { get; }
-
     internal CountQueuingStrategyConstructor CountQueuingStrategy { get; }
     internal ByteLengthQueuingStrategyConstructor ByteLengthQueuingStrategy { get; }
 
@@ -121,6 +124,8 @@ public sealed class WebApiIntrinsics
         ReadableStream = new(_engine);
         ReadableStreamDefaultController = new(_engine);
         ReadableStreamDefaultReader = new(_engine);
+        ReadableStreamBYOBReader = new(_engine);
+        ReadableByteStreamController = new(_engine);
 
         CountQueuingStrategy = new(_engine);
         ByteLengthQueuingStrategy = new(_engine);
@@ -169,6 +174,8 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(ReadableStream), ReadableStream);
         _engine.SetValue(nameof(ReadableStreamDefaultController), ReadableStreamDefaultController);
         _engine.SetValue(nameof(ReadableStreamDefaultReader), ReadableStreamDefaultReader);
+        _engine.SetValue(nameof(ReadableStreamBYOBReader), ReadableStreamBYOBReader);
+        _engine.SetValue(nameof(ReadableByteStreamController), ReadableByteStreamController);
         _engine.SetValue(nameof(WritableStream), WritableStream);
         _engine.SetValue(nameof(WritableStreamDefaultWriter), WritableStreamDefaultWriter);
         _engine.SetValue(nameof(WritableStreamDefaultController), WritableStreamDefaultController);

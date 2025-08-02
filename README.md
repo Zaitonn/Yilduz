@@ -65,8 +65,8 @@ engine.Execute(
 - Streams
   - [x] `ByteLengthQueuingStrategy`
   - [x] `CountQueuingStrategy`
-  - [x] `ReadableStream`
   - [ ] `ReadableByteStreamController`
+  - [x] `ReadableStream`
   - [ ] `ReadableStreamBYOBReader`
   - [ ] `ReadableStreamBYOBRequest`
   - [x] `ReadableStreamDefaultReader`

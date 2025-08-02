@@ -15,7 +15,9 @@ public abstract class QueuingStrategyInstance : ObjectInstance
     private protected QueuingStrategyInstance(Engine engine, JsValue options)
         : base(engine)
     {
-        var highWaterMark = options.AsObject().Get("highWaterMark");
+        var highWaterMark = options.IsObject()
+            ? options.AsObject().Get("highWaterMark")
+            : Undefined;
         if (!highWaterMark.IsUndefined())
         {
             HighWaterMark = highWaterMark.AsNumber();
