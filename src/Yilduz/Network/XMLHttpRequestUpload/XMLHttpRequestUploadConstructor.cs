@@ -7,16 +7,12 @@ namespace Yilduz.Network.XMLHttpRequestUpload;
 
 internal sealed class XMLHttpRequestUploadConstructor : Constructor
 {
-    private readonly WebApiIntrinsics _webApiIntrinsics;
-
     public XMLHttpRequestUploadConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(XMLHttpRequestUpload))
     {
-        _webApiIntrinsics = webApiIntrinsics;
-
         PrototypeObject = new(engine, this)
         {
-            Prototype = _webApiIntrinsics.XMLHttpRequestEventTarget.PrototypeObject,
+            Prototype = webApiIntrinsics.XMLHttpRequestEventTarget.PrototypeObject,
         };
         SetOwnProperty("prototype", new(PrototypeObject, false, false, true));
     }

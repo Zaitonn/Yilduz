@@ -48,7 +48,7 @@ public sealed class ErrorMethodTests : TestBase
         Assert.NotNull(Engine.Evaluate("errorReason"));
     }
 
-    [Fact(Skip = "sebastienros/jint#2157")]
+    [Fact]
     public void ShouldRejectPendingWrites()
     {
         Engine.Execute(
@@ -60,20 +60,21 @@ public sealed class ErrorMethodTests : TestBase
                     controller = ctrl;
                 },
                 write(chunk, ctrl) {
-                    // Don't resolve immediately, keep write pending
-                }
+                    return new Promise((resolve, reject) => {});
+                },
             });
 
             const writer = stream.getWriter();
             writer.write('test').catch(() => { writeRejected = true; });
-            controller.error(new Error('Stream error'));
             """
         );
+
+        Engine.Evaluate("controller.error(new Error('Stream error'));");
 
         Assert.True(Engine.Evaluate("writeRejected").AsBoolean());
     }
 
-    [Fact(Skip = "sebastienros/jint#2157")]
+    [Fact]
     public void ShouldRejectWriterPromises()
     {
         Engine.Execute(
@@ -85,7 +86,10 @@ public sealed class ErrorMethodTests : TestBase
             const stream = new WritableStream({
                 start(ctrl) {
                     controller = ctrl;
-                }
+                },
+                write(chunk, ctrl) {
+                    return new Promise((resolve, reject) => {});
+                },
             });
 
             const writer = stream.getWriter();
@@ -139,7 +143,7 @@ public sealed class ErrorMethodTests : TestBase
         );
 
         Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.write('test');").UnwrapIfPromise()
+            () => Engine.Evaluate("writer.write('test')").UnwrapIfPromise()
         );
     }
 }

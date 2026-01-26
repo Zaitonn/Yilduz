@@ -9,11 +9,9 @@ namespace Yilduz.Services;
 
 internal sealed class Base64Provider(Engine engine)
 {
-    private readonly Engine _engine = engine;
-
-    public JsValue Encode(JsValue thisObject, JsValue[] arguments)
+    public JsValue Encode(JsValue _, JsValue[] arguments)
     {
-        arguments.EnsureCount(_engine, 1, "Failed to execute 'btoa'");
+        arguments.EnsureCount(engine, 1, "Failed to execute 'btoa'");
 
         var input = arguments[0].ToString();
         CheckRange(input);
@@ -22,9 +20,9 @@ internal sealed class Base64Provider(Engine engine)
         return Convert.ToBase64String(bytes);
     }
 
-    public JsValue Decode(JsValue thisObject, JsValue[] arguments)
+    public JsValue Decode(JsValue _, JsValue[] arguments)
     {
-        arguments.EnsureCount(_engine, 1, "Failed to execute 'atob'");
+        arguments.EnsureCount(engine, 1, "Failed to execute 'atob'");
         var input = arguments[0].ToString();
 
         try
@@ -35,7 +33,7 @@ internal sealed class Base64Provider(Engine engine)
         {
             DOMExceptionHelper
                 .CreateInvalidCharacterError(
-                    _engine,
+                    engine,
                     "The string to be decoded is not correctly encoded."
                 )
                 .Throw();
@@ -52,7 +50,7 @@ internal sealed class Base64Provider(Engine engine)
             {
                 DOMExceptionHelper
                     .CreateInvalidCharacterError(
-                        _engine,
+                        engine,
                         "The string to be encoded contains characters outside of the Latin1 range."
                     )
                     .Throw();

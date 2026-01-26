@@ -159,7 +159,7 @@ public sealed class AbortMethodTests : TestBase
         Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
     }
 
-    [Fact(Skip = "sebastienros/jint#2157")]
+    [Fact]
     public void ShouldAbortPendingWrites()
     {
         Engine.Execute(

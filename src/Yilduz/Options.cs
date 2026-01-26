@@ -7,9 +7,9 @@ namespace Yilduz;
 
 public sealed partial class Options
 {
-    public Func<Engine, IConsole>? ConsoleFactory { get; set; }
+    public Func<Engine, IConsole>? ConsoleFactory { get; init; }
 
-    public CancellationToken CancellationToken { get; set; }
+    public required CancellationToken CancellationToken { get; init; }
 
-    public TimeSpan WaitingTimeout { get; set; } = TimeSpan.FromSeconds(10);
+    public TimeSpan WaitingTimeout { get; init; } = TimeSpan.FromSeconds(10);
 }

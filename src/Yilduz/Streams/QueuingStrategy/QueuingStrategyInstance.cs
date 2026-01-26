@@ -10,8 +10,6 @@ namespace Yilduz.Streams.QueuingStrategy;
 
 public abstract class QueuingStrategyInstance : ObjectInstance
 {
-    private ClrFunction? _sizeAlgorithm;
-
     private protected QueuingStrategyInstance(Engine engine, JsValue options)
         : base(engine)
     {
@@ -29,11 +27,7 @@ public abstract class QueuingStrategyInstance : ObjectInstance
     }
 
     internal ClrFunction SizeAlgorithm =>
-        _sizeAlgorithm ??= new ClrFunction(
-            Engine,
-            nameof(Size).ToJsStyleName(),
-            (_, args) => Size(args.At(0))
-        );
+        new(Engine, nameof(Size).ToJsStyleName(), (_, args) => Size(args.At(0)));
 
     public double HighWaterMark { get; protected set; }
 

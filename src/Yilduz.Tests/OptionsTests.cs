@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using Jint;
 using Xunit;
 
@@ -18,7 +19,14 @@ public static class OptionsTests
     {
         var engine = new Engine();
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => engine.InitializeWebApi(new() { WaitingTimeout = TimeSpan.FromSeconds(-1) })
+            () =>
+                engine.InitializeWebApi(
+                    new()
+                    {
+                        WaitingTimeout = TimeSpan.FromSeconds(-1),
+                        CancellationToken = CancellationToken.None,
+                    }
+                )
         );
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Web;
 using Jint;
@@ -9,7 +10,9 @@ using PrettyPrompt;
 using Spectre.Console;
 using Yilduz;
 
-var engine = new Engine(cfg => cfg.AllowClr()).InitializeWebApi(new());
+var engine = new Engine(cfg => cfg.AllowClr()).InitializeWebApi(
+    new() { CancellationToken = CancellationToken.None }
+);
 var assembly = Assembly.GetExecutingAssembly();
 var version = assembly.GetName().Version?.ToString();
 
@@ -50,11 +53,13 @@ async Task StartLoop()
                 case Types.Boolean:
                     AnsiConsole.MarkupLineInterpolated($"[deepskyblue3_1]{result}[/]");
                     break;
+
                 case Types.String:
                     AnsiConsole.MarkupLineInterpolated(
                         $"[darkorange3]{HttpUtility.JavaScriptStringEncode(result.AsString(), true)}[/]"
                     );
                     break;
+
                 case Types.BigInt:
                 case Types.Number:
                     AnsiConsole.MarkupLineInterpolated($"[darkseagreen2]{result}[/]");

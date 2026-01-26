@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -16,21 +17,21 @@ internal sealed class TimerProvider(Engine engine, Options options)
 
     private long _currentId = 1;
 
-    public JsValue SetTimeout(JsValue thisObject, params JsValue[] arguments)
+    public JsValue SetTimeout(JsValue _, JsValue[] arguments)
     {
         options.CancellationToken.ThrowIfCancellationRequested();
 
         return StartTimer(false, arguments);
     }
 
-    public JsValue SetInterval(JsValue thisObject, params JsValue[] arguments)
+    public JsValue SetInterval(JsValue _, JsValue[] arguments)
     {
         options.CancellationToken.ThrowIfCancellationRequested();
 
         return StartTimer(true, arguments);
     }
 
-    public JsValue Clear(JsValue thisObject, params JsValue[] arguments)
+    public JsValue Clear(JsValue _, JsValue[] arguments)
     {
         options.CancellationToken.ThrowIfCancellationRequested();
 
@@ -90,7 +91,7 @@ internal sealed class TimerProvider(Engine engine, Options options)
             {
                 do
                 {
-                    await Task.Delay(timeout, options.CancellationToken).ConfigureAwait(false);
+                    await Task.Delay(timeout, options.CancellationToken);
 
                     if (options.CancellationToken.IsCancellationRequested || !_ids.Contains(id))
                     {
@@ -134,18 +135,22 @@ internal sealed class TimerProvider(Engine engine, Options options)
         bool entered = false;
         try
         {
-            Monitor.TryEnter(function.Engine, options.WaitingTimeout, ref entered);
+            Monitor.TryEnter(engine, options.WaitingTimeout, ref entered);
 
             if (entered)
             {
                 function.Call(JsValue.Undefined, arguments);
+            }
+            else
+            {
+                throw new TimeoutException();
             }
         }
         finally
         {
             if (entered)
             {
-                Monitor.Exit(function.Engine);
+                Monitor.Exit(engine);
             }
         }
     }
@@ -162,6 +167,10 @@ internal sealed class TimerProvider(Engine engine, Options options)
             if (entered)
             {
                 engine.Execute(code);
+            }
+            else
+            {
+                throw new TimeoutException();
             }
         }
         finally

@@ -88,6 +88,7 @@ public sealed class WebApiIntrinsics
     {
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
         Options = options ?? throw new ArgumentNullException(nameof(options));
+        Options.CancellationToken.ThrowIfCancellationRequested();
 
         if (Options.WaitingTimeout < TimeSpan.Zero)
         {
