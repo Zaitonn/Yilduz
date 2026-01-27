@@ -35,11 +35,14 @@ public sealed partial class WritableStreamDefaultControllerInstance : ObjectInst
     /// </summary>
     public void Error(JsValue error)
     {
+        // Let state be this.[[stream]].[[state]].
+        // If state is not "writable", return.
         if (Stream?.State != WritableStreamState.Writable)
         {
             return;
         }
 
+        // Perform ! WritableStreamDefaultControllerError(this, e).
         ErrorInternal(error);
     }
 }

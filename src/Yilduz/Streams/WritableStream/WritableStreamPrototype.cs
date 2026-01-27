@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -6,6 +7,7 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
+using Yilduz.Utils;
 
 namespace Yilduz.Streams.WritableStream;
 
@@ -66,14 +68,21 @@ internal sealed class WritableStreamPrototype : ObjectInstance
 
         var (promise, resolve, rejected) = Engine.Advanced.RegisterPromise();
 
-        try
+        Task.Run(() =>
         {
-            resolve(instance.Abort(reason));
-        }
-        catch (JavaScriptException e)
-        {
-            rejected(e.Error);
-        }
+            try
+            {
+                resolve(instance.Abort(reason).UnwrapIfPromise());
+            }
+            catch (JavaScriptException e)
+            {
+                rejected(e.Error);
+            }
+            catch (PromiseRejectedException e)
+            {
+                rejected(e.RejectedValue);
+            }
+        });
 
         return promise;
     }
@@ -84,12 +93,9 @@ internal sealed class WritableStreamPrototype : ObjectInstance
     private JsValue Close(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
-
         instance.Close();
 
-        var (promise, resolve, _) = Engine.Advanced.RegisterPromise();
-        resolve(Undefined);
-        return promise;
+        return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
     }
 
     /// <summary>

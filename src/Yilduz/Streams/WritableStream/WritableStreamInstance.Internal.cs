@@ -275,64 +275,127 @@ public sealed partial class WritableStreamInstance
     /// </summary>
     internal void StartErroring(JsValue reason)
     {
-        StoredError = reason;
+        // Assert: stream.[[storedError]] is undefined.
+        // Assert: stream.[[state]] is "writable".
+        // Let controller be stream.[[controller]].
+        // Assert: controller is not undefined.
+        if (Controller is null)
+        {
+            return;
+        }
+
+        // Set stream.[[state]] to "erroring".
         State = WritableStreamState.Erroring;
 
+        // Set stream.[[storedError]] to reason.
+        StoredError = reason;
+
+        // Let writer be stream.[[writer]].
+        // If writer is not undefined, perform ! WritableStreamDefaultWriterEnsureReadyPromiseRejected(writer, reason).
         Writer?.EnsureReadyPromiseRejected(reason);
 
-        if (!HasOperationMarkedInFlight() && (Controller?.Started ?? false))
+        // If ! WritableStreamHasOperationMarkedInFlight(stream) is false and controller.[[started]] is true, perform ! WritableStreamFinishErroring(stream).
+        if (!HasOperationMarkedInFlight() && Controller.Started)
         {
             FinishErroring();
         }
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-finish-erroring
+    /// </summary>
     internal void FinishErroring()
     {
+        // Assert: stream.[[state]] is "erroring".
+        // Assert: ! WritableStreamHasOperationMarkedInFlight(stream) is false.
+
+        // Set stream.[[state]] to "errored".
         State = WritableStreamState.Errored;
+
+        // Perform ! stream.[[controller]].[[ErrorSteps]]().
         Controller?.ErrorSteps();
 
+        // Let storedError be stream.[[storedError]].
         var storedError = StoredError;
+        // For each writeRequest of stream.[[writeRequests]]:
         foreach (var writeRequest in WriteRequests)
         {
+            // Reject writeRequest with storedError.
             writeRequest.Reject(storedError);
         }
+        // Set stream.[[writeRequests]] to an empty list.
         WriteRequests.Clear();
 
+        // If stream.[[pendingAbortRequest]] is undefined,
         if (PendingAbortRequest == null)
         {
+            // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
+            // Return.
             RejectCloseAndClosedPromiseIfNeeded();
             return;
         }
 
+        // Let abortRequest be stream.[[pendingAbortRequest]].
+        // Set stream.[[pendingAbortRequest]] to undefined.
         var abortRequest = PendingAbortRequest;
         PendingAbortRequest = null;
 
+        // If abortRequest’s was already erroring is true,
         if (abortRequest.Value.WasAlreadyErroring)
         {
+            // Reject abortRequest’s promise with storedError.
             abortRequest.Value.Promise.Reject(storedError);
+
+            // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
             RejectCloseAndClosedPromiseIfNeeded();
+
+            // Return.
             return;
         }
 
+        // Let promise be ! stream.[[controller]].[[AbortSteps]](abortRequest’s reason).
         var promise = Controller?.AbortSteps(abortRequest.Value.Reason);
 
         try
         {
             promise?.UnwrapIfPromise();
+
+            // Upon fulfillment of promise,
+            // Resolve abortRequest’s promise with undefined.
             abortRequest.Value.Promise.Resolve(Undefined);
+
+            // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
             RejectCloseAndClosedPromiseIfNeeded();
         }
         catch (PromiseRejectedException e)
         {
+            // Upon rejection of promise with reason reason,
+            // Reject abortRequest’s promise with reason.
             abortRequest.Value.Promise.Reject(e.RejectedValue);
+
+            // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
             RejectCloseAndClosedPromiseIfNeeded();
         }
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#writable-stream-reject-close-and-closed-promise-if-needed
+    /// </summary>
     private void RejectCloseAndClosedPromiseIfNeeded()
     {
+        // Assert: stream.[[state]] is "errored".
+
+        // If stream.[[closeRequest]] is not undefined,
+        //   Assert: stream.[[inFlightCloseRequest]] is undefined.
+        //   Reject stream.[[closeRequest]] with stream.[[storedError]].
+        //   Set stream.[[closeRequest]] to undefined.
         CloseRequest?.Reject(StoredError);
         CloseRequest = null;
+
+        // Let writer be stream.[[writer]].
+        // If writer is not undefined,
+        // Reject writer.[[closedPromise]] with stream.[[storedError]].
+        // Set writer.[[closedPromise]].[[PromiseIsHandled]] to true.
         Writer?.ClosedPromise?.Reject(StoredError);
     }
 

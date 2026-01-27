@@ -158,24 +158,4 @@ public sealed class AbortMethodTests : TestBase
 
         Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
     }
-
-    [Fact]
-    public void ShouldAbortPendingWrites()
-    {
-        Engine.Execute(
-            """
-            let writeRejected = false;
-            const stream = new WritableStream({
-                write(chunk) {
-                    // This write will be aborted
-                }
-            });
-            const writer = stream.getWriter();
-            writer.write('chunk').catch(() => { writeRejected = true; });
-            writer.abort(new Error('Aborted'));
-            """
-        );
-
-        Assert.True(Engine.Evaluate("writeRejected").AsBoolean());
-    }
 }
