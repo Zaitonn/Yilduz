@@ -1,6 +1,13 @@
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Native.Promise;
+using Jint.Runtime;
 
 namespace Yilduz.Utils;
 
@@ -20,8 +27,63 @@ internal static class PromiseHelper
         return manualPromise;
     }
 
-    public static bool IsPromise(JsValue value)
+    public static JsValue All(Engine engine, IEnumerable<JsValue> promises)
     {
-        return value.IsObject() && value.AsObject().HasProperty("then");
+        var manualPromise = engine.Advanced.RegisterPromise();
+        var result = new JsValue[promises.Count()];
+
+        Task.Run(() =>
+        {
+            try
+            {
+                Task.WaitAll(
+                    [
+                        .. promises.Select(
+                            (p, i) =>
+                                Task.Run(() =>
+                                {
+                                    result[i] = p.UnwrapIfPromise();
+                                })
+                        ),
+                    ]
+                );
+                manualPromise.Resolve(engine.Intrinsics.Array.Construct(result));
+            }
+            catch (AggregateException e) when (e.InnerException is PromiseRejectedException ex)
+            {
+                manualPromise.Reject(ex.RejectedValue);
+            }
+        });
+
+        return manualPromise.Promise;
+    }
+
+    public static bool TryGetRejectedValue(
+        this JsValue value,
+        [NotNullWhen(true)] out JsValue? rejectValue
+    )
+    {
+        rejectValue = null;
+
+        if (!value.IsPromise())
+        {
+            return false;
+        }
+
+        try
+        {
+            value.UnwrapIfPromise(new CancellationToken(true)); // Will not wait the promise
+        }
+        catch (PromiseRejectedException e)
+        {
+            rejectValue = e.RejectedValue;
+            return true;
+        }
+        catch (OperationCanceledException)
+        {
+            return false;
+        }
+
+        return false;
     }
 }

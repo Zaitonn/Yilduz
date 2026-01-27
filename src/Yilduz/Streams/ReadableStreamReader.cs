@@ -9,9 +9,9 @@ using Yilduz.Utils;
 
 namespace Yilduz.Streams;
 
-public abstract class ReadableStreamGenericReaderInstance : ObjectInstance
+public abstract class ReadableStreamReader : ObjectInstance
 {
-    private protected ReadableStreamGenericReaderInstance(Engine engine)
+    private protected ReadableStreamReader(Engine engine)
         : base(engine)
     {
         ClosedPromise = engine.Advanced.RegisterPromise();
@@ -99,4 +99,6 @@ public abstract class ReadableStreamGenericReaderInstance : ObjectInstance
         // Set reader.[[stream]] to undefined.
         Stream = null;
     }
+
+    internal abstract void Release();
 }

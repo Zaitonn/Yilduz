@@ -12,7 +12,7 @@ public sealed partial class WritableStreamDefaultWriterInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#writable-stream-default-writer-abort
     /// </summary>
-    private JsValue AbortInternal(JsValue reason)
+    internal JsValue AbortInternal(JsValue reason)
     {
         if (Stream is null)
         {
@@ -34,7 +34,7 @@ public sealed partial class WritableStreamDefaultWriterInstance
         ClosedPromise = PromiseHelper.CreateRejectedPromise(Engine, error);
     }
 
-    private void Release()
+    internal void Release()
     {
         if (Stream == null)
         {
@@ -53,7 +53,7 @@ public sealed partial class WritableStreamDefaultWriterInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#writable-stream-default-writer-write
     /// </summary>
-    private JsValue WriteInternal(JsValue chunk)
+    internal JsValue WriteInternal(JsValue chunk)
     {
         if (Stream is null)
         {

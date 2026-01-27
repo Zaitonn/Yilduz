@@ -75,7 +75,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         return instance.Cancel(reason);
     }
 
-    private ReadableStreamGenericReaderInstance GetReader(JsValue thisObject, JsValue[] arguments)
+    private ReadableStreamReader GetReader(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var options = arguments.At(0);

@@ -54,7 +54,7 @@ public sealed partial class ReadableStreamDefaultControllerInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-default-controller-enqueue
     /// </summary>
-    internal void EnqueueInternal(JsValue chunk)
+    internal override void EnqueueInternal(JsValue chunk)
     {
         // If ! ReadableStreamDefaultControllerCanCloseOrEnqueue(controller) is false, return.
         if (!CanCloseOrEnqueue())
@@ -221,19 +221,6 @@ public sealed partial class ReadableStreamDefaultControllerInstance
             // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
             CallPullIfNeeded();
         }
-    }
-
-    /// <summary>
-    /// https://streams.spec.whatwg.org/#readable-stream-default-controller-clear-algorithms
-    /// </summary>
-    internal void ClearAlgorithms()
-    {
-        // Set controller.[[pullAlgorithm]] to undefined.
-        PullAlgorithm = null;
-        // Set controller.[[cancelAlgorithm]] to undefined.
-        CancelAlgorithm = null;
-        // Set controller.[[strategySizeAlgorithm]] to undefined.
-        StrategySizeAlgorithm = null;
     }
 
     internal override JsValue CancelSteps(JsValue reason)

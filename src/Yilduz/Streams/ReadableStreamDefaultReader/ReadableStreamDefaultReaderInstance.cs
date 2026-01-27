@@ -11,8 +11,7 @@ namespace Yilduz.Streams.ReadableStreamDefaultReader;
 /// <br/>
 /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader
 /// </summary>
-public sealed partial class ReadableStreamDefaultReaderInstance
-    : ReadableStreamGenericReaderInstance
+public sealed partial class ReadableStreamDefaultReaderInstance : ReadableStreamReader
 {
     /// <summary>
     /// https://streams.spec.whatwg.org/#default-reader-constructor

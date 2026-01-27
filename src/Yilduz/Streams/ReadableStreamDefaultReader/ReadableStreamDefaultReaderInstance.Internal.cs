@@ -33,7 +33,7 @@ public sealed partial class ReadableStreamDefaultReaderInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#abstract-opdef-readablestreamdefaultreaderrelease
     /// </summary>
-    internal void Release()
+    internal override void Release()
     {
         // Perform ! ReadableStreamReaderGenericRelease(reader).
         GenericRelease();

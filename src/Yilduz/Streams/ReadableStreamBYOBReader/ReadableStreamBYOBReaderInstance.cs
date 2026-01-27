@@ -11,7 +11,7 @@ namespace Yilduz.Streams.ReadableStreamBYOBReader;
 /// <br/>
 /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamBYOBReader
 /// </summary>
-public sealed partial class ReadableStreamBYOBReaderInstance : ReadableStreamGenericReaderInstance
+public sealed partial class ReadableStreamBYOBReaderInstance : ReadableStreamReader
 {
     /// <summary>
     /// https://streams.spec.whatwg.org/#byob-reader-constructor

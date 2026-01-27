@@ -1,14 +1,21 @@
+using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Aborting.AbortSignal;
+using Yilduz.Extensions;
 using Yilduz.Streams.Queue;
 using Yilduz.Streams.ReadableByteStreamController;
 using Yilduz.Streams.ReadableStreamBYOBReader;
+using Yilduz.Streams.ReadableStreamDefaultController;
 using Yilduz.Streams.ReadableStreamDefaultReader;
+using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStream;
@@ -16,7 +23,7 @@ namespace Yilduz.Streams.ReadableStream;
 public sealed partial class ReadableStreamInstance
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
-    internal ReadableStreamGenericReaderInstance? Reader { get; set; }
+    internal ReadableStreamReader? Reader { get; set; }
     internal ReadableStreamController Controller { get; private set; }
     internal ReadableStreamState State { get; private set; } = ReadableStreamState.Readable;
     internal bool Detached { get; private set; }
@@ -29,7 +36,7 @@ public sealed partial class ReadableStreamInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#initialize-readable-stream
     /// </summary>
-    private void InitializeReadableStream()
+    internal void InitializeReadableStream()
     {
         State = ReadableStreamState.Readable;
         Reader = null;
@@ -169,7 +176,7 @@ public sealed partial class ReadableStreamInstance
             {
                 // Let sourceCancelPromise be ! stream.[[controller]].[[CancelSteps]](reason).
                 var result = Controller.CancelAlgorithm.Call(Undefined, [reason]);
-                if (result is not null && PromiseHelper.IsPromise(result))
+                if (result is not null && result.IsPromise())
                 {
                     cancelPromise = PromiseHelper.CreateResolvedPromise(Engine, result);
                 }
@@ -228,30 +235,70 @@ public sealed partial class ReadableStreamInstance
             }
         }
 
+        SetUpReadableStreamDefaultController(
+            controller,
+            startAlgorithm,
+            pullAlgorithm,
+            cancelAlgorithm,
+            highWaterMark,
+            sizeAlgorithm ?? new ClrFunction(Engine, string.Empty, (_, _) => 1)
+        );
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#set-up-readable-stream-default-controller
+    /// </summary>
+    private void SetUpReadableStreamDefaultController(
+        ReadableStreamDefaultControllerInstance controller,
+        Function? startAlgorithm,
+        Function? pullAlgorithm,
+        Function? cancelAlgorithm,
+        double highWaterMark,
+        Function sizeAlgorithm
+    )
+    {
+        // Assert: stream.[[controller]] is undefined.
+        // Set controller.[[stream]] to stream.
+
+        // Perform ! ResetQueue(controller).
+        controller.ResetQueue();
+
+        // Set controller.[[started]], controller.[[closeRequested]], controller.[[pullAgain]], and controller.[[pulling]] to false.
+        controller.Started = false;
+        controller.CloseRequested = false;
+        controller.PullAgain = false;
+        controller.Pulling = false;
+
+        // Set controller.[[strategySizeAlgorithm]] to sizeAlgorithm and controller.[[strategyHWM]] to highWaterMark.
+        controller.StrategySizeAlgorithm = sizeAlgorithm;
+        controller.StrategyHWM = highWaterMark;
+
+        // Set controller.[[pullAlgorithm]] to pullAlgorithm.
+        // Set controller.[[cancelAlgorithm]] to cancelAlgorithm.
         controller.PullAlgorithm = pullAlgorithm;
         controller.CancelAlgorithm = cancelAlgorithm;
 
-        // Call start algorithm if provided
         if (startAlgorithm is not null)
         {
             try
             {
-                var result = startAlgorithm.Call(Undefined, [controller]);
+                // Let startResult be the result of performing startAlgorithm. (This might throw an exception.)
+                var startResult = startAlgorithm.Call(Undefined, [controller]);
+
+                // Let startPromise be a promise resolved with startResult.
+                var startPromise = PromiseHelper.CreateResolvedPromise(Engine, startResult);
+
+                // Upon fulfillment of startPromise,
+                // Set controller.[[started]] to true
                 controller.Started = true;
 
-                if (PromiseHelper.IsPromise(result))
-                {
-                    // Handle promise-based start
-                    // For now, just mark as started
-                    controller.CallPullIfNeeded();
-                }
-                else
-                {
-                    controller.CallPullIfNeeded();
-                }
+                // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
+                controller.CallPullIfNeeded();
             }
             catch (JavaScriptException ex)
             {
+                // Upon rejection of startPromise with reason r,
+                // Perform ! ReadableStreamDefaultControllerError(controller, r).
                 controller.ErrorInternal(ex.Error);
             }
         }
@@ -437,5 +484,766 @@ public sealed partial class ReadableStreamInstance
             // Perform ! ReadableByteStreamControllerError(controller, r).
             Controller.ErrorInternal(e.Error);
         }
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-tee
+    /// </summary>
+    /// <param name="cloneForBranch2">The second argument, cloneForBranch2, governs whether or not the data from the original stream will be cloned (using HTML’s serializable objects framework) before appearing in the second of the returned branches. This is useful for scenarios where both branches are to be consumed in such a way that they might otherwise interfere with each other, such as by transferring their chunks. However, it does introduce a noticeable asymmetry between the two branches, and limits the possible chunks to serializable ones.</param>
+    private (ReadableStreamInstance, ReadableStreamInstance) TeeInternal(bool cloneForBranch2)
+    {
+        // If stream is a readable byte stream, then cloneForBranch2 is ignored and chunks are cloned unconditionally.
+
+        // Assert: stream implements ReadableStream.
+        // Assert: cloneForBranch2 is a boolean.
+
+        // If stream.[[controller]] implements ReadableByteStreamController, return ? ReadableByteStreamTee(stream).
+        if (Controller is ReadableByteStreamControllerInstance)
+        {
+            throw new NotImplementedException("Tee is not yet implemented");
+        }
+
+        // Return ? ReadableStreamDefaultTee(stream, cloneForBranch2).
+        return DefaultTee(cloneForBranch2);
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#abstract-opdef-readablestreamdefaulttee
+    /// </summary>
+    private (ReadableStreamInstance, ReadableStreamInstance) DefaultTee(bool cloneForBranch2)
+    {
+        // Assert: stream implements ReadableStream.
+        // Assert: cloneForBranch2 is a boolean.
+
+        // Let reader be ? AcquireReadableStreamDefaultReader(stream).
+        var reader = AcquireDefaultReader();
+
+        // Let reading be false.
+        // Let readAgain be false.
+        // Let canceled1 be false.
+        // Let canceled2 be false.
+        var reading = false;
+        var readAgain = false;
+        var canceled1 = false;
+        var canceled2 = false;
+
+        // Let reason1 be undefined.
+        // Let reason2 be undefined.
+        // Let branch1 be undefined.
+        // Let branch2 be undefined.
+        ReadableStreamInstance? branch1 = null;
+        ReadableStreamInstance? branch2 = null;
+        var reason1 = Undefined;
+        var reason2 = Undefined;
+
+        // Let cancelPromise be a new promise.
+        var cancelPromise = Engine.Advanced.RegisterPromise();
+
+        // Let pullAlgorithm be the following steps:
+        Function pullAlgorithm = null!;
+        pullAlgorithm = new ClrFunction(
+            Engine,
+            string.Empty,
+            (_, _) =>
+            {
+                // If reading is true,
+                if (reading)
+                {
+                    // Set readAgain to true.
+                    // Return a promise resolved with undefined.
+                    readAgain = true;
+                    return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+                }
+
+                // Set reading to true.
+                reading = true;
+
+                // Let readRequest be a read request with the following items:
+                var readRequest = new ReadRequest(
+                    ChunkSteps: (chunk) =>
+                    {
+                        // Set readAgain to false.
+                        readAgain = true;
+
+                        // Let chunk1 and chunk2 be chunk.
+                        var chunk1 = chunk;
+                        var chunk2 = chunk;
+
+                        // If canceled2 is false and cloneForBranch2 is true,
+                        if (!canceled2 && cloneForBranch2)
+                        {
+                            try
+                            {
+                                // Let cloneResult be StructuredClone(chunk2).
+                                chunk2 = chunk2.StructuredClone();
+                            }
+                            catch (JavaScriptException ex)
+                            {
+                                // If cloneResult is an abrupt completion,
+                                //   Perform ! ReadableStreamDefaultControllerError(branch1.[[controller]], cloneResult.[[Value]]).
+                                //   Perform ! ReadableStreamDefaultControllerError(branch2.[[controller]], cloneResult.[[Value]]).
+                                //   Resolve cancelPromise with ! ReadableStreamCancel(stream, cloneResult.[[Value]]).
+                                //   Return.
+                                var error = ex.Error;
+
+                                branch1?.Controller.ErrorInternal(error);
+                                branch2?.Controller.ErrorInternal(error);
+
+                                var cancelResult = CancelInternal(error);
+                                cancelPromise.Resolve(cancelResult);
+                                return;
+                            }
+                        }
+
+                        // If canceled1 is false, perform ! ReadableStreamDefaultControllerEnqueue(branch1.[[controller]], chunk1).
+                        if (!canceled1)
+                        {
+                            branch1?.Controller.EnqueueInternal(chunk1);
+                        }
+
+                        // If canceled2 is false, perform ! ReadableStreamDefaultControllerEnqueue(branch2.[[controller]], chunk2).
+                        if (!canceled2)
+                        {
+                            branch2?.Controller.EnqueueInternal(chunk2);
+                        }
+
+                        // Set reading to false.
+                        reading = false;
+
+                        // If readAgain is true, perform pullAlgorithm.
+                        if (readAgain)
+                        {
+                            readAgain = false;
+                            pullAlgorithm.Call(Undefined, []);
+                        }
+                    },
+                    CloseSteps: (_) =>
+                    {
+                        // Set reading to false.
+                        reading = false;
+
+                        // If canceled1 is false, perform ! ReadableStreamDefaultControllerClose(branch1.[[controller]]).
+                        if (!canceled1)
+                        {
+                            branch1?.Controller.CloseInternal();
+                        }
+
+                        // If canceled2 is false, perform ! ReadableStreamDefaultControllerClose(branch2.[[controller]]).
+                        if (!canceled2)
+                        {
+                            branch2?.Controller.CloseInternal();
+                        }
+
+                        // If canceled1 is false or canceled2 is false, resolve cancelPromise with undefined.
+                        if (!canceled1 || !canceled2)
+                        {
+                            cancelPromise.Resolve(Undefined);
+                        }
+                    },
+                    // Set reading to false.
+                    ErrorSteps: (_) => reading = false
+                );
+
+                // Perform ! ReadableStreamDefaultReaderRead(reader, readRequest).
+                DefaultReaderRead(readRequest);
+
+                // Return a promise resolved with undefined.
+                return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+            }
+        );
+
+        var cancel1Algorithm = new ClrFunction(
+            Engine,
+            string.Empty,
+            (_, args) =>
+            {
+                // Set canceled1 to true.
+                canceled1 = true;
+
+                // Set reason1 to reason.
+                reason1 = args.At(0);
+
+                // If canceled2 is true,
+                if (canceled2)
+                {
+                    // Let compositeReason be ! CreateArrayFromList(« reason1, reason2 »).
+                    var compositeReason = Engine.Intrinsics.Array.Construct([reason1, reason2]);
+
+                    // Let cancelResult be ! ReadableStreamCancel(stream, compositeReason).
+                    var cancelResult = CancelInternal(compositeReason);
+
+                    // Resolve cancelPromise with cancelResult.
+                    cancelPromise.Resolve(cancelResult);
+                }
+
+                // Return cancelPromise.
+                return cancelPromise.Promise;
+            }
+        );
+
+        var cancel2Algorithm = new ClrFunction(
+            Engine,
+            string.Empty,
+            (_, args) =>
+            {
+                // Set canceled2 to true.
+                canceled2 = true;
+
+                // Set reason2 to reason.
+                reason2 = args.At(0);
+
+                // If canceled1 is true,
+                if (canceled1)
+                {
+                    // Let compositeReason be ! CreateArrayFromList(« reason1, reason2 »).
+                    var compositeReason = Engine.Intrinsics.Array.Construct([reason1, reason2]);
+
+                    // Let cancelResult be ! ReadableStreamCancel(stream, compositeReason).
+                    var cancelResult = CancelInternal(compositeReason);
+
+                    // Resolve cancelPromise with cancelResult.
+                    cancelPromise.Resolve(cancelResult);
+                }
+
+                // Return cancelPromise.
+                return cancelPromise.Promise;
+            }
+        );
+
+        // Let startAlgorithm be an algorithm that returns undefined.
+        var startAlgorithm = new ClrFunction(Engine, string.Empty, (_, _) => Undefined);
+
+        // Set branch1 to ! CreateReadableStream(startAlgorithm, pullAlgorithm, cancel1Algorithm).
+        branch1 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel1Algorithm);
+        // Set branch2 to ! CreateReadableStream(startAlgorithm, pullAlgorithm, cancel2Algorithm).
+        branch2 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel2Algorithm);
+
+        // Upon rejection of reader.[[closedPromise]] with reason r,
+        if (reader.ClosedPromise.Promise.TryGetRejectedValue(out var r))
+        {
+            // Perform ! ReadableStreamDefaultControllerError(branch1.[[controller]], r).
+            Controller.ErrorInternal(r);
+            // Perform ! ReadableStreamDefaultControllerError(branch2.[[controller]], r).
+            Controller.ErrorInternal(r);
+        }
+
+        return (branch1, branch2);
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-default-reader-read
+    /// </summary>
+    private void DefaultReaderRead(ReadRequest readRequest)
+    {
+        // Let stream be reader.[[stream]].
+        // Assert: stream is not undefined.
+
+        // Set stream.[[disturbed]] to true.
+        Disturbed = true;
+
+        // If stream.[[state]] is "closed", perform readRequest’s close steps.
+        if (State == ReadableStreamState.Closed)
+        {
+            readRequest.CloseSteps(Undefined);
+        }
+        // Otherwise, if stream.[[state]] is "errored", perform readRequest’s error steps given stream.[[storedError]].
+
+        else if (State == ReadableStreamState.Errored)
+        {
+            readRequest.ErrorSteps(StoredError);
+        }
+        else
+        {
+            // Otherwise,
+            //   Assert: stream.[[state]] is "readable".
+            //   Perform ! stream.[[controller]].[[PullSteps]](readRequest).
+            Controller.PullSteps(readRequest);
+        }
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-default-controller-error
+    /// </summary>
+    private void DefaultControllerError(JsValue e)
+    {
+        // Let stream be controller.[[stream]].
+
+        // If stream.[[state]] is not "readable", return.
+        if (State != ReadableStreamState.Readable)
+        {
+            return;
+        }
+
+        // Perform ! ResetQueue(controller).
+        switch (Controller)
+        {
+            case ReadableStreamDefaultControllerInstance defaultController:
+                defaultController.ResetQueue();
+                break;
+
+            case ReadableByteStreamControllerInstance byteController:
+                byteController.ResetQueue();
+                break;
+        }
+
+        // Perform ! ReadableStreamDefaultControllerClearAlgorithms(controller).
+        Controller.ClearAlgorithms();
+
+        // Perform ! ReadableStreamError(stream, e).
+        ErrorInternal(e);
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#create-readable-stream
+    /// </summary>
+    private ReadableStreamInstance CreateReadableStream(
+        Function startAlgorithm,
+        Function pullAlgorithm,
+        Function cancelAlgorithm,
+        double highWaterMark = 1,
+        Function? sizeAlgorithm = null
+    )
+    {
+        // If highWaterMark was not passed, set it to 1.
+        // If sizeAlgorithm was not passed, set it to an algorithm that returns 1.
+        sizeAlgorithm ??= new ClrFunction(Engine, string.Empty, (_, _) => 1);
+
+        // Assert: ! IsNonNegativeNumber(highWaterMark) is true.
+        if (!Miscellaneous.IsNonNegativeNumber(highWaterMark))
+        {
+            TypeErrorHelper.Throw(Engine, "highWaterMark must be a non-negative number");
+        }
+
+        // Let stream be a new ReadableStream.
+        var stream = (ReadableStreamInstance)
+            _webApiIntrinsics.ReadableStream.Construct([], Undefined);
+
+        // Perform ! InitializeReadableStream(stream).
+        stream.InitializeReadableStream();
+
+        // Let controller be a new ReadableStreamDefaultController.
+        var controller = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+            stream,
+            1, // highWaterMark
+            sizeAlgorithm // sizeAlgorithm
+        );
+
+        // Perform ? SetUpReadableStreamDefaultController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, sizeAlgorithm).
+        SetUpReadableStreamDefaultController(
+            controller,
+            startAlgorithm,
+            pullAlgorithm,
+            cancelAlgorithm,
+            highWaterMark,
+            sizeAlgorithm
+        );
+
+        return stream;
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-pipe-to
+    /// </summary>
+    private JsValue PipeToInternal(
+        WritableStreamInstance destination,
+        bool preventClose,
+        bool preventAbort,
+        bool preventCancel,
+        AbortSignalInstance? signal
+    )
+    {
+        // Assert: source implements ReadableStream.
+        // Assert: dest implements WritableStream.
+        // Assert: preventClose, preventAbort, and preventCancel are all booleans.
+        // If signal was not given, let signal be undefined.
+        // Assert: either signal is undefined, or signal implements AbortSignal.
+
+        // Assert: ! IsReadableStreamLocked(source) is false.
+        if (Locked)
+        {
+            TypeErrorHelper.Throw(Engine, "ReadableStream is locked");
+        }
+
+        // Assert: ! IsWritableStreamLocked(dest) is false.
+        if (destination.Locked)
+        {
+            TypeErrorHelper.Throw(Engine, "WritableStream is locked");
+        }
+
+        // If source.[[controller]] implements ReadableByteStreamController, let reader be either ! AcquireReadableStreamBYOBReader(source) or ! AcquireReadableStreamDefaultReader(source), at the user agent’s discretion.
+        // Otherwise, let reader be ! AcquireReadableStreamDefaultReader(source).
+        ReadableStreamReader reader;
+
+        if (Controller is ReadableByteStreamControllerInstance)
+        {
+            // At the user agent's discretion, we choose BYOB reader here
+            reader = AcquireBYOBReader();
+        }
+        else
+        {
+            reader = AcquireDefaultReader();
+        }
+
+        // Let writer be ! AcquireWritableStreamDefaultWriter(dest).
+        var writer = destination.AcquireWriter();
+
+        // Set source.[[disturbed]] to true.
+        Disturbed = true;
+
+        // Let shuttingDown be false.
+        var shuttingDown = false;
+
+        // Let promise be a new promise.
+        var promise = Engine.Advanced.RegisterPromise();
+
+        // Track current writes for shutdown
+        var currentWrites = new List<JsValue>();
+
+        void Finalize(JsValue? error)
+        {
+            writer.Release();
+            reader.Release();
+
+            if (error is not null)
+            {
+                promise.Reject(error);
+            }
+            else
+            {
+                promise.Resolve(Undefined);
+            }
+        }
+
+        void ShutdownWithAction(Func<JsValue> action, JsValue? originalError)
+        {
+            if (shuttingDown)
+            {
+                return;
+            }
+            shuttingDown = true;
+
+            var writesPromise = PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+            if (
+                destination.State == WritableStreamState.Writable
+                && !destination.IsCloseQueuedOrInFlight
+                && currentWrites.Count > 0
+            )
+            {
+                writesPromise = PromiseHelper.All(Engine, currentWrites);
+            }
+
+            var writesThen = writesPromise.Get("then");
+            writesThen.Call(
+                writesPromise,
+                [
+                    new ClrFunction(
+                        Engine,
+                        "",
+                        (_, _) =>
+                        {
+                            var p = action();
+                            if (p.IsPromise())
+                            {
+                                var pThen = p.Get("then");
+                                pThen.Call(
+                                    p,
+                                    [
+                                        new ClrFunction(
+                                            Engine,
+                                            "",
+                                            (_, _) =>
+                                            {
+                                                Finalize(originalError);
+                                                return Undefined;
+                                            }
+                                        ),
+                                        new ClrFunction(
+                                            Engine,
+                                            "",
+                                            (_, args) =>
+                                            {
+                                                Finalize(args[0]);
+                                                return Undefined;
+                                            }
+                                        ),
+                                    ]
+                                );
+                            }
+                            else
+                            {
+                                Finalize(originalError);
+                            }
+                            return Undefined;
+                        }
+                    ),
+                    new ClrFunction(
+                        Engine,
+                        "",
+                        (_, args) =>
+                        {
+                            Finalize(args[0]);
+                            return Undefined;
+                        }
+                    ),
+                ]
+            );
+        }
+
+        void Shutdown(JsValue? error)
+        {
+            if (shuttingDown)
+                return;
+            shuttingDown = true;
+
+            var writesPromise = PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+            if (
+                destination.State == WritableStreamState.Writable
+                && !destination.IsCloseQueuedOrInFlight
+                && currentWrites.Count > 0
+            )
+            {
+                writesPromise = PromiseHelper.All(Engine, currentWrites);
+            }
+
+            var writesThen = writesPromise.Get("then");
+            writesThen.Call(
+                writesPromise,
+                [
+                    new ClrFunction(
+                        Engine,
+                        "",
+                        (_, _) =>
+                        {
+                            Finalize(error);
+                            return Undefined;
+                        }
+                    ),
+                    new ClrFunction(
+                        Engine,
+                        "",
+                        (_, args) =>
+                        {
+                            Finalize(args[0]);
+                            return Undefined;
+                        }
+                    ),
+                ]
+            );
+        }
+
+        Action loop = null!;
+        loop = () =>
+        {
+            if (shuttingDown)
+            {
+                return;
+            }
+
+            if (destination.State == WritableStreamState.Errored)
+            {
+                var destError = destination.StoredError;
+                if (!preventCancel)
+                {
+                    ShutdownWithAction(() => CancelInternal(destError), destError);
+                }
+                else
+                {
+                    Shutdown(destError);
+                }
+                return;
+            }
+
+            if (
+                destination.State == WritableStreamState.Closed
+                || destination.IsCloseQueuedOrInFlight
+            )
+            {
+                var destClosed = Engine.Intrinsics.TypeError.Construct("Destination stream closed");
+                if (!preventCancel)
+                {
+                    ShutdownWithAction(() => CancelInternal(destClosed), destClosed);
+                }
+                else
+                {
+                    Shutdown(destClosed);
+                }
+                return;
+            }
+
+            if (State == ReadableStreamState.Errored)
+            {
+                var sourceError = StoredError;
+                if (!preventAbort)
+                {
+                    ShutdownWithAction(() => destination.AbortInternal(sourceError), sourceError);
+                }
+                else
+                {
+                    Shutdown(sourceError);
+                }
+                return;
+            }
+
+            if (State == ReadableStreamState.Closed)
+            {
+                if (!preventClose)
+                {
+                    ShutdownWithAction(() => writer.Close(), null);
+                }
+                else
+                {
+                    Shutdown(null);
+                }
+                return;
+            }
+
+            var desiredSize = writer.DesiredSize;
+            if (!desiredSize.HasValue || desiredSize.Value <= 0)
+            {
+                var ready = writer.Ready;
+                if (ready.IsPromise())
+                {
+                    ready
+                        .Get("then")
+                        .Call(
+                            ready,
+                            [
+                                new ClrFunction(
+                                    Engine,
+                                    "",
+                                    (_, _) =>
+                                    {
+                                        loop();
+                                        return Undefined;
+                                    }
+                                ),
+                                new ClrFunction(
+                                    Engine,
+                                    "",
+                                    (_, _) =>
+                                    {
+                                        loop();
+                                        return Undefined;
+                                    }
+                                ),
+                            ]
+                        );
+                }
+                else
+                {
+                    loop();
+                }
+                return;
+            }
+
+            if (reader is ReadableStreamDefaultReaderInstance defaultReader)
+            {
+                var req = new ReadRequest(
+                    ChunkSteps: (chunk) =>
+                    {
+                        var writePromise = writer.WriteInternal(chunk);
+                        currentWrites.Add(writePromise);
+
+                        var cleanup = new ClrFunction(
+                            Engine,
+                            "",
+                            (_, _) =>
+                            {
+                                currentWrites.Remove(writePromise);
+                                return Undefined;
+                            }
+                        );
+
+                        if (writePromise.IsPromise())
+                        {
+                            writePromise.Get("then").Call(writePromise, [cleanup, cleanup]);
+                        }
+
+                        loop();
+                    },
+                    CloseSteps: (_) =>
+                    {
+                        if (!preventClose)
+                        {
+                            ShutdownWithAction(() => writer.Close(), null);
+                        }
+                        else
+                        {
+                            Shutdown(null);
+                        }
+                    },
+                    ErrorSteps: (e) =>
+                    {
+                        if (!preventAbort)
+                        {
+                            ShutdownWithAction(() => destination.AbortInternal(e), e);
+                        }
+                        else
+                        {
+                            Shutdown(e);
+                        }
+                    }
+                );
+
+                defaultReader.ReadRequests.Add(req);
+                Controller.CallPullIfNeeded();
+            }
+        };
+
+        if (signal is not null)
+        {
+            if (signal.Aborted)
+            {
+                AbortAlgorithm();
+                return promise.Promise;
+            }
+
+            signal.Abort += (_, _) => AbortAlgorithm();
+
+            JsValue AbortAlgorithm()
+            {
+                var error = signal.Reason;
+                var actions = new List<Func<JsValue>>();
+
+                if (!preventAbort)
+                {
+                    actions.Add(() =>
+                    {
+                        if (destination.State == WritableStreamState.Writable)
+                        {
+                            return destination.AbortInternal(error);
+                        }
+                        return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+                    });
+                }
+
+                if (!preventCancel)
+                {
+                    actions.Add(() =>
+                    {
+                        if (State == ReadableStreamState.Readable)
+                        {
+                            return CancelInternal(error);
+                        }
+                        return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+                    });
+                }
+
+                ShutdownWithAction(
+                    () =>
+                    {
+                        var promises = actions.Select(a => a());
+                        return PromiseHelper.All(Engine, promises);
+                    },
+                    error
+                );
+
+                return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+            }
+        }
+
+        loop();
+
+        return promise.Promise;
     }
 }

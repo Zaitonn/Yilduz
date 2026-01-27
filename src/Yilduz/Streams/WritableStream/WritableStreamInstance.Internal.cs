@@ -458,7 +458,7 @@ public sealed partial class WritableStreamInstance
         }
     }
 
-    private WritableStreamDefaultWriterInstance AcquireWriter()
+    internal WritableStreamDefaultWriterInstance AcquireWriter()
     {
         var writer = Engine.GetWebApiIntrinsics().WritableStreamDefaultWriter.Construct();
         SetUpWriter(writer);

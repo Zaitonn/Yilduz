@@ -15,14 +15,18 @@ dotnet add package Yilduz
 using Jint;
 using Yilduz;
 
-var engine = new Engine().InitializeWebApi(new());
+var cts = new CancellationTokenSource();
+var engine = new Engine().InitializeWebApi(new() { CancellationToken = cts.Token });
 
 engine.Execute(
     """
     console.log('Hello world!');
     setTimeout(() => console.log('I can use `setTimeout`!'), 2000);
     """
-)
+);
+
+engine.Dispose();
+cts.Dispose();
 ```
 
 ## Development Progress
@@ -99,7 +103,7 @@ If you need to use additional character encodings beyond the common ones, you'll
 ```cs
 using System.Text;
 
-var engine = new Engine().InitializeWebApi(new());
+var engine = new Engine().InitializeWebApi(new() { CancellationToken = CancellationToken.None });
 // engine.Evaluate("new TextDecoder('gb_2312').encoding"); // throws an error
 
 // Register additional encoding providers

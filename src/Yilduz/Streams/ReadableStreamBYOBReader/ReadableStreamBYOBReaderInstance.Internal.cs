@@ -36,7 +36,7 @@ public sealed partial class ReadableStreamBYOBReaderInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#abstract-opdef-readablestreambyobrelease
     /// </summary>
-    internal void Release()
+    internal override void Release()
     {
         GenericRelease();
     }
@@ -117,7 +117,29 @@ public sealed partial class ReadableStreamBYOBReaderInstance
             throw new ArgumentOutOfRangeException(nameof(minimumFill));
         }
 
+        // TODO
+
         // Let byteOffset be view.[[ByteOffset]].
-        // var byteOffset = typedArray.ByteOffset;
+        var byteOffset = view is JsTypedArray ta ? ta.Get("byteOffset").AsNumber() : 0;
+
+        // Let byteLength be view.[[ByteLength]].
+
+        // Let bufferResult be TransferArrayBuffer(view.[[ViewedArrayBuffer]]).
+
+        // If bufferResult is an abrupt completion,
+        //   Perform readIntoRequest’s error steps given bufferResult.[[value]].
+        //   Return.
+
+        // Let buffer be bufferResult.[[Value]].
+        // Let pullIntoDescriptor be a new pull-into descriptor with
+        //   buffer -> buffer
+        //   buffer byte length -> buffer.[[ArrayBufferByteLength]]
+        //   byte offset -> byteOffset
+        //   byte length -> byteLength
+        //   bytes filled -> 0
+        //   minimum fill -> minimumFill
+        //   element size -> elementSize
+        //   view constructor -> ctor
+        //   reader type -> "byob"
     }
 }

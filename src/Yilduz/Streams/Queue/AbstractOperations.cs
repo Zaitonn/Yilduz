@@ -83,7 +83,7 @@ internal static class AbstractOperations
 
         // If ! IsNonNegativeNumber(size) is false, throw a RangeError exception.
         // If size is +∞, throw a RangeError exception.
-        if (double.IsNaN(size) || size < 0 || double.IsInfinity(size))
+        if (!Miscellaneous.IsNonNegativeNumber(size) || double.IsInfinity(size))
         {
             TypeErrorHelper.Throw(engine, "Size is invalid");
         }

@@ -4,6 +4,8 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Aborting.AbortSignal;
+using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStream;
@@ -17,7 +19,9 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
 {
     /// <summary>
     /// Returns a boolean indicating whether or not the readable stream is locked to a reader.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-locked
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/locked
     /// </summary>
     [MemberNotNullWhen(true, nameof(Reader))]
@@ -25,7 +29,9 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
 
     /// <summary>
     /// Creates a new ReadableStream object from the given handlers.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-constructor
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/ReadableStream
     /// </summary>
     internal ReadableStreamInstance(Engine engine, JsValue underlyingSource, JsValue strategy)
@@ -109,7 +115,9 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
 
     /// <summary>
     /// Returns a promise that resolves when the stream is canceled.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-cancel
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/cancel
     /// </summary>
     public JsValue Cancel(JsValue reason)
@@ -129,10 +137,12 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
 
     /// <summary>
     /// Creates a reader and locks the stream to it.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-get-reader
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/getReader
     /// </summary>
-    public ReadableStreamGenericReaderInstance GetReader(JsValue options)
+    public ReadableStreamReader GetReader(JsValue options)
     {
         var mode = options.IsUndefined() ? null : options.AsObject().Get("mode");
 
@@ -155,7 +165,9 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
 
     /// <summary>
     /// Provides a chainable way of piping the current stream through a transform stream.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-pipe-through
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/pipeThrough
     /// </summary>
     public ReadableStreamInstance PipeThrough(ObjectInstance transform, ObjectInstance options)
@@ -175,36 +187,68 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
         }
 
         // TODO: Implement full pipe through logic
-        // For now, just return the readable stream
-        return readableStream;
+        throw new NotImplementedException("PipeThrough is not yet implemented");
     }
 
     /// <summary>
     /// Pipes the current ReadableStream to a given WritableStream.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-pipe-to
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/pipeTo
     /// </summary>
     public JsValue PipeTo(ObjectInstance destination, JsValue options)
     {
+        // If ! IsReadableStreamLocked(this) is true, return a promise rejected with a TypeError exception.
         if (Locked)
         {
             TypeErrorHelper.Throw(Engine, "ReadableStream is locked");
         }
 
-        throw new NotImplementedException("PipeTo is not yet implemented");
+        if (destination is not WritableStreamInstance writableStream)
+        {
+            TypeErrorHelper.Throw(Engine, "destination is not a WritableStream");
+            throw null;
+        }
+
+        // If ! IsWritableStreamLocked(destination) is true, return a promise rejected with a TypeError exception.
+        if (writableStream.Locked)
+        {
+            TypeErrorHelper.Throw(Engine, "WritableStream is locked");
+        }
+
+        // Let signal be options["signal"] if it exists, or undefined otherwise.
+        // Return ! ReadableStreamPipeTo(this, destination, options["preventClose"], options["preventAbort"], options["preventCancel"], signal).
+        if (options.IsUndefined())
+        {
+            return PipeToInternal(writableStream, false, false, false, null);
+        }
+
+        var optionsObject = options.AsObject();
+        var preventClose = optionsObject.Get("preventClose");
+        var preventAbort = optionsObject.Get("preventAbort");
+        var preventCancel = optionsObject.Get("preventCancel");
+        var signal = optionsObject.Get("signal");
+
+        return PipeToInternal(
+            writableStream,
+            !preventClose.IsUndefined() && preventClose.AsBoolean(),
+            !preventAbort.IsUndefined() && preventAbort.AsBoolean(),
+            !preventCancel.IsUndefined() && preventCancel.AsBoolean(),
+            signal.IsUndefined() ? null : (AbortSignalInstance)signal
+        );
     }
 
     /// <summary>
     /// Tees this readable stream, returning a two-element array containing the two resulting branches.
+    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-tee
+    /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/tee
     /// </summary>
     public (ReadableStreamInstance, ReadableStreamInstance) Tee()
     {
-        // TODO: Implement tee logic
-        var branch1 = new ReadableStreamInstance(Engine, Undefined, Undefined);
-        var branch2 = new ReadableStreamInstance(Engine, Undefined, Undefined);
-
-        return (branch1, branch2);
+        // Return ? ReadableStreamTee(this, false).
+        return TeeInternal(false);
     }
 }

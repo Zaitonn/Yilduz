@@ -22,5 +22,5 @@ jobs:
           dotnet-version: "8.0.x"
 
       - name: Run tests
-        run: dotnet test src/Yilduz.Tests --logger "GitHubActions;summary.includeSkippedTests=true"
+        run: dotnet test src/Yilduz.Tests --logger "GitHubActions;summary-include-passed=false"
 

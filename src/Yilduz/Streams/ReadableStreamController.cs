@@ -30,4 +30,22 @@ public abstract class ReadableStreamController : ObjectInstance
     internal abstract void ErrorInternal(JsValue error);
     internal abstract void CloseInternal();
     internal abstract void CallPullIfNeeded();
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-default-controller-clear-algorithms
+    /// </summary>
+    protected internal void ClearAlgorithms()
+    {
+        // Set controller.[[pullAlgorithm]] to undefined.
+        PullAlgorithm = null;
+        // Set controller.[[cancelAlgorithm]] to undefined.
+        CancelAlgorithm = null;
+        // Set controller.[[strategySizeAlgorithm]] to undefined.
+        StrategySizeAlgorithm = null;
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-default-controller-enqueue
+    /// </summary>
+    internal abstract void EnqueueInternal(JsValue chunk);
 }

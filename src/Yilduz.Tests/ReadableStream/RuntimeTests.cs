@@ -95,7 +95,7 @@ public sealed class RuntimeTests : TestBase
         Assert.Equal("test reason", Engine.Evaluate("cancelReason").AsString());
     }
 
-    [Fact(Skip = "`tee` is not implemented yet")]
+    [Fact]
     public void ShouldThrowWhenTeeingLockedStream()
     {
         Engine.Execute(
@@ -112,26 +112,6 @@ public sealed class RuntimeTests : TestBase
         );
 
         Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
-    }
-
-    [Fact(Skip = "`pipeTo` is not implemented yet")]
-    public void ShouldPipeToWritableStream()
-    {
-        Engine.Execute(
-            """
-            const readable = new ReadableStream({
-                start(controller) {
-                    controller.enqueue('data');
-                    controller.close();
-                }
-            });
-            const writable = new WritableStream();
-            const pipePromise = readable.pipeTo(writable);
-            """
-        );
-
-        // Test that pipeTo returns a promise
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact(Skip = "TransformStream is not implemented yet")]

@@ -46,6 +46,11 @@ public sealed class ReadableByteStreamControllerInstance
         throw new NotImplementedException();
     }
 
+    internal override void EnqueueInternal(JsValue chunk)
+    {
+        throw new NotImplementedException();
+    }
+
     internal override void ErrorInternal(JsValue error)
     {
         throw new NotImplementedException();
