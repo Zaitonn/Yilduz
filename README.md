@@ -16,7 +16,9 @@ using Jint;
 using Yilduz;
 
 var cts = new CancellationTokenSource();
-var engine = new Engine().InitializeWebApi(new() { CancellationToken = cts.Token });
+var engine = new Engine((o) => o.CancellationToken(cts.Token)).InitializeWebApi(
+            new() { CancellationToken = cts.Token }
+        );
 
 engine.Execute(
     """
@@ -30,6 +32,9 @@ cts.Dispose();
 ```
 
 ## Development Progress
+
+<details>
+<summary>Click to expand</summary>
 
 - Aborting
   - [x] `AbortController`
@@ -92,7 +97,15 @@ cts.Dispose();
   - [x] `URL`
   - [x] `URLSearchParams`
 
+</details>
+
 ## Known Issues
+
+### Undefined Behaviors with Asynchronous Code
+
+Due to poor multi-threading support in the Jint library used in this project [(More info here)](https://github.com/sebastienros/jint?tab=readme-ov-file#thread-safety), asynchronous code is employed when handling certain Promise operations.
+
+**This may lead to some undefined behaviors.**
 
 ### Encoding Support
 
