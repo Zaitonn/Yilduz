@@ -11,9 +11,12 @@ using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Files.Blob;
 
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Blob
+/// </summary>
 public class BlobInstance : ObjectInstance
 {
-    private WebApiIntrinsics? _webApiIntrinsics;
+    private readonly Lazy<WebApiIntrinsics> _webApiIntrinsics;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/type
@@ -30,6 +33,8 @@ public class BlobInstance : ObjectInstance
     internal BlobInstance(Engine engine, JsValue blobParts, JsValue options)
         : base(engine)
     {
+        _webApiIntrinsics = new(Engine.GetWebApiIntrinsics);
+
         var optionsObject = !options.IsUndefined() ? options.AsObject() : null;
 
         Type = (optionsObject?.Get("type").ToString() ?? string.Empty).ToLowerInvariant().Trim();
@@ -112,10 +117,19 @@ public class BlobInstance : ObjectInstance
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/stream
+    /// <br/>
+    /// https://w3c.github.io/FileAPI/#blob-get-stream
     /// </summary>
     public ReadableStreamInstance Stream()
     {
-        throw new NotImplementedException();
+        var readableStream = (ReadableStreamInstance)
+            _webApiIntrinsics.Value.ReadableStream.Construct(Arguments.Empty, Undefined);
+        var chunk = Bytes();
+
+        // Let chunk be a new Uint8Array wrapping an ArrayBuffer containing bytes.
+        // If creating the ArrayBuffer throws an exception, then error stream with that exception and abort these steps.
+        readableStream.Enqueue(chunk);
+        return readableStream;
     }
 
     /// <summary>
@@ -123,11 +137,6 @@ public class BlobInstance : ObjectInstance
     /// </summary>
     public BlobInstance Slice(int start = 0, int? end = null, string contentType = "")
     {
-        if (_webApiIntrinsics is null)
-        {
-            _webApiIntrinsics = Engine.GetWebApiIntrinsics();
-        }
-
         if (start < 0)
         {
             start += Size;
@@ -149,7 +158,7 @@ public class BlobInstance : ObjectInstance
                 ? []
                 : Value.Skip(start).Take((int)(end - start)).ToList();
         var blobInstance = (BlobInstance)
-            _webApiIntrinsics.Blob.Construct(Arguments.Empty, Undefined);
+            _webApiIntrinsics.Value.Blob.Construct(Arguments.Empty, Undefined);
 
         blobInstance.Value = slicedValue;
         blobInstance.Type = contentType;

@@ -40,7 +40,7 @@ public sealed class RuntimeTests : TestBase
         Assert.Throws<JavaScriptException>(() => Engine.Execute("new Blob(arrayLike)"));
     }
 
-    [Fact(Skip = "ReadableStream is not implemented yet")]
+    [Fact]
     public void ShouldImplementStreams()
     {
         Engine.Execute(

@@ -1,5 +1,4 @@
 using Jint;
-using Jint.Runtime;
 using Xunit;
 
 namespace Yilduz.Tests.CountQueuingStrategy;
@@ -131,7 +130,7 @@ public sealed class IntegrationTests : TestBase
         Assert.Equal("TransformStream", Engine.Evaluate("transform.constructor.name"));
     }
 
-    [Fact(Skip = "`pipeTo` is not implemented yet")]
+    [Fact]
     public void ShouldRespectHighWaterMarkAcrossStreamPipeline()
     {
         Engine.Execute(

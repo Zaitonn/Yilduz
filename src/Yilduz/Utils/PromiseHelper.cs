@@ -86,4 +86,55 @@ internal static class PromiseHelper
 
         return false;
     }
+
+    public static JsValue Then(
+        this JsValue jsValue,
+        Func<JsValue, JsValue>? onFulfilled = null,
+        Func<JsValue, JsValue>? onRejected = null
+    )
+    {
+        if (!jsValue.IsPromise())
+        {
+            return onFulfilled is null ? jsValue : onFulfilled(jsValue);
+        }
+
+        var engine = jsValue.AsObject().Engine;
+        var manualPromise = engine.Advanced.RegisterPromise();
+
+        Task.Run(() =>
+        {
+            try
+            {
+                var result = jsValue.UnwrapIfPromise();
+
+                lock (engine)
+                {
+                    if (onFulfilled is null)
+                    {
+                        manualPromise.Resolve(result);
+                    }
+                    else
+                    {
+                        manualPromise.Resolve(onFulfilled(result));
+                    }
+                }
+            }
+            catch (PromiseRejectedException e)
+            {
+                lock (engine)
+                {
+                    if (onRejected is null)
+                    {
+                        manualPromise.Reject(e.RejectedValue);
+                    }
+                    else
+                    {
+                        manualPromise.Reject(onRejected(e.RejectedValue));
+                    }
+                }
+            }
+        });
+
+        return manualPromise.Promise;
+    }
 }

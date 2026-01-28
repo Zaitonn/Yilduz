@@ -138,7 +138,7 @@ internal static class JsValueExtensions
             if (obj.IsArray())
             {
                 var array = obj.AsArray();
-                var clonedArray = array.Engine.Intrinsics.Array.Construct([]);
+                var clonedArray = array.Engine.Intrinsics.Array.Construct(Arguments.Empty);
 
                 for (uint i = 0; i < array.Length; i++)
                 {
@@ -153,7 +153,7 @@ internal static class JsValueExtensions
             }
 
             // Handle plain objects
-            var clonedObj = obj.Engine.Intrinsics.Object.Construct([]);
+            var clonedObj = obj.Engine.Intrinsics.Object.Construct(Arguments.Empty);
             var properties = obj.GetOwnProperties();
 
             foreach (var prop in properties)

@@ -209,23 +209,22 @@ public sealed partial class WritableStreamInstance
         var backpressure = Controller.GetBackpressure();
         UpdateBackpressure(backpressure);
 
-        try
-        {
-            startAlgorithm.Call(Controller).UnwrapIfPromise();
-
-            Controller.Started = true;
-            Controller.AdvanceQueueIfNeeded();
-        }
-        catch (PromiseRejectedException e)
-        {
-            Controller.Started = true;
-            DealWithRejection(e.RejectedValue);
-        }
-        catch (JavaScriptException e)
-        {
-            Controller.Started = true;
-            DealWithRejection(e.Error);
-        }
+        startAlgorithm
+            .Call(Controller)
+            .Then(
+                onFulfilled: _ =>
+                {
+                    Controller.Started = true;
+                    Controller.AdvanceQueueIfNeeded();
+                    return Undefined;
+                },
+                onRejected: e =>
+                {
+                    Controller.Started = true;
+                    DealWithRejection(e);
+                    return Undefined;
+                }
+            );
     }
 
     /// <summary>

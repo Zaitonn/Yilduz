@@ -350,7 +350,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#writable-stream-default-controller-error-if-needed
     /// </summary>
-    private void ErrorIfNeeded(JsValue error)
+    internal void ErrorIfNeeded(JsValue error)
     {
         // If controller.[[stream]].[[state]] is "writable",
         //  perform ! WritableStreamDefaultControllerError(controller, error).

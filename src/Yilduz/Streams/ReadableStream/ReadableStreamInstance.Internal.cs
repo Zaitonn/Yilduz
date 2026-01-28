@@ -34,6 +34,38 @@ public sealed partial class ReadableStreamInstance
     internal bool HasDefaultReader => Reader is ReadableStreamDefaultReaderInstance;
 
     /// <summary>
+    /// https://streams.spec.whatwg.org/#readablestream-enqueue
+    /// </summary>
+    internal void Enqueue(JsValue chunck)
+    {
+        switch (Controller)
+        {
+            // If stream.[[controller]] implements ReadableStreamDefaultController,
+            case ReadableStreamDefaultControllerInstance defaultController:
+                // Perform ! ReadableStreamDefaultControllerEnqueue(stream.[[controller]], chunk).
+                defaultController.EnqueueInternal(chunck);
+                break;
+
+            // Otherwise,
+            // Assert: stream.[[controller]] implements ReadableByteStreamController.
+            case ReadableByteStreamControllerInstance byteController:
+                // Assert: chunk is an ArrayBufferView.
+                // Let byobView be the current BYOB request view for stream.
+                // If byobView is non-null, and chunk.[[ViewedArrayBuffer]] is byobView.[[ViewedArrayBuffer]], then:
+                //   Assert: chunk.[[ByteOffset]] is byobView.[[ByteOffset]].
+                //   Assert: chunk.[[ByteLength]] ≤ byobView.[[ByteLength]].
+                //   Perform ? ReadableByteStreamControllerRespond(stream.[[controller]], chunk.[[ByteLength]]).
+                // Otherwise, perform ? ReadableByteStreamControllerEnqueue(stream.[[controller]], chunk).
+                // byteController.EnqueueInternal(chunck);
+
+                throw new NotSupportedException();
+
+            default:
+                throw new NotSupportedException();
+        }
+    }
+
+    /// <summary>
     /// https://streams.spec.whatwg.org/#initialize-readable-stream
     /// </summary>
     internal void InitializeReadableStream()
@@ -614,7 +646,7 @@ public sealed partial class ReadableStreamInstance
                         if (readAgain)
                         {
                             readAgain = false;
-                            pullAlgorithm.Call(Undefined, []);
+                            pullAlgorithm.Call(Undefined, Arguments.Empty);
                         }
                     },
                     CloseSteps: (_) =>
@@ -816,7 +848,7 @@ public sealed partial class ReadableStreamInstance
 
         // Let stream be a new ReadableStream.
         var stream = (ReadableStreamInstance)
-            _webApiIntrinsics.ReadableStream.Construct([], Undefined);
+            _webApiIntrinsics.ReadableStream.Construct(Arguments.Empty, Undefined);
 
         // Perform ! InitializeReadableStream(stream).
         stream.InitializeReadableStream();
@@ -1245,5 +1277,20 @@ public sealed partial class ReadableStreamInstance
         loop();
 
         return promise.Promise;
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#rs-default-controller-has-backpressure
+    /// </summary>
+    internal bool HasBackpressure()
+    {
+        // If ! ReadableStreamDefaultControllerShouldCallPull(controller) is true, return false.
+        if (((ReadableStreamDefaultControllerInstance)Controller).ShouldCallPull())
+        {
+            return false;
+        }
+
+        // Otherwise, return true.
+        return true;
     }
 }

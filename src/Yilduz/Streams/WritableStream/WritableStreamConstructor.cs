@@ -18,9 +18,11 @@ internal sealed class WritableStreamConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        var underlyingSink = arguments.At(0);
-        var strategy = arguments.At(1);
+        return Construct(arguments.At(0), arguments.At(1));
+    }
 
+    public WritableStreamInstance Construct(JsValue underlyingSink, JsValue strategy)
+    {
         return new WritableStreamInstance(Engine, underlyingSink, strategy)
         {
             Prototype = PrototypeObject,

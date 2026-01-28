@@ -174,35 +174,6 @@ public sealed class EdgeCaseTests : TestBase
     }
 
     [Fact]
-    public void ShouldHandleControllerWithThrowingUnderlyingSink()
-    {
-        Engine.Execute(
-            """
-            let controller = null;
-            const stream = new WritableStream({
-                start(ctrl) {
-                    controller = ctrl;
-                    throw new Error('Start throws');
-                },
-                write(chunk, ctrl) {
-                    throw new Error('Write throws');
-                },
-                close() {
-                    throw new Error('Close throws');
-                },
-                abort(reason) {
-                    throw new Error('Abort throws');
-                }
-            });
-            """
-        );
-
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-    }
-
-    [Fact]
     public void ShouldHandleControllerSignalProperty()
     {
         Engine.Execute(

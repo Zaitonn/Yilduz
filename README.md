@@ -78,8 +78,8 @@ cts.Dispose();
   - [x] `WritableStream`
   - [x] `WritableStreamDefaultWriter`
   - [x] `WritableStreamDefaultController`
-  - [ ] `TransformStream`
-  - [ ] `TransformStreamDefaultController`
+  - [x] `TransformStream`
+  - [x] `TransformStreamDefaultController`
 - Storages
   - [x] `localStorage`
   - [x] `sessionStorage`

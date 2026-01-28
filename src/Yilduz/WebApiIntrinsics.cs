@@ -27,6 +27,8 @@ using Yilduz.Streams.ReadableStream;
 using Yilduz.Streams.ReadableStreamBYOBReader;
 using Yilduz.Streams.ReadableStreamDefaultController;
 using Yilduz.Streams.ReadableStreamDefaultReader;
+using Yilduz.Streams.TransformStream;
+using Yilduz.Streams.TransformStreamDefaultController;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Streams.WritableStreamDefaultController;
 using Yilduz.Streams.WritableStreamDefaultWriter;
@@ -68,6 +70,8 @@ public sealed class WebApiIntrinsics
     internal WritableStreamDefaultControllerConstructor WritableStreamDefaultController { get; }
     internal CountQueuingStrategyConstructor CountQueuingStrategy { get; }
     internal ByteLengthQueuingStrategyConstructor ByteLengthQueuingStrategy { get; }
+    internal TransformStreamConstructor TransformStream { get; }
+    internal TransformStreamDefaultControllerConstructor TransformStreamDefaultController { get; }
 
     internal StorageConstructor Storage { get; }
     public StorageInstance LocalStorage { get; }
@@ -128,6 +132,9 @@ public sealed class WebApiIntrinsics
         ReadableStreamBYOBReader = new(_engine);
         ReadableByteStreamController = new(_engine);
 
+        TransformStream = new(_engine);
+        TransformStreamDefaultController = new(_engine);
+
         CountQueuingStrategy = new(_engine);
         ByteLengthQueuingStrategy = new(_engine);
 
@@ -180,6 +187,11 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(WritableStream), WritableStream);
         _engine.SetValue(nameof(WritableStreamDefaultWriter), WritableStreamDefaultWriter);
         _engine.SetValue(nameof(WritableStreamDefaultController), WritableStreamDefaultController);
+        _engine.SetValue(nameof(TransformStream), TransformStream);
+        _engine.SetValue(
+            nameof(TransformStreamDefaultController),
+            TransformStreamDefaultController
+        );
         _engine.SetValue(nameof(Storage), Storage);
         _engine.SetValue(nameof(FormData), FormData);
         _engine.SetValue(nameof(XMLHttpRequest), XMLHttpRequest);

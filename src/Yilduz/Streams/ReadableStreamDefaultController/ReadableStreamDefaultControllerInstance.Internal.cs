@@ -5,6 +5,7 @@ using Jint.Runtime;
 using Yilduz.Streams.Queue;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.Streams.ReadableStreamDefaultReader;
+using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStreamDefaultController;
 
@@ -285,9 +286,27 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         }
     }
 
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#abstract-opdef-readablestreamdefaultcontroller-releasesteps
+    /// </summary>
     internal override void ReleaseSteps()
     {
         // Return.
         return;
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#rs-default-controller-has-backpressure
+    /// </summary>
+    internal bool HasBackpressure()
+    {
+        // If ! ReadableStreamDefaultControllerShouldCallPull(controller) is true, return false.
+        if (ShouldCallPull())
+        {
+            return false;
+        }
+
+        // Return true.
+        return true;
     }
 }

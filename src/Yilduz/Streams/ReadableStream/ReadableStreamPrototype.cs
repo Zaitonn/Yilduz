@@ -96,7 +96,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var transform = arguments.At(0).AsObject();
-        var options = arguments.At(1).AsObject();
+        var options = arguments.At(1);
 
         // PipeThrough implementation: pipe to transform.writable and return transform.readable
         var writable = transform.Get("writable");
@@ -118,7 +118,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         return readable;
     }
 
-    private JsValue Tee(JsValue thisObject, JsValue[] arguments)
+    private JsArray Tee(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var streams = instance.Tee();

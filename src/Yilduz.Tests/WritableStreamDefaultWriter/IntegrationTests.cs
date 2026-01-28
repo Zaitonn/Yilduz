@@ -37,7 +37,7 @@ public sealed class IntegrationTests : TestBase
     }
 
     [Fact]
-    public void ShouldWorkWithAsyncWriteOperations()
+    public async Task ShouldWorkWithAsyncWriteOperations()
     {
         Engine.Execute(
             """
@@ -67,7 +67,7 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Wait for async operations to complete
-        System.Threading.Thread.Sleep(50);
+        await Task.Delay(500);
 
         Assert.True(Engine.Evaluate("allWritesComplete").AsBoolean());
         Assert.Equal(2, Engine.Evaluate("writtenChunks.length").AsNumber());
@@ -148,7 +148,7 @@ public sealed class IntegrationTests : TestBase
         );
     }
 
-    [Fact(Skip = "TransformStream is not implemented yet")]
+    [Fact]
     public void ShouldWorkWithTransformStream()
     {
         Engine.Execute(
