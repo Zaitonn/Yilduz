@@ -37,7 +37,7 @@ public sealed class IntegrationTests : TestBase
     }
 
     [Fact]
-    public async Task ShouldWorkWithAsyncWriteOperations()
+    public void ShouldWorkWithAsyncWriteOperations()
     {
         Engine.Execute(
             """
@@ -59,15 +59,18 @@ public sealed class IntegrationTests : TestBase
             const writer = stream.getWriter();
             writePromises.push(writer.write('chunk1'));
             writePromises.push(writer.write('chunk2'));
-
-            Promise.all(writePromises).then(() => {
-                allWritesComplete = true;
-            });
             """
         );
 
-        // Wait for async operations to complete
-        await Task.Delay(500);
+        Engine
+            .Evaluate(
+                """
+                Promise.all(writePromises).then(() => {
+                    allWritesComplete = true;
+                });
+                """
+            )
+            .UnwrapIfPromise();
 
         Assert.True(Engine.Evaluate("allWritesComplete").AsBoolean());
         Assert.Equal(2, Engine.Evaluate("writtenChunks.length").AsNumber());
@@ -103,7 +106,7 @@ public sealed class IntegrationTests : TestBase
     }
 
     [Fact]
-    public async Task ShouldMaintainWriteOrder()
+    public void ShouldMaintainWriteOrder()
     {
         Engine.Execute(
             """
@@ -123,16 +126,24 @@ public sealed class IntegrationTests : TestBase
             });
 
             const writer = stream.getWriter();
-            writer.write('chunk1');
-            writer.write('chunk2');
-            writer.write('chunk3');
-            writer.write('chunk4');
-            writer.write('chunk5');
             """
         );
 
-        // Wait for all writes to complete
-        await Task.Delay(1000);
+        Engine
+            .Evaluate(
+                """
+                async function writeChunks() {
+                    await writer.write('chunk1');
+                    await writer.write('chunk2');
+                    await writer.write('chunk3');
+                    await writer.write('chunk4');
+                    await writer.write('chunk5');
+                }
+
+                writeChunks();
+                """
+            )
+            .UnwrapIfPromise();
 
         // Chunks should be written in order despite random delays
         Assert.Equal(5, Engine.Evaluate("writtenChunks.length").AsNumber());
@@ -169,10 +180,13 @@ public sealed class IntegrationTests : TestBase
 
             const writer = transform.writable.getWriter();
             transform.readable.pipeTo(writableStream);
+
+            const p1 = writer.write('hello');
+            const p2 = writer.write('world');
             """
         );
 
-        Engine.Evaluate("writer.close()").UnwrapIfPromise();
+        Engine.Evaluate("Promise.all([p1, p2, writer.close()])").UnwrapIfPromise();
 
         Assert.Equal(2, Engine.Evaluate("transformedChunks.length").AsNumber());
         Assert.Equal("HELLO", Engine.Evaluate("transformedChunks[0]").AsString());

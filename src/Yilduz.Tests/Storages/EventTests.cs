@@ -26,7 +26,7 @@ public sealed class EventTests : TestBase
         return new()
         {
             CancellationToken = Token,
-            Storage =
+            Storage = new()
             {
                 LocalStorageConfigurator = storage => _localStorage = storage,
                 SessionStorageConfigurator = storage => _sessionStorage = storage,

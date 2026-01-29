@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
@@ -12,6 +13,8 @@ using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.TransformStream;
+
+#pragma warning disable IDE0045
 
 /// <summary>
 /// Internal methods for TransformStreamInstance
@@ -80,6 +83,11 @@ public sealed partial class TransformStreamInstance
 
         var underlyingSource = new JsObject(Engine);
 
+        underlyingSource.Set(
+            "start",
+            new ClrFunction(Engine, "start", (thisObj, args) => startPromise.Promise)
+        );
+
         // Let pullAlgorithm be the following steps:
         //   Return ! TransformStreamDefaultSourcePullAlgorithm(stream).
         underlyingSource.Set(
@@ -120,6 +128,7 @@ public sealed partial class TransformStreamInstance
     /// <br/>
     /// https://streams.spec.whatwg.org/#set-up-transform-stream-default-controller-from-transformer
     /// </summary>
+    [MemberNotNull(nameof(Controller))]
     private void SetUpDefaultControllerFromTransformer(
         JsValue transformer,
         JsValue? transformerDict
@@ -132,7 +141,6 @@ public sealed partial class TransformStreamInstance
 
         ClrFunction transformAlgorithm;
 
-        // Let result be TransformStreamDefaultControllerEnqueue(controller, chunk).
         // If transformerDict["transform"] exists, set transformAlgorithm to an algorithm which takes an argument chunk and returns the result of invoking transformerDict["transform"] with argument list « chunk, controller » and callback this value transformer.
         if (
             transformerDict?.Get("transform") is { } transformMethod
@@ -223,6 +231,7 @@ public sealed partial class TransformStreamInstance
     /// <br/>
     /// https://streams.spec.whatwg.org/#set-up-transform-stream-default-controller
     /// </summary>
+    [MemberNotNull(nameof(Controller))]
     private void SetUpDefaultController(
         TransformStreamDefaultControllerInstance controller,
         Function transformAlgorithm,
@@ -472,7 +481,7 @@ public sealed partial class TransformStreamInstance
     /// <summary>
     /// TransformStreamDefaultSourcePullAlgorithm
     /// <br/>
-    /// https://streams.spec.whatwg.org/#transform-stream-default-source-pull-algorithm
+    /// https://streams.spec.whatwg.org/#transform-stream-default-source-pull
     /// </summary>
     private JsValue DefaultSourcePullAlgorithm()
     {
@@ -562,8 +571,8 @@ public sealed partial class TransformStreamInstance
             }
         );
 
-        // For simplified implementation, return a resolved promise
-        return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
+        // Return controller.[[finishPromise]].
+        return Controller.FinishPromise.Promise;
     }
 
     #endregion

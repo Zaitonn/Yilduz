@@ -1,4 +1,3 @@
-using System;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -80,11 +79,7 @@ public sealed partial class TransformStreamInstance : ObjectInstance
         var transformerDict = transformer.IsObject() ? transformer.AsObject() : null;
 
         // If transformerDict["readableType"] exists, throw a RangeError exception.
-        if (
-            transformerDict?.Get("readableType") is { } readableType
-            && !readableType.IsNull()
-            && !readableType.IsUndefined()
-        )
+        if (transformerDict?.Get("readableType") is { } readableType && !readableType.IsUndefined())
         {
             throw new JavaScriptException(
                 ErrorHelper.Create(
@@ -96,11 +91,7 @@ public sealed partial class TransformStreamInstance : ObjectInstance
         }
 
         // If transformerDict["writableType"] exists, throw a RangeError exception.
-        if (
-            transformerDict?.Get("writableType") is { } writableType
-            && !writableType.IsNull()
-            && !writableType.IsUndefined()
-        )
+        if (transformerDict?.Get("writableType") is { } writableType && !writableType.IsUndefined())
         {
             throw new JavaScriptException(
                 ErrorHelper.Create(
@@ -154,7 +145,8 @@ public sealed partial class TransformStreamInstance : ObjectInstance
         // Perform ? SetUpTransformStreamDefaultControllerFromTransformer(this, transformer, transformerDict).
         SetUpDefaultControllerFromTransformer(transformer, transformerDict);
 
-        // If transformerDict["start"] exists, then resolve startPromise with the result of invoking transformerDict["start"] with argument list « this.[[controller]] » and callback this value transformer.
+        // If transformerDict["start"] exists,
+        //   then resolve startPromise with the result of invoking transformerDict["start"] with argument list « this.[[controller]] » and callback this value transformer.
         if (transformerDict?.Get("start") is { } startMethod && !startMethod.IsUndefined())
         {
             try

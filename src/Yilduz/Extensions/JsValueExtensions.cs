@@ -76,12 +76,12 @@ internal static class JsValueExtensions
     {
         if (input.IsArrayBuffer())
         {
-            return input.AsArrayBuffer()!;
+            return input.AsArrayBuffer();
         }
 
         if (input.IsDataView())
         {
-            return input.AsDataView()!;
+            return input.AsDataView();
         }
 
         if (input is JsTypedArray typedArray)

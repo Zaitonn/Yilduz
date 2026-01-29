@@ -117,7 +117,7 @@ public sealed class StorageInstance : ObjectInstance
     public string? this[string key]
     {
         get => GetItem(key);
-        set => SetItem(key, value!);
+        set => SetItem(key, value);
     }
 
     /// <summary>

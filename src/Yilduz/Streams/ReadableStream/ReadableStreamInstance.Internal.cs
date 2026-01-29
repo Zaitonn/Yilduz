@@ -233,6 +233,7 @@ public sealed partial class ReadableStreamInstance
         Function? sizeAlgorithm
     )
     {
+        // Let controller be a new ReadableStreamDefaultController.
         var controller = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
             this,
             highWaterMark,
@@ -246,32 +247,46 @@ public sealed partial class ReadableStreamInstance
         Function? pullAlgorithm = null;
         Function? cancelAlgorithm = null;
 
+        // Let startAlgorithm be an algorithm that returns undefined.
+        // Let pullAlgorithm be an algorithm that returns a promise resolved with undefined.
+        // Let cancelAlgorithm be an algorithm that returns a promise resolved with undefined.
+
         if (underlyingSourceDict is not null)
         {
             var start = underlyingSourceDict.Get("start");
-            if (start is Function startFunc)
+            if (!start.IsUndefined())
             {
-                startAlgorithm = startFunc;
+                startAlgorithm = start.AsFunctionInstance();
             }
 
             var pull = underlyingSourceDict.Get("pull");
-            if (pull is Function pullFunc)
+            if (!pull.IsUndefined())
             {
-                pullAlgorithm = pullFunc;
+                pullAlgorithm = pull.AsFunctionInstance();
             }
 
             var cancel = underlyingSourceDict.Get("cancel");
-            if (cancel is Function cancelFunc)
+            if (!cancel.IsUndefined())
             {
-                cancelAlgorithm = cancelFunc;
+                cancelAlgorithm = cancel.AsFunctionInstance();
             }
         }
 
         SetUpReadableStreamDefaultController(
             controller,
-            startAlgorithm,
-            pullAlgorithm,
-            cancelAlgorithm,
+            startAlgorithm ?? new ClrFunction(Engine, string.Empty, (_, _) => Undefined),
+            pullAlgorithm
+                ?? new ClrFunction(
+                    Engine,
+                    string.Empty,
+                    (_, _) => PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise
+                ),
+            cancelAlgorithm
+                ?? new ClrFunction(
+                    Engine,
+                    string.Empty,
+                    (_, _) => PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise
+                ),
             highWaterMark,
             sizeAlgorithm ?? new ClrFunction(Engine, string.Empty, (_, _) => 1)
         );
@@ -282,9 +297,9 @@ public sealed partial class ReadableStreamInstance
     /// </summary>
     private void SetUpReadableStreamDefaultController(
         ReadableStreamDefaultControllerInstance controller,
-        Function? startAlgorithm,
-        Function? pullAlgorithm,
-        Function? cancelAlgorithm,
+        Function startAlgorithm,
+        Function pullAlgorithm,
+        Function cancelAlgorithm,
         double highWaterMark,
         Function sizeAlgorithm
     )
@@ -310,35 +325,46 @@ public sealed partial class ReadableStreamInstance
         controller.PullAlgorithm = pullAlgorithm;
         controller.CancelAlgorithm = cancelAlgorithm;
 
-        if (startAlgorithm is not null)
+        JsValue startResult;
+        try
         {
-            try
-            {
-                // Let startResult be the result of performing startAlgorithm. (This might throw an exception.)
-                var startResult = startAlgorithm.Call(Undefined, [controller]);
-
-                // Let startPromise be a promise resolved with startResult.
-                var startPromise = PromiseHelper.CreateResolvedPromise(Engine, startResult);
-
-                // Upon fulfillment of startPromise,
-                // Set controller.[[started]] to true
-                controller.Started = true;
-
-                // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
-                controller.CallPullIfNeeded();
-            }
-            catch (JavaScriptException ex)
-            {
-                // Upon rejection of startPromise with reason r,
-                // Perform ! ReadableStreamDefaultControllerError(controller, r).
-                controller.ErrorInternal(ex.Error);
-            }
+            // Let startResult be the result of performing startAlgorithm. (This might throw an exception.)
+            startResult = startAlgorithm?.Call(controller) ?? Undefined;
         }
-        else
+        catch (JavaScriptException ex)
+        {
+            // Upon rejection of startPromise with reason r,
+            // Perform ! ReadableStreamDefaultControllerError(controller, r).
+            controller.ErrorInternal(ex.Error);
+            return;
+        }
+
+        if (!startResult.IsPromise())
         {
             controller.Started = true;
             controller.CallPullIfNeeded();
+            return;
         }
+
+        // Let startPromise be startResult.
+        // Upon fulfillment of startPromise,
+        // Set controller.[[started]] to true
+        // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
+        startResult.Then(
+            onFulfilled: (_) =>
+            {
+                controller.Started = true;
+                controller.CallPullIfNeeded();
+                return Undefined;
+            },
+            onRejected: (r) =>
+            {
+                // Upon rejection of startPromise with reason r,
+                // Perform ! ReadableStreamDefaultControllerError(controller, r).
+                controller.ErrorInternal(r);
+                return Undefined;
+            }
+        );
     }
 
     /// <summary>
@@ -499,19 +525,24 @@ public sealed partial class ReadableStreamInstance
         // Set stream.[[controller]] to controller.
         Controller = controller;
 
+        JsValue startResult;
         try
         {
             // Let startResult be the result of performing startAlgorithm.
-            startAlgorithm.Call(Controller, [Controller]);
+            startResult = startAlgorithm.Call(Controller, [Controller]);
+        }
+        catch (JavaScriptException e)
+        {
+            // Upon rejection of startPromise with reason r,
+            // Perform ! ReadableByteStreamControllerError(controller, r).
+            Controller.ErrorInternal(e.Error);
+            return;
+        }
 
-            // Let startPromise be a promise resolved with startResult.
-
-            // Upon fulfillment of startPromise,
-            // Set controller.[[started]] to true.
+        if (!startResult.IsPromise())
+        {
             Controller.Started = true;
 
-            // Assert: controller.[[pulling]] is false.
-            // Assert: controller.[[pullAgain]] is false.
             if (Controller.Pulling || Controller.PullAgain)
             {
                 throw new InvalidOperationException(
@@ -519,15 +550,39 @@ public sealed partial class ReadableStreamInstance
                 );
             }
 
-            // Perform ! ReadableByteStreamControllerCallPullIfNeeded(controller).
             Controller.CallPullIfNeeded();
+            return;
         }
-        catch (JavaScriptException e)
-        {
-            // Upon rejection of startPromise with reason r,
-            // Perform ! ReadableByteStreamControllerError(controller, r).
-            Controller.ErrorInternal(e.Error);
-        }
+
+        // Let startPromise be startResult.
+        // Upon fulfillment of startPromise,
+        // Set controller.[[started]] to true.
+        // Assert: controller.[[pulling]] is false.
+        // Assert: controller.[[pullAgain]] is false.
+        // Perform ! ReadableByteStreamControllerCallPullIfNeeded(controller).
+        startResult.Then(
+            onFulfilled: (_) =>
+            {
+                Controller.Started = true;
+
+                if (Controller.Pulling || Controller.PullAgain)
+                {
+                    throw new InvalidOperationException(
+                        "Controller pulling and pullAgain should be false"
+                    );
+                }
+
+                Controller.CallPullIfNeeded();
+                return Undefined;
+            },
+            onRejected: (r) =>
+            {
+                // Upon rejection of startPromise with reason r,
+                // Perform ! ReadableByteStreamControllerError(controller, r).
+                Controller.ErrorInternal(r);
+                return Undefined;
+            }
+        );
     }
 
     /// <summary>

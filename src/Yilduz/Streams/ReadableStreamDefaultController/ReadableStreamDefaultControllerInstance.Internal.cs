@@ -209,57 +209,31 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         PullAgain = false;
         Pulling = true;
 
-        if (PullAlgorithm != null)
-        {
-            PullAlgorithm
-                .Call(this)
-                .Then(
-                    onFulfilled: _ =>
-                    {
-                        // Set controller.[[pulling]] to false.
-                        Pulling = false;
+        PullAlgorithm
+            ?.Call(this)
+            .Then(
+                onFulfilled: _ =>
+                {
+                    // Set controller.[[pulling]] to false.
+                    Pulling = false;
 
-                        // If controller.[[pullAgain]] is true,
-                        if (PullAgain)
-                        {
-                            // Set controller.[[pullAgain]] to false.
-                            PullAgain = false;
-                            // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
-                            CallPullIfNeeded();
-                        }
-                        return Undefined;
-                    },
-                    onRejected: e =>
+                    // If controller.[[pullAgain]] is true,
+                    if (PullAgain)
                     {
-                        // Perform ! ReadableStreamDefaultControllerError(controller, e).
-                        ErrorInternal(e);
-                        return Undefined;
+                        // Set controller.[[pullAgain]] to false.
+                        PullAgain = false;
+                        // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
+                        CallPullIfNeeded();
                     }
-                );
-
-            // try
-            // {
-            //     // Let pullPromise be the result of performing controller.[[pullAlgorithm]].
-            //     PullAlgorithm.Call().UnwrapIfPromise();
-            // }
-            // catch (JavaScriptException ex)
-            // {
-            //     // Perform ! ReadableStreamDefaultControllerError(controller, e).
-            //     ErrorInternal(ex.Error);
-            //     return;
-            // }
-
-            // // Set controller.[[pulling]] to false.
-            // Pulling = false;
-            // // If controller.[[pullAgain]] is true,
-            // if (PullAgain)
-            // {
-            //     // Set controller.[[pullAgain]] to false.
-            //     PullAgain = false;
-            //     // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
-            //     CallPullIfNeeded();
-            // }
-        }
+                    return Undefined;
+                },
+                onRejected: e =>
+                {
+                    // Perform ! ReadableStreamDefaultControllerError(controller, e).
+                    ErrorInternal(e);
+                    return Undefined;
+                }
+            );
     }
 
     internal override JsValue CancelSteps(JsValue reason)

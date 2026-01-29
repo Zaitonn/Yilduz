@@ -65,7 +65,7 @@ internal sealed class TimerProvider(Engine engine, Options options)
 
         var firstArgument = arguments[0];
         var handler = firstArgument as Function;
-        var args = handler is not null ? arguments.Skip(2).ToArray() : null;
+        var args = handler is not null ? arguments.Skip(2) : null;
         var code = handler is null
             ? firstArgument.IsString()
                 ? firstArgument.AsString()

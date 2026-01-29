@@ -34,6 +34,7 @@ public sealed partial class WritableStreamInstance
     /// </summary>
     internal JsValue AbortInternal(JsValue reason)
     {
+        // If stream.[[state]] is "closed" or "errored", return a promise resolved with undefined.
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
             return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
@@ -42,29 +43,42 @@ public sealed partial class WritableStreamInstance
         // Signal abort on stream.[[controller]].[[abortController]] with reason
         Controller.AbortController.Abort(reason);
 
+        // Let state be stream.[[state]].
+        // If state is "closed" or "errored", return a promise resolved with undefined.
         if (State == WritableStreamState.Closed || State == WritableStreamState.Errored)
         {
             return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
         }
 
+        // If stream.[[pendingAbortRequest]] is not undefined, return stream.[[pendingAbortRequest]]’s promise.
         if (PendingAbortRequest is not null)
         {
             return PendingAbortRequest.Value.Promise.Promise;
         }
 
+        // Assert: state is "writable" or "erroring".
         if (State is not WritableStreamState.Writable and not WritableStreamState.Erroring)
         {
-            throw new InvalidOperationException();
+            throw new InvalidOperationException("Stream is not in a writable or erroring state");
         }
 
+        // Let wasAlreadyErroring be false.
         var wasAlreadyErroring = false;
+
+        // If state is "erroring",
         if (State == WritableStreamState.Erroring)
         {
+            // Set wasAlreadyErroring to true.
             wasAlreadyErroring = true;
+
+            // Set reason to undefined.
             reason = Undefined;
         }
 
+        // Let promise be a new promise.
         var promise = Engine.Advanced.RegisterPromise();
+
+        // Set stream.[[pendingAbortRequest]] to a new pending abort request whose promise is promise, reason is reason, and was already erroring is wasAlreadyErroring.
         PendingAbortRequest = new PendingAbortRequest
         {
             Promise = promise,
@@ -72,11 +86,13 @@ public sealed partial class WritableStreamInstance
             WasAlreadyErroring = wasAlreadyErroring,
         };
 
+        // If wasAlreadyErroring is false, perform ! WritableStreamStartErroring(stream, reason).
         if (!wasAlreadyErroring)
         {
             StartErroring(reason);
         }
 
+        // Return promise.
         return promise.Promise;
     }
 

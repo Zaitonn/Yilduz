@@ -10,10 +10,10 @@ public sealed partial class Options
 
     public sealed class StorageOptions
     {
-        public IDictionary<string, string>? LocalStorageDataProvider { get; set; }
-        public IDictionary<string, string>? SessionStorageDataProvider { get; set; }
+        public IDictionary<string, string>? LocalStorageDataProvider { get; init; }
+        public IDictionary<string, string>? SessionStorageDataProvider { get; init; }
 
-        public Action<StorageInstance>? LocalStorageConfigurator { get; set; }
-        public Action<StorageInstance>? SessionStorageConfigurator { get; set; }
+        public Action<StorageInstance>? LocalStorageConfigurator { get; init; }
+        public Action<StorageInstance>? SessionStorageConfigurator { get; init; }
     }
 }

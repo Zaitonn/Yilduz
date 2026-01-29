@@ -72,13 +72,13 @@ public sealed partial class TransformStreamDefaultControllerInstance
             if (backpressure != stream.Backpressure)
             {
                 // Assert: backpressure is true.
-                if (!backpressure)
-                {
-                    throw new InvalidOperationException("Backpressure should be true");
-                }
+                // if (!backpressure)
+                // {
+                //     throw new InvalidOperationException("Backpressure should be true");
+                // }
 
                 // Perform ! TransformStreamSetBackpressure(stream, true).
-                stream.SetBackpressure(true);
+                stream.SetBackpressure(backpressure);
             }
         }
         catch (JavaScriptException e)
@@ -156,7 +156,7 @@ public sealed partial class TransformStreamDefaultControllerInstance
         try
         {
             // Return the result of reacting to transformPromise with the following rejection steps given the argument r:
-            var transformPromise = TransformAlgorithm.Call(this, chunk);
+            var transformPromise = TransformAlgorithm.Call(chunk, this);
             return transformPromise.IsPromise()
                 ? transformPromise.Then(
                     onFulfilled: null,
