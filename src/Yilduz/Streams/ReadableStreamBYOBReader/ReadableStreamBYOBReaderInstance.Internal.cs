@@ -63,7 +63,7 @@ public sealed partial class ReadableStreamBYOBReaderInstance
         // Assert: stream is not undefined.
         if (Stream is null)
         {
-            throw new NotSupportedException();
+            throw new InvalidOperationException("Stream is not defined");
         }
 
         // Set stream.[[disturbed]] to true.

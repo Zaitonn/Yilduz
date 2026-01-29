@@ -69,7 +69,17 @@ async Task StartLoop()
                     break;
 
                 default:
-                    AnsiConsole.WriteLine(result.ToString());
+                    if (promptResult.SubmitKeyInfo.Modifiers.HasFlag(ConsoleModifiers.Control))
+                    {
+                        var json = serializer.Serialize(result);
+                        AnsiConsole.MarkupLineInterpolated($"[palegreen3]{json}[/]");
+                    }
+                    else
+                    {
+                        AnsiConsole.MarkupLineInterpolated(
+                            $"[palegreen3]{result.ToString().EscapeMarkup()}[/]"
+                        );
+                    }
                     break;
             }
         }

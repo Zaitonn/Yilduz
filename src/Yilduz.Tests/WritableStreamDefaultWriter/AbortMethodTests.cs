@@ -85,9 +85,10 @@ public sealed class AbortMethodTests : TestBase
                 }
             });
             const writer = stream.getWriter();
-            writer.abort().catch(() => { abortRejected = true; });
             """
         );
+
+        Engine.Evaluate("writer.abort().catch(() => { abortRejected = true; })").UnwrapIfPromise();
 
         Assert.True(Engine.Evaluate("abortRejected").AsBoolean());
     }
@@ -117,9 +118,10 @@ public sealed class AbortMethodTests : TestBase
             const stream = new WritableStream();
             const writer = stream.getWriter();
             writer.close();
-            writer.abort().then(() => { abortResolved = true; });
             """
         );
+
+        Engine.Evaluate("writer.abort().then(() => { abortResolved = true; })").UnwrapIfPromise();
 
         Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
     }
@@ -152,9 +154,10 @@ public sealed class AbortMethodTests : TestBase
             const stream = new WritableStream();
             const writer = stream.getWriter();
             writer.closed.catch(() => { closedRejected = true; });
-            writer.abort(new Error('Aborted'));
             """
         );
+
+        Engine.Evaluate("writer.abort(new Error('Aborted'))").UnwrapIfPromise();
 
         Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
     }

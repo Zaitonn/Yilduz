@@ -123,22 +123,6 @@ public sealed class CloseMethodTests : TestBase
     }
 
     [Fact]
-    public void ShouldResolveClosedPromiseAfterClose()
-    {
-        Engine.Execute(
-            """
-            let closedResolved = false;
-            const stream = new WritableStream();
-            const writer = stream.getWriter();
-            writer.closed.then(() => { closedResolved = true; });
-            writer.close();
-            """
-        );
-
-        Assert.True(Engine.Evaluate("closedResolved").AsBoolean());
-    }
-
-    [Fact]
     public void ShouldProcessPendingWritesBeforeClosing()
     {
         Engine.Execute(

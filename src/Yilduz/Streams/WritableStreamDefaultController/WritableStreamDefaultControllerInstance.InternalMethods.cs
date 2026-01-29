@@ -1,3 +1,4 @@
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -106,7 +107,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
             || Stream?.State == WritableStreamState.Errored
         )
         {
-            return;
+            throw new InvalidOperationException("Stream state should not be closed or errored");
         }
 
         // If state is "erroring",
@@ -158,25 +159,34 @@ public sealed partial class WritableStreamDefaultControllerInstance
 
         try
         {
-            // Let sinkClosePromise be the result of performing controller.[[closeAlgorithm]].
-            _ = CloseAlgorithm.Call(this).UnwrapIfPromise();
+            var sinkClosePromise = CloseAlgorithm.Call(this);
 
-            // Perform ! WritableStreamDefaultControllerClearAlgorithms(controller).
-            ClearAlgorithms();
-
-            // Upon fulfillment of sinkClosePromise,
-            // Perform ! WritableStreamFinishInFlightClose(stream).
-            Stream.FinishInFlightClose();
-        }
-        catch (PromiseRejectedException e)
-        {
-            // Upon rejection of sinkClosePromise with reason reason,
-            // Perform ! WritableStreamFinishInFlightCloseWithError(stream, reason).
-            Stream.FinishInFlightCloseWithError(e.RejectedValue);
+            sinkClosePromise.Then(
+                onFulfilled: _ =>
+                {
+                    // Upon fulfillment of sinkClosePromise,
+                    // Perform ! WritableStreamFinishInFlightClose(stream).
+                    Stream.FinishInFlightClose();
+                    return Undefined;
+                },
+                onRejected: reason =>
+                {
+                    // Upon rejection of sinkClosePromise with reason reason,
+                    // Perform ! WritableStreamFinishInFlightCloseWithError(stream, reason).
+                    Stream.FinishInFlightCloseWithError(reason);
+                    return Undefined;
+                }
+            );
         }
         catch (JavaScriptException e)
         {
+            // Perform ! WritableStreamFinishInFlightCloseWithError(stream, reason).
             Stream.FinishInFlightCloseWithError(e.Error);
+        }
+        finally
+        {
+            // Perform ! WritableStreamDefaultControllerClearAlgorithms(controller).
+            ClearAlgorithms();
         }
     }
 
@@ -218,49 +228,26 @@ public sealed partial class WritableStreamDefaultControllerInstance
                     );
                 }
 
-                Task.Run(
-                        () => sinkWritePromise.UnwrapIfPromise(_writeCancellationTokenSource.Token),
-                        _writeCancellationTokenSource.Token
-                    )
-                    .ContinueWith(
-                        t =>
-                        {
-                            lock (Engine)
-                            {
-                                switch (t.Status)
-                                {
-                                    // Upon fulfillment of sinkWritePromise
-                                    case TaskStatus.RanToCompletion:
-                                        OnCompletedSuccessfully();
-                                        break;
-
-                                    // Upon rejection of sinkWritePromise with reason
-                                    case TaskStatus.Faulted
-                                        when t.Exception?.InnerException
-                                            is PromiseRejectedException e:
-                                        OnError(e.RejectedValue);
-                                        break;
-
-                                    case TaskStatus.Canceled:
-                                        OnError(
-                                            ErrorHelper.Create(
-                                                Engine,
-                                                "AbortError",
-                                                "The write operation was aborted."
-                                            )
-                                        );
-                                        break;
-                                }
-                            }
-                        },
-                        TaskContinuationOptions.ExecuteSynchronously
-                    );
+                sinkWritePromise.Then(
+                    onFulfilled: _ =>
+                    {
+                        // Upon fulfillment of sinkWritePromise
+                        OnCompletedSuccessfully();
+                        return Undefined;
+                    },
+                    onRejected: reason =>
+                    {
+                        // Upon rejection of sinkWritePromise with reason
+                        OnError(reason);
+                        return Undefined;
+                    },
+                    _writeCancellationTokenSource.Token
+                );
             }
         }
         catch (JavaScriptException e)
         {
             OnError(e.Error);
-
             throw;
         }
 
@@ -273,24 +260,26 @@ public sealed partial class WritableStreamDefaultControllerInstance
             var state = Stream.State;
 
             // Assert: state is "writable" or "erroring".
-            if (state != WritableStreamState.Erroring && state != WritableStreamState.Errored)
+            if (state != WritableStreamState.Writable && state != WritableStreamState.Erroring)
             {
-                // Perform ! DequeueValue(controller).
-                this.DequeueValue();
-
-                // If ! WritableStreamCloseQueuedOrInFlight(stream) is false and state is "writable",
-                if (!Stream.IsCloseQueuedOrInFlight && state == WritableStreamState.Writable)
-                {
-                    // Let backpressure be ! WritableStreamDefaultControllerGetBackpressure(controller).
-                    var backpressure = GetBackpressure();
-
-                    // Perform ! WritableStreamUpdateBackpressure(stream, backpressure).
-                    Stream.UpdateBackpressure(backpressure);
-                }
-
-                // Perform ! WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller).
-                AdvanceQueueIfNeeded();
+                throw new InvalidOperationException("Stream state should be writable or erroring");
             }
+
+            // Perform ! DequeueValue(controller).
+            this.DequeueValue();
+
+            // If ! WritableStreamCloseQueuedOrInFlight(stream) is false and state is "writable",
+            if (!Stream.IsCloseQueuedOrInFlight && state == WritableStreamState.Writable)
+            {
+                // Let backpressure be ! WritableStreamDefaultControllerGetBackpressure(controller).
+                var backpressure = GetBackpressure();
+
+                // Perform ! WritableStreamUpdateBackpressure(stream, backpressure).
+                Stream.UpdateBackpressure(backpressure);
+            }
+
+            // Perform ! WritableStreamDefaultControllerAdvanceQueueIfNeeded(controller).
+            AdvanceQueueIfNeeded();
         }
 
         void OnError(JsValue error)
@@ -370,7 +359,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
         // Assert: stream.[[state]] is "writable".
         if (Stream.State != WritableStreamState.Writable)
         {
-            return;
+            throw new InvalidOperationException("Stream state should be writable");
         }
 
         // Perform ! WritableStreamDefaultControllerClearAlgorithms(controller).

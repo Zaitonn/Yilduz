@@ -357,7 +357,9 @@ public sealed partial class ReadableStreamInstance
             } reader
         )
         {
-            return;
+            throw new InvalidOperationException(
+                "Stream reader must be a ReadableStreamDefaultReader and stream state must be 'readable'"
+            );
         }
 
         // Append readRequest to stream.[[reader]].[[readRequests]].
@@ -454,6 +456,10 @@ public sealed partial class ReadableStreamInstance
     )
     {
         // Assert: stream.[[controller]] is undefined.
+        if (Controller is not null)
+        {
+            throw new InvalidOperationException("Stream controller should be undefined");
+        }
 
         // If autoAllocateChunkSize is not undefined,
         if (autoAllocateChunkSize is not null)
@@ -506,6 +512,12 @@ public sealed partial class ReadableStreamInstance
 
             // Assert: controller.[[pulling]] is false.
             // Assert: controller.[[pullAgain]] is false.
+            if (Controller.Pulling || Controller.PullAgain)
+            {
+                throw new InvalidOperationException(
+                    "Controller pulling and pullAgain should be false"
+                );
+            }
 
             // Perform ! ReadableByteStreamControllerCallPullIfNeeded(controller).
             Controller.CallPullIfNeeded();
@@ -529,7 +541,8 @@ public sealed partial class ReadableStreamInstance
         // Assert: stream implements ReadableStream.
         // Assert: cloneForBranch2 is a boolean.
 
-        // If stream.[[controller]] implements ReadableByteStreamController, return ? ReadableByteStreamTee(stream).
+        // If stream.[[controller]] implements ReadableByteStreamController,
+        //   return ? ReadableByteStreamTee(stream).
         if (Controller is ReadableByteStreamControllerInstance)
         {
             throw new NotImplementedException("Tee is not yet implemented");
@@ -1277,20 +1290,5 @@ public sealed partial class ReadableStreamInstance
         loop();
 
         return promise.Promise;
-    }
-
-    /// <summary>
-    /// https://streams.spec.whatwg.org/#rs-default-controller-has-backpressure
-    /// </summary>
-    internal bool HasBackpressure()
-    {
-        // If ! ReadableStreamDefaultControllerShouldCallPull(controller) is true, return false.
-        if (((ReadableStreamDefaultControllerInstance)Controller).ShouldCallPull())
-        {
-            return false;
-        }
-
-        // Otherwise, return true.
-        return true;
     }
 }

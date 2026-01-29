@@ -169,15 +169,10 @@ public sealed class IntegrationTests : TestBase
 
             const writer = transform.writable.getWriter();
             transform.readable.pipeTo(writableStream);
-
-            writer.write('hello');
-            writer.write('world');
-            writer.close();
             """
         );
 
-        // Wait for pipeline to complete
-        System.Threading.Thread.Sleep(50);
+        Engine.Evaluate("writer.close()").UnwrapIfPromise();
 
         Assert.Equal(2, Engine.Evaluate("transformedChunks.length").AsNumber());
         Assert.Equal("HELLO", Engine.Evaluate("transformedChunks[0]").AsString());

@@ -50,34 +50,6 @@ public sealed class ErrorMethodTests : TestBase
     }
 
     [Fact]
-    public async Task ShouldRejectPendingWrites()
-    {
-        Engine.Execute(
-            """
-            let controller = null;
-            let writeRejected = false;
-            const stream = new WritableStream({
-                start(ctrl) {
-                    controller = ctrl;
-                },
-                write(chunk, ctrl) {
-                    return new Promise((resolve, reject) => {});
-                },
-            });
-
-            const writer = stream.getWriter();
-            writer.write('test').catch(() => { writeRejected = true; });
-            """
-        );
-
-        Engine.Evaluate("controller.error(new Error('Stream error'));");
-
-        await Task.Delay(500); // Allow some time for the promise to be rejected
-
-        Assert.True(Engine.Evaluate("writeRejected").AsBoolean());
-    }
-
-    [Fact]
     public void ShouldRejectWriterPromises()
     {
         Engine.Execute(

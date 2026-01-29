@@ -37,21 +37,31 @@ internal static class PromiseHelper
             try
             {
                 Task.WaitAll(
-                    [
-                        .. promises.Select(
-                            (p, i) =>
-                                Task.Run(() =>
-                                {
-                                    result[i] = p.UnwrapIfPromise();
-                                })
-                        ),
-                    ]
+                    [.. promises.Select((p, i) => Task.Run(() => result[i] = p.UnwrapIfPromise()))]
                 );
-                manualPromise.Resolve(engine.Intrinsics.Array.Construct(result));
+
+                lock (engine)
+                {
+                    manualPromise.Resolve(engine.Intrinsics.Array.Construct(result));
+                }
             }
-            catch (AggregateException e) when (e.InnerException is PromiseRejectedException ex)
+            catch (Exception e)
             {
-                manualPromise.Reject(ex.RejectedValue);
+                lock (engine)
+                {
+                    manualPromise.Reject(
+                        e switch
+                        {
+                            AggregateException ae => ae.InnerException switch
+                            {
+                                PromiseRejectedException pre => pre.RejectedValue,
+                                JavaScriptException jse => jse.Error,
+                                _ => e.Message,
+                            },
+                            _ => e.Message,
+                        }
+                    );
+                }
             }
         });
 
@@ -90,7 +100,8 @@ internal static class PromiseHelper
     public static JsValue Then(
         this JsValue jsValue,
         Func<JsValue, JsValue>? onFulfilled = null,
-        Func<JsValue, JsValue>? onRejected = null
+        Func<JsValue, JsValue>? onRejected = null,
+        CancellationToken cancellationToken = default
     )
     {
         if (!jsValue.IsPromise())
@@ -101,39 +112,72 @@ internal static class PromiseHelper
         var engine = jsValue.AsObject().Engine;
         var manualPromise = engine.Advanced.RegisterPromise();
 
-        Task.Run(() =>
-        {
-            try
+        Task.Run(
+            () =>
             {
-                var result = jsValue.UnwrapIfPromise();
+                JsValue? result = null;
+                Exception? error = null;
+                try
+                {
+                    result = jsValue.UnwrapIfPromise(cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    error = e;
+                }
 
                 lock (engine)
                 {
-                    if (onFulfilled is null)
+                    try
                     {
-                        manualPromise.Resolve(result);
+                        switch (error)
+                        {
+                            case PromiseRejectedException pre:
+                                if (onRejected is null)
+                                {
+                                    manualPromise.Reject(pre.RejectedValue);
+                                }
+                                else
+                                {
+                                    manualPromise.Resolve(onRejected(pre.RejectedValue));
+                                }
+                                break;
+
+                            case JavaScriptException jse:
+                                if (onRejected is null)
+                                {
+                                    manualPromise.Reject(jse.Error);
+                                }
+                                else
+                                {
+                                    manualPromise.Resolve(onRejected(jse.Error));
+                                }
+                                break;
+
+                            case null:
+                                if (onFulfilled is null)
+                                {
+                                    manualPromise.Resolve(result!);
+                                }
+                                else
+                                {
+                                    manualPromise.Resolve(onFulfilled(result!));
+                                }
+                                break;
+
+                            default:
+                                manualPromise.Reject(error.Message);
+                                break;
+                        }
                     }
-                    else
+                    catch (Exception ex)
                     {
-                        manualPromise.Resolve(onFulfilled(result));
+                        manualPromise.Reject(JsValue.FromObject(engine, ex.Message));
                     }
                 }
-            }
-            catch (PromiseRejectedException e)
-            {
-                lock (engine)
-                {
-                    if (onRejected is null)
-                    {
-                        manualPromise.Reject(e.RejectedValue);
-                    }
-                    else
-                    {
-                        manualPromise.Reject(onRejected(e.RejectedValue));
-                    }
-                }
-            }
-        });
+            },
+            cancellationToken
+        );
 
         return manualPromise.Promise;
     }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Jint;
 using Jint.Native;
@@ -167,6 +168,11 @@ public sealed partial class ReadableStreamDefaultControllerInstance
 
         // Let desiredSize be ! ReadableStreamDefaultControllerGetDesiredSize(controller).
         // Assert: desiredSize is not null.
+        if (DesiredSize is null)
+        {
+            throw new InvalidOperationException("Desired size should not be null");
+        }
+
         // If desiredSize > 0, return true.
         // Return false.
         return DesiredSize > 0;
@@ -194,33 +200,65 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         }
 
         // Assert: controller.[[pullAgain]] is false.
+        if (PullAgain)
+        {
+            throw new InvalidOperationException("Controller pullAgain should be false");
+        }
+
         // Set controller.[[pulling]] to true.
         PullAgain = false;
         Pulling = true;
 
         if (PullAlgorithm != null)
         {
-            try
-            {
-                // Let pullPromise be the result of performing controller.[[pullAlgorithm]].
-                PullAlgorithm.Call().UnwrapIfPromise();
-            }
-            catch (JavaScriptException ex)
-            {
-                // Perform ! ReadableStreamDefaultControllerError(controller, e).
-                ErrorInternal(ex.Error);
-                return;
-            }
-        }
-        // Set controller.[[pulling]] to false.
-        Pulling = false;
-        // If controller.[[pullAgain]] is true,
-        if (PullAgain)
-        {
-            // Set controller.[[pullAgain]] to false.
-            PullAgain = false;
-            // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
-            CallPullIfNeeded();
+            PullAlgorithm
+                .Call(this)
+                .Then(
+                    onFulfilled: _ =>
+                    {
+                        // Set controller.[[pulling]] to false.
+                        Pulling = false;
+
+                        // If controller.[[pullAgain]] is true,
+                        if (PullAgain)
+                        {
+                            // Set controller.[[pullAgain]] to false.
+                            PullAgain = false;
+                            // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
+                            CallPullIfNeeded();
+                        }
+                        return Undefined;
+                    },
+                    onRejected: e =>
+                    {
+                        // Perform ! ReadableStreamDefaultControllerError(controller, e).
+                        ErrorInternal(e);
+                        return Undefined;
+                    }
+                );
+
+            // try
+            // {
+            //     // Let pullPromise be the result of performing controller.[[pullAlgorithm]].
+            //     PullAlgorithm.Call().UnwrapIfPromise();
+            // }
+            // catch (JavaScriptException ex)
+            // {
+            //     // Perform ! ReadableStreamDefaultControllerError(controller, e).
+            //     ErrorInternal(ex.Error);
+            //     return;
+            // }
+
+            // // Set controller.[[pulling]] to false.
+            // Pulling = false;
+            // // If controller.[[pullAgain]] is true,
+            // if (PullAgain)
+            // {
+            //     // Set controller.[[pullAgain]] to false.
+            //     PullAgain = false;
+            //     // Perform ! ReadableStreamDefaultControllerCallPullIfNeeded(controller).
+            //     CallPullIfNeeded();
+            // }
         }
     }
 

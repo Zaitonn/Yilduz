@@ -116,9 +116,10 @@ public sealed class PropertiesTests : TestBase
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
-            writer.close();
             """
         );
+
+        Engine.Evaluate("writer.close()").UnwrapIfPromise();
 
         Assert.Equal(0, Engine.Evaluate("writer.desiredSize"));
     }

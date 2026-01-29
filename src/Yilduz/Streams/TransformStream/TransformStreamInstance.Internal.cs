@@ -232,6 +232,10 @@ public sealed partial class TransformStreamInstance
     {
         // Assert: stream implements TransformStream.
         // Assert: stream.[[controller]] is undefined.
+        if (Controller is not null)
+        {
+            throw new InvalidOperationException("Stream controller should be undefined");
+        }
 
         // Set controller.[[stream]] to stream.
         controller.Stream = this;

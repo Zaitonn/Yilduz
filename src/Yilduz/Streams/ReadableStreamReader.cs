@@ -70,7 +70,7 @@ public abstract class ReadableStreamReader : ObjectInstance
         // Assert: stream is not undefined.
         if (Stream == null)
         {
-            return;
+            throw new InvalidOperationException("Stream should not be undefined");
         }
 
         // Assert: stream.[[reader]] is reader.

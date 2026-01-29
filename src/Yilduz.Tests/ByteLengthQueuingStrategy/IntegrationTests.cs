@@ -1,5 +1,4 @@
 using Jint;
-using Jint.Runtime;
 using Xunit;
 
 namespace Yilduz.Tests.ByteLengthQueuingStrategy;
@@ -25,6 +24,8 @@ public sealed class IntegrationTests : TestBase
             }, strategy);
             """
         );
+
+        Engine.Execute("stream.getReader().read();");
 
         // Should pull initially to fill the queue
         Assert.True(Engine.Evaluate("pullCount > 0").AsBoolean());
@@ -99,7 +100,7 @@ public sealed class IntegrationTests : TestBase
         Assert.Equal(5, Engine.Evaluate("desiredSizes[2]").AsNumber()); // After 5 bytes
     }
 
-    [Fact(Skip = "TransformStream is not implemented yet")]
+    [Fact]
     public void ShouldWorkWithTransformStream()
     {
         Engine.Execute(
@@ -118,7 +119,7 @@ public sealed class IntegrationTests : TestBase
         Assert.Equal("TransformStream", Engine.Evaluate("transform.constructor.name"));
     }
 
-    [Fact(Skip = "`pipeTo` is not implemented yet")]
+    [Fact]
     public void ShouldRespectHighWaterMarkAcrossStreamPipeline()
     {
         Engine.Execute(

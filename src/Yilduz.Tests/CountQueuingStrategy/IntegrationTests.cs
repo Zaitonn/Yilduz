@@ -106,7 +106,7 @@ public sealed class IntegrationTests : TestBase
         Assert.Equal(1, Engine.Evaluate("desiredSizes[4]").AsNumber()); // After ArrayBuffer
     }
 
-    [Fact(Skip = "TransformStream is not implemented yet")]
+    [Fact]
     public void ShouldWorkWithTransformStream()
     {
         Engine.Execute(

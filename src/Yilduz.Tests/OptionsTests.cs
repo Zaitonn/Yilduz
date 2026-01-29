@@ -15,7 +15,7 @@ public static class OptionsTests
     }
 
     [Fact]
-    public static void ShouldThrowWhenEmpty()
+    public static void ShouldThrowWhenWaitingTimeoutIsNegative()
     {
         var engine = new Engine();
         Assert.Throws<ArgumentOutOfRangeException>(

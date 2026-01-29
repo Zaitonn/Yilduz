@@ -113,13 +113,12 @@ public sealed class FileReaderInstance : EventTargetInstance
     public void ReadAsText(JsValue blob, string encoding = "UTF-8")
     {
         PrepareForReading(blob, FileReaderPrototype.ReadAsTextName);
+        DispatchEvent("loadstart");
 
         Task.Run(() =>
         {
             try
             {
-                DispatchEvent("loadstart");
-
                 Result = _fileReaderSyncInstance.ReadAsText(blob, encoding);
                 ReadyState = FileReaderState.DONE;
 

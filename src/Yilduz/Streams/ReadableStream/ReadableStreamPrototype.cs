@@ -98,24 +98,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         var transform = arguments.At(0).AsObject();
         var options = arguments.At(1);
 
-        // PipeThrough implementation: pipe to transform.writable and return transform.readable
-        var writable = transform.Get("writable");
-        var readable = transform.Get("readable");
-
-        if (
-            writable.IsNull()
-            || writable.IsUndefined()
-            || readable.IsNull()
-            || readable.IsUndefined()
-        )
-        {
-            TypeErrorHelper.Throw(Engine, "Invalid transform stream");
-        }
-
-        // Start the pipe operation
-        instance.PipeTo(writable.AsObject(), options);
-
-        return readable;
+        return instance.PipeThrough(transform, options);
     }
 
     private JsArray Tee(JsValue thisObject, JsValue[] arguments)

@@ -355,26 +355,30 @@ public sealed partial class WritableStreamInstance
         // Let promise be ! stream.[[controller]].[[AbortSteps]](abortRequest’s reason).
         var promise = Controller?.AbortSteps(abortRequest.Value.Reason);
 
-        try
-        {
-            promise?.UnwrapIfPromise();
+        promise?.Then(
+            onFulfilled: _ =>
+            {
+                // Upon fulfillment of promise,
+                // Resolve abortRequest’s promise with undefined.
+                abortRequest.Value.Promise.Resolve(Undefined);
 
-            // Upon fulfillment of promise,
-            // Resolve abortRequest’s promise with undefined.
-            abortRequest.Value.Promise.Resolve(Undefined);
+                // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
+                RejectCloseAndClosedPromiseIfNeeded();
 
-            // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
-            RejectCloseAndClosedPromiseIfNeeded();
-        }
-        catch (PromiseRejectedException e)
-        {
-            // Upon rejection of promise with reason reason,
-            // Reject abortRequest’s promise with reason.
-            abortRequest.Value.Promise.Reject(e.RejectedValue);
+                return Undefined;
+            },
+            onRejected: e =>
+            {
+                // Upon rejection of promise with reason reason,
+                // Reject abortRequest’s promise with reason.
+                abortRequest.Value.Promise.Reject(e);
 
-            // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
-            RejectCloseAndClosedPromiseIfNeeded();
-        }
+                // Perform ! WritableStreamRejectCloseAndClosedPromiseIfNeeded(stream).
+                RejectCloseAndClosedPromiseIfNeeded();
+
+                return Undefined;
+            }
+        );
     }
 
     /// <summary>

@@ -170,8 +170,9 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/pipeThrough
     /// </summary>
-    public ReadableStreamInstance PipeThrough(ObjectInstance transform, ObjectInstance options)
+    public ReadableStreamInstance PipeThrough(ObjectInstance transform, JsValue options)
     {
+        // If ! IsReadableStreamLocked(this) is true, throw a TypeError exception.
         if (Locked)
         {
             TypeErrorHelper.Throw(Engine, "ReadableStream is locked");
@@ -180,14 +181,37 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
         var readable = transform.Get("readable");
         var writable = transform.Get("writable");
 
+        // If ! IsWritableStreamLocked(transform["writable"]) is true, throw a TypeError exception.
+        if (writable is not WritableStreamInstance { Locked: false } writableStream)
+        {
+            TypeErrorHelper.Throw(Engine, "transform.writable is not an unlocked WritableStream");
+            return null;
+        }
+
         if (readable is not ReadableStreamInstance readableStream)
         {
             TypeErrorHelper.Throw(Engine, "transform.readable is not a ReadableStream");
-            return null!;
+            return null;
         }
 
-        // TODO: Implement full pipe through logic
-        throw new NotImplementedException("PipeThrough is not yet implemented");
+        var signal = options.Get("signal");
+        var abortSignal = signal.IsUndefined() ? null : (AbortSignalInstance)signal;
+
+        var preventClose = options.Get("preventClose");
+        var preventAbort = options.Get("preventAbort");
+        var preventCancel = options.Get("preventCancel");
+
+        // Let promise be ! ReadableStreamPipeTo(this, transform["writable"], options["preventClose"], options["preventAbort"], options["preventCancel"], signal).
+        // Set promise.[[PromiseIsHandled]] to true.
+        PipeToInternal(
+            writableStream,
+            !preventClose.IsUndefined() && preventClose.AsBoolean(),
+            !preventAbort.IsUndefined() && preventAbort.AsBoolean(),
+            !preventCancel.IsUndefined() && preventCancel.AsBoolean(),
+            abortSignal
+        );
+
+        return readableStream;
     }
 
     /// <summary>
