@@ -22,6 +22,15 @@ internal sealed class TransformStreamConstructor : Constructor
         var writableStrategy = arguments.At(1);
         var readableStrategy = arguments.At(2);
 
+        return Construct(transformer, writableStrategy, readableStrategy);
+    }
+
+    public TransformStreamInstance Construct(
+        JsValue transformer,
+        JsValue writableStrategy,
+        JsValue readableStrategy
+    )
+    {
         return new TransformStreamInstance(Engine, transformer, writableStrategy, readableStrategy)
         {
             Prototype = PrototypeObject,

@@ -5,6 +5,7 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Aborting.AbortSignal;
+using Yilduz.Streams.TransformStream;
 using Yilduz.Streams.WritableStream;
 using Yilduz.Utils;
 
@@ -178,20 +179,45 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
             TypeErrorHelper.Throw(Engine, "ReadableStream is locked");
         }
 
-        var readable = transform.Get("readable");
-        var writable = transform.Get("writable");
+        WritableStreamInstance writable;
+        ReadableStreamInstance readable;
 
-        // If ! IsWritableStreamLocked(transform["writable"]) is true, throw a TypeError exception.
-        if (writable is not WritableStreamInstance { Locked: false } writableStream)
+        if (transform is IGenericTransformStream transformStream)
         {
-            TypeErrorHelper.Throw(Engine, "transform.writable is not an unlocked WritableStream");
-            return null;
+            readable = transformStream.Readable;
+            writable = transformStream.Writable;
+        }
+        else
+        {
+            readable =
+                transform.Get("readable").As<ReadableStreamInstance>()
+                ?? throw new JavaScriptException(
+                    ErrorHelper.Create(
+                        Engine,
+                        "TypeError",
+                        "transform.readable is not a ReadableStream"
+                    )
+                );
+            writable =
+                transform.Get("writable").As<WritableStreamInstance>()
+                ?? throw new JavaScriptException(
+                    ErrorHelper.Create(
+                        Engine,
+                        "TypeError",
+                        "transform.writable is not a WritableStream"
+                    )
+                );
         }
 
-        if (readable is not ReadableStreamInstance readableStream)
+        // If ! IsWritableStreamLocked(transform["writable"]) is true, throw a TypeError exception.
+        if (writable.Locked)
         {
-            TypeErrorHelper.Throw(Engine, "transform.readable is not a ReadableStream");
-            return null;
+            TypeErrorHelper.Throw(Engine, "transform.writable is not an unlocked WritableStream");
+        }
+
+        if (readable.Locked)
+        {
+            TypeErrorHelper.Throw(Engine, "transform.readable is not an unlocked ReadableStream");
         }
 
         var signal = options.Get("signal");
@@ -204,14 +230,14 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
         // Let promise be ! ReadableStreamPipeTo(this, transform["writable"], options["preventClose"], options["preventAbort"], options["preventCancel"], signal).
         // Set promise.[[PromiseIsHandled]] to true.
         PipeToInternal(
-            writableStream,
+            writable,
             !preventClose.IsUndefined() && preventClose.AsBoolean(),
             !preventAbort.IsUndefined() && preventAbort.AsBoolean(),
             !preventCancel.IsUndefined() && preventCancel.AsBoolean(),
             abortSignal
         );
 
-        return readableStream;
+        return readable;
     }
 
     /// <summary>

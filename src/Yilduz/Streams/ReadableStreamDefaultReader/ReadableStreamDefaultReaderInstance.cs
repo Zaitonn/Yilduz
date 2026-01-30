@@ -68,6 +68,19 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ReadableStream
                 .Promise;
         }
 
+        if (Stream.State == ReadableStreamState.Closed)
+        {
+            var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
+            result.Set("value", Undefined);
+            result.Set("done", true);
+            return PromiseHelper.CreateResolvedPromise(Engine, result).Promise;
+        }
+
+        if (Stream.State == ReadableStreamState.Errored)
+        {
+            return PromiseHelper.CreateRejectedPromise(Engine, Stream.StoredError).Promise;
+        }
+
         var promise = Engine.Advanced.RegisterPromise();
 
         var readRequest = new ReadRequest(

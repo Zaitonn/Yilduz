@@ -7,6 +7,7 @@ using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime;
+using Yilduz.Utils;
 
 namespace Yilduz.Extensions;
 
@@ -17,8 +18,16 @@ internal static class JsValueExtensions
     {
         var obj = thisObject.AsObject();
 
-        return thisObject.As<T>()
-            ?? throw new JavaScriptException(obj.Engine.Intrinsics.TypeError, "Illegal invocation");
+        if (obj is not T t)
+        {
+            TypeErrorHelper.Throw(
+                obj.Engine,
+                "Illegal invocation: this is not of the expected type"
+            );
+            return null;
+        }
+
+        return t;
     }
 
     public static bool ToBoolean(this JsValue value)
@@ -43,12 +52,7 @@ internal static class JsValueExtensions
 
             while (true)
             {
-                var nextMethod =
-                    iteratorObject.Get("next") as Function
-                    ?? throw new JavaScriptException(
-                        iteratorObject.Engine.Intrinsics.TypeError,
-                        "Iterator next must be a function"
-                    );
+                var nextMethod = iteratorObject.Get("next").AsFunctionInstance();
 
                 var result = objectInstance
                     .Engine.Call(nextMethod, iteratorObject, Arguments.Empty)

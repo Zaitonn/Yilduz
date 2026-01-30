@@ -14,7 +14,7 @@ namespace Yilduz.Streams.TransformStream;
 /// TransformStream implementation according to WHATWG Streams Standard
 /// https://streams.spec.whatwg.org/#transform-streams
 /// </summary>
-public sealed partial class TransformStreamInstance : ObjectInstance
+public sealed partial class TransformStreamInstance : ObjectInstance, IGenericTransformStream
 {
     /// <summary>
     /// The ReadableStream instance controlled by this object

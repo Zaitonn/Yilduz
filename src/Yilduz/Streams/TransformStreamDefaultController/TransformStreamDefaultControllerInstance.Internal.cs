@@ -156,7 +156,7 @@ public sealed partial class TransformStreamDefaultControllerInstance
         try
         {
             // Return the result of reacting to transformPromise with the following rejection steps given the argument r:
-            var transformPromise = TransformAlgorithm.Call(chunk, this);
+            var transformPromise = TransformAlgorithm.Call(Undefined, [chunk]);
             return transformPromise.IsPromise()
                 ? transformPromise.Then(
                     onFulfilled: null,

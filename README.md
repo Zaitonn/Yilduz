@@ -42,6 +42,9 @@ cts.Dispose();
 - Base64
   - [x] `atob()`
   - [x] `btoa()`
+- Compression
+  - [ ] `CompressionStream`
+  - [ ] `DecompressionStream`
 - Console
   - [x] `console`
 - DOM
@@ -49,9 +52,9 @@ cts.Dispose();
   - [x] `DOMException`
 - Encoding
   - [x] `TextDecoder`
-  - [ ] `TextDecoderStream`
+  - [x] `TextDecoderStream`
   - [x] `TextEncoder`
-  - [ ] `TextEncoderStream`
+  - [x] `TextEncoderStream`
 - Files
   - [x] `Blob`
   - [x] `File`

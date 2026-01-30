@@ -1,4 +1,3 @@
-using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -68,21 +67,20 @@ internal sealed class WritableStreamPrototype : ObjectInstance
 
         var (promise, resolve, rejected) = Engine.Advanced.RegisterPromise();
 
-        Task.Run(() =>
-        {
-            try
-            {
-                resolve(instance.Abort(reason).UnwrapIfPromise());
-            }
-            catch (JavaScriptException e)
-            {
-                rejected(e.Error);
-            }
-            catch (PromiseRejectedException e)
-            {
-                rejected(e.RejectedValue);
-            }
-        });
+        instance
+            .Abort(reason)
+            .Then(
+                result =>
+                {
+                    resolve(result);
+                    return Undefined;
+                },
+                error =>
+                {
+                    rejected(error);
+                    return Undefined;
+                }
+            );
 
         return promise;
     }
