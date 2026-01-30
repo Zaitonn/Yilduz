@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Jint;
 using Jint.Runtime;
 using Xunit;
@@ -107,7 +108,7 @@ public sealed class CloseMethodTests : TestBase
     }
 
     [Fact]
-    public void ShouldRejectWhenStreamIsAlreadyClosed()
+    public async Task ShouldRejectWhenStreamIsAlreadyClosed()
     {
         Engine.Execute(
             """
@@ -119,6 +120,8 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
+        await WaitForJsConditionAsync("closeRejected === true");
+        // Explicit assertion for test clarity and documentation
         Assert.True(Engine.Evaluate("closeRejected").AsBoolean());
     }
 

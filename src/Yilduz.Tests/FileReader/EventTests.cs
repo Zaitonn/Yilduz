@@ -154,8 +154,9 @@ public sealed class EventTests : TestBase
             """
         );
 
-        await Task.Delay(100);
+        await WaitForJsConditionAsync("loadEndFired === true");
 
+        // Explicit assertion for test clarity and documentation
         Assert.True(Engine.Evaluate("loadEndFired").AsBoolean());
     }
 
