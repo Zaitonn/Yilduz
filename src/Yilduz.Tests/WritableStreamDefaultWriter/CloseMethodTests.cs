@@ -121,6 +121,7 @@ public sealed class CloseMethodTests : TestBase
         );
 
         await WaitForJsConditionAsync("closeRejected === true");
+        // Explicit assertion for test clarity and documentation
         Assert.True(Engine.Evaluate("closeRejected").AsBoolean());
     }
 

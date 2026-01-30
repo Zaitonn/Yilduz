@@ -97,6 +97,7 @@ public sealed class SetTimeoutTests : TestBase
         Engine.Execute("setTimeout(() => { executed = true; }, 0);");
 
         await WaitForJsConditionAsync("executed === true");
+        // Explicit assertion for test clarity and documentation
         Assert.True(Engine.Evaluate("executed").AsBoolean());
     }
 
@@ -164,6 +165,7 @@ public sealed class SetTimeoutTests : TestBase
         );
 
         await WaitForJsConditionAsync("results.length === 2");
+        // Explicit assertions for test clarity and documentation
         Assert.Equal(2, Engine.Evaluate("results.length").AsNumber());
         Assert.Equal("outer", Engine.Evaluate("results[0]").AsString());
         Assert.Equal("inner", Engine.Evaluate("results[1]").AsString());
