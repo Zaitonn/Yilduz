@@ -59,6 +59,27 @@ public abstract class TestBase : IDisposable
         int pollingIntervalMs = 10
     )
     {
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            throw new ArgumentException("Condition cannot be null or empty", nameof(condition));
+        }
+
+        if (timeoutMs <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(timeoutMs),
+                "Timeout must be greater than zero"
+            );
+        }
+
+        if (pollingIntervalMs <= 0)
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(pollingIntervalMs),
+                "Polling interval must be greater than zero"
+            );
+        }
+
         var startTime = DateTime.UtcNow;
         var timeout = TimeSpan.FromMilliseconds(timeoutMs);
 
@@ -72,12 +93,25 @@ public abstract class TestBase : IDisposable
                     return;
                 }
             }
+            catch (OperationCanceledException)
+            {
+                // Test is being disposed; rethrow to allow proper cleanup
+                throw;
+            }
             catch
             {
                 // Condition might reference undefined variables initially; continue polling
             }
 
-            await Task.Delay(pollingIntervalMs, Token);
+            try
+            {
+                await Task.Delay(pollingIntervalMs, Token);
+            }
+            catch (OperationCanceledException)
+            {
+                // Test is being disposed; rethrow to allow proper cleanup
+                throw;
+            }
         }
 
         throw new TimeoutException(
