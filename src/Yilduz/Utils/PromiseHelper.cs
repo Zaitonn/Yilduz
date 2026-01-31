@@ -68,6 +68,24 @@ internal static class PromiseHelper
         return manualPromise.Promise;
     }
 
+    public static bool IsPendingPromise(this JsValue value)
+    {
+        if (!value.IsPromise())
+        {
+            return false;
+        }
+
+        try
+        {
+            value.UnwrapIfPromise(new CancellationToken(true));
+            return false;
+        }
+        catch (OperationCanceledException)
+        {
+            return true;
+        }
+    }
+
     public static bool TryGetRejectedValue(
         this JsValue value,
         [NotNullWhen(true)] out JsValue? rejectValue

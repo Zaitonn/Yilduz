@@ -8,7 +8,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldEnqueueValues()
     {
-        Engine.Execute(
+        Execute(
             """
             let controllerInstance;
             const stream = new ReadableStream({
@@ -23,14 +23,14 @@ public sealed class RuntimeTests : TestBase
 
         Assert.Equal(
             "ReadableStreamDefaultController",
-            Engine.Evaluate("controllerInstance.constructor.name").AsString()
+            Evaluate("controllerInstance.constructor.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldCloseStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let streamClosed = false;
             const stream = new ReadableStream({
@@ -53,7 +53,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldErrorStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let errorValue;
             const stream = new ReadableStream({
@@ -73,7 +73,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldReportDesiredSize()
     {
-        Engine.Execute(
+        Execute(
             """
             let desiredSizes = [];
             const stream = new ReadableStream({
@@ -86,14 +86,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(2, Engine.Evaluate("desiredSizes[0]").AsNumber());
-        Assert.Equal(1, Engine.Evaluate("desiredSizes[1]").AsNumber());
+        Assert.Equal(2, Evaluate("desiredSizes[0]").AsNumber());
+        Assert.Equal(1, Evaluate("desiredSizes[1]").AsNumber());
     }
 
     [Fact]
     public void ShouldThrowWhenEnqueuingOnClosedController()
     {
-        Engine.Execute(
+        Execute(
             """
             let enqueueError;
             const stream = new ReadableStream({
@@ -109,13 +109,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("enqueueError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("enqueueError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenClosingAlreadyClosedController()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeError;
             const stream = new ReadableStream({
@@ -131,13 +131,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closeError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("closeError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldCallPullWhenDesiredSizeIsPositive()
     {
-        Engine.Execute(
+        Execute(
             """
             let pullCallCount = 0;
             const stream = new ReadableStream({
@@ -155,6 +155,6 @@ public sealed class RuntimeTests : TestBase
         );
 
         // Pull should be called to fill the internal queue
-        Assert.True(Engine.Evaluate("pullCallCount > 0").AsBoolean());
+        Assert.True(Evaluate("pullCallCount > 0").AsBoolean());
     }
 }

@@ -9,7 +9,7 @@ public sealed class AdvancedErrorTests : TestBase
     [Fact]
     public void ShouldErrorStreamCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -24,15 +24,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectPendingWritesOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -53,16 +51,14 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectSubsequentWritesAfterError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -77,13 +73,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectCloseAfterError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -98,13 +94,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorDuringWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -125,16 +121,14 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("errorPromise instanceof Promise").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("errorPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorDuringClose()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -152,13 +146,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldNotAllowMultipleErrors()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -173,15 +167,13 @@ public sealed class AdvancedErrorTests : TestBase
         );
 
         // Multiple errors should be handled gracefully (second error ignored)
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorWithUndefinedReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -194,15 +186,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorWithNullReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -215,15 +205,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorWithPrimitiveReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -236,15 +224,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorWithObjectReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -257,15 +243,13 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldPropagateErrorToWriterPromises()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -282,7 +266,7 @@ public sealed class AdvancedErrorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("ready instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closed instanceof Promise").AsBoolean());
     }
 }

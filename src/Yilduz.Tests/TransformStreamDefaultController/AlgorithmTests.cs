@@ -9,7 +9,7 @@ public sealed class AlgorithmTests : TestBase
     [Fact]
     public void ShouldEnqueueChunksCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -21,17 +21,17 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Should not throw when enqueueing
-        Engine.Execute("controller.enqueue('test');");
-        Engine.Execute("controller.enqueue(42);");
-        Engine.Execute("controller.enqueue({ key: 'value' });");
+        Execute("controller.enqueue('test');");
+        Execute("controller.enqueue(42);");
+        Execute("controller.enqueue({ key: 'value' });");
 
-        Assert.True(Engine.Evaluate("true").AsBoolean()); // Basic execution test
+        Assert.True(Evaluate("true").AsBoolean()); // Basic execution test
     }
 
     [Fact]
     public void ShouldCalculateDesiredSizeCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -42,18 +42,18 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        var initialDesiredSize = Engine.Evaluate("controller.desiredSize");
+        var initialDesiredSize = Evaluate("controller.desiredSize");
         Assert.Equal(3, initialDesiredSize.AsNumber()); // Should start with highWaterMark
 
-        Engine.Execute("controller.enqueue('test');");
-        var afterEnqueue = Engine.Evaluate("controller.desiredSize");
+        Execute("controller.enqueue('test');");
+        var afterEnqueue = Evaluate("controller.desiredSize");
         Assert.Equal(2, afterEnqueue.AsNumber()); // Should decrease by 1
     }
 
     [Fact]
     public void ShouldHandleCustomSizeFunction()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -67,22 +67,22 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        var initialDesiredSize = Engine.Evaluate("controller.desiredSize");
+        var initialDesiredSize = Evaluate("controller.desiredSize");
         Assert.Equal(10, initialDesiredSize.AsNumber());
 
-        Engine.Execute("controller.enqueue('hello');"); // Should reduce by 5
-        var afterStringEnqueue = Engine.Evaluate("controller.desiredSize");
+        Execute("controller.enqueue('hello');"); // Should reduce by 5
+        var afterStringEnqueue = Evaluate("controller.desiredSize");
         Assert.Equal(5, afterStringEnqueue.AsNumber());
 
-        Engine.Execute("controller.enqueue(42);"); // Should reduce by 1
-        var afterNumberEnqueue = Engine.Evaluate("controller.desiredSize");
+        Execute("controller.enqueue(42);"); // Should reduce by 1
+        var afterNumberEnqueue = Evaluate("controller.desiredSize");
         Assert.Equal(4, afterNumberEnqueue.AsNumber());
     }
 
     [Fact]
     public void ShouldErrorStreamCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -94,15 +94,15 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Should not throw when calling error
-        Engine.Execute("controller.error(new Error('Test error'));");
+        Execute("controller.error(new Error('Test error'));");
 
-        Assert.True(Engine.Evaluate("true").AsBoolean()); // Basic execution test
+        Assert.True(Evaluate("true").AsBoolean()); // Basic execution test
     }
 
     [Fact]
     public void ShouldTerminateStreamCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -114,15 +114,15 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Should not throw when calling terminate
-        Engine.Execute("controller.terminate();");
+        Execute("controller.terminate();");
 
-        Assert.True(Engine.Evaluate("true").AsBoolean()); // Basic execution test
+        Assert.True(Evaluate("true").AsBoolean()); // Basic execution test
     }
 
     [Fact]
     public void ShouldHandleEnqueueAfterTerminate()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -136,13 +136,13 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Enqueueing after terminate should throw
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("controller.enqueue('test');"));
+        Assert.Throws<JavaScriptException>(() => Execute("controller.enqueue('test');"));
     }
 
     [Fact]
     public void ShouldHandleEnqueueAfterError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -156,13 +156,13 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Enqueueing after error should throw
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("controller.enqueue('test');"));
+        Assert.Throws<JavaScriptException>(() => Execute("controller.enqueue('test');"));
     }
 
     [Fact]
     public void ShouldHandleMultipleErrors()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -176,15 +176,15 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Second error call should be ignored (not throw)
-        Engine.Execute("controller.error(new Error('Second error'));");
+        Execute("controller.error(new Error('Second error'));");
 
-        Assert.True(Engine.Evaluate("true").AsBoolean()); // Should not throw
+        Assert.True(Evaluate("true").AsBoolean()); // Should not throw
     }
 
     [Fact]
     public void ShouldHandleMultipleTerminates()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -198,15 +198,15 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Second terminate call should be ignored (not throw)
-        Engine.Execute("controller.terminate();");
+        Execute("controller.terminate();");
 
-        Assert.True(Engine.Evaluate("true").AsBoolean()); // Should not throw
+        Assert.True(Evaluate("true").AsBoolean()); // Should not throw
     }
 
     [Fact]
     public void ShouldWorkInFlushMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let flushCalled = false;
             const stream = new TransformStream({
@@ -225,6 +225,6 @@ public sealed class AlgorithmTests : TestBase
         );
 
         // Note: flush is called asynchronously
-        Assert.True(Engine.Evaluate("typeof flushCalled !== 'undefined'").AsBoolean());
+        Assert.True(Evaluate("typeof flushCalled !== 'undefined'").AsBoolean());
     }
 }

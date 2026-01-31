@@ -9,49 +9,49 @@ public sealed class PropertiesTests : TestBase
     [Fact]
     public void ShouldHaveClosedProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("'closed' in writer").AsBoolean());
-        Assert.True(Engine.Evaluate("writer.closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("'closed' in writer").AsBoolean());
+        Assert.True(Evaluate("writer.closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveDesiredSizeProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("'desiredSize' in writer").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof writer.desiredSize === 'number'").AsBoolean());
+        Assert.True(Evaluate("'desiredSize' in writer").AsBoolean());
+        Assert.True(Evaluate("typeof writer.desiredSize === 'number'").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveReadyProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("'ready' in writer").AsBoolean());
-        Assert.True(Engine.Evaluate("writer.ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("'ready' in writer").AsBoolean());
+        Assert.True(Evaluate("writer.ready instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldResolveReadyPromiseInitially()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -61,27 +61,27 @@ public sealed class PropertiesTests : TestBase
         );
 
         // In a properly implemented stream, ready should be resolved initially
-        Assert.True(Engine.Evaluate("readyResolved").AsBoolean());
+        Assert.True(Evaluate("readyResolved").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectDesiredSizeWhenWritable()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        var desiredSize = Engine.Evaluate("writer.desiredSize").AsNumber();
+        var desiredSize = Evaluate("writer.desiredSize").AsNumber();
         Assert.True(desiredSize >= 0);
     }
 
     [Fact]
     public void ShouldHaveNullDesiredSizeWhenErrored()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 start(controller) {
@@ -91,7 +91,7 @@ public sealed class PropertiesTests : TestBase
             """
         );
 
-        Engine.Execute(
+        Execute(
             """
             let writer;
             try {
@@ -103,24 +103,24 @@ public sealed class PropertiesTests : TestBase
         );
 
         // If we managed to get a writer from errored stream, desiredSize should be null
-        if (!Engine.Evaluate("typeof writer === 'undefined'").AsBoolean())
+        if (!Evaluate("typeof writer === 'undefined'").AsBoolean())
         {
-            Assert.True(Engine.Evaluate("writer.desiredSize === null").AsBoolean());
+            Assert.True(Evaluate("writer.desiredSize === null").AsBoolean());
         }
     }
 
     [Fact]
     public void ShouldHaveZeroDesiredSizeWhenClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Engine.Evaluate("writer.close()").UnwrapIfPromise();
+        Evaluate("writer.close()").UnwrapIfPromise();
 
-        Assert.Equal(0, Engine.Evaluate("writer.desiredSize"));
+        Assert.Equal(0, Evaluate("writer.desiredSize"));
     }
 }

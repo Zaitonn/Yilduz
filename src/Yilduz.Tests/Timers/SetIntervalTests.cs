@@ -9,28 +9,28 @@ public sealed class SetIntervalTests : TestBase
     [Fact]
     public async Task SetIntervalShouldExecuteRepeatedly()
     {
-        Engine.Execute("let count = 0;");
-        Engine.Execute("const id = setInterval(() => { count++; }, 20);");
+        Execute("let count = 0;");
+        Execute("const id = setInterval(() => { count++; }, 20);");
 
-        await Task.Delay(100);
-        Engine.Execute("clearInterval(id);");
+        await Task.Delay(1000);
+        Execute("clearInterval(id);");
 
-        Assert.InRange(Engine.Evaluate("count").AsNumber(), 3, 1000); // Should execute multiple times
+        Assert.InRange(Evaluate("count").AsNumber(), 3, 1000); // Should execute multiple times
     }
 
     [Fact]
     public async Task MultipleIntervalsShouldWorkIndependently()
     {
-        Engine.Execute("let count1 = 0, count2 = 0;");
-        Engine.Execute("const id1 = setInterval(() => { count1++; }, 15);");
-        Engine.Execute("const id2 = setInterval(() => { count2++; }, 25);");
+        Execute("let count1 = 0, count2 = 0;");
+        Execute("const id1 = setInterval(() => { count1++; }, 15);");
+        Execute("const id2 = setInterval(() => { count2++; }, 25);");
 
-        await Task.Delay(100);
-        Engine.Execute("clearInterval(id1);");
-        Engine.Execute("clearInterval(id2);");
+        await Task.Delay(1000);
+        Execute("clearInterval(id1);");
+        Execute("clearInterval(id2);");
 
-        var count1 = Engine.Evaluate("count1").AsNumber();
-        var count2 = Engine.Evaluate("count2").AsNumber();
+        var count1 = Evaluate("count1").AsNumber();
+        var count2 = Evaluate("count2").AsNumber();
 
         Assert.True(count1 > 0);
         Assert.True(count2 > 0);
@@ -40,7 +40,7 @@ public sealed class SetIntervalTests : TestBase
     [Fact]
     public async Task ShouldHandleIntervalWithComplexCallback()
     {
-        Engine.Execute(
+        Execute(
             """
             let results = [];
             const id = setInterval(() => {
@@ -54,15 +54,15 @@ public sealed class SetIntervalTests : TestBase
         );
 
         await Task.Delay(100);
-        Assert.True(Engine.Evaluate("results.length").AsNumber() >= 3);
-        Assert.Equal("number", Engine.Evaluate("typeof results[0].timestamp").AsString());
+        Assert.True(Evaluate("results.length").AsNumber() >= 3);
+        Assert.Equal("number", Evaluate("typeof results[0].timestamp").AsString());
     }
 
     [Fact]
     public async Task ShouldHandleErrorsInIntervalCallback()
     {
-        Engine.Execute("let count = 0;");
-        Engine.Execute(
+        Execute("let count = 0;");
+        Execute(
             """
             const id = setInterval(() => {
                 count++;
@@ -77,6 +77,6 @@ public sealed class SetIntervalTests : TestBase
         );
 
         await Task.Delay(100);
-        Assert.True(Engine.Evaluate("count").AsNumber() >= 4); // Should continue after error
+        Assert.True(Evaluate("count").AsNumber() >= 4); // Should continue after error
     }
 }

@@ -8,21 +8,21 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateTextEncoderWithoutArguments()
     {
-        Engine.Execute("const encoder = new TextEncoder();");
-        Assert.Equal("TextEncoder", Engine.Evaluate("encoder.constructor.name").AsString());
+        Execute("const encoder = new TextEncoder();");
+        Assert.Equal("TextEncoder", Evaluate("encoder.constructor.name").AsString());
     }
 
     [Fact]
     public void ShouldHaveCorrectEncoding()
     {
-        Engine.Execute("const encoder = new TextEncoder();");
-        Assert.Equal("utf-8", Engine.Evaluate("encoder.encoding").AsString());
+        Execute("const encoder = new TextEncoder();");
+        Assert.Equal("utf-8", Evaluate("encoder.encoding").AsString());
     }
 
     [Fact]
     public void ShouldEncodeString()
     {
-        Engine.Execute(
+        Execute(
             """
             const encoder = new TextEncoder();
             const result = encoder.encode('Hello');
@@ -30,7 +30,7 @@ public sealed class ConstructorTests : TestBase
         );
 
         // 'Hello' in UTF-8: [72, 101, 108, 108, 111]
-        var result = Engine.Evaluate("Array.from(result)");
+        var result = Evaluate("Array.from(result)");
         var array = result.AsArray();
 
         Assert.Equal<uint>(5, array.Length);
@@ -44,21 +44,21 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldEncodeEmptyString()
     {
-        Engine.Execute(
+        Execute(
             """
             const encoder = new TextEncoder();
             const result = encoder.encode('');
             """
         );
 
-        var result = Engine.Evaluate("result.length");
+        var result = Evaluate("result.length");
         Assert.Equal(0, result.AsNumber());
     }
 
     [Fact]
     public void ShouldEncodeUnicodeString()
     {
-        Engine.Execute(
+        Execute(
             """
             const encoder = new TextEncoder();
             const result = encoder.encode('€');
@@ -66,7 +66,7 @@ public sealed class ConstructorTests : TestBase
         );
 
         // '€' in UTF-8: [226, 130, 172]
-        var result = Engine.Evaluate("Array.from(result)");
+        var result = Evaluate("Array.from(result)");
         var array = result.AsArray();
 
         Assert.Equal<uint>(3, array.Length);

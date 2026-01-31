@@ -58,6 +58,7 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ReadableStream
     /// </summary>
     public JsValue Read()
     {
+        // If this.[[stream]] is undefined, return a promise rejected with a TypeError exception.
         if (Stream == null)
         {
             return PromiseHelper
@@ -81,11 +82,14 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ReadableStream
             return PromiseHelper.CreateRejectedPromise(Engine, Stream.StoredError).Promise;
         }
 
+        // Let promise be a new promise.
         var promise = Engine.Advanced.RegisterPromise();
 
+        // Let readRequest be a new read request with the following items:
         var readRequest = new ReadRequest(
             ChunkSteps: (chunk) =>
             {
+                // Resolve promise with «[ "value" → chunk, "done" → false ]».
                 var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
                 result.Set("value", chunk);
                 result.Set("done", JsBoolean.False);
@@ -93,17 +97,20 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ReadableStream
             },
             CloseSteps: (_) =>
             {
+                // Resolve promise with «[ "value" → undefined, "done" → true ]».
                 var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
                 result.Set("value", Undefined);
                 result.Set("done", JsBoolean.True);
                 promise.Resolve(result);
             },
-            ErrorSteps: (error) => promise.Reject(error)
+            // Reject promise with e.
+            ErrorSteps: (e) => promise.Reject(e)
         );
 
-        ReadRequests.Add(readRequest);
-        Stream.Controller?.CallPullIfNeeded();
+        // Perform ! ReadableStreamDefaultReaderRead(this, readRequest).
+        ReadInternal(readRequest);
 
+        // Return promise.
         return promise.Promise;
     }
 

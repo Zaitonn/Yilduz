@@ -9,7 +9,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldWorkWithBasicWriteAndCloseFlow()
     {
-        Engine.Execute(
+        Execute(
             """
             const writtenChunks = [];
             let closeCalled = false;
@@ -30,16 +30,16 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(2, Engine.Evaluate("writtenChunks.length").AsNumber());
-        Assert.Equal("chunk1", Engine.Evaluate("writtenChunks[0]").AsString());
-        Assert.Equal("chunk2", Engine.Evaluate("writtenChunks[1]").AsString());
-        Assert.True(Engine.Evaluate("closeCalled").AsBoolean());
+        Assert.Equal(2, Evaluate("writtenChunks.length").AsNumber());
+        Assert.Equal("chunk1", Evaluate("writtenChunks[0]").AsString());
+        Assert.Equal("chunk2", Evaluate("writtenChunks[1]").AsString());
+        Assert.True(Evaluate("closeCalled").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithAsyncWriteOperations()
     {
-        Engine.Execute(
+        Execute(
             """
             const writtenChunks = [];
             const writePromises = [];
@@ -72,14 +72,14 @@ public sealed class IntegrationTests : TestBase
             )
             .UnwrapIfPromise();
 
-        Assert.True(Engine.Evaluate("allWritesComplete").AsBoolean());
-        Assert.Equal(2, Engine.Evaluate("writtenChunks.length").AsNumber());
+        Assert.True(Evaluate("allWritesComplete").AsBoolean());
+        Assert.Equal(2, Evaluate("writtenChunks.length").AsNumber());
     }
 
     [Fact]
     public async Task ShouldHandleErrorsDuringWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeError = undefined;
 
@@ -102,13 +102,13 @@ public sealed class IntegrationTests : TestBase
 
         await Task.Delay(500);
 
-        Assert.Equal("Write failed", Engine.Evaluate("writeError"));
+        Assert.Equal("Write failed", Evaluate("writeError"));
     }
 
     [Fact]
     public void ShouldMaintainWriteOrder()
     {
-        Engine.Execute(
+        Execute(
             """
             const writtenChunks = [];
 
@@ -146,15 +146,15 @@ public sealed class IntegrationTests : TestBase
             .UnwrapIfPromise();
 
         // Chunks should be written in order despite random delays
-        Assert.Equal(5, Engine.Evaluate("writtenChunks.length").AsNumber());
+        Assert.Equal(5, Evaluate("writtenChunks.length").AsNumber());
         Assert.Equal(
             ("chunk1", "chunk2", "chunk3", "chunk4", "chunk5"),
             (
-                Engine.Evaluate("writtenChunks[0]").AsString(),
-                Engine.Evaluate("writtenChunks[1]").AsString(),
-                Engine.Evaluate("writtenChunks[2]").AsString(),
-                Engine.Evaluate("writtenChunks[3]").AsString(),
-                Engine.Evaluate("writtenChunks[4]").AsString()
+                Evaluate("writtenChunks[0]").AsString(),
+                Evaluate("writtenChunks[1]").AsString(),
+                Evaluate("writtenChunks[2]").AsString(),
+                Evaluate("writtenChunks[3]").AsString(),
+                Evaluate("writtenChunks[4]").AsString()
             )
         );
     }
@@ -162,7 +162,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldWorkWithTransformStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const transformedChunks = [];
 
@@ -186,17 +186,17 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Engine.Evaluate("Promise.all([p1, p2, writer.close()])").UnwrapIfPromise();
+        Evaluate("Promise.all([p1, p2, writer.close()])").UnwrapIfPromise();
 
-        Assert.Equal(2, Engine.Evaluate("transformedChunks.length").AsNumber());
-        Assert.Equal("HELLO", Engine.Evaluate("transformedChunks[0]").AsString());
-        Assert.Equal("WORLD", Engine.Evaluate("transformedChunks[1]").AsString());
+        Assert.Equal(2, Evaluate("transformedChunks.length").AsNumber());
+        Assert.Equal("HELLO", Evaluate("transformedChunks[0]").AsString());
+        Assert.Equal("WORLD", Evaluate("transformedChunks[1]").AsString());
     }
 
     [Fact]
     public async Task ShouldHandleBackpressureWithMultipleWriters()
     {
-        Engine.Execute(
+        Execute(
             """
             let slowWriteResolve = null;
             const stream = new WritableStream({
@@ -226,9 +226,9 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Writer2's ready promise should be pending due to backpressure
-        Assert.False(Engine.Evaluate("writer2ReadyResolved").AsBoolean());
+        Assert.False(Evaluate("writer2ReadyResolved").AsBoolean());
 
-        Engine.Execute(
+        Execute(
             """
             // Resolve the slow write to relieve backpressure
             if (slowWriteResolve) {
@@ -240,6 +240,6 @@ public sealed class IntegrationTests : TestBase
         await Task.Delay(100);
 
         // Now writer2's ready promise should resolve
-        Assert.True(Engine.Evaluate("writer2ReadyResolved").AsBoolean());
+        Assert.True(Evaluate("writer2ReadyResolved").AsBoolean());
     }
 }

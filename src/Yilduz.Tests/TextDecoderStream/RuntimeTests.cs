@@ -9,7 +9,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldDecodeByteChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextDecoderStream();
             const writer = stream.writable.getWriter();
@@ -25,14 +25,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("test()").UnwrapIfPromise();
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Evaluate("test()").UnwrapIfPromise();
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldRejectNonByteChunk()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextDecoderStream();
             const writer = stream.writable.getWriter();
@@ -56,7 +56,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldFlushOnCloseAndComplete()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextDecoderStream();
             const writer = stream.writable.getWriter();
@@ -76,15 +76,15 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("test()").UnwrapIfPromise();
-        Assert.Equal("A", Engine.Evaluate("result").AsString());
-        Assert.True(Engine.Evaluate("doneFlag").AsBoolean());
+        Evaluate("test()").UnwrapIfPromise();
+        Assert.Equal("A", Evaluate("result").AsString());
+        Assert.True(Evaluate("doneFlag").AsBoolean());
     }
 
     [Fact]
     public void ShouldRemoveBomByDefault()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextDecoderStream();
             const writer = stream.writable.getWriter();
@@ -100,14 +100,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("test()").UnwrapIfPromise();
-        Assert.Equal("A", Engine.Evaluate("result").AsString());
+        Evaluate("test()").UnwrapIfPromise();
+        Assert.Equal("A", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldPreserveBomWhenIgnoreBomTrue()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextDecoderStream('utf-8', { ignoreBOM: true });
             const writer = stream.writable.getWriter();
@@ -123,7 +123,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("test()").UnwrapIfPromise();
-        Assert.Equal("\uFEFFA", Engine.Evaluate("result").AsString());
+        Evaluate("test()").UnwrapIfPromise();
+        Assert.Equal("\uFEFFA", Evaluate("result").AsString());
     }
 }

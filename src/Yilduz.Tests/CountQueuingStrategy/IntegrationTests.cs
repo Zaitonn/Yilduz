@@ -8,7 +8,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldWorkWithReadableStreamAndBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 3 });
             let pullCount = 0;
@@ -25,13 +25,13 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Should pull initially to fill the queue
-        Assert.True(Engine.Evaluate("pullCount > 0").AsBoolean());
+        Assert.True(Evaluate("pullCount > 0").AsBoolean());
     }
 
     [Fact]
     public void ShouldCalculateCorrectDesiredSizeInReadableStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 4 });
             let desiredSizes = [];
@@ -49,16 +49,16 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(4, Engine.Evaluate("desiredSizes[0]").AsNumber()); // Initial
-        Assert.Equal(3, Engine.Evaluate("desiredSizes[1]").AsNumber()); // After 1 chunk
-        Assert.Equal(2, Engine.Evaluate("desiredSizes[2]").AsNumber()); // After 2 chunks
-        Assert.Equal(1, Engine.Evaluate("desiredSizes[3]").AsNumber()); // After 3 chunks
+        Assert.Equal(4, Evaluate("desiredSizes[0]").AsNumber()); // Initial
+        Assert.Equal(3, Evaluate("desiredSizes[1]").AsNumber()); // After 1 chunk
+        Assert.Equal(2, Evaluate("desiredSizes[2]").AsNumber()); // After 2 chunks
+        Assert.Equal(1, Evaluate("desiredSizes[3]").AsNumber()); // After 3 chunks
     }
 
     [Fact]
     public void ShouldWorkWithWritableStreamBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 2 });
             let writeCount = 0;
@@ -73,13 +73,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal("WritableStreamDefaultWriter", Engine.Evaluate("writer.constructor.name"));
+        Assert.Equal("WritableStreamDefaultWriter", Evaluate("writer.constructor.name"));
     }
 
     [Fact]
     public void ShouldHandleDifferentChunkTypes()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 5 });
             let desiredSizes = [];
@@ -99,17 +99,17 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(5, Engine.Evaluate("desiredSizes[0]").AsNumber()); // Initial
-        Assert.Equal(4, Engine.Evaluate("desiredSizes[1]").AsNumber()); // After string
-        Assert.Equal(3, Engine.Evaluate("desiredSizes[2]").AsNumber()); // After number
-        Assert.Equal(2, Engine.Evaluate("desiredSizes[3]").AsNumber()); // After object
-        Assert.Equal(1, Engine.Evaluate("desiredSizes[4]").AsNumber()); // After ArrayBuffer
+        Assert.Equal(5, Evaluate("desiredSizes[0]").AsNumber()); // Initial
+        Assert.Equal(4, Evaluate("desiredSizes[1]").AsNumber()); // After string
+        Assert.Equal(3, Evaluate("desiredSizes[2]").AsNumber()); // After number
+        Assert.Equal(2, Evaluate("desiredSizes[3]").AsNumber()); // After object
+        Assert.Equal(1, Evaluate("desiredSizes[4]").AsNumber()); // After ArrayBuffer
     }
 
     [Fact]
     public void ShouldWorkWithTransformStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 10 });
             const transform = new TransformStream({
@@ -127,13 +127,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("transform.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("transform.constructor.name"));
     }
 
     [Fact]
     public void ShouldRespectHighWaterMarkAcrossStreamPipeline()
     {
-        Engine.Execute(
+        Execute(
             """
             const readStrategy = new CountQueuingStrategy({ highWaterMark: 6 });
             const writeStrategy = new CountQueuingStrategy({ highWaterMark: 3 });
@@ -157,13 +157,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithHighFrequencyEnqueueing()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 1000 });
             let enqueuedCount = 0;
@@ -179,13 +179,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(500, Engine.Evaluate("enqueuedCount").AsNumber());
+        Assert.Equal(500, Evaluate("enqueuedCount").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleZeroHighWaterMark()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 0 });
             let desiredSize;
@@ -198,6 +198,6 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("desiredSize").AsNumber());
+        Assert.Equal(0, Evaluate("desiredSize").AsNumber());
     }
 }

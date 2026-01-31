@@ -9,19 +9,19 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateProgressEventWithTypeOnly()
     {
-        Engine.Execute("const event = new ProgressEvent('progress');");
+        Execute("const event = new ProgressEvent('progress');");
 
-        Assert.Equal("ProgressEvent", Engine.Evaluate("event.constructor.name").AsString());
-        Assert.Equal("progress", Engine.Evaluate("event.type").AsString());
-        Assert.False(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(0, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("event.total").AsNumber());
+        Assert.Equal("ProgressEvent", Evaluate("event.constructor.name").AsString());
+        Assert.Equal("progress", Evaluate("event.type").AsString());
+        Assert.False(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(0, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(0, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateProgressEventWithOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('progress', {
                 lengthComputable: true,
@@ -31,37 +31,37 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.Equal("progress", Engine.Evaluate("event.type").AsString());
-        Assert.True(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(50, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(100, Engine.Evaluate("event.total").AsNumber());
+        Assert.Equal("progress", Evaluate("event.type").AsString());
+        Assert.True(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(50, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(100, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldInheritFromEvent()
     {
-        Engine.Execute("const event = new ProgressEvent('test');");
+        Execute("const event = new ProgressEvent('test');");
 
-        Assert.True(Engine.Evaluate("event instanceof ProgressEvent").AsBoolean());
-        Assert.True(Engine.Evaluate("event instanceof Event").AsBoolean());
-        Assert.True(Engine.Evaluate("event instanceof Object").AsBoolean());
+        Assert.True(Evaluate("event instanceof ProgressEvent").AsBoolean());
+        Assert.True(Evaluate("event instanceof Event").AsBoolean());
+        Assert.True(Evaluate("event instanceof Object").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectStringTag()
     {
-        Engine.Execute("const event = new ProgressEvent('test');");
+        Execute("const event = new ProgressEvent('test');");
 
         Assert.Equal(
             "[object ProgressEvent]",
-            Engine.Evaluate("Object.prototype.toString.call(event)").AsString()
+            Evaluate("Object.prototype.toString.call(event)").AsString()
         );
     }
 
     [Fact]
     public void ShouldHandleEventInitOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('custom', {
                 bubbles: true,
@@ -73,19 +73,19 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.Equal("custom", Engine.Evaluate("event.type").AsString());
-        Assert.True(Engine.Evaluate("event.bubbles").AsBoolean());
-        Assert.True(Engine.Evaluate("event.cancelable").AsBoolean());
+        Assert.Equal("custom", Evaluate("event.type").AsString());
+        Assert.True(Evaluate("event.bubbles").AsBoolean());
+        Assert.True(Evaluate("event.cancelable").AsBoolean());
 
-        Assert.True(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(75, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(150, Engine.Evaluate("event.total").AsNumber());
+        Assert.True(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(75, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(150, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldHandlePartialOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('loadstart', {
                 lengthComputable: true,
@@ -94,25 +94,25 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(25, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("event.total").AsNumber());
+        Assert.True(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(25, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(0, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleNonObjectOptions()
     {
-        Engine.Execute("const event = new ProgressEvent('load', null);");
+        Execute("const event = new ProgressEvent('load', null);");
 
-        Assert.False(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(0, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("event.total").AsNumber());
+        Assert.False(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(0, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(0, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleInvalidNumberValues()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('progress', {
                 lengthComputable: true,
@@ -122,15 +122,15 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(0, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("event.total").AsNumber());
+        Assert.True(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(0, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(0, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleLargeNumbers()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('progress', {
                 lengthComputable: true,
@@ -140,15 +140,15 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(9007199254740991, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(9007199254740991, Engine.Evaluate("event.total").AsNumber());
+        Assert.True(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(9007199254740991, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(9007199254740991, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleZeroValues()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('loadend', {
                 lengthComputable: false,
@@ -158,15 +158,15 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(0, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("event.total").AsNumber());
+        Assert.False(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(0, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(0, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldThrowWithoutRequiredType()
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("new ProgressEvent();"));
+        Assert.Throws<JavaScriptException>(() => Execute("new ProgressEvent();"));
     }
 
     [Fact]
@@ -176,15 +176,15 @@ public sealed class ConstructorTests : TestBase
 
         foreach (var eventType in eventTypes)
         {
-            Engine.Execute($"const event_{eventType} = new ProgressEvent('{eventType}');");
-            Assert.Equal(eventType, Engine.Evaluate($"event_{eventType}.type").AsString());
+            Execute($"const event_{eventType} = new ProgressEvent('{eventType}');");
+            Assert.Equal(eventType, Evaluate($"event_{eventType}.type").AsString());
         }
     }
 
     [Fact]
     public void ShouldHaveReadOnlyProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('progress', {
                 lengthComputable: true,
@@ -199,16 +199,16 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.Equal("progress", Engine.Evaluate("event.type").AsString());
-        Assert.True(Engine.Evaluate("event.lengthComputable").AsBoolean());
-        Assert.Equal(50, Engine.Evaluate("event.loaded").AsNumber());
-        Assert.Equal(100, Engine.Evaluate("event.total").AsNumber());
+        Assert.Equal("progress", Evaluate("event.type").AsString());
+        Assert.True(Evaluate("event.lengthComputable").AsBoolean());
+        Assert.Equal(50, Evaluate("event.loaded").AsNumber());
+        Assert.Equal(100, Evaluate("event.total").AsNumber());
     }
 
     [Fact]
     public void ShouldSupportEventPreventDefault()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new ProgressEvent('progress', {
                 cancelable: true,
@@ -219,17 +219,17 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("event.defaultPrevented").AsBoolean());
+        Assert.False(Evaluate("event.defaultPrevented").AsBoolean());
 
-        Engine.Execute("event.preventDefault();");
+        Execute("event.preventDefault();");
 
-        Assert.True(Engine.Evaluate("event.defaultPrevented").AsBoolean());
+        Assert.True(Evaluate("event.defaultPrevented").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithEventTarget()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let capturedEvent = null;
@@ -248,10 +248,10 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("capturedEvent !== null").AsBoolean());
-        Assert.Equal("progress", Engine.Evaluate("capturedEvent.type").AsString());
-        Assert.True(Engine.Evaluate("capturedEvent.lengthComputable").AsBoolean());
-        Assert.Equal(75, Engine.Evaluate("capturedEvent.loaded").AsNumber());
-        Assert.Equal(100, Engine.Evaluate("capturedEvent.total").AsNumber());
+        Assert.True(Evaluate("capturedEvent !== null").AsBoolean());
+        Assert.Equal("progress", Evaluate("capturedEvent.type").AsString());
+        Assert.True(Evaluate("capturedEvent.lengthComputable").AsBoolean());
+        Assert.Equal(75, Evaluate("capturedEvent.loaded").AsNumber());
+        Assert.Equal(100, Evaluate("capturedEvent.total").AsNumber());
     }
 }

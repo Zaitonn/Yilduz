@@ -23,7 +23,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("stopImmediatePropagation")]
     public void ShouldHaveCorrectPrototype(string property)
     {
-        Assert.True(Engine.Evaluate($"Event.prototype.hasOwnProperty('{property}')").AsBoolean());
+        Assert.True(Evaluate($"Event.prototype.hasOwnProperty('{property}')").AsBoolean());
     }
 
     [Theory]
@@ -43,6 +43,6 @@ public sealed class PrototypeTests : TestBase
     [InlineData("Event.prototype.stopImmediatePropagation()")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 }

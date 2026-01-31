@@ -9,7 +9,7 @@ public sealed class AlgorithmTests : TestBase
     [Fact]
     public void ShouldCallStartAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let startCalled = false;
             let controller = null;
@@ -23,16 +23,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("startCalled").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("startCalled").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldCallWriteAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeCalled = false;
             let writtenChunk = null;
@@ -53,16 +51,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
         // Note: In a full implementation, we would verify writeCalled and writtenChunk
     }
 
     [Fact]
     public void ShouldCallCloseAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeCalled = false;
             let controller = null;
@@ -81,16 +77,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
         // Note: In a full implementation, we would verify closeCalled
     }
 
     [Fact]
     public void ShouldCallAbortAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortCalled = false;
             let abortReason = null;
@@ -111,16 +105,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
         // Note: In a full implementation, we would verify abortCalled and abortReason
     }
 
     [Fact]
     public void ShouldHandleAsyncStartAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let startResolved = false;
             let controller = null;
@@ -138,15 +130,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleAsyncWriteAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -165,16 +155,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleAsyncCloseAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -193,16 +181,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleAsyncAbortAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -221,16 +207,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(Evaluate("abortPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteAlgorithmError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -247,16 +231,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleCloseAlgorithmError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -273,16 +255,14 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleAbortAlgorithmError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -299,9 +279,7 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
+        Assert.True(Evaluate("abortPromise instanceof Promise").AsBoolean());
     }
 }

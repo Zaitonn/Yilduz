@@ -10,10 +10,10 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void AppendShouldWork()
     {
-        Engine.Execute("const formData = new FormData();");
-        Engine.Execute("formData.append('key', 'value');");
-        var hasKey = Engine.Evaluate("formData.has('key')").AsBoolean();
-        var getValue = Engine.Evaluate("formData.get('key')").AsString();
+        Execute("const formData = new FormData();");
+        Execute("formData.append('key', 'value');");
+        var hasKey = Evaluate("formData.has('key')").AsBoolean();
+        var getValue = Evaluate("formData.get('key')").AsString();
 
         Assert.True(hasKey);
         Assert.Equal("value", getValue);
@@ -22,13 +22,13 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void SetShouldWork()
     {
-        Engine.Execute("const formData = new FormData();");
-        Engine.Execute("formData.append('key', 'value1');");
-        Engine.Execute("formData.append('key', 'value2');");
-        Engine.Execute("formData.set('key', 'newValue');");
+        Execute("const formData = new FormData();");
+        Execute("formData.append('key', 'value1');");
+        Execute("formData.append('key', 'value2');");
+        Execute("formData.set('key', 'newValue');");
 
-        var getValue = Engine.Evaluate("formData.get('key')").AsString();
-        var allValues = Engine.Evaluate("formData.getAll('key')");
+        var getValue = Evaluate("formData.get('key')").AsString();
+        var allValues = Evaluate("formData.getAll('key')");
 
         Assert.Equal("newValue", getValue);
         Assert.Single(allValues.AsArray());
@@ -37,10 +37,10 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void DeleteShouldWork()
     {
-        Engine.Execute("const formData = new FormData();");
-        Engine.Execute("formData.append('key', 'value');");
-        Engine.Execute("formData.delete('key');");
-        var hasKey = Engine.Evaluate("formData.has('key')").AsBoolean();
+        Execute("const formData = new FormData();");
+        Execute("formData.append('key', 'value');");
+        Execute("formData.delete('key');");
+        var hasKey = Evaluate("formData.has('key')").AsBoolean();
 
         Assert.False(hasKey);
     }
@@ -48,7 +48,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ForEachShouldWork()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key1', 'value1');
@@ -61,14 +61,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var results = Engine.Evaluate("results").AsArray();
+        var results = Evaluate("results").AsArray();
         Assert.Equal<uint>(2, results.Length);
     }
 
     [Fact]
     public void EntriesShouldWork()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key1', 'value1');
@@ -78,14 +78,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var entries = Engine.Evaluate("entries").AsArray();
+        var entries = Evaluate("entries").AsArray();
         Assert.Equal<uint>(2, entries.Length);
     }
 
     [Fact]
     public void KeysShouldWork()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key1', 'value1');
@@ -95,7 +95,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var keys = Engine.Evaluate("keys").AsArray();
+        var keys = Evaluate("keys").AsArray();
         Assert.Equal<uint>(2, keys.Length);
         Assert.Equal("key1", keys[0].AsString());
         Assert.Equal("key2", keys[1].AsString());
@@ -104,7 +104,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ValuesShouldWork()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key1', 'value1');
@@ -114,7 +114,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var values = Engine.Evaluate("values").AsArray();
+        var values = Evaluate("values").AsArray();
         Assert.Equal<uint>(2, values.Length);
         Assert.Equal("value1", values[0].AsString());
         Assert.Equal("value2", values[1].AsString());
@@ -123,7 +123,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void GetAllShouldReturnAllValuesForKey()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key', 'value1');
@@ -137,9 +137,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var allValues = Engine.Evaluate("allValues").AsArray();
-        var otherValues = Engine.Evaluate("otherValues").AsArray();
-        var nonExistentValues = Engine.Evaluate("nonExistentValues").AsArray();
+        var allValues = Evaluate("allValues").AsArray();
+        var otherValues = Evaluate("otherValues").AsArray();
+        var nonExistentValues = Evaluate("nonExistentValues").AsArray();
 
         Assert.Equal<uint>(3, allValues.Length);
         Assert.Equal("value1", allValues[0].AsString());
@@ -155,7 +155,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void GetShouldReturnFirstValueOrNull()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key', 'value1');
@@ -166,8 +166,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var firstValue = Engine.Evaluate("firstValue").AsString();
-        var nonExistentValue = Engine.Evaluate("nonExistentValue");
+        var firstValue = Evaluate("firstValue").AsString();
+        var nonExistentValue = Evaluate("nonExistentValue");
 
         Assert.Equal("value1", firstValue);
         Assert.True(nonExistentValue.IsNull());
@@ -176,7 +176,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void SetShouldReplaceAllExistingValues()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key', 'value1');
@@ -189,8 +189,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var beforeSet = Engine.Evaluate("beforeSet").AsArray();
-        var afterSet = Engine.Evaluate("afterSet").AsArray();
+        var beforeSet = Evaluate("beforeSet").AsArray();
+        var afterSet = Evaluate("afterSet").AsArray();
 
         Assert.Equal<uint>(3, beforeSet.Length);
         Assert.Single(afterSet);
@@ -200,7 +200,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void HasShouldReturnCorrectBoolean()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('existing', 'value');
@@ -210,8 +210,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var hasExisting = Engine.Evaluate("hasExisting").AsBoolean();
-        var hasNonExistent = Engine.Evaluate("hasNonExistent").AsBoolean();
+        var hasExisting = Evaluate("hasExisting").AsBoolean();
+        var hasNonExistent = Evaluate("hasNonExistent").AsBoolean();
 
         Assert.True(hasExisting);
         Assert.False(hasNonExistent);
@@ -220,7 +220,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void DeleteShouldRemoveAllValuesForKey()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key', 'value1');
@@ -234,9 +234,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var beforeDelete = Engine.Evaluate("beforeDelete").AsBoolean();
-        var afterDelete = Engine.Evaluate("afterDelete").AsBoolean();
-        var otherExists = Engine.Evaluate("otherExists").AsBoolean();
+        var beforeDelete = Evaluate("beforeDelete").AsBoolean();
+        var afterDelete = Evaluate("afterDelete").AsBoolean();
+        var otherExists = Evaluate("otherExists").AsBoolean();
 
         Assert.True(beforeDelete);
         Assert.False(afterDelete);
@@ -246,7 +246,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ForEachShouldPassCorrectParameters()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('name', 'John');
@@ -263,7 +263,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var results = Engine.Evaluate("results").AsArray();
+        var results = Evaluate("results").AsArray();
         Assert.Equal<uint>(2, results.Length);
 
         var firstResult = results[0].AsObject();
@@ -280,7 +280,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ForEachShouldSupportThisArg()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key', 'value');
@@ -294,14 +294,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var capturedThis = Engine.Evaluate("capturedThis").AsObject();
+        var capturedThis = Evaluate("capturedThis").AsObject();
         Assert.Equal("PREFIX: ", capturedThis.Get("prefix").AsString());
     }
 
     [Fact]
     public void IteratorsShouldWorkCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('name', 'John');
@@ -333,10 +333,10 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var entriesArray = Engine.Evaluate("entriesArray").AsArray();
-        var keysArray = Engine.Evaluate("keysArray").AsArray();
-        var valuesArray = Engine.Evaluate("valuesArray").AsArray();
-        var defaultArray = Engine.Evaluate("defaultArray").AsArray();
+        var entriesArray = Evaluate("entriesArray").AsArray();
+        var keysArray = Evaluate("keysArray").AsArray();
+        var valuesArray = Evaluate("valuesArray").AsArray();
+        var defaultArray = Evaluate("defaultArray").AsArray();
 
         Assert.Equal<uint>(2, entriesArray.Length);
         Assert.Equal<uint>(2, keysArray.Length);
@@ -365,7 +365,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleEmptyFormData()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
 
@@ -381,13 +381,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var hasAny = Engine.Evaluate("hasAny").AsBoolean();
-        var getValue = Engine.Evaluate("getValue");
-        var getAllValues = Engine.Evaluate("getAllValues").AsArray();
-        var keys = Engine.Evaluate("keys").AsArray();
-        var values = Engine.Evaluate("values").AsArray();
-        var entries = Engine.Evaluate("entries").AsArray();
-        var forEachCalled = Engine.Evaluate("forEachCalled").AsBoolean();
+        var hasAny = Evaluate("hasAny").AsBoolean();
+        var getValue = Evaluate("getValue");
+        var getAllValues = Evaluate("getAllValues").AsArray();
+        var keys = Evaluate("keys").AsArray();
+        var values = Evaluate("values").AsArray();
+        var entries = Evaluate("entries").AsArray();
+        var forEachCalled = Evaluate("forEachCalled").AsBoolean();
 
         Assert.False(hasAny);
         Assert.True(getValue.IsNull());
@@ -401,7 +401,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleSpecialCharacters()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('key with spaces', 'value with spaces');
@@ -416,10 +416,10 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var normalValue = Engine.Evaluate("normalValue").AsString();
-        var specialValue = Engine.Evaluate("specialValue").AsString();
-        var unicodeValue = Engine.Evaluate("unicodeValue").AsString();
-        var emptyValue = Engine.Evaluate("emptyValue").AsString();
+        var normalValue = Evaluate("normalValue").AsString();
+        var specialValue = Evaluate("specialValue").AsString();
+        var unicodeValue = Evaluate("unicodeValue").AsString();
+        var emptyValue = Evaluate("emptyValue").AsString();
 
         Assert.Equal("value with spaces", normalValue);
         Assert.Equal("value!@#$%^&*()", specialValue);
@@ -431,17 +431,17 @@ public sealed class RuntimeTests : TestBase
     public void ShouldThrowErrorForInvalidArguments()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("const formData = new FormData(); formData.append('key');")
+            () => Execute("const formData = new FormData(); formData.append('key');")
         );
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("const formData = new FormData(); formData.get();")
+            () => Execute("const formData = new FormData(); formData.get();")
         );
     }
 
     [Fact]
     public void ShouldMaintainInsertionOrder()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('third', '3');
@@ -454,8 +454,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var keys = Engine.Evaluate("keys").AsArray();
-        var values = Engine.Evaluate("values").AsArray();
+        var keys = Evaluate("keys").AsArray();
+        var values = Evaluate("values").AsArray();
 
         Assert.Equal<uint>(4, keys.Length);
         Assert.Equal("third", keys[0].AsString());
@@ -472,9 +472,9 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldCreateEmptyFormData()
     {
-        Engine.Execute("const formData = new FormData();");
+        Execute("const formData = new FormData();");
 
-        var formData = Engine.Evaluate("formData");
+        var formData = Evaluate("formData");
         Assert.NotNull(formData);
         Assert.False(formData.IsNull());
         Assert.False(formData.IsUndefined());
@@ -483,7 +483,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleTypeConversions()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('number', 42);
@@ -500,11 +500,11 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var numberValue = Engine.Evaluate("numberValue").AsString();
-        var booleanValue = Engine.Evaluate("booleanValue").AsString();
-        var nullValue = Engine.Evaluate("nullValue").AsString();
-        var undefinedValue = Engine.Evaluate("undefinedValue").AsString();
-        var objectValue = Engine.Evaluate("objectValue").AsString();
+        var numberValue = Evaluate("numberValue").AsString();
+        var booleanValue = Evaluate("booleanValue").AsString();
+        var nullValue = Evaluate("nullValue").AsString();
+        var undefinedValue = Evaluate("undefinedValue").AsString();
+        var objectValue = Evaluate("objectValue").AsString();
 
         Assert.Equal("42", numberValue);
         Assert.Equal("true", booleanValue);
@@ -516,7 +516,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleLargeDataSets()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
 
@@ -532,10 +532,10 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var firstValue = Engine.Evaluate("firstValue").AsString();
-        var lastValue = Engine.Evaluate("lastValue").AsString();
-        var middleValue = Engine.Evaluate("middleValue").AsString();
-        var allKeys = Engine.Evaluate("allKeys").AsArray();
+        var firstValue = Evaluate("firstValue").AsString();
+        var lastValue = Evaluate("lastValue").AsString();
+        var middleValue = Evaluate("middleValue").AsString();
+        var allKeys = Evaluate("allKeys").AsArray();
 
         Assert.Equal("value0", firstValue);
         Assert.Equal("value999", lastValue);
@@ -546,7 +546,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleMethodChaining()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
 
@@ -560,11 +560,11 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var appendResult = Engine.Evaluate("appendResult");
-        var setResult = Engine.Evaluate("setResult");
-        var deleteResult = Engine.Evaluate("deleteResult");
-        var hasKey1 = Engine.Evaluate("hasKey1").AsBoolean();
-        var hasKey2 = Engine.Evaluate("hasKey2").AsBoolean();
+        var appendResult = Evaluate("appendResult");
+        var setResult = Evaluate("setResult");
+        var deleteResult = Evaluate("deleteResult");
+        var hasKey1 = Evaluate("hasKey1").AsBoolean();
+        var hasKey2 = Evaluate("hasKey2").AsBoolean();
 
         Assert.True(appendResult.IsUndefined());
         Assert.True(setResult.IsUndefined());
@@ -576,7 +576,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleIteratorProtocol()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('a', '1');
@@ -598,13 +598,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var hasNextMethod = Engine.Evaluate("hasNextMethod").AsBoolean();
-        var hasIteratorSymbol = Engine.Evaluate("hasIteratorSymbol").AsBoolean();
-        var iteratorReturnsItself = Engine.Evaluate("iteratorReturnsItself").AsBoolean();
+        var hasNextMethod = Evaluate("hasNextMethod").AsBoolean();
+        var hasIteratorSymbol = Evaluate("hasIteratorSymbol").AsBoolean();
+        var iteratorReturnsItself = Evaluate("iteratorReturnsItself").AsBoolean();
 
-        var firstEntry = Engine.Evaluate("firstEntry").AsObject();
-        var secondEntry = Engine.Evaluate("secondEntry").AsObject();
-        var thirdEntry = Engine.Evaluate("thirdEntry").AsObject();
+        var firstEntry = Evaluate("firstEntry").AsObject();
+        var secondEntry = Evaluate("secondEntry").AsObject();
+        var thirdEntry = Evaluate("thirdEntry").AsObject();
 
         Assert.True(hasNextMethod);
         Assert.True(hasIteratorSymbol);
@@ -623,7 +623,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleConcurrentModification()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('a', '1');
@@ -648,8 +648,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var results = Engine.Evaluate("results").AsArray();
-        var count = Engine.Evaluate("count").AsNumber();
+        var results = Evaluate("results").AsArray();
+        var count = Evaluate("count").AsNumber();
 
         // Should still iterate over the original entries
         Assert.Equal<uint>(3, results.Length);
@@ -659,7 +659,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldWorkWithSpread()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
             formData.append('name', 'John');
@@ -671,9 +671,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var entriesArray = Engine.Evaluate("entriesArray").AsArray();
-        var keysArray = Engine.Evaluate("keysArray").AsArray();
-        var valuesArray = Engine.Evaluate("valuesArray").AsArray();
+        var entriesArray = Evaluate("entriesArray").AsArray();
+        var keysArray = Evaluate("keysArray").AsArray();
+        var valuesArray = Evaluate("valuesArray").AsArray();
 
         Assert.Equal<uint>(2, entriesArray.Length);
         Assert.Equal<uint>(2, keysArray.Length);
@@ -687,7 +687,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleExtremeCases()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData = new FormData();
 
@@ -707,8 +707,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var retrievedValue = Engine.Evaluate("retrievedValue").AsString();
-        var allDuplicates = Engine.Evaluate("allDuplicates").AsArray();
+        var retrievedValue = Evaluate("retrievedValue").AsString();
+        var allDuplicates = Evaluate("allDuplicates").AsArray();
 
         Assert.Equal(10000, retrievedValue.Length);
         Assert.True(retrievedValue.All(c => c == 'y'));
@@ -718,7 +718,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldMaintainReferenceIntegrity()
     {
-        Engine.Execute(
+        Execute(
             """
             const formData1 = new FormData();
             const formData2 = new FormData();
@@ -735,10 +735,10 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var value1 = Engine.Evaluate("value1").AsString();
-        var value2 = Engine.Evaluate("value2").AsString();
-        var has1 = Engine.Evaluate("has1").AsBoolean();
-        var has2 = Engine.Evaluate("has2").AsBoolean();
+        var value1 = Evaluate("value1").AsString();
+        var value2 = Evaluate("value2").AsString();
+        var has1 = Evaluate("has1").AsBoolean();
+        var has2 = Evaluate("has2").AsBoolean();
 
         Assert.Equal("value1", value1);
         Assert.Equal("value2", value2);

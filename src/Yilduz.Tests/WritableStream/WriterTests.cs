@@ -9,67 +9,63 @@ public sealed class WriterTests : TestBase
     [Fact]
     public void ShouldBeGlobalConstructor()
     {
-        Assert.True(
-            Engine.Evaluate("typeof WritableStreamDefaultWriter === 'function'").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("WritableStreamDefaultWriter.prototype").IsObject());
+        Assert.True(Evaluate("typeof WritableStreamDefaultWriter === 'function'").AsBoolean());
+        Assert.True(Evaluate("WritableStreamDefaultWriter.prototype").IsObject());
     }
 
     [Fact]
     public void ShouldCreateWriterFromStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreateWriterWithConstructor()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = new WritableStreamDefaultWriter(stream);
             """
         );
 
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
-        Assert.True(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructorCalledWithoutArguments()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter();")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("new WritableStreamDefaultWriter();"));
     }
 
     [Fact]
     public void ShouldThrowWhenConstructorCalledWithInvalidArgument()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter('not a stream');")
+            () => Execute("new WritableStreamDefaultWriter('not a stream');")
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.closed === 'object'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof writer.ready === 'object'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.closed === 'object'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.ready === 'object'").AsBoolean());
         Assert.True(
             Engine
                 .Evaluate("writer.desiredSize === null || typeof writer.desiredSize === 'number'")
@@ -80,23 +76,23 @@ public sealed class WriterTests : TestBase
     [Fact]
     public void ShouldHaveCorrectMethods()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.abort === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof writer.close === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof writer.releaseLock === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof writer.write === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.abort === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.close === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.releaseLock === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.write === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldWriteToStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -104,30 +100,30 @@ public sealed class WriterTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldReleaseLock()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.True(Evaluate("stream.locked").AsBoolean());
 
-        Engine.Execute("writer.releaseLock();");
+        Execute("writer.releaseLock();");
 
-        Assert.False(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.False(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldCloseWriter()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -135,13 +131,13 @@ public sealed class WriterTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldAbortWriter()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -149,13 +145,13 @@ public sealed class WriterTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("abortPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveToStringTag()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();

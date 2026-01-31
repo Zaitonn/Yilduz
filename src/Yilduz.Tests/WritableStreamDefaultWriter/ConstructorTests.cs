@@ -9,60 +9,56 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldBeGlobalConstructor()
     {
-        Assert.True(
-            Engine.Evaluate("typeof WritableStreamDefaultWriter === 'function'").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("WritableStreamDefaultWriter.prototype").IsObject());
+        Assert.True(Evaluate("typeof WritableStreamDefaultWriter === 'function'").AsBoolean());
+        Assert.True(Evaluate("WritableStreamDefaultWriter.prototype").IsObject());
     }
 
     [Fact]
     public void ShouldCreateWriterFromStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
-        Assert.True(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreateWriterWithConstructor()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = new WritableStreamDefaultWriter(stream);
             """
         );
 
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
-        Assert.True(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructorCalledWithoutArguments()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter();")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("new WritableStreamDefaultWriter();"));
     }
 
     [Fact]
     public void ShouldThrowWhenConstructorCalledWithInvalidArgument()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter('invalid');")
+            () => Execute("new WritableStreamDefaultWriter('invalid');")
         );
     }
 
     [Fact]
     public void ShouldThrowWhenStreamIsAlreadyLocked()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer1 = stream.getWriter();
@@ -70,24 +66,24 @@ public sealed class ConstructorTests : TestBase
         );
 
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter(stream);")
+            () => Execute("new WritableStreamDefaultWriter(stream);")
         );
     }
 
     [Fact]
     public void ShouldThrowWhenStreamIsClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Engine.Execute("writer.close();");
+        Execute("writer.close();");
 
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultWriter(stream);")
+            () => Execute("new WritableStreamDefaultWriter(stream);")
         );
     }
 }

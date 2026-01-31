@@ -8,7 +8,7 @@ public sealed class IntegrationTests : TestBase
     [Fact(Skip = "Async iteration is not implemented yet in Jint")]
     public void ShouldWorkWithAsyncIteration()
     {
-        Engine.Execute(
+        Execute(
             """
             async function testAsyncIteration() {
                 const stream = new ReadableStream({
@@ -29,14 +29,14 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Engine.Evaluate("testAsyncIteration()").UnwrapIfPromise();
-        Assert.Equal(3, Engine.Evaluate("chunks.length").AsNumber());
+        Evaluate("testAsyncIteration()").UnwrapIfPromise();
+        Assert.Equal(3, Evaluate("chunks.length").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             let pullCount = 0;
             const stream = new ReadableStream({
@@ -55,13 +55,13 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Verify that pull is called to maintain the desired buffer size
-        Assert.True(Engine.Evaluate("pullCount >= 1").AsBoolean());
+        Assert.True(Evaluate("pullCount >= 1").AsBoolean());
     }
 
     [Fact]
     public void ShouldTransferLockBetweenReaders()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({
                 start(controller) {
@@ -79,15 +79,15 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("locked1").AsBoolean());
-        Assert.False(Engine.Evaluate("locked2").AsBoolean());
-        Assert.True(Engine.Evaluate("locked3").AsBoolean());
+        Assert.True(Evaluate("locked1").AsBoolean());
+        Assert.False(Evaluate("locked2").AsBoolean());
+        Assert.True(Evaluate("locked3").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerDesiredSizeChanges()
     {
-        Engine.Execute(
+        Execute(
             """
             const desiredSizes = [];
             const stream = new ReadableStream({
@@ -102,15 +102,15 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(2, Engine.Evaluate("desiredSizes[0]").AsNumber());
-        Assert.Equal(1, Engine.Evaluate("desiredSizes[1]").AsNumber());
-        Assert.Equal(0, Engine.Evaluate("desiredSizes[2]").AsNumber());
+        Assert.Equal(2, Evaluate("desiredSizes[0]").AsNumber());
+        Assert.Equal(1, Evaluate("desiredSizes[1]").AsNumber());
+        Assert.Equal(0, Evaluate("desiredSizes[2]").AsNumber());
     }
 
     [Fact]
     public void ShouldPropagateErrorsFromControllerToReader()
     {
-        Engine.Execute(
+        Execute(
             """
             let readerError;
             const stream = new ReadableStream({
@@ -132,7 +132,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldHandleStrategyWithCustomSizeFunction()
     {
-        Engine.Execute(
+        Execute(
             """
             let sizeCallCount = 0;
             const stream = new ReadableStream({
@@ -151,13 +151,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("sizeCallCount > 0").AsBoolean());
+        Assert.True(Evaluate("sizeCallCount > 0").AsBoolean());
     }
 
     [Fact(Skip = "Tee functionality is not fully implemented yet")]
     public void ShouldWorkWithTeeBothStreamsSeparately()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -177,8 +177,8 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("locked1").AsBoolean());
-        Assert.True(Engine.Evaluate("locked2").AsBoolean());
-        Assert.True(Engine.Evaluate("lockedSource").AsBoolean());
+        Assert.True(Evaluate("locked1").AsBoolean());
+        Assert.True(Evaluate("locked2").AsBoolean());
+        Assert.True(Evaluate("lockedSource").AsBoolean());
     }
 }

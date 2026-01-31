@@ -9,7 +9,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldReportLockedStatusCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const initialLocked = stream.locked;
@@ -20,47 +20,41 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("initialLocked").AsBoolean());
-        Assert.True(Engine.Evaluate("lockedAfterReader").AsBoolean());
-        Assert.False(Engine.Evaluate("lockedAfterRelease").AsBoolean());
+        Assert.False(Evaluate("initialLocked").AsBoolean());
+        Assert.True(Evaluate("lockedAfterReader").AsBoolean());
+        Assert.False(Evaluate("lockedAfterRelease").AsBoolean());
     }
 
     [Fact]
     public void ShouldGetDefaultReader()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader = stream.getReader();
             """
         );
 
-        Assert.Equal(
-            "ReadableStreamDefaultReader",
-            Engine.Evaluate("reader.constructor.name").AsString()
-        );
+        Assert.Equal("ReadableStreamDefaultReader", Evaluate("reader.constructor.name").AsString());
     }
 
     [Fact(Skip = "byob is not implemented yet")]
     public void ShouldGetBYOBReaderForBytesStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({ type: 'bytes' });
             const reader = stream.getReader({ mode: 'byob' });
             """
         );
 
-        Assert.Equal(
-            "ReadableStreamBYOBReader",
-            Engine.Evaluate("reader.constructor.name").AsString()
-        );
+        Assert.Equal("ReadableStreamBYOBReader", Evaluate("reader.constructor.name").AsString());
     }
 
     [Fact]
     public void ShouldThrowWhenGettingReaderOnLockedStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader1 = stream.getReader();
@@ -73,13 +67,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldCancelStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let cancelReason;
             const stream = new ReadableStream({
@@ -91,14 +85,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("stream.cancel('test reason')").UnwrapIfPromise();
-        Assert.Equal("test reason", Engine.Evaluate("cancelReason").AsString());
+        Evaluate("stream.cancel('test reason')").UnwrapIfPromise();
+        Assert.Equal("test reason", Evaluate("cancelReason").AsString());
     }
 
     [Fact]
     public void ShouldThrowWhenTeeingLockedStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader = stream.getReader();
@@ -111,13 +105,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact(Skip = "TransformStream is not implemented yet")]
     public void ShouldPipeThroughTransformStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const readable = new ReadableStream({
                 start(controller) {
@@ -130,6 +124,6 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("ReadableStream", Engine.Evaluate("result.constructor.name").AsString());
+        Assert.Equal("ReadableStream", Evaluate("result.constructor.name").AsString());
     }
 }

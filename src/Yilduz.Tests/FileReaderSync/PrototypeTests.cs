@@ -10,14 +10,14 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "[object FileReaderSync]",
-            Engine.Evaluate("Object.prototype.toString.call(new FileReaderSync())").AsString()
+            Evaluate("Object.prototype.toString.call(new FileReaderSync())").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectPrototypeChain()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReaderSync();
             const fileReaderSyncPrototype = Object.getPrototypeOf(reader);
@@ -27,61 +27,53 @@ public sealed class PrototypeTests : TestBase
 
         Assert.Equal(
             "FileReaderSync",
-            Engine.Evaluate("fileReaderSyncPrototype.constructor.name").AsString()
+            Evaluate("fileReaderSyncPrototype.constructor.name").AsString()
         );
-        Assert.Equal("Object", Engine.Evaluate("objectPrototype.constructor.name").AsString());
+        Assert.Equal("Object", Evaluate("objectPrototype.constructor.name").AsString());
     }
 
     [Fact]
     public void ShouldHaveRequiredMethods()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReaderSync();
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof reader.readAsArrayBuffer === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof reader.readAsText === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof reader.readAsDataURL === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof reader.readAsBinaryString === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.readAsArrayBuffer === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.readAsText === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.readAsDataURL === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.readAsBinaryString === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectMethodNames()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReaderSync();
             """
         );
 
-        Assert.Equal(
-            "readAsArrayBuffer",
-            Engine.Evaluate("reader.readAsArrayBuffer.name").AsString()
-        );
-        Assert.Equal("readAsText", Engine.Evaluate("reader.readAsText.name").AsString());
-        Assert.Equal("readAsDataURL", Engine.Evaluate("reader.readAsDataURL.name").AsString());
-        Assert.Equal(
-            "readAsBinaryString",
-            Engine.Evaluate("reader.readAsBinaryString.name").AsString()
-        );
+        Assert.Equal("readAsArrayBuffer", Evaluate("reader.readAsArrayBuffer.name").AsString());
+        Assert.Equal("readAsText", Evaluate("reader.readAsText.name").AsString());
+        Assert.Equal("readAsDataURL", Evaluate("reader.readAsDataURL.name").AsString());
+        Assert.Equal("readAsBinaryString", Evaluate("reader.readAsBinaryString.name").AsString());
     }
 
     [Fact]
     public void ShouldNotInheritEventTargetMethods()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReaderSync();
             """
         );
 
-        Assert.False(Engine.Evaluate("reader instanceof EventTarget").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof reader.addEventListener === 'undefined'").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("typeof reader.removeEventListener === 'undefined'").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("typeof reader.dispatchEvent === 'undefined'").AsBoolean());
+        Assert.False(Evaluate("reader instanceof EventTarget").AsBoolean());
+        Assert.True(Evaluate("typeof reader.addEventListener === 'undefined'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.removeEventListener === 'undefined'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.dispatchEvent === 'undefined'").AsBoolean());
     }
 }

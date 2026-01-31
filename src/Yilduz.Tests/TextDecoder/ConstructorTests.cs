@@ -9,36 +9,34 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateInstance()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.True(Engine.Evaluate("decoder instanceof TextDecoder").AsBoolean());
+        Assert.True(Evaluate("decoder instanceof TextDecoder").AsBoolean());
     }
 
     [Fact]
     public void ShouldAcceptEncodingParameter()
     {
-        Engine.Execute("const decoder = new TextDecoder('utf-8');");
+        Execute("const decoder = new TextDecoder('utf-8');");
 
-        Assert.Equal("utf-8", Engine.Evaluate("decoder.encoding").AsString());
+        Assert.Equal("utf-8", Evaluate("decoder.encoding").AsString());
     }
 
     [Fact]
     public void ShouldAcceptOptionsParameter()
     {
-        Engine.Execute(
-            "const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });"
-        );
+        Execute("const decoder = new TextDecoder('utf-8', { fatal: true, ignoreBOM: true });");
 
-        Assert.True(Engine.Evaluate("decoder.fatal").AsBoolean());
-        Assert.True(Engine.Evaluate("decoder.ignoreBOM").AsBoolean());
+        Assert.True(Evaluate("decoder.fatal").AsBoolean());
+        Assert.True(Evaluate("decoder.ignoreBOM").AsBoolean());
     }
 
     [Fact]
     public void ShouldDefaultToUtf8()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.Equal("utf-8", Engine.Evaluate("decoder.encoding").AsString());
+        Assert.Equal("utf-8", Evaluate("decoder.encoding").AsString());
     }
 
     [Theory]
@@ -53,24 +51,24 @@ public sealed class ConstructorTests : TestBase
     [InlineData("cp1253", "windows-1253")]
     public void ShouldNormalizeEncodingNames(string input, string expected)
     {
-        Engine.Execute($"const decoder = new TextDecoder('{input}');");
+        Execute($"const decoder = new TextDecoder('{input}');");
 
-        Assert.Equal(expected, Engine.Evaluate("decoder.encoding").AsString());
+        Assert.Equal(expected, Evaluate("decoder.encoding").AsString());
     }
 
     [Fact]
     public void ShouldSetFatalToFalseByDefault()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.False(Engine.Evaluate("decoder.fatal").AsBoolean());
+        Assert.False(Evaluate("decoder.fatal").AsBoolean());
     }
 
     [Fact]
     public void ShouldSetIgnoreBOMToFalseByDefault()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.False(Engine.Evaluate("decoder.ignoreBOM").AsBoolean());
+        Assert.False(Evaluate("decoder.ignoreBOM").AsBoolean());
     }
 }

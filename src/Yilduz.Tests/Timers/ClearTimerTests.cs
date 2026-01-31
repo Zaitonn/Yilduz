@@ -11,7 +11,7 @@ public sealed class ClearTimerTests : TestBase
     [InlineData("clearTimeout")]
     public async Task CanRemoveIntervalTimer(string method)
     {
-        Engine.Execute(
+        Execute(
             """
             var count = 0;
             const id = setInterval(() => {
@@ -23,7 +23,7 @@ public sealed class ClearTimerTests : TestBase
         await Task.Delay(250);
         Assert.Equal(2, Engine.GetValue("count"));
 
-        Engine.Execute($"{method}(id);");
+        Execute($"{method}(id);");
 
         await Task.Delay(250);
         Assert.Equal(2, Engine.GetValue("count"));
@@ -34,56 +34,56 @@ public sealed class ClearTimerTests : TestBase
     [InlineData("clearTimeout")]
     public void ShouldNotThrowWhenTryingToClearNonExistentTimer(string method)
     {
-        Engine.Execute($"{method}(123456789);");
-        Engine.Execute($"{method}(null);");
-        Engine.Execute($"{method}(undefined);");
-        Engine.Execute($"{method}();");
+        Execute($"{method}(123456789);");
+        Execute($"{method}(null);");
+        Execute($"{method}(undefined);");
+        Execute($"{method}();");
     }
 
     [Fact]
     public async Task ClearTimeoutShouldPreventExecution()
     {
-        Engine.Execute("let executed = false;");
-        Engine.Execute("const id = setTimeout(() => { executed = true; }, 50);");
-        Engine.Execute("clearTimeout(id);");
+        Execute("let executed = false;");
+        Execute("const id = setTimeout(() => { executed = true; }, 50);");
+        Execute("clearTimeout(id);");
 
         await Task.Delay(100);
-        Assert.False(Engine.Evaluate("executed").AsBoolean());
+        Assert.False(Evaluate("executed").AsBoolean());
     }
 
     [Fact]
     public async Task ClearTimeoutAfterExecutionShouldBeHarmless()
     {
-        Engine.Execute("let count = 0;");
-        Engine.Execute("const id = setTimeout(() => { count++; }, 10);");
+        Execute("let count = 0;");
+        Execute("const id = setTimeout(() => { count++; }, 10);");
 
         await Task.Delay(300);
-        Engine.Execute("clearTimeout(id);");
+        Execute("clearTimeout(id);");
 
-        Assert.Equal(1, Engine.Evaluate("count").AsNumber());
+        Assert.Equal(1, Evaluate("count").AsNumber());
     }
 
     [Fact]
     public void ClearTimeoutWithInvalidIdShouldNotThrow()
     {
-        Engine.Execute("clearTimeout(99999);");
-        Engine.Execute("clearTimeout(null);");
-        Engine.Execute("clearTimeout(undefined);");
-        Engine.Execute("clearTimeout('invalid');");
+        Execute("clearTimeout(99999);");
+        Execute("clearTimeout(null);");
+        Execute("clearTimeout(undefined);");
+        Execute("clearTimeout('invalid');");
     }
 
     [Fact]
     public async Task ClearIntervalShouldStopExecution()
     {
-        Engine.Execute("let count = 0;");
-        Engine.Execute("const id = setInterval(() => { count++; }, 10);");
+        Execute("let count = 0;");
+        Execute("const id = setInterval(() => { count++; }, 10);");
 
         await Task.Delay(100);
-        Engine.Execute("clearInterval(id);");
+        Execute("clearInterval(id);");
 
-        var countAfterClear = Engine.Evaluate("count").AsNumber();
+        var countAfterClear = Evaluate("count").AsNumber();
         await Task.Delay(100);
-        var countAfterWait = Engine.Evaluate("count").AsNumber();
+        var countAfterWait = Evaluate("count").AsNumber();
 
         Assert.Equal(countAfterClear, countAfterWait);
     }

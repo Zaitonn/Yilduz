@@ -9,7 +9,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldPipeDataThroughIdentityTransform()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream();
             const writer = stream.writable.getWriter();
@@ -34,13 +34,13 @@ public sealed class IntegrationTests : TestBase
 
         // Note: In a real async environment, we'd wait for the promise
         // This test verifies the basic structure doesn't throw
-        Assert.True(Engine.Evaluate("error === null").AsBoolean());
+        Assert.True(Evaluate("error === null").AsBoolean());
     }
 
     [Fact]
     public void ShouldPipeDataThroughCustomTransform()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -72,13 +72,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("error === null").AsBoolean());
+        Assert.True(Evaluate("error === null").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleMultipleWrites()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -111,13 +111,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("error === null").AsBoolean());
+        Assert.True(Evaluate("error === null").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleFlushOnClose()
     {
-        Engine.Execute(
+        Execute(
             """
             let flushCalled = false;
             const stream = new TransformStream({
@@ -158,13 +158,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("error === null").AsBoolean());
+        Assert.True(Evaluate("error === null").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerTerminate()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -205,13 +205,13 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Should handle termination gracefully
-        Assert.True(Engine.Evaluate("true").AsBoolean());
+        Assert.True(Evaluate("true").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerError()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -249,13 +249,13 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Controller errors should propagate
-        Assert.True(Engine.Evaluate("true").AsBoolean());
+        Assert.True(Evaluate("true").AsBoolean());
     }
 
     [Fact]
     public void ShouldRespectBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -278,13 +278,13 @@ public sealed class IntegrationTests : TestBase
         );
 
         // Should handle backpressure without crashing
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldWorkWithPipeThrough()
     {
-        Engine.Execute(
+        Execute(
             """
             const upperCaseTransform = new TransformStream({
                 transform(chunk, controller) {
@@ -316,6 +316,6 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal("ReadableStream", Engine.Evaluate("transformed.constructor.name"));
+        Assert.Equal("ReadableStream", Evaluate("transformed.constructor.name"));
     }
 }

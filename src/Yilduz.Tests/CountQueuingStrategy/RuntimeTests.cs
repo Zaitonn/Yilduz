@@ -9,7 +9,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldAlwaysReturnOneForAnyChunk()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 4 });
             const sizes = [
@@ -25,54 +25,54 @@ public sealed class RuntimeTests : TestBase
 
         for (int i = 0; i < 6; i++)
         {
-            Assert.Equal(1, Engine.Evaluate($"sizes[{i}]").AsNumber());
+            Assert.Equal(1, Evaluate($"sizes[{i}]").AsNumber());
         }
     }
 
     [Fact]
     public void ShouldReturnOneForNullAndUndefined()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 4 });
             const nullSize = strategy.size(null);
             const undefinedSize = strategy.size(undefined);
             """
         );
-        Assert.Equal(1, Engine.Evaluate("nullSize").AsNumber());
-        Assert.Equal(1, Engine.Evaluate("undefinedSize").AsNumber());
+        Assert.Equal(1, Evaluate("nullSize").AsNumber());
+        Assert.Equal(1, Evaluate("undefinedSize").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnOneForLargeObjects()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 4 });
             const largeObject = { data: new Array(1000).fill('x') };
             const size = strategy.size(largeObject);
             """
         );
-        Assert.Equal(1, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(1, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnOneForArrayBuffers()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 4 });
             const buffer = new ArrayBuffer(1024);
             const size = strategy.size(buffer);
             """
         );
-        Assert.Equal(1, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(1, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldThrowWhenSizeCalledWithoutArguments()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 4 });
             let caughtError;
@@ -83,13 +83,13 @@ public sealed class RuntimeTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithReadableStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 3 });
             const stream = new ReadableStream({
@@ -101,13 +101,13 @@ public sealed class RuntimeTests : TestBase
             }, strategy);
             """
         );
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldWorkWithWritableStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 2 });
             const stream = new WritableStream({
@@ -117,13 +117,13 @@ public sealed class RuntimeTests : TestBase
             }, strategy);
             """
         );
-        Assert.Equal("WritableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("WritableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldHandleMultipleChunksInStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 5 });
             let enqueuedCount = 0;
@@ -139,13 +139,13 @@ public sealed class RuntimeTests : TestBase
             }, strategy);
             """
         );
-        Assert.Equal(3, Engine.Evaluate("enqueuedCount").AsNumber());
+        Assert.Equal(3, Evaluate("enqueuedCount").AsNumber());
     }
 
     [Fact]
     public void ShouldRespectHighWaterMarkInBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 1 });
             let pullCount = 0;
@@ -162,6 +162,6 @@ public sealed class RuntimeTests : TestBase
             """
         );
         // Pull should be called to maintain the desired queue size
-        Assert.True(Engine.Evaluate("pullCount > 0").AsBoolean());
+        Assert.True(Evaluate("pullCount > 0").AsBoolean());
     }
 }

@@ -9,7 +9,7 @@ public sealed class AdvancedWriteTests : TestBase
     [Fact]
     public void ShouldWriteMultipleChunksSequentially()
     {
-        Engine.Execute(
+        Execute(
             """
             let writtenChunks = [];
             const stream = new WritableStream({
@@ -23,10 +23,10 @@ public sealed class AdvancedWriteTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
 
         // Write multiple chunks
-        Engine.Execute(
+        Execute(
             """
             const promise1 = writer.write('chunk1');
             const promise2 = writer.write('chunk2');
@@ -34,15 +34,15 @@ public sealed class AdvancedWriteTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("promise1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("promise2 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("promise3 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise3 instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteErrors()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -58,18 +58,18 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Write normal chunk should work
-        Engine.Execute("const normalPromise = writer.write('normal');");
-        Assert.True(Engine.Evaluate("normalPromise instanceof Promise").AsBoolean());
+        Execute("const normalPromise = writer.write('normal');");
+        Assert.True(Evaluate("normalPromise instanceof Promise").AsBoolean());
 
         // Write error chunk should be handled
-        Engine.Execute("const errorPromise = writer.write('error');");
-        Assert.True(Engine.Evaluate("errorPromise instanceof Promise").AsBoolean());
+        Execute("const errorPromise = writer.write('error');");
+        Assert.True(Evaluate("errorPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteToClosedStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -78,14 +78,14 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Writing to a closed stream should be handled gracefully
-        Engine.Execute("const writePromise = writer.write('test');");
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Execute("const writePromise = writer.write('test');");
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteToErroredStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -99,14 +99,14 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Writing to an errored stream should be handled
-        Engine.Execute("const writePromise = writer.write('test');");
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Execute("const writePromise = writer.write('test');");
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteWithBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -124,21 +124,21 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Write chunks that might trigger backpressure
-        Engine.Execute(
+        Execute(
             """
             const promise1 = writer.write('chunk1');
             const promise2 = writer.write('chunk2');
             """
         );
 
-        Assert.True(Engine.Evaluate("promise1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("promise2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise2 instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldWriteWithCustomSizeFunction()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -156,21 +156,21 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Write chunks with different sizes
-        Engine.Execute(
+        Execute(
             """
             const shortPromise = writer.write('a');
             const longPromise = writer.write('this is a longer string');
             """
         );
 
-        Assert.True(Engine.Evaluate("shortPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("longPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("shortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("longPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldWriteNonStringChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             let receivedChunks = [];
             const stream = new WritableStream({
@@ -185,7 +185,7 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Write different types of chunks
-        Engine.Execute(
+        Execute(
             """
             const numberPromise = writer.write(42);
             const objectPromise = writer.write({ key: 'value' });
@@ -194,16 +194,16 @@ public sealed class AdvancedWriteTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("numberPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("objectPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("arrayPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("booleanPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("numberPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("objectPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("arrayPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("booleanPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteAfterReleaseLock()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -212,7 +212,7 @@ public sealed class AdvancedWriteTests : TestBase
         );
 
         // Writing after releasing lock should return rejected promise, not throw
-        Engine.Execute("const writePromise = writer.write('test');");
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Execute("const writePromise = writer.write('test');");
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 }

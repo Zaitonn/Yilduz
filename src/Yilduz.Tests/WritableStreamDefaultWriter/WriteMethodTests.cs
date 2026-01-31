@@ -9,20 +9,20 @@ public sealed class WriteMethodTests : TestBase
     [Fact]
     public void ShouldHaveWriteMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.write === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.write === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldReturnPromiseFromWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -30,13 +30,13 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldWriteChunk()
     {
-        Engine.Execute(
+        Execute(
             """
             let writtenChunk = null;
             const stream = new WritableStream({
@@ -49,13 +49,13 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.Equal("test chunk", Engine.Evaluate("writtenChunk").AsString());
+        Assert.Equal("test chunk", Evaluate("writtenChunk").AsString());
     }
 
     [Fact]
     public void ShouldResolveWritePromiseOnSuccess()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeResolved = false;
             const stream = new WritableStream({
@@ -68,13 +68,13 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writeResolved").AsBoolean());
+        Assert.True(Evaluate("writeResolved").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectWritePromiseOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeRejected = false;
             const stream = new WritableStream({
@@ -87,13 +87,13 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writeRejected").AsBoolean());
+        Assert.True(Evaluate("writeRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenWriterIsReleased()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -102,14 +102,14 @@ public sealed class WriteMethodTests : TestBase
         );
 
         Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.write('test');").UnwrapIfPromise()
+            () => Evaluate("writer.write('test');").UnwrapIfPromise()
         );
     }
 
     [Fact]
     public void ShouldRejectWriteWhenStreamIsClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeRejected = false;
             const stream = new WritableStream();
@@ -119,13 +119,13 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writeRejected").AsBoolean());
+        Assert.True(Evaluate("writeRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectWriteWhenStreamIsErrored()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeRejected = false;
             const stream = new WritableStream({
@@ -138,13 +138,13 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writeRejected").AsBoolean());
+        Assert.True(Evaluate("writeRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldQueueMultipleWrites()
     {
-        Engine.Execute(
+        Execute(
             """
             const writtenChunks = [];
             const stream = new WritableStream({
@@ -159,9 +159,9 @@ public sealed class WriteMethodTests : TestBase
             """
         );
 
-        Assert.Equal(3, Engine.Evaluate("writtenChunks.length").AsNumber());
-        Assert.Equal("chunk1", Engine.Evaluate("writtenChunks[0]").AsString());
-        Assert.Equal("chunk2", Engine.Evaluate("writtenChunks[1]").AsString());
-        Assert.Equal("chunk3", Engine.Evaluate("writtenChunks[2]").AsString());
+        Assert.Equal(3, Evaluate("writtenChunks.length").AsNumber());
+        Assert.Equal("chunk1", Evaluate("writtenChunks[0]").AsString());
+        Assert.Equal("chunk2", Evaluate("writtenChunks[1]").AsString());
+        Assert.Equal("chunk3", Evaluate("writtenChunks[2]").AsString());
     }
 }

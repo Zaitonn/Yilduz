@@ -109,8 +109,8 @@ public sealed class EncodingHelperTests : TestBase
         var normalizedName = EncodingHelper.NormalizeEncodingName(input);
 
         // Assert - Create TextDecoder with the input and verify the encoding matches our normalization
-        Engine.Execute($"const decoder = new TextDecoder('{input}');");
-        var actualEncoding = Engine.Evaluate("decoder.encoding").AsString();
+        Execute($"const decoder = new TextDecoder('{input}');");
+        var actualEncoding = Evaluate("decoder.encoding").AsString();
 
         Assert.Equal(normalizedName, actualEncoding);
     }

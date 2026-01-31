@@ -32,7 +32,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("ReadableStream.prototype.tee()")]
     public void ReadableStreamShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
@@ -40,35 +40,32 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "[object ReadableStream]",
-            Engine.Evaluate("Object.prototype.toString.call(new ReadableStream())").AsString()
+            Evaluate("Object.prototype.toString.call(new ReadableStream())").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectConstructorName()
     {
-        Assert.Equal("ReadableStream", Engine.Evaluate("ReadableStream.name").AsString());
+        Assert.Equal("ReadableStream", Evaluate("ReadableStream.name").AsString());
     }
 
     [Fact]
     public void ShouldNotBeCallableAsFunction()
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("ReadableStream()"));
+        Assert.Throws<JavaScriptException>(() => Evaluate("ReadableStream()"));
     }
 
     [Fact]
     public void LockedPropertyShouldBeReadOnly()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const originalLocked = stream.locked;
             stream.locked = true;
             """
         );
-        Assert.Equal(
-            Engine.Evaluate("originalLocked").AsBoolean(),
-            Engine.Evaluate("stream.locked").AsBoolean()
-        );
+        Assert.Equal(Evaluate("originalLocked").AsBoolean(), Evaluate("stream.locked").AsBoolean());
     }
 }

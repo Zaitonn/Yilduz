@@ -8,7 +8,7 @@ public sealed class EdgeCaseTests : TestBase
     [Fact]
     public void ShouldHandleErrorWithSymbolReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -22,15 +22,13 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorWithCircularObjectReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -45,15 +43,13 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorDuringStartAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -66,15 +62,13 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleMultipleErrorCallsWithDifferentReasons()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -91,15 +85,13 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Only the first error should be effective
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerAfterStreamClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -118,15 +110,13 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Error on closed stream should be handled gracefully
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerAfterStreamAborted()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -145,15 +135,13 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Error on aborted stream should be handled gracefully
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerWithNoUnderlyingSink()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -165,18 +153,16 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
 
         // Error should still work
-        Engine.Execute("controller.error(new Error('No sink error'));");
+        Execute("controller.error(new Error('No sink error'));");
     }
 
     [Fact]
     public void ShouldHandleControllerSignalProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -189,16 +175,14 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("signal !== undefined").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("signal !== undefined").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerInErroredState()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -214,15 +198,13 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Second error should be ignored
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerWithFrozenController()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -237,8 +219,6 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 }

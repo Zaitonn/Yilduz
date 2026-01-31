@@ -8,14 +8,14 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleSpecialCharacters()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('key with spaces', 'value with spaces');");
-        Engine.Execute("params.append('unicode', '中文测试');");
-        Engine.Execute("params.append('symbols', '!@#$%^&*()');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('key with spaces', 'value with spaces');");
+        Execute("params.append('unicode', '中文测试');");
+        Execute("params.append('symbols', '!@#$%^&*()');");
 
-        var spaceValue = Engine.Evaluate("params.get('key with spaces')").AsString();
-        var unicodeValue = Engine.Evaluate("params.get('unicode')").AsString();
-        var symbolsValue = Engine.Evaluate("params.get('symbols')").AsString();
+        var spaceValue = Evaluate("params.get('key with spaces')").AsString();
+        var unicodeValue = Evaluate("params.get('unicode')").AsString();
+        var symbolsValue = Evaluate("params.get('symbols')").AsString();
 
         Assert.Equal("value with spaces", spaceValue);
         Assert.Equal("中文测试", unicodeValue);
@@ -25,14 +25,14 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleEmptyValues()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('empty', '');");
-        Engine.Execute("params.append('null', null);");
-        Engine.Execute("params.append('undefined', undefined);");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('empty', '');");
+        Execute("params.append('null', null);");
+        Execute("params.append('undefined', undefined);");
 
-        var emptyValue = Engine.Evaluate("params.get('empty')").AsString();
-        var nullValue = Engine.Evaluate("params.get('null')").AsString();
-        var undefinedValue = Engine.Evaluate("params.get('undefined')").AsString();
+        var emptyValue = Evaluate("params.get('empty')").AsString();
+        var nullValue = Evaluate("params.get('null')").AsString();
+        var undefinedValue = Evaluate("params.get('undefined')").AsString();
 
         Assert.Equal("", emptyValue);
         Assert.Equal("null", nullValue);
@@ -42,14 +42,14 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldConvertNonStringValues()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('number', 123);");
-        Engine.Execute("params.append('boolean', true);");
-        Engine.Execute("params.append('object', {toString: () => 'custom'});");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('number', 123);");
+        Execute("params.append('boolean', true);");
+        Execute("params.append('object', {toString: () => 'custom'});");
 
-        var numberValue = Engine.Evaluate("params.get('number')").AsString();
-        var booleanValue = Engine.Evaluate("params.get('boolean')").AsString();
-        var objectValue = Engine.Evaluate("params.get('object')").AsString();
+        var numberValue = Evaluate("params.get('number')").AsString();
+        var booleanValue = Evaluate("params.get('boolean')").AsString();
+        var objectValue = Evaluate("params.get('object')").AsString();
 
         Assert.Equal("123", numberValue);
         Assert.Equal("true", booleanValue);
@@ -59,19 +59,19 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldMaintainInsertionOrder()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('c', '3');");
-        Engine.Execute("params.append('a', '1');");
-        Engine.Execute("params.append('b', '2');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('c', '3');");
+        Execute("params.append('a', '1');");
+        Execute("params.append('b', '2');");
 
-        var toString = Engine.Evaluate("params.toString()").AsString();
+        var toString = Evaluate("params.toString()").AsString();
         Assert.Equal("c=3&a=1&b=2", toString);
     }
 
     [Fact]
     public void ShouldHandleLargeDataSets()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             for (let i = 0; i < 100; i++) {
@@ -80,9 +80,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var size = Engine.Evaluate("params.size").AsNumber();
-        var firstValue = Engine.Evaluate("params.get('key0')").AsString();
-        var lastValue = Engine.Evaluate("params.get('key99')").AsString();
+        var size = Evaluate("params.size").AsNumber();
+        var firstValue = Evaluate("params.get('key0')").AsString();
+        var lastValue = Evaluate("params.get('key99')").AsString();
 
         Assert.Equal(100, size);
         Assert.Equal("value0", firstValue);
@@ -92,11 +92,11 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleIteratorMethods()
     {
-        Engine.Execute("const params = new URLSearchParams('a=1&b=2&c=3');");
+        Execute("const params = new URLSearchParams('a=1&b=2&c=3');");
 
-        var keys = Engine.Evaluate("typeof params.keys").AsString();
-        var values = Engine.Evaluate("typeof params.values").AsString();
-        var entries = Engine.Evaluate("typeof params.entries").AsString();
+        var keys = Evaluate("typeof params.keys").AsString();
+        var values = Evaluate("typeof params.values").AsString();
+        var entries = Evaluate("typeof params.entries").AsString();
 
         Assert.Equal("function", keys);
         Assert.Equal("function", values);
@@ -108,13 +108,13 @@ public sealed class RuntimeTests : TestBase
     {
         var complexQuery =
             "name=John+Doe&age=30&city=New+York&hobbies=reading&hobbies=swimming&special=%21%40%23";
-        Engine.Execute($"const params = new URLSearchParams('{complexQuery}');");
+        Execute($"const params = new URLSearchParams('{complexQuery}');");
 
-        var name = Engine.Evaluate("params.get('name')").AsString();
-        var age = Engine.Evaluate("params.get('age')").AsString();
-        var city = Engine.Evaluate("params.get('city')").AsString();
-        var hobbiesLength = Engine.Evaluate("params.getAll('hobbies').length").AsNumber();
-        var special = Engine.Evaluate("params.get('special')").AsString();
+        var name = Evaluate("params.get('name')").AsString();
+        var age = Evaluate("params.get('age')").AsString();
+        var city = Evaluate("params.get('city')").AsString();
+        var hobbiesLength = Evaluate("params.getAll('hobbies').length").AsNumber();
+        var special = Evaluate("params.get('special')").AsString();
 
         Assert.Equal("John Doe", name);
         Assert.Equal("30", age);
@@ -126,24 +126,24 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleEqualsSignInValue()
     {
-        Engine.Execute("const params = new URLSearchParams('key=value=with=equals');");
-        var valueWithEquals = Engine.Evaluate("params.get('key')").AsString();
+        Execute("const params = new URLSearchParams('key=value=with=equals');");
+        var valueWithEquals = Evaluate("params.get('key')").AsString();
         Assert.Equal("value=with=equals", valueWithEquals);
     }
 
     [Fact]
     public void ShouldHandleEmptyKey()
     {
-        Engine.Execute("const params = new URLSearchParams('=value');");
-        var emptyKeyValue = Engine.Evaluate("params.get('')").AsString();
+        Execute("const params = new URLSearchParams('=value');");
+        var emptyKeyValue = Evaluate("params.get('')").AsString();
         Assert.Equal("value", emptyKeyValue);
     }
 
     [Fact]
     public void ShouldHandleMultipleConsecutiveAmpersands()
     {
-        Engine.Execute("const params = new URLSearchParams('a=1&&b=2&&&c=3');");
-        var size = Engine.Evaluate("params.size").AsNumber();
+        Execute("const params = new URLSearchParams('a=1&&b=2&&&c=3');");
+        var size = Evaluate("params.size").AsNumber();
         Assert.Equal(3, size);
     }
 }

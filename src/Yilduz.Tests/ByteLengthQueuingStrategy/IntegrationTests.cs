@@ -8,7 +8,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldWorkWithReadableStreamAndBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 100 });
             let pullCount = 0;
@@ -25,16 +25,16 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Engine.Execute("stream.getReader().read();");
+        Execute("stream.getReader().read();");
 
         // Should pull initially to fill the queue
-        Assert.True(Engine.Evaluate("pullCount > 0").AsBoolean());
+        Assert.True(Evaluate("pullCount > 0").AsBoolean());
     }
 
     [Fact]
     public void ShouldCalculateCorrectDesiredSizeInReadableStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 200 });
             let desiredSizes = [];
@@ -50,15 +50,15 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(200, Engine.Evaluate("desiredSizes[0]").AsNumber()); // Initial
-        Assert.Equal(150, Engine.Evaluate("desiredSizes[1]").AsNumber()); // After 50 bytes
-        Assert.Equal(50, Engine.Evaluate("desiredSizes[2]").AsNumber()); // After 150 total bytes
+        Assert.Equal(200, Evaluate("desiredSizes[0]").AsNumber()); // Initial
+        Assert.Equal(150, Evaluate("desiredSizes[1]").AsNumber()); // After 50 bytes
+        Assert.Equal(50, Evaluate("desiredSizes[2]").AsNumber()); // After 150 total bytes
     }
 
     [Fact]
     public void ShouldWorkWithWritableStreamBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 64 });
             let writeCount = 0;
@@ -73,13 +73,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal("WritableStreamDefaultWriter", Engine.Evaluate("writer.constructor.name"));
+        Assert.Equal("WritableStreamDefaultWriter", Evaluate("writer.constructor.name"));
     }
 
     [Fact]
     public void ShouldHandleZeroByteLengthChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 10 });
             let desiredSizes = [];
@@ -95,15 +95,15 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal(10, Engine.Evaluate("desiredSizes[0]").AsNumber()); // Initial
-        Assert.Equal(10, Engine.Evaluate("desiredSizes[1]").AsNumber()); // After 0 bytes
-        Assert.Equal(5, Engine.Evaluate("desiredSizes[2]").AsNumber()); // After 5 bytes
+        Assert.Equal(10, Evaluate("desiredSizes[0]").AsNumber()); // Initial
+        Assert.Equal(10, Evaluate("desiredSizes[1]").AsNumber()); // After 0 bytes
+        Assert.Equal(5, Evaluate("desiredSizes[2]").AsNumber()); // After 5 bytes
     }
 
     [Fact]
     public void ShouldWorkWithTransformStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 1024 });
             const transform = new TransformStream({
@@ -116,13 +116,13 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("transform.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("transform.constructor.name"));
     }
 
     [Fact]
     public void ShouldRespectHighWaterMarkAcrossStreamPipeline()
     {
-        Engine.Execute(
+        Execute(
             """
             const readStrategy = new ByteLengthQueuingStrategy({ highWaterMark: 256 });
             const writeStrategy = new ByteLengthQueuingStrategy({ highWaterMark: 128 });
@@ -146,6 +146,6 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 }

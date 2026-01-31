@@ -24,40 +24,37 @@ public sealed class PrototypeTests : TestBase
     [InlineData("CountQueuingStrategy.prototype.size()")]
     public void CountQueuingStrategyShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 1 });");
+        Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 1 });");
         Assert.Equal(
             "[object CountQueuingStrategy]",
-            Engine.Evaluate("Object.prototype.toString.call(strategy)").AsString()
+            Evaluate("Object.prototype.toString.call(strategy)").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectConstructorName()
     {
-        Assert.Equal(
-            "CountQueuingStrategy",
-            Engine.Evaluate("CountQueuingStrategy.name").AsString()
-        );
+        Assert.Equal("CountQueuingStrategy", Evaluate("CountQueuingStrategy.name").AsString());
     }
 
     [Fact]
     public void ShouldNotBeCallableAsFunction()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("CountQueuingStrategy({ highWaterMark: 1 })")
+            () => Evaluate("CountQueuingStrategy({ highWaterMark: 1 })")
         );
     }
 
     [Fact]
     public void HighWaterMarkPropertyShouldBeReadOnly()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ highWaterMark: 5 });
             const originalHighWaterMark = strategy.highWaterMark;
@@ -65,8 +62,8 @@ public sealed class PrototypeTests : TestBase
             """
         );
         Assert.Equal(
-            Engine.Evaluate("originalHighWaterMark").AsNumber(),
-            Engine.Evaluate("strategy.highWaterMark").AsNumber()
+            Evaluate("originalHighWaterMark").AsNumber(),
+            Evaluate("strategy.highWaterMark").AsNumber()
         );
     }
 }

@@ -10,7 +10,7 @@ public sealed class AdvancedIntegrationTests : TestBase
     [Fact]
     public void ShouldHandleWriterControllerInteraction()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let receivedChunks = [];
@@ -28,16 +28,14 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleMultipleWritersSequentially()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
 
@@ -53,14 +51,14 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer3 instanceof WritableStreamDefaultWriter").AsBoolean());
-        Assert.True(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.True(Evaluate("writer3 instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriterErrorAndRecovery()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -81,16 +79,14 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("errorPromise instanceof Promise").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("errorPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public async Task ShouldHandleBackpressureAndReady()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeCount = 0;
             let writeResolvers = [];
@@ -119,17 +115,17 @@ public sealed class AdvancedIntegrationTests : TestBase
 
         await Task.Delay(100);
 
-        Assert.True(Engine.Evaluate("ready1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("ready2 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("ready3 instanceof Promise").AsBoolean());
-        Assert.Equal(2, Engine.Evaluate("writeCount").AsNumber());
-        Assert.Equal(2, Engine.Evaluate("writeResolvers.length").AsNumber());
+        Assert.True(Evaluate("ready1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready3 instanceof Promise").AsBoolean());
+        Assert.Equal(2, Evaluate("writeCount").AsNumber());
+        Assert.Equal(2, Evaluate("writeResolvers.length").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleStreamStateTransitions()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -150,16 +146,16 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("initialReady instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("initialClosed instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("errorReady instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("errorClosed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("initialReady instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("initialClosed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("errorReady instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("errorClosed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriterAbortAndControllerError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -179,16 +175,14 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("abortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleControllerSignalAbort()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -205,16 +199,14 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("signal !== undefined").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("signal !== undefined").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriterDesiredSizeWithController()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -242,15 +234,15 @@ public sealed class AdvancedIntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof initialSize === 'number'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof afterLightSize === 'number'").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof afterHeavySize === 'number'").AsBoolean());
+        Assert.True(Evaluate("typeof initialSize === 'number'").AsBoolean());
+        Assert.True(Evaluate("typeof afterLightSize === 'number'").AsBoolean());
+        Assert.True(Evaluate("typeof afterHeavySize === 'number'").AsBoolean());
     }
 
     [Fact]
     public async Task ShouldHandleStreamCloseWithPendingWrites()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeResolvers = [];
             const stream = new WritableStream({
@@ -274,7 +266,7 @@ public sealed class AdvancedIntegrationTests : TestBase
 
         await Task.Delay(100);
 
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
-        Assert.Equal(2, Engine.Evaluate("writeResolvers.length"));
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.Equal(2, Evaluate("writeResolvers.length"));
     }
 }

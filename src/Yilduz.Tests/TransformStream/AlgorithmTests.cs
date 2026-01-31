@@ -8,7 +8,7 @@ public sealed class AlgorithmTests : TestBase
     [Fact]
     public void ShouldExecuteCustomTransform()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -22,13 +22,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldCallFlushOnClose()
     {
-        Engine.Execute(
+        Execute(
             """
             let flushCalled = false;
             const stream = new TransformStream({
@@ -49,7 +49,7 @@ public sealed class AlgorithmTests : TestBase
     [Fact]
     public void ShouldHandleTransformError()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -62,13 +62,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldHandleStartMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let startController = null;
             const stream = new TransformStream({
@@ -80,13 +80,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("startController !== null").AsBoolean());
+        Assert.True(Evaluate("startController !== null").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -99,13 +99,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldRespectWritableStrategy()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({}, 
                 { highWaterMark: 5, size: chunk => chunk.length },
@@ -114,13 +114,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldRespectReadableStrategy()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -133,13 +133,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldHandleControllerTerminate()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -153,13 +153,13 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldHandleControllerError()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({
                 transform(chunk, controller) {
@@ -173,6 +173,6 @@ public sealed class AlgorithmTests : TestBase
             """
         );
 
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 }

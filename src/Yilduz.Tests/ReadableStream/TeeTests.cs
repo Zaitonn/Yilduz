@@ -9,7 +9,7 @@ public sealed class TeeTests : TestBase
     [Fact]
     public void ShouldCreateTwoBranchesFromStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -23,15 +23,15 @@ public sealed class TeeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("branch1 instanceof ReadableStream").AsBoolean());
-        Assert.True(Engine.Evaluate("branch2 instanceof ReadableStream").AsBoolean());
-        Assert.False(Engine.Evaluate("branch1 === branch2").AsBoolean());
+        Assert.True(Evaluate("branch1 instanceof ReadableStream").AsBoolean());
+        Assert.True(Evaluate("branch2 instanceof ReadableStream").AsBoolean());
+        Assert.False(Evaluate("branch1 === branch2").AsBoolean());
     }
 
     [Fact]
     public void ShouldLockOriginalStreamAfterTee()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -46,27 +46,27 @@ public sealed class TeeTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("lockedBefore").AsBoolean());
-        Assert.True(Engine.Evaluate("lockedAfter").AsBoolean());
+        Assert.False(Evaluate("lockedBefore").AsBoolean());
+        Assert.True(Evaluate("lockedAfter").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenTeeingLockedStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream();
             const reader = sourceStream.getReader(); // Lock the stream
             """
         );
 
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("sourceStream.tee()"));
+        Assert.Throws<JavaScriptException>(() => Execute("sourceStream.tee()"));
     }
 
     [Fact]
     public void ShouldReadSameDataFromBothBranches()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -119,14 +119,14 @@ public sealed class TeeTests : TestBase
         );
 
         // The branches should be readable independently
-        Assert.True(Engine.Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
-        Assert.True(Engine.Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleErrorInOriginalStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -157,14 +157,14 @@ public sealed class TeeTests : TestBase
         );
 
         // Both branches should receive the error
-        Assert.True(Engine.Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
-        Assert.True(Engine.Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleCloseInOriginalStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -197,14 +197,14 @@ public sealed class TeeTests : TestBase
         );
 
         // Both branches should be properly closed
-        Assert.True(Engine.Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
-        Assert.True(Engine.Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleIndependentCancellation()
     {
-        Engine.Execute(
+        Execute(
             """
             let cancelReason = null;
             const sourceStream = new ReadableStream({
@@ -228,14 +228,14 @@ public sealed class TeeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("cancelPromise1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("cancelPromise1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleBothBranchesCancellation()
     {
-        Engine.Execute(
+        Execute(
             """
             let cancelReason = null;
             const sourceStream = new ReadableStream({
@@ -257,14 +257,14 @@ public sealed class TeeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("cancelPromise1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("cancelPromise2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("cancelPromise1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("cancelPromise2 instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleEmptyStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -290,14 +290,14 @@ public sealed class TeeTests : TestBase
         );
 
         // Both branches should handle empty stream correctly
-        Assert.True(Engine.Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
-        Assert.True(Engine.Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader1 instanceof ReadableStreamDefaultReader").AsBoolean());
+        Assert.True(Evaluate("reader2 instanceof ReadableStreamDefaultReader").AsBoolean());
     }
 
     [Fact]
     public void ShouldMaintainStreamState()
     {
-        Engine.Execute(
+        Execute(
             """
             const sourceStream = new ReadableStream({
                 start(controller) {
@@ -315,8 +315,8 @@ public sealed class TeeTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("branch1Locked").AsBoolean());
-        Assert.False(Engine.Evaluate("branch2Locked").AsBoolean());
-        Assert.True(Engine.Evaluate("branch1LockedAfter").AsBoolean());
+        Assert.False(Evaluate("branch1Locked").AsBoolean());
+        Assert.False(Evaluate("branch2Locked").AsBoolean());
+        Assert.True(Evaluate("branch1LockedAfter").AsBoolean());
     }
 }

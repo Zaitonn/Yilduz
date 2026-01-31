@@ -14,7 +14,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallLogWithCorrectArguments()
     {
-        Engine.Execute("console.log('hello', 'world');");
+        Execute("console.log('hello', 'world');");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Log:", _mockConsole.LogCalls[0]);
@@ -25,7 +25,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallAssertWithConditionAndMessage()
     {
-        Engine.Execute("console.assert(false, 'assertion failed', 'extra info');");
+        Execute("console.assert(false, 'assertion failed', 'extra info');");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Assert: False", _mockConsole.LogCalls[0]);
@@ -35,7 +35,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallCountWithLabel()
     {
-        Engine.Execute("console.count('test-counter');");
+        Execute("console.count('test-counter');");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Count: test-counter", _mockConsole.LogCalls[0]);
@@ -44,7 +44,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallCountWithoutLabel()
     {
-        Engine.Execute("console.count();");
+        Execute("console.count();");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Count: default", _mockConsole.LogCalls[0]);
@@ -53,7 +53,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallTimeOperations()
     {
-        Engine.Execute(
+        Execute(
             """
             console.time('timer1');
             console.timeLog('timer1', 'checkpoint');
@@ -70,7 +70,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallGroupOperations()
     {
-        Engine.Execute(
+        Execute(
             """
             console.group('group1');
             console.log('inside group');
@@ -87,7 +87,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallAllLogLevels()
     {
-        Engine.Execute(
+        Execute(
             """
             console.debug('debug msg');
             console.info('info msg');
@@ -106,7 +106,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallClear()
     {
-        Engine.Execute("console.clear();");
+        Execute("console.clear();");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Equal("Clear", _mockConsole.LogCalls[0]);
@@ -115,7 +115,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallDir()
     {
-        Engine.Execute("console.dir({name: 'test'});");
+        Execute("console.dir({name: 'test'});");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Dir:", _mockConsole.LogCalls[0]);
@@ -124,7 +124,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldCallTrace()
     {
-        Engine.Execute("console.trace('trace message');");
+        Execute("console.trace('trace message');");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Trace: trace message", _mockConsole.LogCalls[0]);
@@ -133,7 +133,7 @@ public sealed class ConsoleInstanceTests : TestBase
     [Fact]
     public void ShouldHandleUndefinedArguments()
     {
-        Engine.Execute("console.log(undefined, null, true, 42);");
+        Execute("console.log(undefined, null, true, 42);");
 
         Assert.Single(_mockConsole.LogCalls);
         Assert.Contains("Log:", _mockConsole.LogCalls[0]);

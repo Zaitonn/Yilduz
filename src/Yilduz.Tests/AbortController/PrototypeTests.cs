@@ -13,9 +13,7 @@ public sealed class PrototypeTests : TestBase
     public void ShouldHaveCorrectPrototype(string propertyName)
     {
         Assert.True(
-            Engine
-                .Evaluate($"AbortController.prototype.hasOwnProperty('{propertyName}')")
-                .AsBoolean()
+            Evaluate($"AbortController.prototype.hasOwnProperty('{propertyName}')").AsBoolean()
         );
     }
 
@@ -25,6 +23,6 @@ public sealed class PrototypeTests : TestBase
     [InlineData("AbortController.prototype.signal")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 }

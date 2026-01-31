@@ -9,24 +9,22 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldBeGlobalConstructor()
     {
-        Assert.True(Engine.Evaluate("typeof Blob === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("Blob.prototype").IsObject());
+        Assert.True(Evaluate("typeof Blob === 'function'").AsBoolean());
+        Assert.True(Evaluate("Blob.prototype").IsObject());
     }
 
     [Fact]
     public void ShouldThrowWithInvalidArguments()
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("new Blob('not an array');"));
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("new Blob([], 'not an object');"));
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new Blob([], { endings: 'invalid' });")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("new Blob('not an array');"));
+        Assert.Throws<JavaScriptException>(() => Execute("new Blob([], 'not an object');"));
+        Assert.Throws<JavaScriptException>(() => Execute("new Blob([], { endings: 'invalid' });"));
     }
 
     [Fact]
     public void ShouldHandleArrayLike()
     {
-        Engine.Execute(
+        Execute(
             """
             const arrayLike = { 
                 0: 'Hello',
@@ -37,13 +35,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("new Blob(arrayLike)"));
+        Assert.Throws<JavaScriptException>(() => Execute("new Blob(arrayLike)"));
     }
 
     [Fact]
     public void ShouldImplementStreams()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Stream Test']);
             const stream = blob.stream();
@@ -51,13 +49,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("streamExists").AsBoolean());
+        Assert.True(Evaluate("streamExists").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectInstanceProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Test']);
 
@@ -68,14 +66,14 @@ public sealed class RuntimeTests : TestBase
             const isTypeGetter = typeDescriptor && typeof typeDescriptor.get === 'function';
             """
         );
-        Assert.True(Engine.Evaluate("isSizeGetter").AsBoolean());
-        Assert.True(Engine.Evaluate("isTypeGetter").AsBoolean());
+        Assert.True(Evaluate("isSizeGetter").AsBoolean());
+        Assert.True(Evaluate("isTypeGetter").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveReadOnlyProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['test'], {type: 'text/plain'});
             const originalSize = blob.size;
@@ -86,14 +84,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(4, Engine.Evaluate("blob.size").AsNumber());
-        Assert.Equal("text/plain", Engine.Evaluate("blob.type").AsString());
+        Assert.Equal(4, Evaluate("blob.size").AsNumber());
+        Assert.Equal("text/plain", Evaluate("blob.type").AsString());
     }
 
     [Fact]
     public void ShouldSliceCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const originalBlob = new Blob(['Hello, World!'], {type: 'text/plain'});
             const slice1 = originalBlob.slice(0, 5);
@@ -103,30 +101,30 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(5, Engine.Evaluate("slice1.size").AsNumber());
-        Assert.Equal(6, Engine.Evaluate("slice2.size").AsNumber());
-        Assert.Equal(6, Engine.Evaluate("slice3.size").AsNumber());
-        Assert.Empty(Engine.Evaluate("slice1.type").AsString());
-        Assert.Equal("text/html", Engine.Evaluate("slice4.type").AsString());
+        Assert.Equal(5, Evaluate("slice1.size").AsNumber());
+        Assert.Equal(6, Evaluate("slice2.size").AsNumber());
+        Assert.Equal(6, Evaluate("slice3.size").AsNumber());
+        Assert.Empty(Evaluate("slice1.type").AsString());
+        Assert.Equal("text/html", Evaluate("slice4.type").AsString());
     }
 
     [Fact]
     public void ShouldHandleNegativeSliceIndices()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello, World!']);
             const slice = blob.slice(-5, -2);
             """
         );
 
-        Assert.Equal(3, Engine.Evaluate("slice.size").AsNumber());
+        Assert.Equal(3, Evaluate("slice.size").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleSliceOutOfBounds()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello, World!']);
             const sliceStart = blob.slice(20, 25); 
@@ -134,47 +132,47 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("sliceStart.size").AsNumber());
-        Assert.Equal(13, Engine.Evaluate("sliceEnd.size").AsNumber());
+        Assert.Equal(0, Evaluate("sliceStart.size").AsNumber());
+        Assert.Equal(13, Evaluate("sliceEnd.size").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleSliceWithDefaultEndAndContentType()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello, World!'], {type: 'text/plain'});
             const slice = blob.slice(7);
             """
         );
 
-        Assert.Equal(6, Engine.Evaluate("slice.size").AsNumber());
-        Assert.Empty(Engine.Evaluate("slice.type").AsString());
+        Assert.Equal(6, Evaluate("slice.size").AsNumber());
+        Assert.Empty(Evaluate("slice.type").AsString());
     }
 
     [Fact]
     public void ShouldCreatePromiseFromTextMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello, Promise!'], {type: 'text/plain'});
             const textPromise = blob.text();
             """
         );
 
-        Assert.True(Engine.Evaluate("textPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("textPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreatePromiseFromArrayBufferMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['ArrayBuffer Test']);
             const bufferPromise = blob.arrayBuffer();
             """
         );
 
-        Assert.True(Engine.Evaluate("bufferPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("bufferPromise instanceof Promise").AsBoolean());
     }
 }

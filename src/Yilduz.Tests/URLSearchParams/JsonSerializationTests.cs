@@ -8,9 +8,9 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeEmptyURLSearchParamsToJSON()
     {
-        Engine.Execute("const params = new URLSearchParams();");
+        Execute("const params = new URLSearchParams();");
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"\"", jsonResult);
     }
@@ -18,14 +18,14 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsWithSingleParam()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('key', 'value');
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"key=value\"", jsonResult);
     }
@@ -33,7 +33,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsWithMultipleParams()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('first', 'value1');
@@ -42,7 +42,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"first=value1&second=value2&third=value3\"", jsonResult);
     }
@@ -50,15 +50,15 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldCallToJSONMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('test', 'value');
             """
         );
 
-        var toJsonResult = Engine.Evaluate("params.toJSON()").AsString();
-        var toStringResult = Engine.Evaluate("params.toString()").AsString();
+        var toJsonResult = Evaluate("params.toJSON()").AsString();
+        var toStringResult = Evaluate("params.toString()").AsString();
 
         Assert.Equal(toStringResult, toJsonResult);
         Assert.Equal("test=value", toJsonResult);
@@ -67,7 +67,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsWithSpecialCharacters()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('key with spaces', 'value with spaces');
@@ -76,8 +76,8 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
-        var expectedString = Engine.Evaluate("params.toString()").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
+        var expectedString = Evaluate("params.toString()").AsString();
 
         Assert.Equal($"\"{expectedString}\"", jsonResult);
     }
@@ -85,7 +85,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsWithDuplicateKeys()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('key', 'value1');
@@ -94,7 +94,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"key=value1&key=value2&key=value3\"", jsonResult);
     }
@@ -102,7 +102,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsInArray()
     {
-        Engine.Execute(
+        Execute(
             """
             const params1 = new URLSearchParams('a=1&b=2');
             const params2 = new URLSearchParams('c=3&d=4');
@@ -110,7 +110,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(array)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(array)").AsString();
 
         Assert.Equal("[\"a=1&b=2\",\"c=3&d=4\"]", jsonResult);
     }
@@ -118,7 +118,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsInObject()
     {
-        Engine.Execute(
+        Execute(
             """
             const obj = {
                 search: new URLSearchParams('query=hello&type=world'),
@@ -127,7 +127,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(obj)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(obj)").AsString();
 
         Assert.Equal(
             "{\"search\":\"query=hello&type=world\",\"filters\":\"category=test\"}",
@@ -138,7 +138,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeModifiedURLSearchParams()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams('initial=value');
             params.append('added', 'new');
@@ -147,7 +147,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"initial=modified&added=new\"", jsonResult);
     }
@@ -155,7 +155,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLSearchParamsWithEmptyValues()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('empty', '');
@@ -164,7 +164,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"empty=&null=null&undefined=undefined\"", jsonResult);
     }
@@ -172,7 +172,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeSortedURLSearchParams()
     {
-        Engine.Execute(
+        Execute(
             """
             const params = new URLSearchParams();
             params.append('z', 'last');
@@ -182,7 +182,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(params)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(params)").AsString();
 
         Assert.Equal("\"a=first&m=middle&z=last\"", jsonResult);
     }

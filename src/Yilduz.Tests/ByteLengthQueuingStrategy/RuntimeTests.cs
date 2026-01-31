@@ -9,33 +9,33 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldReturnByteLengthOfArrayBuffer()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const buffer = new ArrayBuffer(8);
             const size = strategy.size(buffer);
             """
         );
-        Assert.Equal(8, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(8, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnByteLengthOfTypedArray()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const uint8Array = new Uint8Array(12);
             const size = strategy.size(uint8Array);
             """
         );
-        Assert.Equal(12, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(12, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnByteLengthOfDataView()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const buffer = new ArrayBuffer(20);
@@ -43,52 +43,52 @@ public sealed class RuntimeTests : TestBase
             const size = strategy.size(view);
             """
         );
-        Assert.Equal(20, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(20, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnUndefinedForObjectWithoutByteLength()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const obj = { length: 10 };
             const size = strategy.size(obj);
             """
         );
-        Assert.True(Engine.Evaluate("size === undefined").AsBoolean());
+        Assert.True(Evaluate("size === undefined").AsBoolean());
     }
 
     [Fact]
     public void ShouldReturnCustomByteLengthProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const obj = { byteLength: 42 };
             const size = strategy.size(obj);
             """
         );
-        Assert.Equal(42, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(42, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnZeroForEmptyArrayBuffer()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const buffer = new ArrayBuffer(0);
             const size = strategy.size(buffer);
             """
         );
-        Assert.Equal(0, Engine.Evaluate("size").AsNumber());
+        Assert.Equal(0, Evaluate("size").AsNumber());
     }
 
     [Fact]
     public void ShouldThrowWhenSizeCalledWithoutArguments()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             let caughtError;
@@ -99,27 +99,27 @@ public sealed class RuntimeTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleNullAndUndefinedChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });
             const nullSize = strategy.size(null);
             const undefinedSize = strategy.size(undefined);
             """
         );
-        Assert.True(Engine.Evaluate("nullSize === undefined").AsBoolean());
-        Assert.True(Engine.Evaluate("undefinedSize === undefined").AsBoolean());
+        Assert.True(Evaluate("nullSize === undefined").AsBoolean());
+        Assert.True(Evaluate("undefinedSize === undefined").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithReadableStreamDefault()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 1024 });
             const stream = new ReadableStream({
@@ -131,13 +131,13 @@ public sealed class RuntimeTests : TestBase
             }, strategy);
             """
         );
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldWorkWithWritableStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 512 });
             const stream = new WritableStream({
@@ -147,6 +147,6 @@ public sealed class RuntimeTests : TestBase
             }, strategy);
             """
         );
-        Assert.Equal("WritableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("WritableStream", Evaluate("stream.constructor.name"));
     }
 }

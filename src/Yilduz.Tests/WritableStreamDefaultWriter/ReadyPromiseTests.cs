@@ -9,20 +9,20 @@ public sealed class ReadyPromiseTests : TestBase
     [Fact]
     public void ShouldHaveReadyPromiseOnCreation()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer.ready instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldResolveReadyPromiseWhenNoBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -38,13 +38,13 @@ public sealed class ReadyPromiseTests : TestBase
         );
 
         // Ready promise should be resolved when there's no backpressure
-        Assert.True(Engine.Evaluate("writer.ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer.ready instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleReadyPromiseWithBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -63,16 +63,16 @@ public sealed class ReadyPromiseTests : TestBase
         );
 
         // Write to fill the queue
-        Engine.Execute("writer.write('chunk1');");
-        Engine.Execute("writer.write('chunk2');");
+        Execute("writer.write('chunk1');");
+        Execute("writer.write('chunk2');");
 
-        Assert.True(Engine.Evaluate("writer.ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer.ready instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveNewReadyPromiseAfterWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -87,14 +87,14 @@ public sealed class ReadyPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("initialReady instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("newReady instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("initialReady instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("newReady instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectReadyPromiseOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -111,13 +111,13 @@ public sealed class ReadyPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveReadyPromiseResolvedWhenClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -125,13 +125,13 @@ public sealed class ReadyPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer.ready instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleReadyPromiseAfterReleaseLock()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -140,18 +140,16 @@ public sealed class ReadyPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("ready instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready instanceof Promise").AsBoolean());
 
         // Accessing ready after release should throw
-        Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.ready").UnwrapIfPromise()
-        );
+        Assert.Throws<PromiseRejectedException>(() => Evaluate("writer.ready").UnwrapIfPromise());
     }
 
     [Fact]
     public void ShouldHandleReadyPromiseStateTransitions()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -171,7 +169,7 @@ public sealed class ReadyPromiseTests : TestBase
         );
 
         // Test various state transitions
-        Engine.Execute(
+        Execute(
             """
             const ready1 = writer.ready;
             writer.write('chunk1');
@@ -181,8 +179,8 @@ public sealed class ReadyPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("ready1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("ready2 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("ready3 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("ready3 instanceof Promise").AsBoolean());
     }
 }

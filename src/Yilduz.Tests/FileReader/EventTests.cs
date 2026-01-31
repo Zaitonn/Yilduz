@@ -9,7 +9,7 @@ public sealed class EventTests : TestBase
     [Fact]
     public async Task ShouldHandleEventListenerRemoval()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Test removal']);
             const reader = new FileReader();
@@ -28,13 +28,13 @@ public sealed class EventTests : TestBase
         );
 
         await Task.Delay(100);
-        Assert.Equal(0, Engine.Evaluate("eventCount").AsNumber());
+        Assert.Equal(0, Evaluate("eventCount").AsNumber());
     }
 
     [Fact]
     public async Task ShouldMaintainEventOrder()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Event order test']);
             const reader = new FileReader();
@@ -50,14 +50,14 @@ public sealed class EventTests : TestBase
         );
 
         await Task.Delay(100);
-        Assert.Equal("loadstart", Engine.Evaluate("eventOrder[0]").AsString());
-        Assert.Equal("loadend", Engine.Evaluate("eventOrder[eventOrder.length - 1]").AsString());
+        Assert.Equal("loadstart", Evaluate("eventOrder[0]").AsString());
+        Assert.Equal("loadend", Evaluate("eventOrder[eventOrder.length - 1]").AsString());
     }
 
     [Fact]
     public async Task ShouldSupportOnEventProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['OnEvent test']);
             const reader = new FileReader();
@@ -81,16 +81,16 @@ public sealed class EventTests : TestBase
 
         await Task.Delay(100);
 
-        Assert.True(Engine.Evaluate("eventsFired.load").AsBoolean());
-        Assert.True(Engine.Evaluate("eventsFired.loadend").AsBoolean());
-        Assert.True(Engine.Evaluate("eventsFired.loadstart").AsBoolean());
-        Assert.True(Engine.Evaluate("eventsFired.progress").AsBoolean());
+        Assert.True(Evaluate("eventsFired.load").AsBoolean());
+        Assert.True(Evaluate("eventsFired.loadend").AsBoolean());
+        Assert.True(Evaluate("eventsFired.loadstart").AsBoolean());
+        Assert.True(Evaluate("eventsFired.progress").AsBoolean());
     }
 
     [Fact]
     public void ShouldSupportEventListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReader();
             let eventsFired = {
@@ -111,16 +111,14 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof reader.addEventListener === 'function'").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("typeof reader.removeEventListener === 'function'").AsBoolean()
-        );
+        Assert.True(Evaluate("typeof reader.addEventListener === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof reader.removeEventListener === 'function'").AsBoolean());
     }
 
     [Fact]
     public async Task ShouldFireLoadStartEvent()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Test content']);
             const reader = new FileReader();
@@ -135,13 +133,13 @@ public sealed class EventTests : TestBase
         );
 
         await Task.Delay(50);
-        Assert.True(Engine.Evaluate("loadStartFired").AsBoolean());
+        Assert.True(Evaluate("loadStartFired").AsBoolean());
     }
 
     [Fact]
     public async Task ShouldFireLoadEndEvent()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Test content']);
             const reader = new FileReader();
@@ -157,13 +155,13 @@ public sealed class EventTests : TestBase
         await WaitForJsConditionAsync("loadEndFired === true");
 
         // Explicit assertion for test clarity and documentation
-        Assert.True(Engine.Evaluate("loadEndFired").AsBoolean());
+        Assert.True(Evaluate("loadEndFired").AsBoolean());
     }
 
     [Fact]
     public async Task ShouldHandleProgressEvents()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Test content for progress']);
             const reader = new FileReader();
@@ -184,7 +182,7 @@ public sealed class EventTests : TestBase
 
         await Task.Delay(100);
 
-        Assert.True(Engine.Evaluate("progressEventData !== null").AsBoolean());
-        Assert.Equal("progress", Engine.Evaluate("progressEventData.type").AsString());
+        Assert.True(Evaluate("progressEventData !== null").AsBoolean());
+        Assert.Equal("progress", Evaluate("progressEventData.type").AsString());
     }
 }

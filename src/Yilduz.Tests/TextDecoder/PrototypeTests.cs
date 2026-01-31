@@ -14,36 +14,36 @@ public sealed class PrototypeTests : TestBase
     [InlineData("decode")]
     public void ShouldHaveProperty(string propertyName)
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.True(Engine.Evaluate($"'{propertyName}' in decoder").AsBoolean());
+        Assert.True(Evaluate($"'{propertyName}' in decoder").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveDecodeMethod()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.True(Engine.Evaluate("typeof decoder.decode === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof decoder.decode === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectMethodNames()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
         var methodName = nameof(Encoding.TextDecoder.TextDecoderInstance.Decode).ToJsStyleName();
 
-        Assert.Equal("decode", Engine.Evaluate("decoder.decode.name").AsString());
+        Assert.Equal("decode", Evaluate("decoder.decode.name").AsString());
     }
 
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
         Assert.Equal(
             "[object TextDecoder]",
-            Engine.Evaluate("Object.prototype.toString.call(decoder)").AsString()
+            Evaluate("Object.prototype.toString.call(decoder)").AsString()
         );
     }
 
@@ -52,13 +52,13 @@ public sealed class PrototypeTests : TestBase
     {
         const string expression = "TextDecoder.prototype.decode.call({})";
 
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldHaveReadOnlyProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const originalEncoding = decoder.encoding;
@@ -72,16 +72,13 @@ public sealed class PrototypeTests : TestBase
         );
 
         Assert.Equal(
-            Engine.Evaluate("originalEncoding").AsString(),
-            Engine.Evaluate("decoder.encoding").AsString()
+            Evaluate("originalEncoding").AsString(),
+            Evaluate("decoder.encoding").AsString()
         );
+        Assert.Equal(Evaluate("originalFatal").AsBoolean(), Evaluate("decoder.fatal").AsBoolean());
         Assert.Equal(
-            Engine.Evaluate("originalFatal").AsBoolean(),
-            Engine.Evaluate("decoder.fatal").AsBoolean()
-        );
-        Assert.Equal(
-            Engine.Evaluate("originalIgnoreBOM").AsBoolean(),
-            Engine.Evaluate("decoder.ignoreBOM").AsBoolean()
+            Evaluate("originalIgnoreBOM").AsBoolean(),
+            Evaluate("decoder.ignoreBOM").AsBoolean()
         );
     }
 }

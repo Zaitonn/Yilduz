@@ -3,6 +3,7 @@ using Jint;
 using Jint.Native;
 using Jint.Runtime;
 using Yilduz.Streams.ReadableStream;
+using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStreamDefaultReader;
 
@@ -57,5 +58,39 @@ public sealed partial class ReadableStreamDefaultReaderInstance
             readRequest.ErrorSteps(e);
         }
         ReadRequests.Clear();
+    }
+
+    /// <summary>
+    /// https://streams.spec.whatwg.org/#readable-stream-default-reader-read
+    /// </summary>
+    private void ReadInternal(ReadRequest readRequest)
+    {
+        // Let stream be reader.[[stream]].
+        // Assert: stream is not undefined.
+        if (Stream is null)
+        {
+            TypeErrorHelper.Throw(Engine, "Reader is not attached to a stream");
+        }
+
+        // Set stream.[[disturbed]] to true.
+        Stream.Disturbed = true;
+
+        // If stream.[[state]] is "closed", perform readRequest’s close steps.
+        if (Stream.State == ReadableStreamState.Closed)
+        {
+            readRequest.CloseSteps(Undefined);
+        }
+        // Otherwise, if stream.[[state]] is "errored", perform readRequest’s error steps given stream.[[storedError]].
+        else if (Stream.State == ReadableStreamState.Errored)
+        {
+            readRequest.ErrorSteps(Stream.StoredError);
+        }
+        // Otherwise,
+        else
+        {
+            // Assert: stream.[[state]] is "readable".
+            // Perform ! stream.[[controller]].[[PullSteps]](readRequest).
+            Stream.Controller?.PullSteps(readRequest);
+        }
     }
 }

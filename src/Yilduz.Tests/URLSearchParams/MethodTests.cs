@@ -9,11 +9,11 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void AppendShouldAddParameter()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
 
-        var size = Engine.Evaluate("params.size").AsNumber();
-        var value = Engine.Evaluate("params.get('foo')").AsString();
+        var size = Evaluate("params.size").AsNumber();
+        var value = Evaluate("params.get('foo')").AsString();
 
         Assert.Equal(1, size);
         Assert.Equal("bar", value);
@@ -22,14 +22,14 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void AppendShouldAllowDuplicateKeys()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
-        Engine.Execute("params.append('foo', 'baz');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
+        Execute("params.append('foo', 'baz');");
 
-        var size = Engine.Evaluate("params.size").AsNumber();
-        var valuesLength = Engine.Evaluate("params.getAll('foo').length").AsNumber();
-        var firstValue = Engine.Evaluate("params.getAll('foo')[0]").AsString();
-        var secondValue = Engine.Evaluate("params.getAll('foo')[1]").AsString();
+        var size = Evaluate("params.size").AsNumber();
+        var valuesLength = Evaluate("params.getAll('foo').length").AsNumber();
+        var firstValue = Evaluate("params.getAll('foo')[0]").AsString();
+        var secondValue = Evaluate("params.getAll('foo')[1]").AsString();
 
         Assert.Equal(2, size);
         Assert.Equal(2, valuesLength);
@@ -40,35 +40,35 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void GetShouldReturnFirstValue()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
-        Engine.Execute("params.append('foo', 'baz');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
+        Execute("params.append('foo', 'baz');");
 
-        var value = Engine.Evaluate("params.get('foo')").AsString();
+        var value = Evaluate("params.get('foo')").AsString();
         Assert.Equal("bar", value);
     }
 
     [Fact]
     public void GetShouldReturnNullForNonExistentKey()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        var value = Engine.Evaluate("params.get('nonexistent')");
+        Execute("const params = new URLSearchParams();");
+        var value = Evaluate("params.get('nonexistent')");
         Assert.True(value.IsNull());
     }
 
     [Fact]
     public void GetAllShouldReturnAllValues()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
-        Engine.Execute("params.append('foo', 'baz');");
-        Engine.Execute("params.append('qux', 'quux');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
+        Execute("params.append('foo', 'baz');");
+        Execute("params.append('qux', 'quux');");
 
-        var fooValuesLength = Engine.Evaluate("params.getAll('foo').length").AsNumber();
-        var fooFirstValue = Engine.Evaluate("params.getAll('foo')[0]").AsString();
-        var fooSecondValue = Engine.Evaluate("params.getAll('foo')[1]").AsString();
-        var quxValuesLength = Engine.Evaluate("params.getAll('qux').length").AsNumber();
-        var quxFirstValue = Engine.Evaluate("params.getAll('qux')[0]").AsString();
+        var fooValuesLength = Evaluate("params.getAll('foo').length").AsNumber();
+        var fooFirstValue = Evaluate("params.getAll('foo')[0]").AsString();
+        var fooSecondValue = Evaluate("params.getAll('foo')[1]").AsString();
+        var quxValuesLength = Evaluate("params.getAll('qux').length").AsNumber();
+        var quxFirstValue = Evaluate("params.getAll('qux')[0]").AsString();
         var nonExistentValuesLength = Engine
             .Evaluate("params.getAll('nonexistent').length")
             .AsNumber();
@@ -86,15 +86,15 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void DeleteShouldRemoveAllOccurrences()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
-        Engine.Execute("params.append('foo', 'baz');");
-        Engine.Execute("params.append('qux', 'quux');");
-        Engine.Execute("params.delete('foo');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
+        Execute("params.append('foo', 'baz');");
+        Execute("params.append('qux', 'quux');");
+        Execute("params.delete('foo');");
 
-        var size = Engine.Evaluate("params.size").AsNumber();
-        var hasFoo = Engine.Evaluate("params.has('foo')").AsBoolean();
-        var hasQux = Engine.Evaluate("params.has('qux')").AsBoolean();
+        var size = Evaluate("params.size").AsNumber();
+        var hasFoo = Evaluate("params.has('foo')").AsBoolean();
+        var hasQux = Evaluate("params.has('qux')").AsBoolean();
 
         Assert.Equal(1, size);
         Assert.False(hasFoo);
@@ -104,11 +104,11 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void HasShouldReturnTrueForExistingKey()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
 
-        var hasFoo = Engine.Evaluate("params.has('foo')").AsBoolean();
-        var hasBar = Engine.Evaluate("params.has('bar')").AsBoolean();
+        var hasFoo = Evaluate("params.has('foo')").AsBoolean();
+        var hasBar = Evaluate("params.has('bar')").AsBoolean();
 
         Assert.True(hasFoo);
         Assert.False(hasBar);
@@ -117,12 +117,12 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void HasWithValueShouldReturnTrueForExactMatch()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
-        Engine.Execute("params.append('foo', 'baz');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
+        Execute("params.append('foo', 'baz');");
 
-        var hasExactMatch = Engine.Evaluate("params.has('foo', 'bar')").AsBoolean();
-        var hasNoMatch = Engine.Evaluate("params.has('foo', 'qux')").AsBoolean();
+        var hasExactMatch = Evaluate("params.has('foo', 'bar')").AsBoolean();
+        var hasNoMatch = Evaluate("params.has('foo', 'qux')").AsBoolean();
 
         Assert.True(hasExactMatch);
         Assert.False(hasNoMatch);
@@ -131,16 +131,16 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void SetShouldReplaceAllOccurrences()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'bar');");
-        Engine.Execute("params.append('foo', 'baz');");
-        Engine.Execute("params.append('qux', 'quux');");
-        Engine.Execute("params.set('foo', 'new-value');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'bar');");
+        Execute("params.append('foo', 'baz');");
+        Execute("params.append('qux', 'quux');");
+        Execute("params.set('foo', 'new-value');");
 
-        var size = Engine.Evaluate("params.size").AsNumber();
-        var fooValue = Engine.Evaluate("params.get('foo')").AsString();
-        var fooValuesLength = Engine.Evaluate("params.getAll('foo').length").AsNumber();
-        var fooFirstValue = Engine.Evaluate("params.getAll('foo')[0]").AsString();
+        var size = Evaluate("params.size").AsNumber();
+        var fooValue = Evaluate("params.get('foo')").AsString();
+        var fooValuesLength = Evaluate("params.getAll('foo').length").AsNumber();
+        var fooFirstValue = Evaluate("params.getAll('foo')[0]").AsString();
 
         Assert.Equal(2, size);
         Assert.Equal("new-value", fooValue);
@@ -151,11 +151,11 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void SetShouldAddNewParameterIfNotExists()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.set('foo', 'bar');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.set('foo', 'bar');");
 
-        var size = Engine.Evaluate("params.size").AsNumber();
-        var value = Engine.Evaluate("params.get('foo')").AsString();
+        var size = Evaluate("params.size").AsNumber();
+        var value = Evaluate("params.get('foo')").AsString();
 
         Assert.Equal(1, size);
         Assert.Equal("bar", value);
@@ -164,32 +164,32 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void SortShouldSortParametersByKey()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('z', '1');");
-        Engine.Execute("params.append('a', '2');");
-        Engine.Execute("params.append('m', '3');");
-        Engine.Execute("params.sort();");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('z', '1');");
+        Execute("params.append('a', '2');");
+        Execute("params.append('m', '3');");
+        Execute("params.sort();");
 
-        var toString = Engine.Evaluate("params.toString()").AsString();
+        var toString = Evaluate("params.toString()").AsString();
         Assert.Equal("a=2&m=3&z=1", toString);
     }
 
     [Fact]
     public void ToStringShouldReturnUrlEncodedString()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        Engine.Execute("params.append('foo', 'hello world');");
-        Engine.Execute("params.append('bar', '=&');");
+        Execute("const params = new URLSearchParams();");
+        Execute("params.append('foo', 'hello world');");
+        Execute("params.append('bar', '=&');");
 
-        var toString = Engine.Evaluate("params.toString()").AsString();
+        var toString = Evaluate("params.toString()").AsString();
         Assert.Equal("foo=hello+world&bar=%3d%26", toString);
     }
 
     [Fact]
     public void ToStringShouldReturnEmptyStringForEmptyParams()
     {
-        Engine.Execute("const params = new URLSearchParams();");
-        var toString = Engine.Evaluate("params.toString()").AsString();
+        Execute("const params = new URLSearchParams();");
+        var toString = Evaluate("params.toString()").AsString();
         Assert.Equal("", toString);
     }
 
@@ -198,7 +198,7 @@ public sealed class MethodTests : TestBase
     {
         var exception = Assert.Throws<JavaScriptException>(() =>
         {
-            Engine.Execute(
+            Execute(
                 """
                 const params = new URLSearchParams();
                 params.append(); // No arguments provided

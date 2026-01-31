@@ -32,13 +32,13 @@ public sealed class PrototypeTests : TestBase
     [InlineData("TransformStreamDefaultController.prototype.terminate()")]
     public void TransformStreamDefaultControllerShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -49,7 +49,7 @@ public sealed class PrototypeTests : TestBase
 
         Assert.Equal(
             "[object TransformStreamDefaultController]",
-            Engine.Evaluate("Object.prototype.toString.call(controller)").AsString()
+            Evaluate("Object.prototype.toString.call(controller)").AsString()
         );
     }
 
@@ -58,14 +58,14 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "TransformStreamDefaultController",
-            Engine.Evaluate("TransformStreamDefaultController.name").AsString()
+            Evaluate("TransformStreamDefaultController.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveDesiredSizePropertyDescriptor()
     {
-        var descriptor = Engine.Evaluate(
+        var descriptor = Evaluate(
             "Object.getOwnPropertyDescriptor(TransformStreamDefaultController.prototype, 'desiredSize')"
         );
 
@@ -78,7 +78,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveEnqueueMethodDescriptor()
     {
-        var descriptor = Engine.Evaluate(
+        var descriptor = Evaluate(
             "Object.getOwnPropertyDescriptor(TransformStreamDefaultController.prototype, 'enqueue')"
         );
 
@@ -91,7 +91,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveErrorMethodDescriptor()
     {
-        var descriptor = Engine.Evaluate(
+        var descriptor = Evaluate(
             "Object.getOwnPropertyDescriptor(TransformStreamDefaultController.prototype, 'error')"
         );
 
@@ -104,7 +104,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveTerminateMethodDescriptor()
     {
-        var descriptor = Engine.Evaluate(
+        var descriptor = Evaluate(
             "Object.getOwnPropertyDescriptor(TransformStreamDefaultController.prototype, 'terminate')"
         );
 
@@ -117,7 +117,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveCorrectPrototypeChain()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -146,7 +146,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldNotBeEnumerable()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -155,7 +155,7 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        var keys = Engine.Evaluate("Object.keys(controller)");
+        var keys = Evaluate("Object.keys(controller)");
         Assert.Empty(keys.AsArray());
     }
 
@@ -163,7 +163,7 @@ public sealed class PrototypeTests : TestBase
     public void ShouldNotBeConstructableDirectly()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new TransformStreamDefaultController();")
+            () => Execute("new TransformStreamDefaultController();")
         );
     }
 }

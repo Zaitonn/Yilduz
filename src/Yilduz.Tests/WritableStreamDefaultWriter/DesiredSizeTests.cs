@@ -10,20 +10,20 @@ public sealed class DesiredSizeTests : TestBase
     [Fact]
     public void ShouldHaveDesiredSizeProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("'desiredSize' in writer").AsBoolean());
+        Assert.True(Evaluate("'desiredSize' in writer").AsBoolean());
     }
 
     [Fact]
     public void ShouldReturnCorrectDesiredSizeForEmptyStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({}, {
                 highWaterMark: 5,
@@ -33,14 +33,14 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.desiredSize === 'number'").AsBoolean());
-        Assert.Equal(5, Engine.Evaluate("writer.desiredSize").AsNumber());
+        Assert.True(Evaluate("typeof writer.desiredSize === 'number'").AsBoolean());
+        Assert.Equal(5, Evaluate("writer.desiredSize").AsNumber());
     }
 
     [Fact]
     public void ShouldUpdateDesiredSizeAfterWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -58,14 +58,14 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.Equal(3, Engine.Evaluate("initialSize").AsNumber());
-        Assert.Equal(2, Engine.Evaluate("afterWriteSize").AsNumber());
+        Assert.Equal(3, Evaluate("initialSize").AsNumber());
+        Assert.Equal(2, Evaluate("afterWriteSize").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleDesiredSizeWithCustomSizeFunction()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -85,14 +85,14 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.Equal(10, Engine.Evaluate("initialSize").AsNumber());
-        Assert.Equal(5, Engine.Evaluate("afterWriteSize").AsNumber());
+        Assert.Equal(10, Evaluate("initialSize").AsNumber());
+        Assert.Equal(5, Evaluate("afterWriteSize").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnNegativeDesiredSizeWhenOverCapacity()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -113,28 +113,28 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.desiredSize < 0").AsBoolean());
+        Assert.True(Evaluate("writer.desiredSize < 0").AsBoolean());
     }
 
     [Fact]
     public void ShouldReturnZeroDesiredSizeWhenClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Engine.Evaluate("writer.close()").UnwrapIfPromise();
+        Evaluate("writer.close()").UnwrapIfPromise();
 
-        Assert.Equal(0, Engine.Evaluate("writer.desiredSize"));
+        Assert.Equal(0, Evaluate("writer.desiredSize"));
     }
 
     [Fact]
     public void ShouldReturnNullDesiredSizeWhenErrored()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -148,13 +148,13 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.desiredSize === null").AsBoolean());
+        Assert.True(Evaluate("writer.desiredSize === null").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenAccessingDesiredSizeAfterReleaseLock()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -162,13 +162,13 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.desiredSize"));
+        Assert.Throws<JavaScriptException>(() => Evaluate("writer.desiredSize"));
     }
 
     [Fact]
     public void ShouldHandleDesiredSizeWithZeroHighWaterMark()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({}, {
                 highWaterMark: 0,
@@ -178,13 +178,13 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("writer.desiredSize").AsNumber());
+        Assert.Equal(0, Evaluate("writer.desiredSize").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleDesiredSizeWithLargeChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -204,7 +204,7 @@ public sealed class DesiredSizeTests : TestBase
             """
         );
 
-        Assert.Equal(5, Engine.Evaluate("initialSize").AsNumber());
-        Assert.Equal(-5, Engine.Evaluate("afterWriteSize").AsNumber());
+        Assert.Equal(5, Evaluate("initialSize").AsNumber());
+        Assert.Equal(-5, Evaluate("afterWriteSize").AsNumber());
     }
 }

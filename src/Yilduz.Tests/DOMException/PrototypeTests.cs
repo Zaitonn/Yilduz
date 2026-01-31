@@ -12,26 +12,26 @@ public sealed class PrototypeTests : TestBase
     [InlineData("code")]
     public void ShouldHaveProperty(string propertyName)
     {
-        Engine.Execute("const exception = new DOMException();");
+        Execute("const exception = new DOMException();");
 
-        Assert.True(Engine.Evaluate($"'{propertyName}' in exception").AsBoolean());
+        Assert.True(Evaluate($"'{propertyName}' in exception").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute("const exception = new DOMException();");
+        Execute("const exception = new DOMException();");
 
         Assert.Equal(
             "[object DOMException]",
-            Engine.Evaluate("Object.prototype.toString.call(exception)").AsString()
+            Evaluate("Object.prototype.toString.call(exception)").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveReadOnlyProperties()
     {
-        Engine.Execute(
+        Execute(
             @"
             const exception = new DOMException('Test message', 'TestError');
             const originalName = exception.name;
@@ -44,34 +44,28 @@ public sealed class PrototypeTests : TestBase
         "
         );
 
+        Assert.Equal(Evaluate("originalName").AsString(), Evaluate("exception.name").AsString());
         Assert.Equal(
-            Engine.Evaluate("originalName").AsString(),
-            Engine.Evaluate("exception.name").AsString()
+            Evaluate("originalMessage").AsString(),
+            Evaluate("exception.message").AsString()
         );
-        Assert.Equal(
-            Engine.Evaluate("originalMessage").AsString(),
-            Engine.Evaluate("exception.message").AsString()
-        );
-        Assert.Equal(
-            Engine.Evaluate("originalCode").AsNumber(),
-            Engine.Evaluate("exception.code").AsNumber()
-        );
+        Assert.Equal(Evaluate("originalCode").AsNumber(), Evaluate("exception.code").AsNumber());
     }
 
     [Fact]
     public void ShouldHaveCorrectConstructorProperty()
     {
-        Engine.Execute("const exception = new DOMException();");
+        Execute("const exception = new DOMException();");
 
-        Assert.True(Engine.Evaluate("exception.constructor === DOMException").AsBoolean());
+        Assert.True(Evaluate("exception.constructor === DOMException").AsBoolean());
     }
 
     [Fact]
     public void ShouldInheritFromObjectPrototype()
     {
-        Engine.Execute("const exception = new DOMException();");
+        Execute("const exception = new DOMException();");
 
-        Assert.True(Engine.Evaluate("exception instanceof Object").AsBoolean());
+        Assert.True(Evaluate("exception instanceof Object").AsBoolean());
         Assert.True(
             Engine
                 .Evaluate("Object.getPrototypeOf(exception) === DOMException.prototype")
@@ -82,7 +76,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveCorrectPropertyDescriptors()
     {
-        Engine.Execute(
+        Execute(
             @"
             const exception = new DOMException('Test', 'TestError');
             const nameDesc = Object.getOwnPropertyDescriptor(DOMException.prototype, 'name');
@@ -92,20 +86,20 @@ public sealed class PrototypeTests : TestBase
         );
 
         // Properties should be configured with getters but no setters
-        Assert.True(Engine.Evaluate("typeof nameDesc.get === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("nameDesc.set === undefined").AsBoolean());
-        Assert.False(Engine.Evaluate("nameDesc.enumerable").AsBoolean());
-        Assert.True(Engine.Evaluate("nameDesc.configurable").AsBoolean());
+        Assert.True(Evaluate("typeof nameDesc.get === 'function'").AsBoolean());
+        Assert.True(Evaluate("nameDesc.set === undefined").AsBoolean());
+        Assert.False(Evaluate("nameDesc.enumerable").AsBoolean());
+        Assert.True(Evaluate("nameDesc.configurable").AsBoolean());
 
-        Assert.True(Engine.Evaluate("typeof messageDesc.get === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("messageDesc.set === undefined").AsBoolean());
-        Assert.False(Engine.Evaluate("messageDesc.enumerable").AsBoolean());
-        Assert.True(Engine.Evaluate("messageDesc.configurable").AsBoolean());
+        Assert.True(Evaluate("typeof messageDesc.get === 'function'").AsBoolean());
+        Assert.True(Evaluate("messageDesc.set === undefined").AsBoolean());
+        Assert.False(Evaluate("messageDesc.enumerable").AsBoolean());
+        Assert.True(Evaluate("messageDesc.configurable").AsBoolean());
 
-        Assert.True(Engine.Evaluate("typeof codeDesc.get === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("codeDesc.set === undefined").AsBoolean());
-        Assert.False(Engine.Evaluate("codeDesc.enumerable").AsBoolean());
-        Assert.True(Engine.Evaluate("codeDesc.configurable").AsBoolean());
+        Assert.True(Evaluate("typeof codeDesc.get === 'function'").AsBoolean());
+        Assert.True(Evaluate("codeDesc.set === undefined").AsBoolean());
+        Assert.False(Evaluate("codeDesc.enumerable").AsBoolean());
+        Assert.True(Evaluate("codeDesc.configurable").AsBoolean());
     }
 
     [Fact]
@@ -113,22 +107,22 @@ public sealed class PrototypeTests : TestBase
     {
         const string expression = "DOMException.prototype.name.call({})";
 
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldWorkWithPropertyAccess()
     {
-        Engine.Execute("const exception = new DOMException('Test message', 'IndexSizeError');");
+        Execute("const exception = new DOMException('Test message', 'IndexSizeError');");
 
         // Direct property access
-        Assert.Equal("Test message", Engine.Evaluate("exception.message").AsString());
-        Assert.Equal("IndexSizeError", Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(1, Engine.Evaluate("exception.code").AsNumber());
+        Assert.Equal("Test message", Evaluate("exception.message").AsString());
+        Assert.Equal("IndexSizeError", Evaluate("exception.name").AsString());
+        Assert.Equal(1, Evaluate("exception.code").AsNumber());
 
         // Bracket notation
-        Assert.Equal("Test message", Engine.Evaluate("exception['message']").AsString());
-        Assert.Equal("IndexSizeError", Engine.Evaluate("exception['name']").AsString());
-        Assert.Equal(1, Engine.Evaluate("exception['code']").AsNumber());
+        Assert.Equal("Test message", Evaluate("exception['message']").AsString());
+        Assert.Equal("IndexSizeError", Evaluate("exception['name']").AsString());
+        Assert.Equal(1, Evaluate("exception['code']").AsNumber());
     }
 }

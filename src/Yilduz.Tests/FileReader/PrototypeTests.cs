@@ -10,14 +10,14 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "[object FileReader]",
-            Engine.Evaluate("Object.prototype.toString.call(new FileReader())").AsString()
+            Evaluate("Object.prototype.toString.call(new FileReader())").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectPrototypeChain()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReader();
             const fileReaderPrototype = Object.getPrototypeOf(reader);
@@ -26,21 +26,15 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        Assert.Equal(
-            "FileReader",
-            Engine.Evaluate("fileReaderPrototype.constructor.name").AsString()
-        );
-        Assert.Equal(
-            "EventTarget",
-            Engine.Evaluate("eventTargetPrototype.constructor.name").AsString()
-        );
-        Assert.Equal("Object", Engine.Evaluate("objectPrototype.constructor.name").AsString());
+        Assert.Equal("FileReader", Evaluate("fileReaderPrototype.constructor.name").AsString());
+        Assert.Equal("EventTarget", Evaluate("eventTargetPrototype.constructor.name").AsString());
+        Assert.Equal("Object", Evaluate("objectPrototype.constructor.name").AsString());
     }
 
     [Fact]
     public void ShouldHaveReadOnlyProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReader();
             const originalReadyState = reader.readyState;
@@ -49,13 +43,13 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("reader.readyState").AsNumber());
+        Assert.Equal(0, Evaluate("reader.readyState").AsNumber());
     }
 
     [Fact]
     public void ShouldHaveRequiredMethods()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReader();
             const hasReadAsArrayBuffer = typeof reader.readAsArrayBuffer === 'function';
@@ -65,16 +59,16 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("hasReadAsArrayBuffer").AsBoolean());
-        Assert.True(Engine.Evaluate("hasReadAsText").AsBoolean());
-        Assert.True(Engine.Evaluate("hasReadAsDataURL").AsBoolean());
-        Assert.True(Engine.Evaluate("hasAbort").AsBoolean());
+        Assert.True(Evaluate("hasReadAsArrayBuffer").AsBoolean());
+        Assert.True(Evaluate("hasReadAsText").AsBoolean());
+        Assert.True(Evaluate("hasReadAsDataURL").AsBoolean());
+        Assert.True(Evaluate("hasAbort").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveEventHandlerProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReader();
 
@@ -87,7 +81,7 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("hasOnLoadHandler").AsBoolean());
+        Assert.True(Evaluate("hasOnLoadHandler").AsBoolean());
     }
 
     [Theory]
@@ -106,8 +100,6 @@ public sealed class PrototypeTests : TestBase
     [InlineData("readyState")]
     public void ShouldHaveCorrectPrototype(string propertyName)
     {
-        Assert.True(
-            Engine.Evaluate($"FileReader.prototype.hasOwnProperty('{propertyName}')").AsBoolean()
-        );
+        Assert.True(Evaluate($"FileReader.prototype.hasOwnProperty('{propertyName}')").AsBoolean());
     }
 }

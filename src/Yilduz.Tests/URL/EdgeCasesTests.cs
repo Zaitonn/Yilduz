@@ -10,11 +10,11 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleIPv4Address()
     {
-        Engine.Execute("const url = new URL('https://192.168.1.1:8080/path');");
+        Execute("const url = new URL('https://192.168.1.1:8080/path');");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var host = Engine.Evaluate("url.host").AsString();
-        var port = Engine.Evaluate("url.port").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var host = Evaluate("url.host").AsString();
+        var port = Evaluate("url.port").AsString();
 
         Assert.Equal("192.168.1.1", hostname);
         Assert.Equal("192.168.1.1:8080", host);
@@ -24,10 +24,10 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleIPv6Address()
     {
-        Engine.Execute("const url = new URL('https://[::1]/path');");
+        Execute("const url = new URL('https://[::1]/path');");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
 
         Assert.Equal("[::1]", hostname);
         Assert.Equal("/path", pathname);
@@ -36,11 +36,11 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleLocalhost()
     {
-        Engine.Execute("const url = new URL('http://localhost:3000/api');");
+        Execute("const url = new URL('http://localhost:3000/api');");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var port = Engine.Evaluate("url.port").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var port = Evaluate("url.port").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
 
         Assert.Equal("localhost", hostname);
         Assert.Equal("3000", port);
@@ -50,10 +50,10 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleFileProtocol()
     {
-        Engine.Execute("const url = new URL('file:///C:/Users/test/document.txt');");
+        Execute("const url = new URL('file:///C:/Users/test/document.txt');");
 
-        var protocol = Engine.Evaluate("url.protocol").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
+        var protocol = Evaluate("url.protocol").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
 
         Assert.Equal("file:", protocol);
         Assert.Contains("/C:/Users/test/document.txt", pathname);
@@ -62,13 +62,13 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleEncodedCharacters()
     {
-        Engine.Execute(
+        Execute(
             "const url = new URL('https://example.com/path%20with%20spaces?key=value%20with%20spaces');"
         );
 
-        var href = Engine.Evaluate("url.href").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
-        var search = Engine.Evaluate("url.search").AsString();
+        var href = Evaluate("url.href").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
+        var search = Evaluate("url.search").AsString();
 
         Assert.Contains("example.com", href);
         Assert.Contains("path", pathname);
@@ -78,10 +78,10 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleUnicodeCharacters()
     {
-        Engine.Execute("const url = new URL('https://测试.example.com/路径');");
+        Execute("const url = new URL('https://测试.example.com/路径');");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
 
         // The behavior here depends on how the underlying URI parser handles Unicode
         Assert.NotEmpty(hostname);
@@ -91,10 +91,10 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleEmptyComponents()
     {
-        Engine.Execute("const url = new URL('https://example.com///multiple//slashes///');");
+        Execute("const url = new URL('https://example.com///multiple//slashes///');");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
 
         Assert.Equal("example.com", hostname);
         // The pathname behavior depends on normalization
@@ -105,10 +105,10 @@ public sealed class EdgeCasesTests : TestBase
     public void ShouldHandleVeryLongURL()
     {
         var longPath = string.Join("/", Enumerable.Repeat("segment", 100));
-        Engine.Execute($"const url = new URL('https://example.com/{longPath}');");
+        Execute($"const url = new URL('https://example.com/{longPath}');");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
 
         Assert.Equal("example.com", hostname);
         Assert.Contains("segment", pathname);
@@ -117,10 +117,10 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleSpecialCharactersInUserInfo()
     {
-        Engine.Execute("const url = new URL('https://user%40domain:p%40ssw0rd@example.com');");
+        Execute("const url = new URL('https://user%40domain:p%40ssw0rd@example.com');");
 
-        var username = Engine.Evaluate("url.username").AsString();
-        var password = Engine.Evaluate("url.password").AsString();
+        var username = Evaluate("url.username").AsString();
+        var password = Evaluate("url.password").AsString();
 
         // The behavior depends on URL encoding handling
         Assert.NotEmpty(username);
@@ -130,11 +130,11 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleQueryStringWithSpecialCharacters()
     {
-        Engine.Execute(
+        Execute(
             "const url = new URL('https://example.com?key=value&other=data with spaces&encoded=%20test');"
         );
 
-        var search = Engine.Evaluate("url.search").AsString();
+        var search = Evaluate("url.search").AsString();
 
         Assert.Contains("key=value", search);
         Assert.Contains("other=data", search);
@@ -144,9 +144,9 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleFragmentWithSpecialCharacters()
     {
-        Engine.Execute("const url = new URL('https://example.com#section with spaces');");
+        Execute("const url = new URL('https://example.com#section with spaces');");
 
-        var hash = Engine.Evaluate("url.hash").AsString();
+        var hash = Evaluate("url.hash").AsString();
 
         Assert.StartsWith("#", hash);
         Assert.Contains("section", hash);
@@ -155,9 +155,9 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleMultipleQueryParameters()
     {
-        Engine.Execute("const url = new URL('https://example.com?a=1&b=2&c=3&d=4&e=5');");
+        Execute("const url = new URL('https://example.com?a=1&b=2&c=3&d=4&e=5');");
 
-        var search = Engine.Evaluate("url.search").AsString();
+        var search = Evaluate("url.search").AsString();
 
         Assert.Contains("a=1", search);
         Assert.Contains("b=2", search);
@@ -169,11 +169,9 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleEmptyQueryParameterValues()
     {
-        Engine.Execute(
-            "const url = new URL('https://example.com?empty=&also_empty&with_value=test');"
-        );
+        Execute("const url = new URL('https://example.com?empty=&also_empty&with_value=test');");
 
-        var search = Engine.Evaluate("url.search").AsString();
+        var search = Evaluate("url.search").AsString();
 
         Assert.Contains("empty=", search);
         Assert.Contains("also_empty", search);
@@ -183,11 +181,11 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldPreserveTrailingSlashInPathname()
     {
-        Engine.Execute("const urlWithSlash = new URL('https://example.com/path/');");
-        Engine.Execute("const urlWithoutSlash = new URL('https://example.com/path');");
+        Execute("const urlWithSlash = new URL('https://example.com/path/');");
+        Execute("const urlWithoutSlash = new URL('https://example.com/path');");
 
-        var pathnameWithSlash = Engine.Evaluate("urlWithSlash.pathname").AsString();
-        var pathnameWithoutSlash = Engine.Evaluate("urlWithoutSlash.pathname").AsString();
+        var pathnameWithSlash = Evaluate("urlWithSlash.pathname").AsString();
+        var pathnameWithoutSlash = Evaluate("urlWithoutSlash.pathname").AsString();
 
         Assert.EndsWith("/", pathnameWithSlash);
         Assert.False(pathnameWithoutSlash.EndsWith("/"));
@@ -196,15 +194,15 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldHandleRelativeURLsWithDifferentBasePaths()
     {
-        Engine.Execute("const url1 = new URL('subpath', 'https://example.com/base/');");
-        Engine.Execute("const url2 = new URL('subpath', 'https://example.com/base');");
-        Engine.Execute("const url3 = new URL('./subpath', 'https://example.com/base/');");
-        Engine.Execute("const url4 = new URL('../subpath', 'https://example.com/base/other/');");
+        Execute("const url1 = new URL('subpath', 'https://example.com/base/');");
+        Execute("const url2 = new URL('subpath', 'https://example.com/base');");
+        Execute("const url3 = new URL('./subpath', 'https://example.com/base/');");
+        Execute("const url4 = new URL('../subpath', 'https://example.com/base/other/');");
 
-        var href1 = Engine.Evaluate("url1.href").AsString();
-        var href2 = Engine.Evaluate("url2.href").AsString();
-        var href3 = Engine.Evaluate("url3.href").AsString();
-        var href4 = Engine.Evaluate("url4.href").AsString();
+        var href1 = Evaluate("url1.href").AsString();
+        var href2 = Evaluate("url2.href").AsString();
+        var href3 = Evaluate("url3.href").AsString();
+        var href4 = Evaluate("url4.href").AsString();
 
         // These tests verify relative URL resolution behavior
         Assert.Contains("subpath", href1);
@@ -216,9 +214,7 @@ public sealed class EdgeCasesTests : TestBase
     [Fact]
     public void ShouldThrowForMalformedURL()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("const url = new URL('https://');")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("const url = new URL('https://');"));
     }
 
     [Fact]
@@ -226,7 +222,7 @@ public sealed class EdgeCasesTests : TestBase
     {
         // Throws on nodejs but not on browser
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("const url = new URL('https://example.com path');")
+            () => Execute("const url = new URL('https://example.com path');")
         );
     }
 }

@@ -9,7 +9,7 @@ public sealed class EventTests : TestBase
     [Fact]
     public void CanAddEventListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             const signal = controller.signal;
@@ -22,13 +22,13 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("called").AsBoolean());
+        Assert.True(Evaluate("called").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleComplexAbortScenarios()
     {
-        Engine.Execute(
+        Execute(
             """
             const controllers = [];
             const results = [];
@@ -48,15 +48,15 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.Equal(2, Engine.Evaluate("results.length").AsNumber());
-        Assert.Equal("Controller 1 aborted", Engine.Evaluate("results[0]").AsString());
-        Assert.Equal("Controller 3 aborted", Engine.Evaluate("results[1]").AsString());
+        Assert.Equal(2, Evaluate("results.length").AsNumber());
+        Assert.Equal("Controller 1 aborted", Evaluate("results[0]").AsString());
+        Assert.Equal("Controller 3 aborted", Evaluate("results[1]").AsString());
     }
 
     [Fact]
     public void ShouldHandleErrorsInAbortListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let secondListenerExecuted = false;
@@ -73,13 +73,13 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("secondListenerExecuted").AsBoolean());
+        Assert.True(Evaluate("secondListenerExecuted").AsBoolean());
     }
 
     [Fact]
     public async Task ShouldSupportStaticTimeoutMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const signal = AbortSignal.timeout(50);
             let timeoutFired = false;
@@ -92,16 +92,16 @@ public sealed class EventTests : TestBase
 
         await Task.Delay(100);
 
-        Assert.True(Engine.Evaluate("timeoutFired").AsBoolean());
-        Assert.True(Engine.Evaluate("signal.aborted").AsBoolean());
-        Assert.Equal("TimeoutError", Engine.Evaluate("signal.reason.name"));
-        Assert.Equal("signal timed out", Engine.Evaluate("signal.reason.message"));
+        Assert.True(Evaluate("timeoutFired").AsBoolean());
+        Assert.True(Evaluate("signal.aborted").AsBoolean());
+        Assert.Equal("TimeoutError", Evaluate("signal.reason.name"));
+        Assert.Equal("signal timed out", Evaluate("signal.reason.message"));
     }
 
     [Fact]
     public void ShouldHandleAbortSignalAny()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller1 = new AbortController();
             const controller2 = new AbortController();
@@ -122,15 +122,15 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("compositeSignal.aborted").AsBoolean());
-        Assert.True(Engine.Evaluate("abortEventFired").AsBoolean());
-        Assert.Equal("Second controller aborted", Engine.Evaluate("compositeSignal.reason"));
+        Assert.True(Evaluate("compositeSignal.aborted").AsBoolean());
+        Assert.True(Evaluate("abortEventFired").AsBoolean());
+        Assert.Equal("Second controller aborted", Evaluate("compositeSignal.reason"));
     }
 
     [Fact]
     public void ShouldFireAbortEventOnSignal()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let eventFired = false;
@@ -145,14 +145,14 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("eventFired").AsBoolean());
-        Assert.Equal("test reason", Engine.Evaluate("eventReason").AsString());
+        Assert.True(Evaluate("eventFired").AsBoolean());
+        Assert.Equal("test reason", Evaluate("eventReason").AsString());
     }
 
     [Fact]
     public void ShouldSupportMultipleAbortListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let listener1Executed = false;
@@ -167,15 +167,15 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("listener1Executed").AsBoolean());
-        Assert.True(Engine.Evaluate("listener2Executed").AsBoolean());
-        Assert.True(Engine.Evaluate("listener3Executed").AsBoolean());
+        Assert.True(Evaluate("listener1Executed").AsBoolean());
+        Assert.True(Evaluate("listener2Executed").AsBoolean());
+        Assert.True(Evaluate("listener3Executed").AsBoolean());
     }
 
     [Fact]
     public void ShouldNotFireEventIfAlreadyAborted()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let eventCount = 0;
@@ -188,13 +188,13 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.Equal(1, Engine.Evaluate("eventCount").AsNumber());
+        Assert.Equal(1, Evaluate("eventCount").AsNumber());
     }
 
     [Fact]
     public void ShouldSupportOnAbortProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let onAbortExecuted = false;
@@ -204,13 +204,13 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("onAbortExecuted").AsBoolean());
+        Assert.True(Evaluate("onAbortExecuted").AsBoolean());
     }
 
     [Fact]
     public void ShouldExecuteBothOnAbortAndEventListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let onAbortExecuted = false;
@@ -223,14 +223,14 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("onAbortExecuted").AsBoolean());
-        Assert.True(Engine.Evaluate("eventListenerExecuted").AsBoolean());
+        Assert.True(Evaluate("onAbortExecuted").AsBoolean());
+        Assert.True(Evaluate("eventListenerExecuted").AsBoolean());
     }
 
     [Fact]
     public void ShouldAllowListenerRemoval()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             let executed = false;
@@ -243,6 +243,6 @@ public sealed class EventTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("executed").AsBoolean());
+        Assert.False(Evaluate("executed").AsBoolean());
     }
 }

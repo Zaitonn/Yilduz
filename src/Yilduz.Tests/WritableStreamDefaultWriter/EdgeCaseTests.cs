@@ -9,7 +9,7 @@ public sealed class EdgeCaseTests : TestBase
     [Fact]
     public void ShouldHandleWriteWithNullUndefinedChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             let receivedChunks = [];
             const stream = new WritableStream({
@@ -24,7 +24,7 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Write null and undefined chunks
-        Engine.Execute(
+        Execute(
             """
             const nullPromise = writer.write(null);
             const undefinedPromise = writer.write(undefined);
@@ -32,15 +32,15 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("nullPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("undefinedPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("explicitUndefinedPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("nullPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("undefinedPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("explicitUndefinedPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleDetachedWriter()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -49,28 +49,24 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Method calls on detached writer should return rejected promises
-        Engine.Execute("const writePromise = writer.write('test');");
-        Engine.Execute("const closePromise = writer.close();");
-        Engine.Execute("const abortPromise = writer.abort();");
+        Execute("const writePromise = writer.write('test');");
+        Execute("const closePromise = writer.close();");
+        Execute("const abortPromise = writer.abort();");
 
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("abortPromise instanceof Promise").AsBoolean());
 
         // Property access on detached writer should throw
-        Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.ready").UnwrapIfPromise()
-        );
-        Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.closed").UnwrapIfPromise()
-        );
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("writer.desiredSize"));
+        Assert.Throws<PromiseRejectedException>(() => Evaluate("writer.ready").UnwrapIfPromise());
+        Assert.Throws<PromiseRejectedException>(() => Evaluate("writer.closed").UnwrapIfPromise());
+        Assert.Throws<JavaScriptException>(() => Evaluate("writer.desiredSize"));
     }
 
     [Fact]
     public void ShouldHandleVeryLargeChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -88,20 +84,20 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Write very large chunk
-        Engine.Execute(
+        Execute(
             """
             const largeChunk = { size: 1000000 };
             const largePromise = writer.write(largeChunk);
             """
         );
 
-        Assert.True(Engine.Evaluate("largePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("largePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleZeroAndNegativeSizes()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -119,21 +115,21 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Write chunks with zero and negative sizes
-        Engine.Execute(
+        Execute(
             """
             const zeroPromise = writer.write({ size: 0 });
             const negativePromise = writer.write({ size: -5 });
             """
         );
 
-        Assert.True(Engine.Evaluate("zeroPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("negativePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("zeroPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("negativePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleNaNAndInfiniteSizes()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -151,7 +147,7 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Write chunks with NaN and infinite sizes
-        Engine.Execute(
+        Execute(
             """
             const nanPromise = writer.write({ size: NaN });
             const infinitePromise = writer.write({ size: Infinity });
@@ -159,15 +155,15 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("nanPromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("infinitePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("negInfinitePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("nanPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("infinitePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("negInfinitePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleCircularChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -180,7 +176,7 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Create circular reference
-        Engine.Execute(
+        Execute(
             """
             const circularChunk = { data: 'test' };
             circularChunk.self = circularChunk;
@@ -188,13 +184,13 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("circularPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("circularPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteAfterMultipleReleaseAndReacquire()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
 
@@ -211,14 +207,14 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Engine.Execute("const writePromise = finalWriter.write('test');");
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
+        Execute("const writePromise = finalWriter.write('test');");
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandlePromiseChainInWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             let resolveWrite;
             const stream = new WritableStream({
@@ -235,14 +231,14 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("typeof resolveWrite === 'function'").AsBoolean());
+        Assert.True(Evaluate("writePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("typeof resolveWrite === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleExceptionInSizeFunction()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -263,14 +259,14 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Write chunk that causes size function to throw
-        Engine.Execute("const errorPromise = writer.write({ throwError: true });");
-        Assert.True(Engine.Evaluate("errorPromise instanceof Promise").AsBoolean());
+        Execute("const errorPromise = writer.write({ throwError: true });");
+        Assert.True(Evaluate("errorPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleSymbolChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             let receivedChunks = [];
             const stream = new WritableStream({
@@ -285,7 +281,7 @@ public sealed class EdgeCaseTests : TestBase
         );
 
         // Write symbol chunks
-        Engine.Execute(
+        Execute(
             """
             const symbol1 = Symbol('test1');
             const symbol2 = Symbol.for('test2');
@@ -294,7 +290,7 @@ public sealed class EdgeCaseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("symbolPromise1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("symbolPromise2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("symbolPromise1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("symbolPromise2 instanceof Promise").AsBoolean());
     }
 }

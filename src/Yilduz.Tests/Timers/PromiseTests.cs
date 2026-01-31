@@ -12,7 +12,7 @@ public sealed class PromiseTests : TestBase
     {
         var stopwatch = new Stopwatch();
         stopwatch.Start();
-        Engine.Execute("let executed = false;");
+        Execute("let executed = false;");
 
         Assert.Equal(
             JsValue.Undefined,
@@ -31,7 +31,7 @@ public sealed class PromiseTests : TestBase
         );
         stopwatch.Stop();
 
-        Assert.True(Engine.Evaluate("executed").AsBoolean());
+        Assert.True(Evaluate("executed").AsBoolean());
         Assert.InRange(stopwatch.ElapsedMilliseconds, 0, 500);
     }
 }

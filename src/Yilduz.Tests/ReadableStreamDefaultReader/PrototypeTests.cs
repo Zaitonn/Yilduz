@@ -28,13 +28,13 @@ public sealed class PrototypeTests : TestBase
     [InlineData("ReadableStreamDefaultReader.prototype.releaseLock()")]
     public void ReadableStreamDefaultReaderShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader = stream.getReader();
@@ -43,7 +43,7 @@ public sealed class PrototypeTests : TestBase
         );
         Assert.Equal(
             "[object ReadableStreamDefaultReader]",
-            Engine.Evaluate("readerToStringTag").AsString()
+            Evaluate("readerToStringTag").AsString()
         );
     }
 
@@ -52,21 +52,19 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "ReadableStreamDefaultReader",
-            Engine.Evaluate("ReadableStreamDefaultReader.name").AsString()
+            Evaluate("ReadableStreamDefaultReader.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldNotBeCallableAsFunction()
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate("ReadableStreamDefaultReader()"));
+        Assert.Throws<JavaScriptException>(() => Evaluate("ReadableStreamDefaultReader()"));
     }
 
     [Fact]
     public void ShouldNotBeConstructableDirectly()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("new ReadableStreamDefaultReader()")
-        );
+        Assert.Throws<JavaScriptException>(() => Evaluate("new ReadableStreamDefaultReader()"));
     }
 }

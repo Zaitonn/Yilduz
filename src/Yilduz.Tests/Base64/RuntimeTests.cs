@@ -30,8 +30,8 @@ public sealed class RuntimeTests : TestBase
     )]
     public void ShouldEncodeAndDecodeBetweenStringAndBase64(string text, string base64)
     {
-        Assert.Equal(text, Engine.Evaluate($"atob('{base64}')"));
-        Assert.Equal(base64, Engine.Evaluate($"btoa('{text}')"));
+        Assert.Equal(text, Evaluate($"atob('{base64}')"));
+        Assert.Equal(base64, Evaluate($"btoa('{text}')"));
     }
 
     [Theory]
@@ -40,7 +40,7 @@ public sealed class RuntimeTests : TestBase
     [InlineData("■")]
     public void ShouldThrowForAnyCharaterIsInvalid(string text)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate($"btoa('{text}')"));
+        Assert.Throws<JavaScriptException>(() => Evaluate($"btoa('{text}')"));
     }
 
     [Theory]
@@ -52,38 +52,38 @@ public sealed class RuntimeTests : TestBase
     [InlineData("________")]
     public void ShouldThrowForBase64IsInvalid(string base64)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate($"atob('{base64}')"));
+        Assert.Throws<JavaScriptException>(() => Evaluate($"atob('{base64}')"));
     }
 
     [Fact]
     public void ShouldEncodeAndDecodeLongString()
     {
         var longString = new string('A', 1000);
-        Engine.Execute($"const longStr = '{longString}';");
-        Engine.Execute("const encoded = btoa(longStr);");
-        Engine.Execute("const decoded = atob(encoded);");
+        Execute($"const longStr = '{longString}';");
+        Execute("const encoded = btoa(longStr);");
+        Execute("const decoded = atob(encoded);");
 
-        var result = Engine.Evaluate("decoded").AsString();
+        var result = Evaluate("decoded").AsString();
         Assert.Equal(longString, result);
 
-        var encodedLength = Engine.Evaluate("encoded.length").AsNumber();
+        var encodedLength = Evaluate("encoded.length").AsNumber();
         Assert.Equal(Math.Ceiling(1000d / 3) * 4, encodedLength);
     }
 
     [Fact]
     public void ShouldHandleEmptyInput()
     {
-        var emptyEncoded = Engine.Evaluate("btoa('')").AsString();
+        var emptyEncoded = Evaluate("btoa('')").AsString();
         Assert.Empty(emptyEncoded);
 
-        var emptyDecoded = Engine.Evaluate("atob('')").AsString();
+        var emptyDecoded = Evaluate("atob('')").AsString();
         Assert.Empty(emptyDecoded);
     }
 
     [Fact]
     public void ShouldHandleAsciiControlCharacters()
     {
-        Engine.Execute(
+        Execute(
             """
             let controlChars = ''; 
             for (let i = 0; i < 32; i++) {
@@ -94,39 +94,39 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var length = Engine.Evaluate("decoded.length").AsNumber();
+        var length = Evaluate("decoded.length").AsNumber();
         Assert.Equal(32, length);
     }
 
     [Fact]
     public void ShouldCoerceNonStringArgumentsToString()
     {
-        Engine.Execute("const numEncoded = btoa(123);");
-        Engine.Execute("const numDecoded = atob(numEncoded);");
-        var numResult = Engine.Evaluate("numDecoded").AsString();
+        Execute("const numEncoded = btoa(123);");
+        Execute("const numDecoded = atob(numEncoded);");
+        var numResult = Evaluate("numDecoded").AsString();
         Assert.Equal("123", numResult);
 
-        Engine.Execute("const boolEncoded = btoa(true);");
-        Engine.Execute("const boolDecoded = atob(boolEncoded);");
-        var boolResult = Engine.Evaluate("boolDecoded").AsString();
+        Execute("const boolEncoded = btoa(true);");
+        Execute("const boolDecoded = atob(boolEncoded);");
+        var boolResult = Evaluate("boolDecoded").AsString();
         Assert.Equal("true", boolResult);
 
-        Engine.Execute("const nullEncoded = btoa(null);");
-        Engine.Execute("const nullDecoded = atob(nullEncoded);");
-        var nullResult = Engine.Evaluate("nullDecoded").AsString();
+        Execute("const nullEncoded = btoa(null);");
+        Execute("const nullDecoded = atob(nullEncoded);");
+        var nullResult = Evaluate("nullDecoded").AsString();
         Assert.Equal("null", nullResult);
     }
 
     [Fact]
     public void ShouldHandleObjectArguments()
     {
-        Assert.Equal("W29iamVjdCBPYmplY3Rd", Engine.Evaluate("btoa({})"));
+        Assert.Equal("W29iamVjdCBPYmplY3Rd", Evaluate("btoa({})"));
     }
 
     [Fact]
     public void ShouldHandleMultipleEncodingDecoding()
     {
-        Engine.Execute(
+        Execute(
             """
             const original = 'Test String';
             const firstEncode = btoa(original);
@@ -136,14 +136,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var finalResult = Engine.Evaluate("finalDecode").AsString();
+        var finalResult = Evaluate("finalDecode").AsString();
         Assert.Equal("Test String", finalResult);
     }
 
     [Fact]
     public void ShouldHandleSpecialChars()
     {
-        Engine.Execute(
+        Execute(
             """
             const specialChars = '\t\n\r\\\'\"';
             const encoded = btoa(specialChars);
@@ -151,7 +151,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var specialResult = Engine.Evaluate("decoded").AsString();
+        var specialResult = Evaluate("decoded").AsString();
         Assert.Equal("\t\n\r\\\'\"", specialResult);
     }
 
@@ -179,11 +179,11 @@ public sealed class RuntimeTests : TestBase
             .Replace("\r", "\\r")
             .Replace("\t", "\\t");
 
-        Engine.Execute($"const str = '{escapedChars}';");
-        Engine.Execute("const encoded = btoa(str);");
-        Engine.Execute("const decoded = atob(encoded);");
+        Execute($"const str = '{escapedChars}';");
+        Execute("const encoded = btoa(str);");
+        Execute("const decoded = atob(encoded);");
 
-        var result = Engine.Evaluate("decoded").AsString();
+        var result = Evaluate("decoded").AsString();
         Assert.Equal(chars, result);
     }
 }

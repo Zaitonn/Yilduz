@@ -8,7 +8,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleErrorsInEventListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let executed = false;
@@ -22,14 +22,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var executed = Engine.Evaluate("executed").AsBoolean();
+        var executed = Evaluate("executed").AsBoolean();
         Assert.True(executed); // Second listener should still execute
     }
 
     [Fact]
     public void ShouldMaintainEventListenerOrder()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let order = [];
@@ -40,9 +40,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var first = Engine.Evaluate("order[0]").AsNumber();
-        var second = Engine.Evaluate("order[1]").AsNumber();
-        var third = Engine.Evaluate("order[2]").AsNumber();
+        var first = Evaluate("order[0]").AsNumber();
+        var second = Evaluate("order[1]").AsNumber();
+        var third = Evaluate("order[2]").AsNumber();
 
         Assert.Equal(1, first);
         Assert.Equal(2, second);
@@ -52,7 +52,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleNestedEventDispatching()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let innerExecuted = false;
@@ -66,14 +66,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var innerExecuted = Engine.Evaluate("innerExecuted").AsBoolean();
+        var innerExecuted = Evaluate("innerExecuted").AsBoolean();
         Assert.True(innerExecuted);
     }
 
     [Fact]
     public void ShouldHandleEventStopPropagation()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count = 0;
@@ -88,14 +88,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var count = Engine.Evaluate("count").AsNumber();
+        var count = Evaluate("count").AsNumber();
         Assert.Equal(11, count); // stopPropagation doesn't affect same target
     }
 
     [Fact]
     public void ShouldHandleEventStopImmediatePropagation()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count = 0;
@@ -110,14 +110,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var count = Engine.Evaluate("count").AsNumber();
+        var count = Evaluate("count").AsNumber();
         Assert.Equal(1, count); // Second listener should not execute
     }
 
     [Fact]
     public void ShouldHandleLargeNumberOfListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count = 0;
@@ -128,14 +128,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var count = Engine.Evaluate("count").AsNumber();
+        var count = Evaluate("count").AsNumber();
         Assert.Equal(100, count);
     }
 
     [Fact]
     public void ShouldHandleListenerWithComplexOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let passiveExecuted = false;
@@ -150,8 +150,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var passiveExecuted = Engine.Evaluate("passiveExecuted").AsBoolean();
-        var captureExecuted = Engine.Evaluate("captureExecuted").AsBoolean();
+        var passiveExecuted = Evaluate("passiveExecuted").AsBoolean();
+        var captureExecuted = Evaluate("captureExecuted").AsBoolean();
 
         Assert.True(passiveExecuted);
         Assert.True(captureExecuted);
@@ -160,7 +160,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleEventWithCustomProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let customData = null;
@@ -173,14 +173,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var customData = Engine.Evaluate("customData").AsString();
+        var customData = Evaluate("customData").AsString();
         Assert.Equal("custom value", customData);
     }
 
     [Fact]
     public void ShouldHandleInvalidEventTypes()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let executed = false;
@@ -189,14 +189,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var executed = Engine.Evaluate("executed").AsBoolean();
+        var executed = Evaluate("executed").AsBoolean();
         Assert.True(executed); // Empty string is valid event type
     }
 
     [Fact]
     public void ShouldHandleNullAndUndefinedListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             target.addEventListener('test', null);
@@ -211,7 +211,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleEventWithCircularReferences()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let eventReceived = null;

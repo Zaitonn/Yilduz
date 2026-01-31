@@ -17,7 +17,7 @@ public sealed class EncodingTests : TestBase
     public void ShouldDecodeUtf8Characters(string encoding, byte[] input, string expected)
     {
         var bytesStr = string.Join(", ", input);
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const bytes = new Uint8Array([{bytesStr}]);
@@ -25,7 +25,7 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal(expected, Engine.Evaluate("result").AsString());
+        Assert.Equal(expected, Evaluate("result").AsString());
     }
 
     [Theory]
@@ -42,7 +42,7 @@ public sealed class EncodingTests : TestBase
     public void ShouldDecodeUtf16Characters(string encoding, byte[] input, string expected)
     {
         var bytesStr = string.Join(", ", input);
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const bytes = new Uint8Array([{bytesStr}]);
@@ -50,7 +50,7 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal(expected, Engine.Evaluate("result").AsString());
+        Assert.Equal(expected, Evaluate("result").AsString());
     }
 
     [Theory]
@@ -60,7 +60,7 @@ public sealed class EncodingTests : TestBase
     public void ShouldDecodeWindowsCodePages(string encoding, byte[] input, string expected)
     {
         var bytesStr = string.Join(", ", input);
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const bytes = new Uint8Array([{bytesStr}]);
@@ -68,7 +68,7 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal(expected, Engine.Evaluate("result").AsString());
+        Assert.Equal(expected, Evaluate("result").AsString());
     }
 
     [Theory]
@@ -79,7 +79,7 @@ public sealed class EncodingTests : TestBase
     public void ShouldDecodeIsoEncodings(string encoding, byte[] input, string expected)
     {
         var bytesStr = string.Join(", ", input);
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const bytes = new Uint8Array([{bytesStr}]);
@@ -87,13 +87,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal(expected, Engine.Evaluate("result").AsString());
+        Assert.Equal(expected, Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldHandleUtf8BomCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8');
             const bytesWithBOM = new Uint8Array([0xEF, 0xBB, 0xBF, 72, 101, 108, 108, 111]); // BOM + 'Hello'
@@ -101,13 +101,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldHandleUtf16LeBomCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-16le');
             const bytesWithBOM = new Uint8Array([0xFF, 0xFE, 0x48, 0x00, 0x65, 0x00]); // BOM + 'He'
@@ -115,13 +115,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("He", Engine.Evaluate("result").AsString());
+        Assert.Equal("He", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldHandleUtf16BeBomCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-16be');
             const bytesWithBOM = new Uint8Array([0xFE, 0xFF, 0x00, 0x48, 0x00, 0x65]); // BOM + 'He'
@@ -129,13 +129,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("He", Engine.Evaluate("result").AsString());
+        Assert.Equal("He", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldRespectIgnoreBomOptionForUtf8()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
             const bytesWithBOM = new Uint8Array([0xEF, 0xBB, 0xBF, 72, 101, 108, 108, 111]); // BOM + 'Hello'
@@ -143,13 +143,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("\ufeffHello", Engine.Evaluate("result").AsString());
+        Assert.Equal("\ufeffHello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldRespectIgnoreBomOptionForUtf16Le()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-16le', { ignoreBOM: true });
             const bytesWithBOM = new Uint8Array([0xFF, 0xFE, 0x48, 0x00, 0x65, 0x00]); // BOM + 'He'
@@ -157,7 +157,7 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("\ufeffHe", Engine.Evaluate("result").AsString());
+        Assert.Equal("\ufeffHe", Evaluate("result").AsString());
     }
 
     [Theory]
@@ -166,7 +166,7 @@ public sealed class EncodingTests : TestBase
     [InlineData("iso-8859-1")]
     public void ShouldHandleAsciiCompatibleEncodings(string encoding)
     {
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const bytes = new Uint8Array([72, 101, 108, 108, 111, 32, 87, 111, 114, 108, 100]); // 'Hello World'
@@ -174,7 +174,7 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("Hello World", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello World", Evaluate("result").AsString());
     }
 
     [Fact]
@@ -184,14 +184,14 @@ public sealed class EncodingTests : TestBase
 
         foreach (var encoding in encodings)
         {
-            Engine.Execute(
+            Execute(
                 $"""
                 var decoder = new TextDecoder('{encoding}');
                 var result = decoder.decode(new Uint8Array([]));
                 """
             );
 
-            Assert.Equal("", Engine.Evaluate("result").AsString());
+            Assert.Equal("", Evaluate("result").AsString());
         }
     }
 
@@ -202,7 +202,7 @@ public sealed class EncodingTests : TestBase
     public void ShouldHandleInvalidSequencesWithFatalFalse(string encoding, byte[] input)
     {
         var bytesStr = string.Join(", ", input);
-        Engine.Execute(
+        Execute(
             $$"""
             const decoder = new TextDecoder('{{encoding}}', { fatal: false });
             const bytes = new Uint8Array([{{bytesStr}}]);
@@ -211,7 +211,7 @@ public sealed class EncodingTests : TestBase
         );
 
         // Should not throw and return some result (possibly with replacement characters)
-        var result = Engine.Evaluate("result").AsString();
+        var result = Evaluate("result").AsString();
         Assert.NotNull(result);
     }
 
@@ -223,7 +223,7 @@ public sealed class EncodingTests : TestBase
     [InlineData("latin2")]
     public void ShouldSupportCommonEncodingAliases(string alias)
     {
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{alias}');
             const bytes = new Uint8Array([72, 101, 108, 108, 111]); // 'Hello'
@@ -231,13 +231,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldHandleMixedContentInUtf8()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8');
             // Mix of ASCII, Latin, Cyrillic, and emoji
@@ -251,13 +251,13 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("Hello é Привет 😀", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello é Привет 😀", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldWorkWithLargeInputs()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8');
             const largeText = 'A'.repeat(10000);
@@ -267,7 +267,7 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        var result = Engine.Evaluate("result").AsString();
+        var result = Evaluate("result").AsString();
         Assert.Equal(10000, result.Length);
         Assert.All(result, c => Assert.Equal('A', c));
     }
@@ -279,7 +279,7 @@ public sealed class EncodingTests : TestBase
     public void ShouldHandleBomOnlyInput(string encoding, byte[] bom)
     {
         var bytesStr = string.Join(", ", bom);
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const bytes = new Uint8Array([{bytesStr}]);
@@ -287,6 +287,6 @@ public sealed class EncodingTests : TestBase
             """
         );
 
-        Assert.Equal("", Engine.Evaluate("result").AsString());
+        Assert.Equal("", Evaluate("result").AsString());
     }
 }

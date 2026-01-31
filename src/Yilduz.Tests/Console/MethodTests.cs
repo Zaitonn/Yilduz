@@ -7,7 +7,7 @@ public sealed class ConsoleTests : TestBase
     [Fact]
     public void ShouldHaveConsoleObject()
     {
-        Assert.Equal("object", Engine.Evaluate("typeof console"));
+        Assert.Equal("object", Evaluate("typeof console"));
     }
 
     [Theory]
@@ -33,7 +33,7 @@ public sealed class ConsoleTests : TestBase
     [InlineData("warn")]
     public void ShouldHaveAllConsoleMethods(string methodName)
     {
-        Assert.Equal("function", Engine.Evaluate($"typeof console.{methodName}"));
+        Assert.Equal("function", Evaluate($"typeof console.{methodName}"));
     }
 
     [Theory]
@@ -64,6 +64,6 @@ public sealed class ConsoleTests : TestBase
     )]
     public void ShouldCallAllConsoleMethods(string jsCode)
     {
-        Engine.Evaluate(jsCode);
+        Evaluate(jsCode);
     }
 }

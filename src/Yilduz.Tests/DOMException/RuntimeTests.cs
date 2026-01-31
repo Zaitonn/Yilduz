@@ -10,7 +10,7 @@ public sealed class RuntimeTests : TestBase
     public void ShouldBeThrowable()
     {
         var exception = Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("throw new DOMException('Test error', 'TestError');")
+            () => Execute("throw new DOMException('Test error', 'TestError');")
         );
 
         Assert.NotNull(exception.Error);
@@ -19,7 +19,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldBeCatchable()
     {
-        Engine.Execute(
+        Execute(
             @"
             let caught = false;
             let caughtException = null;
@@ -33,16 +33,16 @@ public sealed class RuntimeTests : TestBase
         "
         );
 
-        Assert.True(Engine.Evaluate("caught").AsBoolean());
-        Assert.True(Engine.Evaluate("caughtException instanceof DOMException").AsBoolean());
-        Assert.Equal("Test error", Engine.Evaluate("caughtException.message").AsString());
-        Assert.Equal("TestError", Engine.Evaluate("caughtException.name").AsString());
+        Assert.True(Evaluate("caught").AsBoolean());
+        Assert.True(Evaluate("caughtException instanceof DOMException").AsBoolean());
+        Assert.Equal("Test error", Evaluate("caughtException.message").AsString());
+        Assert.Equal("TestError", Evaluate("caughtException.name").AsString());
     }
 
     [Fact]
     public void ShouldWorkInTryCatchFinally()
     {
-        Engine.Execute(
+        Execute(
             @"
             let executed = [];
             
@@ -59,7 +59,7 @@ public sealed class RuntimeTests : TestBase
         "
         );
 
-        var result = Engine.Evaluate("executed").AsArray();
+        var result = Evaluate("executed").AsArray();
         Assert.Equal<uint>(4, result.Length);
         Assert.Equal("try", result[0].AsString());
         Assert.Equal("catch", result[1].AsString());
@@ -70,7 +70,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldWorkWithPromiseRejection()
     {
-        Engine.Execute(
+        Execute(
             @"
             let rejectionCaught = false;
             let rejectionError = null;
@@ -84,27 +84,27 @@ public sealed class RuntimeTests : TestBase
         "
         );
 
-        Assert.True(Engine.Evaluate("rejectionCaught").AsBoolean());
-        Assert.True(Engine.Evaluate("rejectionError instanceof DOMException").AsBoolean());
-        Assert.Equal("Async error", Engine.Evaluate("rejectionError.message").AsString());
-        Assert.Equal("NetworkError", Engine.Evaluate("rejectionError.name").AsString());
+        Assert.True(Evaluate("rejectionCaught").AsBoolean());
+        Assert.True(Evaluate("rejectionError instanceof DOMException").AsBoolean());
+        Assert.Equal("Async error", Evaluate("rejectionError.message").AsString());
+        Assert.Equal("NetworkError", Evaluate("rejectionError.name").AsString());
     }
 
     [Fact]
     public void ShouldWorkWithToString()
     {
-        Engine.Execute("const exception = new DOMException('Test message', 'TestError');");
+        Execute("const exception = new DOMException('Test message', 'TestError');");
 
-        Assert.Equal("TestError: Test message", Engine.Evaluate("exception.toString()").AsString());
+        Assert.Equal("TestError: Test message", Evaluate("exception.toString()").AsString());
     }
 
     [Fact]
     public void ShouldWorkWithStringCoercion()
     {
-        Engine.Execute("const exception = new DOMException('Test message', 'TestError');");
+        Execute("const exception = new DOMException('Test message', 'TestError');");
 
-        Assert.Equal("TestError: Test message", Engine.Evaluate("String(exception)").AsString());
-        Assert.Equal("TestError: Test message", Engine.Evaluate("'' + exception").AsString());
+        Assert.Equal("TestError: Test message", Evaluate("String(exception)").AsString());
+        Assert.Equal("TestError: Test message", Evaluate("'' + exception").AsString());
     }
 
     [Theory]
@@ -116,53 +116,53 @@ public sealed class RuntimeTests : TestBase
     [InlineData("AbortError", "Operation was aborted")]
     public void ShouldWorkWithCommonErrorTypes(string errorName, string message)
     {
-        Engine.Execute($"const exception = new DOMException('{message}', '{errorName}');");
+        Execute($"const exception = new DOMException('{message}', '{errorName}');");
 
-        Assert.Equal(message, Engine.Evaluate("exception.message").AsString());
-        Assert.Equal(errorName, Engine.Evaluate("exception.name").AsString());
-        Assert.True(Engine.Evaluate("exception.code > 0").AsBoolean());
+        Assert.Equal(message, Evaluate("exception.message").AsString());
+        Assert.Equal(errorName, Evaluate("exception.name").AsString());
+        Assert.True(Evaluate("exception.code > 0").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithInstanceof()
     {
-        Engine.Execute("const exception = new DOMException();");
+        Execute("const exception = new DOMException();");
 
-        Assert.True(Engine.Evaluate("exception instanceof DOMException").AsBoolean());
-        Assert.True(Engine.Evaluate("exception instanceof Object").AsBoolean());
-        Assert.False(Engine.Evaluate("exception instanceof Error").AsBoolean());
-        Assert.False(Engine.Evaluate("exception instanceof Array").AsBoolean());
+        Assert.True(Evaluate("exception instanceof DOMException").AsBoolean());
+        Assert.True(Evaluate("exception instanceof Object").AsBoolean());
+        Assert.False(Evaluate("exception instanceof Error").AsBoolean());
+        Assert.False(Evaluate("exception instanceof Array").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithObjectMethods()
     {
-        Engine.Execute("const exception = new DOMException('Test', 'TestError');");
+        Execute("const exception = new DOMException('Test', 'TestError');");
 
         // hasOwnProperty should work for inherited properties
-        Assert.False(Engine.Evaluate("exception.hasOwnProperty('name')").AsBoolean());
-        Assert.False(Engine.Evaluate("exception.hasOwnProperty('message')").AsBoolean());
-        Assert.False(Engine.Evaluate("exception.hasOwnProperty('code')").AsBoolean());
+        Assert.False(Evaluate("exception.hasOwnProperty('name')").AsBoolean());
+        Assert.False(Evaluate("exception.hasOwnProperty('message')").AsBoolean());
+        Assert.False(Evaluate("exception.hasOwnProperty('code')").AsBoolean());
 
         // But 'in' operator should work
-        Assert.True(Engine.Evaluate("'name' in exception").AsBoolean());
-        Assert.True(Engine.Evaluate("'message' in exception").AsBoolean());
-        Assert.True(Engine.Evaluate("'code' in exception").AsBoolean());
+        Assert.True(Evaluate("'name' in exception").AsBoolean());
+        Assert.True(Evaluate("'message' in exception").AsBoolean());
+        Assert.True(Evaluate("'code' in exception").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithJSONStringify()
     {
-        Engine.Execute("const exception = new DOMException('Test message', 'TestError');");
+        Execute("const exception = new DOMException('Test message', 'TestError');");
 
         // DOMException should stringify to an empty object by default (like Error objects)
-        Assert.Equal("{}", Engine.Evaluate("JSON.stringify(exception)").AsString());
+        Assert.Equal("{}", Evaluate("JSON.stringify(exception)").AsString());
     }
 
     [Fact]
     public void ShouldWorkInArrays()
     {
-        Engine.Execute(
+        Execute(
             @"
             const exceptions = [
                 new DOMException('Error 1', 'IndexSizeError'),
@@ -172,16 +172,16 @@ public sealed class RuntimeTests : TestBase
         "
         );
 
-        Assert.Equal(3, Engine.Evaluate("exceptions.length").AsNumber());
-        Assert.True(Engine.Evaluate("exceptions[0] instanceof DOMException").AsBoolean());
-        Assert.Equal("Error 1", Engine.Evaluate("exceptions[0].message").AsString());
-        Assert.Equal("IndexSizeError", Engine.Evaluate("exceptions[0].name").AsString());
+        Assert.Equal(3, Evaluate("exceptions.length").AsNumber());
+        Assert.True(Evaluate("exceptions[0] instanceof DOMException").AsBoolean());
+        Assert.Equal("Error 1", Evaluate("exceptions[0].message").AsString());
+        Assert.Equal("IndexSizeError", Evaluate("exceptions[0].name").AsString());
     }
 
     [Fact]
     public void ShouldWorkWithComparison()
     {
-        Engine.Execute(
+        Execute(
             @"
             const exception1 = new DOMException('Test', 'TestError');
             const exception2 = new DOMException('Test', 'TestError');
@@ -190,10 +190,10 @@ public sealed class RuntimeTests : TestBase
         );
 
         // Different instances should not be equal even with same content
-        Assert.False(Engine.Evaluate("exception1 === exception2").AsBoolean());
-        Assert.False(Engine.Evaluate("exception1 == exception2").AsBoolean());
+        Assert.False(Evaluate("exception1 === exception2").AsBoolean());
+        Assert.False(Evaluate("exception1 == exception2").AsBoolean());
 
         // Same reference should be equal
-        Assert.True(Engine.Evaluate("exception1 === exception3").AsBoolean());
+        Assert.True(Evaluate("exception1 === exception3").AsBoolean());
     }
 }

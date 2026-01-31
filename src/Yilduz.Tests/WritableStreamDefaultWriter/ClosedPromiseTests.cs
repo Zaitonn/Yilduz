@@ -9,20 +9,20 @@ public sealed class ClosedPromiseTests : TestBase
     [Fact]
     public void ShouldHaveClosedPromiseOnCreation()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("writer.closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer.closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldResolveClosedPromiseWhenClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -31,13 +31,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectClosedPromiseOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -54,13 +54,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectClosedPromiseOnAbort()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -69,13 +69,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveClosedPromiseResolvedForClosedStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer1 = stream.getWriter();
@@ -87,13 +87,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer2.closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer2.closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveClosedPromiseRejectedForErroredStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -111,13 +111,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer2.closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("writer2.closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleClosedPromiseWithCloseError()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 close() {
@@ -131,13 +131,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleClosedPromiseWithAsyncClose()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 close() {
@@ -153,13 +153,13 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closed instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closed instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldMaintainClosedPromiseIdentity()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -168,6 +168,6 @@ public sealed class ClosedPromiseTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closed1 === closed2").AsBoolean());
+        Assert.True(Evaluate("closed1 === closed2").AsBoolean());
     }
 }

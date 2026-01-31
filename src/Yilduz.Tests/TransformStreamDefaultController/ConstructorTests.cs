@@ -10,14 +10,14 @@ public sealed class ConstructorTests : TestBase
     public void ShouldNotBeConstructableDirectly()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new TransformStreamDefaultController();")
+            () => Execute("new TransformStreamDefaultController();")
         );
     }
 
     [Fact]
     public void ShouldBeCreatedByTransformStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -28,16 +28,13 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.Equal(
-            "TransformStreamDefaultController",
-            Engine.Evaluate("controller.constructor.name")
-        );
+        Assert.Equal("TransformStreamDefaultController", Evaluate("controller.constructor.name"));
     }
 
     [Fact]
     public void ShouldHaveCorrectInstanceType()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -48,15 +45,13 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof TransformStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof TransformStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldBeUniquePerTransformStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller1 = null;
             let controller2 = null;
@@ -71,13 +66,13 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("controller1 === controller2").AsBoolean());
+        Assert.False(Evaluate("controller1 === controller2").AsBoolean());
     }
 
     [Fact]
     public void ShouldBePassedToFlushMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let flushController = null;
             const stream = new TransformStream({
@@ -92,13 +87,13 @@ public sealed class ConstructorTests : TestBase
         );
 
         // Note: flush is called asynchronously, controller will be set eventually
-        Assert.True(Engine.Evaluate("typeof flushController !== 'undefined'").AsBoolean());
+        Assert.True(Evaluate("typeof flushController !== 'undefined'").AsBoolean());
     }
 
     [Fact]
     public void ShouldNotThrowOnValidController()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -114,13 +109,13 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller !== null").AsBoolean());
+        Assert.True(Evaluate("controller !== null").AsBoolean());
     }
 
     [Fact]
     public void ShouldMaintainControllerState()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new TransformStream({
@@ -132,10 +127,7 @@ public sealed class ConstructorTests : TestBase
         );
 
         // Controller should remain accessible and functional
-        Assert.Equal(
-            "TransformStreamDefaultController",
-            Engine.Evaluate("controller.constructor.name")
-        );
+        Assert.Equal("TransformStreamDefaultController", Evaluate("controller.constructor.name"));
         Assert.True(
             Engine
                 .Evaluate(

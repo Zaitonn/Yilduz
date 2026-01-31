@@ -8,7 +8,7 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void AddEventListenerShouldRegisterListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let executed = false;
@@ -17,14 +17,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var executed = Engine.Evaluate("executed").AsBoolean();
+        var executed = Evaluate("executed").AsBoolean();
         Assert.True(executed);
     }
 
     [Fact]
     public void RemoveEventListenerShouldUnregisterListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let executed = false;
@@ -35,14 +35,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var executed = Engine.Evaluate("executed").AsBoolean();
+        var executed = Evaluate("executed").AsBoolean();
         Assert.False(executed);
     }
 
     [Fact]
     public void ShouldSupportMultipleListenersForSameEvent()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count = 0;
@@ -53,14 +53,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var count = Engine.Evaluate("count").AsNumber();
+        var count = Evaluate("count").AsNumber();
         Assert.Equal(3, count);
     }
 
     [Fact]
     public void ShouldSupportDifferentEventTypes()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let testExecuted = false;
@@ -71,8 +71,8 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var testExecuted = Engine.Evaluate("testExecuted").AsBoolean();
-        var customExecuted = Engine.Evaluate("customExecuted").AsBoolean();
+        var testExecuted = Evaluate("testExecuted").AsBoolean();
+        var customExecuted = Evaluate("customExecuted").AsBoolean();
 
         Assert.True(testExecuted);
         Assert.False(customExecuted);
@@ -81,7 +81,7 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void ShouldPassEventToListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let eventType = null;
@@ -94,16 +94,16 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var eventType = Engine.Evaluate("eventType").AsString();
+        var eventType = Evaluate("eventType").AsString();
 
         Assert.Equal("test", eventType);
-        Assert.Equal(Engine.Evaluate("target"), Engine.Evaluate("eventTarget"));
+        Assert.Equal(Evaluate("target"), Evaluate("eventTarget"));
     }
 
     [Fact]
     public void ShouldSupportOnceOption()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count = 0;
@@ -114,14 +114,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var count = Engine.Evaluate("count").AsNumber();
+        var count = Evaluate("count").AsNumber();
         Assert.Equal(1, count);
     }
 
     [Fact]
     public void ShouldAllowNullEventInAddEventListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let listenerExecuted = false;
@@ -136,14 +136,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var listenerExecuted = Engine.Evaluate("listenerExecuted").AsBoolean();
+        var listenerExecuted = Evaluate("listenerExecuted").AsBoolean();
         Assert.True(listenerExecuted);
     }
 
     [Fact]
     public void ShouldNotAddDuplicateListeners()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count = 0;
@@ -155,14 +155,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var count = Engine.Evaluate("count").AsNumber();
+        var count = Evaluate("count").AsNumber();
         Assert.Equal(1, count);
     }
 
     [Fact]
     public void DispatchEventShouldReturnBoolean()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             const normalResult = target.dispatchEvent(new Event('test'));
@@ -170,8 +170,8 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var normalResult = Engine.Evaluate("normalResult").AsBoolean();
-        var cancelableResult = Engine.Evaluate("cancelableResult").AsBoolean();
+        var normalResult = Evaluate("normalResult").AsBoolean();
+        var cancelableResult = Evaluate("cancelableResult").AsBoolean();
 
         Assert.True(normalResult);
         Assert.True(cancelableResult);
@@ -180,7 +180,7 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void ShouldHandlePreventDefault()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let result = null;
@@ -191,14 +191,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var result = Engine.Evaluate("result").AsBoolean();
+        var result = Evaluate("result").AsBoolean();
         Assert.False(result);
     }
 
     [Fact]
     public void ShouldRemoveSpecificListener()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let count1 = 0, count2 = 0;
@@ -211,8 +211,8 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var count1 = Engine.Evaluate("count1").AsNumber();
-        var count2 = Engine.Evaluate("count2").AsNumber();
+        var count1 = Evaluate("count1").AsNumber();
+        var count2 = Evaluate("count2").AsNumber();
 
         Assert.Equal(0, count1);
         Assert.Equal(1, count2);
@@ -221,7 +221,7 @@ public sealed class MethodTests : TestBase
     [Fact]
     public void ShouldHandleOnEventProperties()
     {
-        Engine.Execute(
+        Execute(
             """
                 const target = new EventTarget();
                 let executed = false;
@@ -230,14 +230,14 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var executed = Engine.Evaluate("executed").AsBoolean();
+        var executed = Evaluate("executed").AsBoolean();
         Assert.True(executed);
     }
 
     [Fact]
     public void ShouldHandleComplexEventData()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let receivedData = null;
@@ -253,10 +253,10 @@ public sealed class MethodTests : TestBase
             """
         );
 
-        var type = Engine.Evaluate("receivedData.type").AsString();
-        var bubbles = Engine.Evaluate("receivedData.bubbles").AsBoolean();
-        var cancelable = Engine.Evaluate("receivedData.cancelable").AsBoolean();
-        var timeStampType = Engine.Evaluate("receivedData.timeStamp").AsString();
+        var type = Evaluate("receivedData.type").AsString();
+        var bubbles = Evaluate("receivedData.bubbles").AsBoolean();
+        var cancelable = Evaluate("receivedData.cancelable").AsBoolean();
+        var timeStampType = Evaluate("receivedData.timeStamp").AsString();
 
         Assert.Equal("custom", type);
         Assert.True(bubbles);

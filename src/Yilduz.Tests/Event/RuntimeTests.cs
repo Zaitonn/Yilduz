@@ -10,8 +10,8 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void DefaultPreventedShouldBeFalse()
     {
-        Engine.Execute("const event = new Event('test');");
-        var result = Engine.Evaluate("event.defaultPrevented").AsBoolean();
+        Execute("const event = new Event('test');");
+        var result = Evaluate("event.defaultPrevented").AsBoolean();
         Assert.False(result);
     }
 
@@ -20,17 +20,17 @@ public sealed class RuntimeTests : TestBase
     [InlineData(false)]
     public void CanBePrevented(bool cancelable)
     {
-        Engine.Execute(
+        Execute(
             $"const event = new Event('test', {{ cancelable: {cancelable.ToString().ToLowerInvariant()} }});"
         );
-        Engine.Evaluate("event.preventDefault();");
-        Assert.Equal(Engine.Evaluate("event.defaultPrevented").AsBoolean(), cancelable);
+        Evaluate("event.preventDefault();");
+        Assert.Equal(Evaluate("event.defaultPrevented").AsBoolean(), cancelable);
     }
 
     [Fact]
     public void ShouldSupportCustomEventData()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new Event('custom');
             event.customData = { value: 42, text: 'custom' };
@@ -38,15 +38,15 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(42, Engine.Evaluate("event.customData.value").AsNumber());
-        Assert.Equal("custom", Engine.Evaluate("event.customData.text").AsString());
-        Assert.Equal("number", Engine.Evaluate("typeof event.timestamp").AsString());
+        Assert.Equal(42, Evaluate("event.customData.value").AsNumber());
+        Assert.Equal("custom", Evaluate("event.customData.text").AsString());
+        Assert.Equal("number", Evaluate("typeof event.timestamp").AsString());
     }
 
     [Fact]
     public void ShouldHandleEventComposition()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let events = [];
@@ -66,16 +66,16 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(3, Engine.Evaluate("events.length").AsNumber());
-        Assert.True(Engine.Evaluate("events[0].bubbles").AsBoolean());
-        Assert.True(Engine.Evaluate("events[1].cancelable").AsBoolean());
-        Assert.True(Engine.Evaluate("events[2].bubbles && events[2].cancelable").AsBoolean());
+        Assert.Equal(3, Evaluate("events.length").AsNumber());
+        Assert.True(Evaluate("events[0].bubbles").AsBoolean());
+        Assert.True(Evaluate("events[1].cancelable").AsBoolean());
+        Assert.True(Evaluate("events[2].bubbles && events[2].cancelable").AsBoolean());
     }
 
     [Fact]
     public void ShouldMaintainEventPhases()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new Event('test');
             const phases = {
@@ -87,16 +87,16 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("phases.none").AsNumber());
-        Assert.Equal(1, Engine.Evaluate("phases.capturing").AsNumber());
-        Assert.Equal(2, Engine.Evaluate("phases.target").AsNumber());
-        Assert.Equal(3, Engine.Evaluate("phases.bubbling").AsNumber());
+        Assert.Equal(0, Evaluate("phases.none").AsNumber());
+        Assert.Equal(1, Evaluate("phases.capturing").AsNumber());
+        Assert.Equal(2, Evaluate("phases.target").AsNumber());
+        Assert.Equal(3, Evaluate("phases.bubbling").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleEventPropagationStates()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let propagationData = [];
@@ -117,43 +117,43 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(1, Engine.Evaluate("propagationData.length").AsNumber());
-        Assert.False(Engine.Evaluate("propagationData[0].defaultPrevented").AsBoolean());
-        Assert.True(Engine.Evaluate("propagationData[0].cancelable").AsBoolean());
+        Assert.Equal(1, Evaluate("propagationData.length").AsNumber());
+        Assert.False(Evaluate("propagationData[0].defaultPrevented").AsBoolean());
+        Assert.True(Evaluate("propagationData[0].cancelable").AsBoolean());
     }
 
     [Fact]
     public void ShouldSupportEventTimestamp()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new Event('test');
             const timestamp = event.timeStamp;
             """
         );
 
-        Assert.Equal("number", Engine.Evaluate("typeof timestamp").AsString());
-        Assert.True(Engine.Evaluate("timestamp").AsNumber() > 0);
+        Assert.Equal("number", Evaluate("typeof timestamp").AsString());
+        Assert.True(Evaluate("timestamp").AsNumber() > 0);
     }
 
     [Fact]
     public void ShouldHandleEventInheritance()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new Event('test');
             """
         );
 
-        Assert.True(Engine.Evaluate("event instanceof Event").AsBoolean());
-        Assert.True(Engine.Evaluate("event instanceof Object").AsBoolean());
-        Assert.Equal("[object Event]", Engine.Evaluate("event.toString()"));
+        Assert.True(Evaluate("event instanceof Event").AsBoolean());
+        Assert.True(Evaluate("event instanceof Object").AsBoolean());
+        Assert.Equal("[object Event]", Evaluate("event.toString()"));
     }
 
     [Fact]
     public void ShouldHandleEventWithInitDict()
     {
-        Engine.Execute(
+        Execute(
             """
             const event = new Event('custom', {
                 bubbles: true,
@@ -163,16 +163,16 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("custom", Engine.Evaluate("event.type").AsString());
-        Assert.True(Engine.Evaluate("event.bubbles").AsBoolean());
-        Assert.True(Engine.Evaluate("event.cancelable").AsBoolean());
-        Assert.False(Engine.Evaluate("event.composed || false").AsBoolean());
+        Assert.Equal("custom", Evaluate("event.type").AsString());
+        Assert.True(Evaluate("event.bubbles").AsBoolean());
+        Assert.True(Evaluate("event.cancelable").AsBoolean());
+        Assert.False(Evaluate("event.composed || false").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleEventTargetRelatedProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const target = new EventTarget();
             let eventData = null;
@@ -189,9 +189,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("eventData.target").AsBoolean());
-        Assert.True(Engine.Evaluate("eventData.currentTarget").AsBoolean());
-        Assert.Equal(EventPhases.AT_TARGET, Engine.Evaluate("eventData.eventPhase").AsNumber());
+        Assert.True(Evaluate("eventData.target").AsBoolean());
+        Assert.True(Evaluate("eventData.currentTarget").AsBoolean());
+        Assert.Equal(EventPhases.AT_TARGET, Evaluate("eventData.eventPhase").AsNumber());
     }
 
     [Fact]
@@ -199,7 +199,7 @@ public sealed class RuntimeTests : TestBase
     {
         var exception = Assert.Throws<JavaScriptException>(() =>
         {
-            Engine.Execute("new Event();"); // Missing required type parameter
+            Execute("new Event();"); // Missing required type parameter
         });
 
         Assert.Contains("TypeError", exception.Error.ToString());

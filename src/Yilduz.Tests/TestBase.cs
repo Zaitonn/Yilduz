@@ -3,6 +3,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Jint;
+using Jint.Native;
 using Jint.Runtime;
 
 namespace Yilduz.Tests;
@@ -83,9 +84,7 @@ public abstract class TestBase : IDisposable
 
         if (pollingIntervalMs > timeoutMs)
         {
-            throw new ArgumentException(
-                "Polling interval must be less than or equal to timeout"
-            );
+            throw new ArgumentException("Polling interval must be less than or equal to timeout");
         }
 
         var startTime = DateTime.UtcNow;
@@ -95,7 +94,7 @@ public abstract class TestBase : IDisposable
         {
             try
             {
-                var result = Engine.Evaluate(condition);
+                var result = Evaluate(condition);
                 if (result.IsBoolean() && result.AsBoolean())
                 {
                     return;
@@ -106,7 +105,7 @@ public abstract class TestBase : IDisposable
                 // Test is being disposed; rethrow to allow proper cleanup
                 throw;
             }
-            catch (Jint.Runtime.JavaScriptException)
+            catch (JavaScriptException)
             {
                 // Condition might reference undefined variables initially; continue polling
             }
@@ -125,5 +124,21 @@ public abstract class TestBase : IDisposable
         throw new TimeoutException(
             $"Condition '{condition}' did not become true within {timeoutMs}ms"
         );
+    }
+
+    protected void Execute(string code)
+    {
+        lock (Engine)
+        {
+            Engine.Execute(code);
+        }
+    }
+
+    protected JsValue Evaluate(string code)
+    {
+        lock (Engine)
+        {
+            return Engine.Evaluate(code);
+        }
     }
 }

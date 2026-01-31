@@ -24,16 +24,17 @@ internal sealed class WritableStreamDefaultWriterConstructor : Constructor
         arguments.EnsureCount(Engine, 1, "Failed to construct 'WritableStreamDefaultWriter'");
 
         var streamArg = arguments.At(0);
-        if (streamArg is not WritableStreamInstance stream)
+        if (streamArg is WritableStreamInstance stream)
         {
-            TypeErrorHelper.Throw(
-                Engine,
-                "Failed to construct 'WritableStreamDefaultWriter': parameter 1 is not of type 'WritableStream'."
-            );
-            return null!;
+            return stream.GetWriter();
         }
 
-        return stream.GetWriter();
+        TypeErrorHelper.Throw(
+            Engine,
+            "Failed to construct 'WritableStreamDefaultWriter': parameter 1 is not of type 'WritableStream'."
+        );
+
+        return null;
     }
 
     public WritableStreamDefaultWriterInstance Construct()

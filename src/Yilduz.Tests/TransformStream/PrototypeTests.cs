@@ -24,7 +24,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("TransformStream.prototype.writable")]
     public void TransformStreamShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
@@ -32,47 +32,47 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "[object TransformStream]",
-            Engine.Evaluate("Object.prototype.toString.call(new TransformStream())").AsString()
+            Evaluate("Object.prototype.toString.call(new TransformStream())").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectConstructorName()
     {
-        Assert.Equal("TransformStream", Engine.Evaluate("TransformStream.name").AsString());
+        Assert.Equal("TransformStream", Evaluate("TransformStream.name").AsString());
     }
 
     [Fact]
     public void ReadablePropertyShouldReturnSameInstance()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream();
             const readable1 = stream.readable;
             const readable2 = stream.readable;
             """
         );
-        Assert.True(Engine.Evaluate("readable1 === readable2").AsBoolean());
+        Assert.True(Evaluate("readable1 === readable2").AsBoolean());
     }
 
     [Fact]
     public void WritablePropertyShouldReturnSameInstance()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream();
             const writable1 = stream.writable;
             const writable2 = stream.writable;
             """
         );
-        Assert.True(Engine.Evaluate("writable1 === writable2").AsBoolean());
+        Assert.True(Evaluate("writable1 === writable2").AsBoolean());
     }
 
     [Fact]
     public void ShouldNotBeEnumerable()
     {
-        Engine.Execute("const stream = new TransformStream();");
-        var keys = Engine.Evaluate("Object.keys(stream)");
+        Execute("const stream = new TransformStream();");
+        var keys = Evaluate("Object.keys(stream)");
         Assert.Empty(keys.AsArray());
     }
 

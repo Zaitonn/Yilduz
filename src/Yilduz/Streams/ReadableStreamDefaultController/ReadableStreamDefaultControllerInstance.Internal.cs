@@ -68,8 +68,9 @@ public sealed partial class ReadableStreamDefaultControllerInstance
         // If ! IsReadableStreamLocked(stream) is true and ! ReadableStreamGetNumReadRequests(stream) > 0,
         //   perform ! ReadableStreamFulfillReadRequest(stream, chunk, false).
         if (
-            Stream.HasDefaultReader
-            && ((ReadableStreamDefaultReaderInstance)Stream.Reader).ReadRequests.Count > 0
+            Stream.Locked
+            && Stream.Reader is ReadableStreamDefaultReaderInstance reader
+            && reader.ReadRequests.Count > 0
         )
         {
             Stream.FulfillReadRequest(chunk, false);

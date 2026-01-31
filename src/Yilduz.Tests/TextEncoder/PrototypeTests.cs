@@ -12,9 +12,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("encodeInto")]
     public void ShouldHaveCorrectPrototype(string property)
     {
-        Assert.True(
-            Engine.Evaluate($"TextEncoder.prototype.hasOwnProperty('{property}')").AsBoolean()
-        );
+        Assert.True(Evaluate($"TextEncoder.prototype.hasOwnProperty('{property}')").AsBoolean());
     }
 
     [Theory]
@@ -23,13 +21,13 @@ public sealed class PrototypeTests : TestBase
     [InlineData("TextEncoder.prototype.encodeInto()")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldReturnCorrectToString()
     {
-        Engine.Execute("const encoder = new TextEncoder();");
-        Assert.Equal("[object TextEncoder]", Engine.Evaluate("encoder.toString()"));
+        Execute("const encoder = new TextEncoder();");
+        Assert.Equal("[object TextEncoder]", Evaluate("encoder.toString()"));
     }
 }

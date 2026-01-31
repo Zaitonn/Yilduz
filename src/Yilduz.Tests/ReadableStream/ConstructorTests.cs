@@ -9,22 +9,22 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateReadableStreamWithoutArguments()
     {
-        Engine.Execute("const stream = new ReadableStream();");
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
+        Execute("const stream = new ReadableStream();");
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldCreateReadableStreamWithEmptyUnderlyingSource()
     {
-        Engine.Execute("const stream = new ReadableStream({});");
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
-        Assert.False(Engine.Evaluate("stream.locked").AsBoolean());
+        Execute("const stream = new ReadableStream({});");
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
+        Assert.False(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreateReadableStreamWithStartMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let startCalled = false;
             const stream = new ReadableStream({
@@ -36,13 +36,13 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.True(Engine.Evaluate("startCalled").AsBoolean());
+        Assert.True(Evaluate("startCalled").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreateReadableStreamWithPullMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({
                 pull(controller) {
@@ -52,13 +52,13 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldCreateReadableStreamWithCancelMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let cancelCalled = false;
             const stream = new ReadableStream({
@@ -68,13 +68,13 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldCreateReadableStreamWithStrategy()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({}, {
                 highWaterMark: 16,
@@ -82,14 +82,14 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("ReadableStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldThrowErrorForInvalidType()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new ReadableStream({ type: 'invalid' })")
+            () => Execute("new ReadableStream({ type: 'invalid' })")
         );
     }
 
@@ -97,7 +97,7 @@ public sealed class ConstructorTests : TestBase
     public void ShouldThrowErrorForBytesTypeWithSizeStrategy()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new ReadableStream({ type: 'bytes' }, { size: () => 1 });")
+            () => Execute("new ReadableStream({ type: 'bytes' }, { size: () => 1 });")
         );
     }
 }

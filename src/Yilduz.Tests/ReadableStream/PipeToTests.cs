@@ -9,7 +9,7 @@ public sealed class PipeToTests : TestBase
     [Fact]
     public void ShouldPipeToWritableStream()
     {
-        Engine.Execute(
+        Execute(
             """
             let writtenChunks = [];
             let sourceClosed = false;
@@ -39,7 +39,7 @@ public sealed class PipeToTests : TestBase
         );
 
         // Verify the pipe operation is a promise
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
@@ -47,7 +47,7 @@ public sealed class PipeToTests : TestBase
     {
         Assert.Throws<JavaScriptException>(
             () =>
-                Engine.Execute(
+                Execute(
                     """
                     const readable = new ReadableStream();
                     const reader = readable.getReader(); // Lock the stream
@@ -64,7 +64,7 @@ public sealed class PipeToTests : TestBase
     {
         Assert.Throws<JavaScriptException>(
             () =>
-                Engine.Execute(
+                Execute(
                     """
                     const readable = new ReadableStream();
 
@@ -80,7 +80,7 @@ public sealed class PipeToTests : TestBase
     [Fact]
     public void ShouldRespectPreventCloseOption()
     {
-        Engine.Execute(
+        Execute(
             """
             let sinkClosed = false;
 
@@ -104,13 +104,13 @@ public sealed class PipeToTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRespectPreventAbortOption()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortCalled = false;
 
@@ -133,13 +133,13 @@ public sealed class PipeToTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRespectPreventCancelOption()
     {
-        Engine.Execute(
+        Execute(
             """
             let cancelCalled = false;
 
@@ -162,13 +162,13 @@ public sealed class PipeToTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleAbortSignal()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
 
@@ -195,14 +195,14 @@ public sealed class PipeToTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeCount = 0;
             let readCount = 0;
@@ -234,7 +234,7 @@ public sealed class PipeToTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("pipePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("pipePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
@@ -242,7 +242,7 @@ public sealed class PipeToTests : TestBase
     {
         Assert.Throws<JavaScriptException>(
             () =>
-                Engine.Execute(
+                Execute(
                     """
                     const readable = new ReadableStream();
                     readable.pipeTo({}); // Not a WritableStream

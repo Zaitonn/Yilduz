@@ -9,7 +9,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldReadFromStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({
                 start(controller) {
@@ -22,16 +22,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(
-            "ReadableStreamDefaultReader",
-            Engine.Evaluate("reader.constructor.name").AsString()
-        );
+        Assert.Equal("ReadableStreamDefaultReader", Evaluate("reader.constructor.name").AsString());
     }
 
     [Fact]
     public void ShouldReleaseLock()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader = stream.getReader();
@@ -41,14 +38,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("lockedBefore").AsBoolean());
-        Assert.False(Engine.Evaluate("lockedAfter").AsBoolean());
+        Assert.True(Evaluate("lockedBefore").AsBoolean());
+        Assert.False(Evaluate("lockedAfter").AsBoolean());
     }
 
     [Fact]
     public void ShouldCancelStreamThroughReader()
     {
-        Engine.Execute(
+        Execute(
             """
             let cancelReason;
             const stream = new ReadableStream({
@@ -61,14 +58,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("reader.cancel('test reason')").UnwrapIfPromise();
-        Assert.Equal("test reason", Engine.Evaluate("cancelReason").AsString());
+        Evaluate("reader.cancel('test reason')").UnwrapIfPromise();
+        Assert.Equal("test reason", Evaluate("cancelReason").AsString());
     }
 
     [Fact]
     public void ShouldThrowWhenReadingFromReleasedReader()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader = stream.getReader();
@@ -76,13 +73,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Throws<PromiseRejectedException>(Engine.Evaluate("reader.read()").UnwrapIfPromise);
+        Assert.Throws<PromiseRejectedException>(Evaluate("reader.read()").UnwrapIfPromise);
     }
 
     [Fact]
     public void ShouldThrowWhenCancelingThroughReleasedReader()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream();
             const reader = stream.getReader();
@@ -90,13 +87,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Throws<PromiseRejectedException>(Engine.Evaluate("reader.cancel()").UnwrapIfPromise);
+        Assert.Throws<PromiseRejectedException>(Evaluate("reader.cancel()").UnwrapIfPromise);
     }
 
     [Fact]
     public void ShouldProvideClosedPromise()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({
                 start(controller) {
@@ -108,13 +105,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closedPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closedPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectClosedPromiseOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new ReadableStream({
                 start(controller) {
@@ -126,13 +123,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closedPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closedPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleReadResultFormat()
     {
-        Engine.Execute(
+        Execute(
             """
             let readResult;
             const stream = new ReadableStream({
@@ -155,7 +152,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldIndicateStreamEndWithDoneTrue()
     {
-        Engine.Execute(
+        Execute(
             """
             let finalResult;
             const stream = new ReadableStream({

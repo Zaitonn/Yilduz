@@ -13,12 +13,18 @@ namespace Yilduz.Events.EventTarget;
 
 #pragma warning disable IDE0046
 
+/// <summary>
+/// Represents the prototype for EventTarget instances.
+/// </summary>
 public class EventTargetPrototype : ObjectInstance
 {
     private string Name =>
         _name ??= GetOwnProperty("name")?.Value?.ToString() ?? nameof(EventTarget);
     private string? _name;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EventTargetPrototype"/> class.
+    /// </summary>
     protected internal EventTargetPrototype(Engine engine, ObjectInstance ctor)
         : base(engine)
     {

@@ -12,9 +12,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("lengthComputable")]
     public void ShouldHaveCorrectPrototype(string property)
     {
-        Assert.True(
-            Engine.Evaluate($"ProgressEvent.prototype.hasOwnProperty('{property}')").AsBoolean()
-        );
+        Assert.True(Evaluate($"ProgressEvent.prototype.hasOwnProperty('{property}')").AsBoolean());
     }
 
     [Theory]
@@ -23,18 +21,18 @@ public sealed class PrototypeTests : TestBase
     [InlineData("ProgressEvent.prototype.lengthComputable")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldInheritEventPrototype()
     {
-        Engine.Execute(
+        Execute(
             """
             const progressEvent = new ProgressEvent('test');
             """
         );
-        Assert.True(Engine.Evaluate("progressEvent instanceof Event").AsBoolean());
-        Assert.True(Engine.Evaluate("progressEvent instanceof ProgressEvent").AsBoolean());
+        Assert.True(Evaluate("progressEvent instanceof Event").AsBoolean());
+        Assert.True(Evaluate("progressEvent instanceof ProgressEvent").AsBoolean());
     }
 }

@@ -9,32 +9,32 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateInstanceWithDefaultValues()
     {
-        Engine.Execute("const exception = new DOMException();");
+        Execute("const exception = new DOMException();");
 
-        Assert.True(Engine.Evaluate("exception instanceof DOMException").AsBoolean());
-        Assert.Equal("", Engine.Evaluate("exception.message").AsString());
-        Assert.Equal("Error", Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(0, Engine.Evaluate("exception.code").AsNumber());
+        Assert.True(Evaluate("exception instanceof DOMException").AsBoolean());
+        Assert.Equal("", Evaluate("exception.message").AsString());
+        Assert.Equal("Error", Evaluate("exception.name").AsString());
+        Assert.Equal(0, Evaluate("exception.code").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateInstanceWithMessage()
     {
-        Engine.Execute("const exception = new DOMException('Something went wrong');");
+        Execute("const exception = new DOMException('Something went wrong');");
 
-        Assert.Equal("Something went wrong", Engine.Evaluate("exception.message").AsString());
-        Assert.Equal("Error", Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(0, Engine.Evaluate("exception.code").AsNumber());
+        Assert.Equal("Something went wrong", Evaluate("exception.message").AsString());
+        Assert.Equal("Error", Evaluate("exception.name").AsString());
+        Assert.Equal(0, Evaluate("exception.code").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateInstanceWithMessageAndName()
     {
-        Engine.Execute("const exception = new DOMException('Invalid index', 'IndexSizeError');");
+        Execute("const exception = new DOMException('Invalid index', 'IndexSizeError');");
 
-        Assert.Equal("Invalid index", Engine.Evaluate("exception.message").AsString());
-        Assert.Equal("IndexSizeError", Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(1, Engine.Evaluate("exception.code").AsNumber());
+        Assert.Equal("Invalid index", Evaluate("exception.message").AsString());
+        Assert.Equal("IndexSizeError", Evaluate("exception.name").AsString());
+        Assert.Equal(1, Evaluate("exception.code").AsNumber());
     }
 
     [Theory]
@@ -61,50 +61,50 @@ public sealed class ConstructorTests : TestBase
     [InlineData("DataCloneError", 25)]
     public void ShouldMapErrorNameToCorrectCode(string errorName, int expectedCode)
     {
-        Engine.Execute($"const exception = new DOMException('Test message', '{errorName}');");
+        Execute($"const exception = new DOMException('Test message', '{errorName}');");
 
-        Assert.Equal(errorName, Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(expectedCode, Engine.Evaluate("exception.code").AsNumber());
+        Assert.Equal(errorName, Evaluate("exception.name").AsString());
+        Assert.Equal(expectedCode, Evaluate("exception.code").AsNumber());
     }
 
     [Fact]
     public void ShouldReturnZeroCodeForUnknownErrorName()
     {
-        Engine.Execute("const exception = new DOMException('Test', 'UnknownError');");
+        Execute("const exception = new DOMException('Test', 'UnknownError');");
 
-        Assert.Equal("UnknownError", Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(0, Engine.Evaluate("exception.code").AsNumber());
+        Assert.Equal("UnknownError", Evaluate("exception.name").AsString());
+        Assert.Equal(0, Evaluate("exception.code").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleEmptyStringArguments()
     {
-        Engine.Execute("const exception = new DOMException('', '');");
+        Execute("const exception = new DOMException('', '');");
 
-        Assert.Equal("", Engine.Evaluate("exception.message").AsString());
-        Assert.Equal("", Engine.Evaluate("exception.name").AsString());
-        Assert.Equal(0, Engine.Evaluate("exception.code").AsNumber());
+        Assert.Equal("", Evaluate("exception.message").AsString());
+        Assert.Equal("", Evaluate("exception.name").AsString());
+        Assert.Equal(0, Evaluate("exception.code").AsNumber());
     }
 
     [Fact]
     public void ShouldConvertArgumentsToStrings()
     {
-        Engine.Execute("const exception = new DOMException(123, 456);");
+        Execute("const exception = new DOMException(123, 456);");
 
-        Assert.Equal("123", Engine.Evaluate("exception.message").AsString());
-        Assert.Equal("456", Engine.Evaluate("exception.name").AsString());
+        Assert.Equal("123", Evaluate("exception.message").AsString());
+        Assert.Equal("456", Evaluate("exception.name").AsString());
     }
 
     [Fact]
     public void ShouldWorkWithNullAndUndefined()
     {
-        Engine.Execute("const exception1 = new DOMException(null, undefined);");
-        Engine.Execute("const exception2 = new DOMException(undefined, null);");
+        Execute("const exception1 = new DOMException(null, undefined);");
+        Execute("const exception2 = new DOMException(undefined, null);");
 
-        Assert.Equal("null", Engine.Evaluate("exception1.message").AsString());
-        Assert.Equal("undefined", Engine.Evaluate("exception1.name").AsString());
+        Assert.Equal("null", Evaluate("exception1.message").AsString());
+        Assert.Equal("undefined", Evaluate("exception1.name").AsString());
 
-        Assert.Equal("undefined", Engine.Evaluate("exception2.message").AsString());
-        Assert.Equal("null", Engine.Evaluate("exception2.name").AsString());
+        Assert.Equal("undefined", Evaluate("exception2.message").AsString());
+        Assert.Equal("null", Evaluate("exception2.name").AsString());
     }
 }

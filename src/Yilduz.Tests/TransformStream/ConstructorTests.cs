@@ -9,21 +9,21 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateTransformStreamWithoutArguments()
     {
-        Engine.Execute("const stream = new TransformStream();");
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Execute("const stream = new TransformStream();");
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldCreateTransformStreamWithEmptyTransformer()
     {
-        Engine.Execute("const stream = new TransformStream({});");
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Execute("const stream = new TransformStream({});");
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldCreateTransformStreamWithStartMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let startCalled = false;
             const stream = new TransformStream({
@@ -33,13 +33,13 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.True(Engine.Evaluate("startCalled").AsBoolean());
+        Assert.True(Evaluate("startCalled").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreateTransformStreamWithFlushMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let flushCalled = false;
             const stream = new TransformStream({
@@ -50,7 +50,7 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Engine.Execute(
+        Execute(
             """
             const writer = stream.writable.getWriter();
             writer.close();
@@ -62,7 +62,7 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateTransformStreamWithWritableStrategy()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream({}, 
                 { highWaterMark: 5, size: () => 1 },
@@ -70,34 +70,34 @@ public sealed class ConstructorTests : TestBase
             );
             """
         );
-        Assert.Equal("TransformStream", Engine.Evaluate("stream.constructor.name"));
+        Assert.Equal("TransformStream", Evaluate("stream.constructor.name"));
     }
 
     [Fact]
     public void ShouldHaveReadableAndWritableProperties()
     {
-        Engine.Execute("const stream = new TransformStream();");
-        Assert.Equal("ReadableStream", Engine.Evaluate("stream.readable.constructor.name"));
-        Assert.Equal("WritableStream", Engine.Evaluate("stream.writable.constructor.name"));
+        Execute("const stream = new TransformStream();");
+        Assert.Equal("ReadableStream", Evaluate("stream.readable.constructor.name"));
+        Assert.Equal("WritableStream", Evaluate("stream.writable.constructor.name"));
     }
 
     [Fact]
     public void ShouldCreateIndependentStreams()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream1 = new TransformStream();
             const stream2 = new TransformStream();
             """
         );
-        Assert.False(Engine.Evaluate("stream1.readable === stream2.readable").AsBoolean());
-        Assert.False(Engine.Evaluate("stream1.writable === stream2.writable").AsBoolean());
+        Assert.False(Evaluate("stream1.readable === stream2.readable").AsBoolean());
+        Assert.False(Evaluate("stream1.writable === stream2.writable").AsBoolean());
     }
 
     [Fact]
     public void ShouldCreateStreamWithIdentityTransformer()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TransformStream();
             const writer = stream.writable.getWriter();

@@ -10,20 +10,20 @@ public sealed class CloseMethodTests : TestBase
     [Fact]
     public void ShouldHaveCloseMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.close === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.close === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldReturnPromiseFromClose()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -31,13 +31,13 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closePromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("closePromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldCallUnderlyingSinkClose()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeCalled = false;
             const stream = new WritableStream({
@@ -50,13 +50,13 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closeCalled").AsBoolean());
+        Assert.True(Evaluate("closeCalled").AsBoolean());
     }
 
     [Fact]
     public void ShouldResolveClosePromiseOnSuccess()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeResolved = false;
             const stream = new WritableStream({
@@ -69,13 +69,13 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closeResolved").AsBoolean());
+        Assert.True(Evaluate("closeResolved").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectClosePromiseOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeRejected = false;
             const stream = new WritableStream({
@@ -88,13 +88,13 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closeRejected").AsBoolean());
+        Assert.True(Evaluate("closeRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectWhenWriterIsReleased()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -102,15 +102,13 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.close()").UnwrapIfPromise()
-        );
+        Assert.Throws<PromiseRejectedException>(() => Evaluate("writer.close()").UnwrapIfPromise());
     }
 
     [Fact]
     public async Task ShouldRejectWhenStreamIsAlreadyClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeRejected = false;
             const stream = new WritableStream();
@@ -122,13 +120,13 @@ public sealed class CloseMethodTests : TestBase
 
         await WaitForJsConditionAsync("closeRejected === true");
         // Explicit assertion for test clarity and documentation
-        Assert.True(Engine.Evaluate("closeRejected").AsBoolean());
+        Assert.True(Evaluate("closeRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldProcessPendingWritesBeforeClosing()
     {
-        Engine.Execute(
+        Execute(
             """
             const writtenChunks = [];
             let closeCalled = false;
@@ -147,7 +145,7 @@ public sealed class CloseMethodTests : TestBase
             """
         );
 
-        Assert.Equal(2, Engine.Evaluate("writtenChunks.length").AsNumber());
-        Assert.True(Engine.Evaluate("closeCalled").AsBoolean());
+        Assert.Equal(2, Evaluate("writtenChunks.length").AsNumber());
+        Assert.True(Evaluate("closeCalled").AsBoolean());
     }
 }

@@ -8,20 +8,20 @@ public sealed class AbortMethodTests : TestBase
     [Fact]
     public void ShouldHaveAbortMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.Equal("function", Engine.Evaluate("typeof writer.abort"));
+        Assert.Equal("function", Evaluate("typeof writer.abort"));
     }
 
     [Fact]
     public void ShouldReturnPromiseFromAbort()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -29,13 +29,13 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortPromise instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("abortPromise instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldCallUnderlyingSinkAbort()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortCalled = false;
             let abortReason = null;
@@ -50,14 +50,14 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortCalled").AsBoolean());
-        Assert.Equal("test reason", Engine.Evaluate("abortReason").AsString());
+        Assert.True(Evaluate("abortCalled").AsBoolean());
+        Assert.Equal("test reason", Evaluate("abortReason").AsString());
     }
 
     [Fact]
     public void ShouldResolveAbortPromiseOnSuccess()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortResolved = false;
             const stream = new WritableStream({
@@ -70,13 +70,13 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
+        Assert.True(Evaluate("abortResolved").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectAbortPromiseOnError()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortRejected = false;
             const stream = new WritableStream({
@@ -88,15 +88,15 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Engine.Evaluate("writer.abort().catch(() => { abortRejected = true; })").UnwrapIfPromise();
+        Evaluate("writer.abort().catch(() => { abortRejected = true; })").UnwrapIfPromise();
 
-        Assert.True(Engine.Evaluate("abortRejected").AsBoolean());
+        Assert.True(Evaluate("abortRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectedWhenWriterIsReleased()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortRejected = false;
             const stream = new WritableStream();
@@ -106,30 +106,30 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortRejected").AsBoolean());
+        Assert.True(Evaluate("abortRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldResolveWhenStreamIsAlreadyClosed()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortResolved = false;
             const stream = new WritableStream();
             const writer = stream.getWriter();
-            writer.close();
             """
         );
 
-        Engine.Evaluate("writer.abort().then(() => { abortResolved = true; })").UnwrapIfPromise();
+        Evaluate("writer.close()").UnwrapIfPromise();
+        Evaluate("writer.abort().then(() => { abortResolved = true; })").UnwrapIfPromise();
 
-        Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
+        Assert.True(Evaluate("abortResolved").AsBoolean());
     }
 
     [Fact]
     public void ShouldResolveWhenStreamIsAlreadyErrored()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortResolved = false;
             const stream = new WritableStream({
@@ -142,13 +142,13 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortResolved").AsBoolean());
+        Assert.True(Evaluate("abortResolved").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectClosedPromiseAfterAbort()
     {
-        Engine.Execute(
+        Execute(
             """
             let closedRejected = false;
             const stream = new WritableStream();
@@ -157,8 +157,8 @@ public sealed class AbortMethodTests : TestBase
             """
         );
 
-        Engine.Evaluate("writer.abort(new Error('Aborted'))").UnwrapIfPromise();
+        Evaluate("writer.abort(new Error('Aborted'))").UnwrapIfPromise();
 
-        Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
+        Assert.True(Evaluate("closedRejected").AsBoolean());
     }
 }

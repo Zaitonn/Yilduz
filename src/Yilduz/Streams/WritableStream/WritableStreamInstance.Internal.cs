@@ -351,8 +351,8 @@ public sealed partial class WritableStreamInstance
         }
 
         // Let abortRequest be stream.[[pendingAbortRequest]].
-        // Set stream.[[pendingAbortRequest]] to undefined.
         var abortRequest = PendingAbortRequest;
+        // Set stream.[[pendingAbortRequest]] to undefined.
         PendingAbortRequest = null;
 
         // If abortRequest’s was already erroring is true,
@@ -369,9 +369,11 @@ public sealed partial class WritableStreamInstance
         }
 
         // Let promise be ! stream.[[controller]].[[AbortSteps]](abortRequest’s reason).
-        var promise = Controller?.AbortSteps(abortRequest.Value.Reason);
+        var promise =
+            Controller?.AbortSteps(abortRequest.Value.Reason)
+            ?? PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
 
-        promise?.Then(
+        promise.Then(
             onFulfilled: _ =>
             {
                 // Upon fulfillment of promise,

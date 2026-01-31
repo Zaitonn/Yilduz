@@ -16,19 +16,19 @@ public sealed class PrototypeTests : TestBase
     public void ShouldHaveCorrectPrototype(string propertyName)
     {
         Assert.True(
-            Engine.Evaluate($"AbortSignal.prototype.hasOwnProperty('{propertyName}')").AsBoolean()
+            Evaluate($"AbortSignal.prototype.hasOwnProperty('{propertyName}')").AsBoolean()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectPrototypeChain()
     {
-        Assert.IsType<AbortSignalConstructor>(Engine.Evaluate("AbortSignal.prototype.constructor"));
+        Assert.IsType<AbortSignalConstructor>(Evaluate("AbortSignal.prototype.constructor"));
         Assert.IsType<EventTargetConstructor>(
-            Engine.Evaluate("AbortSignal.prototype.__proto__.constructor")
+            Evaluate("AbortSignal.prototype.__proto__.constructor")
         );
         Assert.IsType<ObjectConstructor>(
-            Engine.Evaluate("AbortSignal.prototype.__proto__.__proto__.constructor")
+            Evaluate("AbortSignal.prototype.__proto__.__proto__.constructor")
         );
     }
 
@@ -39,6 +39,6 @@ public sealed class PrototypeTests : TestBase
     [InlineData("AbortSignal.prototype.addEventListener()")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 }

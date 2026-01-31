@@ -8,7 +8,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldEncodeStringChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextEncoderStream();
             const writer = stream.writable.getWriter();
@@ -24,9 +24,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("test()").UnwrapIfPromise();
+        Evaluate("test()").UnwrapIfPromise();
 
-        var array = Engine.Evaluate("result").AsArray();
+        var array = Evaluate("result").AsArray();
         Assert.Equal<uint>(2, array.Length);
         Assert.Equal(72, array[0].AsNumber());
         Assert.Equal(105, array[1].AsNumber());
@@ -35,7 +35,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHandleMultipleWritesInOrder()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new TextEncoderStream();
             const writer = stream.writable.getWriter();
@@ -54,9 +54,9 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Engine.Evaluate("test()").UnwrapIfPromise();
+        Evaluate("test()").UnwrapIfPromise();
 
-        var results = Engine.Evaluate("results").AsArray();
+        var results = Evaluate("results").AsArray();
         Assert.Equal<uint>(2, results.Length);
         Assert.Equal(65, results[0].AsArray()[0].AsNumber());
         Assert.Equal(66, results[1].AsArray()[0].AsNumber());

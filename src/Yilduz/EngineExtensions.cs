@@ -10,7 +10,7 @@ namespace Yilduz;
 /// </summary>
 public static class EngineExtensions
 {
-    private static readonly ConditionalWeakTable<Engine, WebApiIntrinsics> EngineTable = new();
+    private static readonly ConditionalWeakTable<Engine, WebApiIntrinsics> EngineTable = [];
 
     /// <summary>
     /// Initializes the Jint engine with Web API intrinsics.

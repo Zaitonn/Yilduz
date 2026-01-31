@@ -9,20 +9,20 @@ public sealed class ReleaseLockMethodTests : TestBase
     [Fact]
     public void ShouldHaveReleaseLockMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof writer.releaseLock === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof writer.releaseLock === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldUnlockStream()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -30,13 +30,13 @@ public sealed class ReleaseLockMethodTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.False(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldAllowNewWriterAfterRelease()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer1 = stream.getWriter();
@@ -45,14 +45,14 @@ public sealed class ReleaseLockMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("writer2 instanceof WritableStreamDefaultWriter").AsBoolean());
-        Assert.True(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.True(Evaluate("writer2 instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("stream.locked").AsBoolean());
     }
 
     [Fact]
     public void ShouldMakeWriterMethodsThrow()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -61,17 +61,15 @@ public sealed class ReleaseLockMethodTests : TestBase
         );
 
         Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.write('test')").UnwrapIfPromise()
+            () => Evaluate("writer.write('test')").UnwrapIfPromise()
         );
-        Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.close()").UnwrapIfPromise()
-        );
+        Assert.Throws<PromiseRejectedException>(() => Evaluate("writer.close()").UnwrapIfPromise());
     }
 
     [Fact]
     public void ShouldRejectReadyPromise()
     {
-        Engine.Execute(
+        Execute(
             """
             let readyRejected = false;
             const stream = new WritableStream();
@@ -81,13 +79,13 @@ public sealed class ReleaseLockMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("readyRejected").AsBoolean());
+        Assert.True(Evaluate("readyRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldRejectClosedPromise()
     {
-        Engine.Execute(
+        Execute(
             """
             let closedRejected = false;
             const stream = new WritableStream();
@@ -97,13 +95,13 @@ public sealed class ReleaseLockMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
+        Assert.True(Evaluate("closedRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldBeIdempotent()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -112,6 +110,6 @@ public sealed class ReleaseLockMethodTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("stream.locked").AsBoolean());
+        Assert.False(Evaluate("stream.locked").AsBoolean());
     }
 }

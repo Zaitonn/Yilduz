@@ -9,29 +9,29 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateCountQueuingStrategyWithHighWaterMark()
     {
-        Engine.Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 4 });");
-        Assert.Equal("CountQueuingStrategy", Engine.Evaluate("strategy.constructor.name"));
-        Assert.Equal(4, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 4 });");
+        Assert.Equal("CountQueuingStrategy", Evaluate("strategy.constructor.name"));
+        Assert.Equal(4, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateCountQueuingStrategyWithZeroHighWaterMark()
     {
-        Engine.Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 0 });");
-        Assert.Equal(0, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 0 });");
+        Assert.Equal(0, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateCountQueuingStrategyWithFloatHighWaterMark()
     {
-        Engine.Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 2.5 });");
-        Assert.Equal(2.5, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new CountQueuingStrategy({ highWaterMark: 2.5 });");
+        Assert.Equal(2.5, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructedWithoutOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             let caughtError;
             try {
@@ -41,13 +41,13 @@ public sealed class ConstructorTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructedWithoutHighWaterMark()
     {
-        Engine.Execute(
+        Execute(
             """
             let caughtError;
             try {
@@ -57,13 +57,13 @@ public sealed class ConstructorTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructedWithNullOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             let caughtError;
             try {
@@ -73,20 +73,20 @@ public sealed class ConstructorTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldAcceptNegativeHighWaterMark()
     {
-        Engine.Execute("const strategy = new CountQueuingStrategy({ highWaterMark: -2 });");
-        Assert.Equal(-2, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new CountQueuingStrategy({ highWaterMark: -2 });");
+        Assert.Equal(-2, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldIgnoreExtraProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new CountQueuingStrategy({ 
                 highWaterMark: 3, 
@@ -94,14 +94,14 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.Equal(3, Engine.Evaluate("strategy.highWaterMark").AsNumber());
-        Assert.True(Engine.Evaluate("strategy.extraProperty === undefined").AsBoolean());
+        Assert.Equal(3, Evaluate("strategy.highWaterMark").AsNumber());
+        Assert.True(Evaluate("strategy.extraProperty === undefined").AsBoolean());
     }
 
     [Fact]
     public void ShouldAcceptInfinityAsHighWaterMark()
     {
-        Engine.Execute("const strategy = new CountQueuingStrategy({ highWaterMark: Infinity });");
-        Assert.True(Engine.Evaluate("strategy.highWaterMark === Infinity").AsBoolean());
+        Execute("const strategy = new CountQueuingStrategy({ highWaterMark: Infinity });");
+        Assert.True(Evaluate("strategy.highWaterMark === Infinity").AsBoolean());
     }
 }

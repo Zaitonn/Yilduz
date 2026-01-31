@@ -120,7 +120,7 @@ public class EventTargetInstance : ObjectInstance
                 {
                     try
                     {
-                        Engine.Call(objectInstance1, this, [evt]);
+                        objectInstance1.Call(this, [evt]);
                     }
                     catch { }
                 }
@@ -144,7 +144,7 @@ public class EventTargetInstance : ObjectInstance
             && this["on" + evt.Type] is ObjectInstance objectInstance2
         )
         {
-            Engine.Call(objectInstance2, this, [evt]);
+            objectInstance2.Call(this, [evt]);
         }
 
         evt.EventPhase = EventPhases.NONE;

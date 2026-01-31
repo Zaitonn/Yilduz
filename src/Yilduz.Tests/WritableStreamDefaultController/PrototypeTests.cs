@@ -24,7 +24,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("WritableStreamDefaultController.prototype.error()")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
@@ -32,14 +32,14 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "WritableStreamDefaultController",
-            Engine.Evaluate("WritableStreamDefaultController.name").AsString()
+            Evaluate("WritableStreamDefaultController.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectPrototypeChain()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -62,7 +62,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -86,7 +86,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldNotBeEnumerable()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -98,13 +98,13 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("keys.length").AsNumber());
+        Assert.Equal(0, Evaluate("keys.length").AsNumber());
     }
 
     [Fact]
     public void ShouldHaveNonEnumerableProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -117,7 +117,7 @@ public sealed class PrototypeTests : TestBase
 
         // Check that signal property is non-enumerable
         Assert.False(
-            Engine.Evaluate("Object.propertyIsEnumerable.call(controller, 'signal')").AsBoolean()
+            Evaluate("Object.propertyIsEnumerable.call(controller, 'signal')").AsBoolean()
         );
     }
 
@@ -126,25 +126,23 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "error",
-            Engine.Evaluate("WritableStreamDefaultController.prototype.error.name").AsString()
+            Evaluate("WritableStreamDefaultController.prototype.error.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldNotAllowDirectConstruction()
     {
+        Assert.Throws<JavaScriptException>(() => Execute("new WritableStreamDefaultController();"));
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultController();")
-        );
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultController({});")
+            () => Execute("new WritableStreamDefaultController({});")
         );
     }
 
     [Fact]
     public void ShouldHaveConsistentInterface()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -156,10 +154,8 @@ public sealed class PrototypeTests : TestBase
         );
 
         // Controller should have expected interface
-        Assert.True(Engine.Evaluate("typeof controller.error === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("'signal' in controller").AsBoolean());
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("typeof controller.error === 'function'").AsBoolean());
+        Assert.True(Evaluate("'signal' in controller").AsBoolean());
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 }

@@ -12,32 +12,28 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldBeGlobalConstructor()
     {
-        Assert.True(
-            Engine.Evaluate("typeof WritableStreamDefaultController === 'function'").AsBoolean()
-        );
-        Assert.True(Engine.Evaluate("WritableStreamDefaultController.prototype").IsObject());
+        Assert.True(Evaluate("typeof WritableStreamDefaultController === 'function'").AsBoolean());
+        Assert.True(Evaluate("WritableStreamDefaultController.prototype").IsObject());
     }
 
     [Fact]
     public void ShouldNotBeConstructible()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultController();")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("new WritableStreamDefaultController();"));
     }
 
     [Fact]
     public void ShouldNotBeConstructibleWithArguments()
     {
         Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("new WritableStreamDefaultController({});")
+            () => Execute("new WritableStreamDefaultController({});")
         );
     }
 
     [Fact]
     public void ShouldBePassedToUnderlyingSinkStart()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -48,16 +44,14 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.IsType<WritableStreamDefaultControllerInstance>(Engine.Evaluate("controller"));
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.IsType<WritableStreamDefaultControllerInstance>(Evaluate("controller"));
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldBePassedToUnderlyingSinkWrite()
     {
-        Engine.Execute(
+        Execute(
             """
             let writeController = null;
             const stream = new WritableStream({
@@ -70,7 +64,7 @@ public sealed class ConstructorTests : TestBase
             """
         );
 
-        Assert.IsType<WritableStreamDefaultControllerInstance>(Engine.Evaluate("writeController"));
+        Assert.IsType<WritableStreamDefaultControllerInstance>(Evaluate("writeController"));
         Assert.True(
             Engine
                 .Evaluate("writeController instanceof WritableStreamDefaultController")
@@ -81,7 +75,7 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public async Task ShouldBePassedToUnderlyingSinkClose()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeController = null;
             const stream = new WritableStream({
@@ -96,11 +90,9 @@ public sealed class ConstructorTests : TestBase
 
         await Task.Delay(100);
 
-        if (!Engine.Evaluate("closeController === null").AsBoolean())
+        if (!Evaluate("closeController === null").AsBoolean())
         {
-            Assert.IsType<WritableStreamDefaultControllerInstance>(
-                Engine.Evaluate("closeController")
-            );
+            Assert.IsType<WritableStreamDefaultControllerInstance>(Evaluate("closeController"));
         }
     }
 }

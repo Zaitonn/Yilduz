@@ -9,7 +9,7 @@ public sealed class SignalPropertyTests : TestBase
     [Fact]
     public void ShouldHaveSignalProperty()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -20,13 +20,13 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("'signal' in controller").AsBoolean());
+        Assert.True(Evaluate("'signal' in controller").AsBoolean());
     }
 
     [Fact]
     public void ShouldReturnAbortSignal()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -37,13 +37,13 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller.signal instanceof AbortSignal").AsBoolean());
+        Assert.True(Evaluate("controller.signal instanceof AbortSignal").AsBoolean());
     }
 
     [Fact]
     public void ShouldNotBeAbortedInitially()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -54,13 +54,13 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.False(Engine.Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.False(Evaluate("controller.signal.aborted").AsBoolean());
     }
 
     [Fact]
     public void ShouldBeAbortedWhenStreamIsAborted()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -74,13 +74,13 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
     }
 
     [Fact]
     public void ShouldFireAbortEventWhenStreamIsAborted()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let abortEventFired = false;
@@ -99,13 +99,13 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("abortEventFired").AsBoolean());
+        Assert.True(Evaluate("abortEventFired").AsBoolean());
     }
 
     [Fact]
     public void ShouldHaveCorrectAbortReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -119,13 +119,13 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.Equal("custom abort reason", Engine.Evaluate("controller.signal.reason").AsString());
+        Assert.Equal("custom abort reason", Evaluate("controller.signal.reason").AsString());
     }
 
     [Fact]
     public void ShouldBeReadOnly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -138,18 +138,16 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("controller.signal = new AbortSignal();")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("controller.signal = new AbortSignal();"));
 
         // Signal should remain the same
-        Assert.True(Engine.Evaluate("controller.signal === originalSignal").AsBoolean());
+        Assert.True(Evaluate("controller.signal === originalSignal").AsBoolean());
     }
 
     [Fact]
     public void ShouldAllowListeningToAbortEvents()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let eventListenerCalled = false;
@@ -169,6 +167,6 @@ public sealed class SignalPropertyTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("eventListenerCalled").AsBoolean());
+        Assert.True(Evaluate("eventListenerCalled").AsBoolean());
     }
 }

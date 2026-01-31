@@ -9,7 +9,7 @@ public sealed class BackpressureTests : TestBase
     [Fact]
     public void ShouldHandleBackpressureWithHighWaterMark()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -25,13 +25,13 @@ public sealed class BackpressureTests : TestBase
         );
 
         // Initially, desired size should be positive (1 with HWM=1 and 0 queued)
-        Assert.True(Engine.Evaluate("writer.desiredSize > 0").AsBoolean());
+        Assert.True(Evaluate("writer.desiredSize > 0").AsBoolean());
     }
 
     [Fact]
     public void ShouldRespectCustomSizeAlgorithm()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk) {
@@ -49,13 +49,13 @@ public sealed class BackpressureTests : TestBase
         );
 
         // With HWM=10 and no queued chunks, desired size should be 10
-        Assert.Equal(10, Engine.Evaluate("writer.desiredSize").AsNumber());
+        Assert.Equal(10, Evaluate("writer.desiredSize").AsNumber());
     }
 
     [Fact]
     public void ShouldCalculateDesiredSizeCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             const writeResolvers = [];
             const stream = new WritableStream({
@@ -78,13 +78,13 @@ public sealed class BackpressureTests : TestBase
         );
 
         // HWM=5, queued size=4, so desired size should be 1
-        Assert.Equal(1, Engine.Evaluate("writer.desiredSize").AsNumber());
+        Assert.Equal(1, Evaluate("writer.desiredSize").AsNumber());
     }
 
     [Fact]
     public void ShouldHandleNegativeDesiredSize()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
             }, {
@@ -100,6 +100,6 @@ public sealed class BackpressureTests : TestBase
         );
 
         // HWM=3, queued size=4, so desired size should be -1
-        Assert.Equal(-1, Engine.Evaluate("writer.desiredSize"));
+        Assert.Equal(-1, Evaluate("writer.desiredSize"));
     }
 }

@@ -8,9 +8,9 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLToJSON()
     {
-        Engine.Execute("const url = new URL('https://example.com/path?query=value#hash');");
+        Execute("const url = new URL('https://example.com/path?query=value#hash');");
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(url)").AsString();
 
         Assert.Equal("\"https://example.com/path?query=value#hash\"", jsonResult);
     }
@@ -18,10 +18,10 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldCallToJSONMethod()
     {
-        Engine.Execute("const url = new URL('https://example.com/test');");
+        Execute("const url = new URL('https://example.com/test');");
 
-        var toJsonResult = Engine.Evaluate("url.toJSON()").AsString();
-        var hrefResult = Engine.Evaluate("url.href").AsString();
+        var toJsonResult = Evaluate("url.toJSON()").AsString();
+        var hrefResult = Evaluate("url.href").AsString();
 
         Assert.Equal(hrefResult, toJsonResult);
         Assert.Equal("https://example.com/test", toJsonResult);
@@ -30,13 +30,13 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLWithComplexPath()
     {
-        Engine.Execute(
+        Execute(
             """
             const url = new URL('https://user:pass@example.com:8080/path/to/resource?param1=value1&param2=value2#section');
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(url)").AsString();
 
         Assert.Equal(
             "\"https://user:pass@example.com:8080/path/to/resource?param1=value1&param2=value2#section\"",
@@ -47,7 +47,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLInArray()
     {
-        Engine.Execute(
+        Execute(
             """
             const urls = [
                 new URL('https://example.com/first'),
@@ -56,7 +56,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(urls)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(urls)").AsString();
 
         Assert.Equal("[\"https://example.com/first\",\"https://example.com/second\"]", jsonResult);
     }
@@ -64,7 +64,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeURLInObject()
     {
-        Engine.Execute(
+        Execute(
             """
             const obj = {
                 homepage: new URL('https://example.com'),
@@ -73,7 +73,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(obj)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(obj)").AsString();
 
         Assert.Equal(
             "{\"homepage\":\"https://example.com/\",\"apiEndpoint\":\"https://api.example.com/v1\"}",
@@ -84,14 +84,14 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldHandleURLWithSpecialCharacters()
     {
-        Engine.Execute(
+        Execute(
             """
             const url = new URL('https://example.com/path?query=hello%20world&test=中文');
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();
-        var expectedUrl = Engine.Evaluate("url.href").AsString();
+        var jsonResult = Evaluate("JSON.stringify(url)").AsString();
+        var expectedUrl = Evaluate("url.href").AsString();
 
         Assert.Equal($"\"{expectedUrl}\"", jsonResult);
     }
@@ -99,7 +99,7 @@ public sealed class JsonSerializationTests : TestBase
     [Fact]
     public void ShouldSerializeModifiedURL()
     {
-        Engine.Execute(
+        Execute(
             """
             const url = new URL('https://example.com');
             url.pathname = '/new-path';
@@ -108,7 +108,7 @@ public sealed class JsonSerializationTests : TestBase
             """
         );
 
-        var jsonResult = Engine.Evaluate("JSON.stringify(url)").AsString();
+        var jsonResult = Evaluate("JSON.stringify(url)").AsString();
 
         Assert.Equal("\"https://example.com/new-path?modified=true#new-hash\"", jsonResult);
     }

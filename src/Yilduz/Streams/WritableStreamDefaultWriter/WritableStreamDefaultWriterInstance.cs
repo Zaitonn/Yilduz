@@ -69,7 +69,7 @@ public sealed partial class WritableStreamDefaultWriterInstance : ObjectInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#ws-default-writer-abort
     /// </summary>
-    public JsValue Abort(JsValue reason = null!)
+    public JsValue Abort(JsValue reason)
     {
         if (Stream == null)
         {

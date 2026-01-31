@@ -9,26 +9,26 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldBeGlobalConstructor()
     {
-        Assert.True(Engine.Evaluate("typeof FileReaderSync === 'function'").AsBoolean());
-        Assert.True(Engine.Evaluate("FileReaderSync.prototype").IsObject());
+        Assert.True(Evaluate("typeof FileReaderSync === 'function'").AsBoolean());
+        Assert.True(Evaluate("FileReaderSync.prototype").IsObject());
     }
 
     [Fact]
     public void ShouldCreateFileReaderSyncInstance()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReaderSync();
             """
         );
 
-        Assert.True(Engine.Evaluate("reader instanceof FileReaderSync").AsBoolean());
+        Assert.True(Evaluate("reader instanceof FileReaderSync").AsBoolean());
     }
 
     [Fact]
     public void ShouldReadTextFromBlob()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello, World!'], { type: 'text/plain' });
             const reader = new FileReaderSync();
@@ -36,13 +36,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello, World!", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello, World!", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldReadArrayBufferFromBlob()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello']);
             const reader = new FileReaderSync();
@@ -50,14 +50,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("result instanceof ArrayBuffer").AsBoolean());
-        Assert.Equal(5, Engine.Evaluate("result.byteLength").AsNumber());
+        Assert.True(Evaluate("result instanceof ArrayBuffer").AsBoolean());
+        Assert.Equal(5, Evaluate("result.byteLength").AsNumber());
     }
 
     [Fact]
     public void ShouldReadDataURLFromBlob()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello'], { type: 'text/plain' });
             const reader = new FileReaderSync();
@@ -65,14 +65,14 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var result = Engine.Evaluate("result").AsString();
+        var result = Evaluate("result").AsString();
         Assert.StartsWith("data:text/plain;base64,", result);
     }
 
     [Fact]
     public void ShouldHandleEmptyBlob()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob([]);
             const reader = new FileReaderSync();
@@ -80,27 +80,25 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("", Engine.Evaluate("result").AsString());
+        Assert.Equal("", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldThrowErrorForInvalidBlobParameter()
     {
-        Engine.Execute(
+        Execute(
             """
             const reader = new FileReaderSync();
             """
         );
 
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Execute("reader.readAsText('not a blob');")
-        );
+        Assert.Throws<JavaScriptException>(() => Execute("reader.readAsText('not a blob');"));
     }
 
     [Fact]
     public void ShouldHandleCustomEncoding()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob(['Hello, 世界!'], { type: 'text/plain' });
             const reader = new FileReaderSync();
@@ -108,13 +106,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello, 世界!", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello, 世界!", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldReadBinaryStringFromBlob()
     {
-        Engine.Execute(
+        Execute(
             """
             const blob = new Blob([new Uint8Array([72, 101, 108, 108, 111])], { type: 'application/octet-stream' });
             const reader = new FileReaderSync();
@@ -122,13 +120,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldHandleBinaryDataCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             // Create a blob with binary data including null bytes
             const blob = new Blob([new Uint8Array([0, 255, 128, 65, 0])]);
@@ -137,7 +135,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var result = Engine.Evaluate("result").AsString();
+        var result = Evaluate("result").AsString();
         Assert.Equal(5, result.Length);
         Assert.Equal('\0', result[0]); // null byte
         Assert.Equal('\u00FF', result[1]); // 255

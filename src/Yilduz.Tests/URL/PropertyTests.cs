@@ -8,21 +8,19 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void OriginShouldBeReadOnly()
     {
-        Engine.Execute("const url = new URL('https://example.com:8080/path');");
-        Engine.Execute("const originalOrigin = url.origin;");
-        Engine.Execute("url.origin = 'https://hacker.com';");
+        Execute("const url = new URL('https://example.com:8080/path');");
+        Execute("const originalOrigin = url.origin;");
+        Execute("url.origin = 'https://hacker.com';");
 
-        var originAfterAttempt = Engine.Evaluate("url.origin").AsString();
+        var originAfterAttempt = Evaluate("url.origin").AsString();
         Assert.Equal("https://example.com:8080", originAfterAttempt);
     }
 
     [Fact]
     public void OriginShouldIncludeProtocolAndHost()
     {
-        Engine.Execute(
-            "const url = new URL('https://subdomain.example.com:9000/path?query#hash');"
-        );
-        var origin = Engine.Evaluate("url.origin").AsString();
+        Execute("const url = new URL('https://subdomain.example.com:9000/path?query#hash');");
+        var origin = Evaluate("url.origin").AsString();
 
         Assert.Equal("https://subdomain.example.com:9000", origin);
     }
@@ -30,10 +28,10 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void OriginShouldNotIncludePathSearchOrHash()
     {
-        Engine.Execute(
+        Execute(
             "const url = new URL('https://example.com/very/long/path?key=value&other=data#section');"
         );
-        var origin = Engine.Evaluate("url.origin").AsString();
+        var origin = Evaluate("url.origin").AsString();
 
         Assert.Equal("https://example.com", origin);
     }
@@ -41,10 +39,8 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void HrefShouldReturnCompleteURL()
     {
-        Engine.Execute(
-            "const url = new URL('https://user:pass@example.com:8080/path?query=value#hash');"
-        );
-        var href = Engine.Evaluate("url.href").AsString();
+        Execute("const url = new URL('https://user:pass@example.com:8080/path?query=value#hash');");
+        var href = Evaluate("url.href").AsString();
 
         Assert.Contains("https://", href);
         Assert.Contains("user:pass@", href);
@@ -57,14 +53,14 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void SettingHrefShouldUpdateOtherProperties()
     {
-        Engine.Execute("const url = new URL('https://old.com');");
-        Engine.Execute("url.href = 'https://new.com:9000/newpath?param=value#newfrag';");
+        Execute("const url = new URL('https://old.com');");
+        Execute("url.href = 'https://new.com:9000/newpath?param=value#newfrag';");
 
-        var hostname = Engine.Evaluate("url.hostname").AsString();
-        var port = Engine.Evaluate("url.port").AsString();
-        var pathname = Engine.Evaluate("url.pathname").AsString();
-        var search = Engine.Evaluate("url.search").AsString();
-        var hash = Engine.Evaluate("url.hash").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var port = Evaluate("url.port").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
+        var search = Evaluate("url.search").AsString();
+        var hash = Evaluate("url.hash").AsString();
 
         Assert.Equal("new.com", hostname);
         Assert.Equal("9000", port);
@@ -76,13 +72,13 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void ProtocolShouldIncludeColon()
     {
-        Engine.Execute("const httpUrl = new URL('http://example.com');");
-        Engine.Execute("const httpsUrl = new URL('https://example.com');");
-        Engine.Execute("const ftpUrl = new URL('ftp://ftp.example.com');");
+        Execute("const httpUrl = new URL('http://example.com');");
+        Execute("const httpsUrl = new URL('https://example.com');");
+        Execute("const ftpUrl = new URL('ftp://ftp.example.com');");
 
-        var httpProtocol = Engine.Evaluate("httpUrl.protocol").AsString();
-        var httpsProtocol = Engine.Evaluate("httpsUrl.protocol").AsString();
-        var ftpProtocol = Engine.Evaluate("ftpUrl.protocol").AsString();
+        var httpProtocol = Evaluate("httpUrl.protocol").AsString();
+        var httpsProtocol = Evaluate("httpsUrl.protocol").AsString();
+        var ftpProtocol = Evaluate("ftpUrl.protocol").AsString();
 
         Assert.Equal("http:", httpProtocol);
         Assert.Equal("https:", httpsProtocol);
@@ -92,11 +88,11 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void HostShouldIncludePortWhenPresent()
     {
-        Engine.Execute("const urlWithPort = new URL('https://example.com:8080');");
-        Engine.Execute("const urlWithoutPort = new URL('https://example.com');");
+        Execute("const urlWithPort = new URL('https://example.com:8080');");
+        Execute("const urlWithoutPort = new URL('https://example.com');");
 
-        var hostWithPort = Engine.Evaluate("urlWithPort.host").AsString();
-        var hostWithoutPort = Engine.Evaluate("urlWithoutPort.host").AsString();
+        var hostWithPort = Evaluate("urlWithPort.host").AsString();
+        var hostWithoutPort = Evaluate("urlWithoutPort.host").AsString();
 
         Assert.Equal("example.com:8080", hostWithPort);
         Assert.Equal("example.com", hostWithoutPort);
@@ -105,11 +101,11 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void HostnameShouldNotIncludePort()
     {
-        Engine.Execute("const urlWithPort = new URL('https://example.com:8080');");
-        Engine.Execute("const urlWithoutPort = new URL('https://example.com');");
+        Execute("const urlWithPort = new URL('https://example.com:8080');");
+        Execute("const urlWithoutPort = new URL('https://example.com');");
 
-        var hostnameWithPort = Engine.Evaluate("urlWithPort.hostname").AsString();
-        var hostnameWithoutPort = Engine.Evaluate("urlWithoutPort.hostname").AsString();
+        var hostnameWithPort = Evaluate("urlWithPort.hostname").AsString();
+        var hostnameWithoutPort = Evaluate("urlWithoutPort.hostname").AsString();
 
         Assert.Equal("example.com", hostnameWithPort);
         Assert.Equal("example.com", hostnameWithoutPort);
@@ -118,11 +114,11 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void PortShouldBeEmptyForDefaultPorts()
     {
-        Engine.Execute("const httpUrl = new URL('http://example.com');");
-        Engine.Execute("const httpsUrl = new URL('https://example.com');");
+        Execute("const httpUrl = new URL('http://example.com');");
+        Execute("const httpsUrl = new URL('https://example.com');");
 
-        var httpPort = Engine.Evaluate("httpUrl.port").AsString();
-        var httpsPort = Engine.Evaluate("httpsUrl.port").AsString();
+        var httpPort = Evaluate("httpUrl.port").AsString();
+        var httpsPort = Evaluate("httpsUrl.port").AsString();
 
         // Note: This depends on the implementation. Some implementations return empty string for default ports
         // We test both cases since the behavior might vary
@@ -133,8 +129,8 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void PortShouldReturnExplicitPort()
     {
-        Engine.Execute("const url = new URL('https://example.com:9000');");
-        var port = Engine.Evaluate("url.port").AsString();
+        Execute("const url = new URL('https://example.com:9000');");
+        var port = Evaluate("url.port").AsString();
 
         Assert.Equal("9000", port);
     }
@@ -142,11 +138,11 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void PathnameShouldStartWithSlash()
     {
-        Engine.Execute("const rootUrl = new URL('https://example.com');");
-        Engine.Execute("const pathUrl = new URL('https://example.com/path/to/resource');");
+        Execute("const rootUrl = new URL('https://example.com');");
+        Execute("const pathUrl = new URL('https://example.com/path/to/resource');");
 
-        var rootPathname = Engine.Evaluate("rootUrl.pathname").AsString();
-        var pathPathname = Engine.Evaluate("pathUrl.pathname").AsString();
+        var rootPathname = Evaluate("rootUrl.pathname").AsString();
+        var pathPathname = Evaluate("pathUrl.pathname").AsString();
 
         Assert.Equal("/", rootPathname);
         Assert.Equal("/path/to/resource", pathPathname);
@@ -155,11 +151,11 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void SearchShouldIncludeQuestionMarkWhenPresent()
     {
-        Engine.Execute("const urlWithSearch = new URL('https://example.com?key=value');");
-        Engine.Execute("const urlWithoutSearch = new URL('https://example.com');");
+        Execute("const urlWithSearch = new URL('https://example.com?key=value');");
+        Execute("const urlWithoutSearch = new URL('https://example.com');");
 
-        var searchWithQuery = Engine.Evaluate("urlWithSearch.search").AsString();
-        var searchWithoutQuery = Engine.Evaluate("urlWithoutSearch.search").AsString();
+        var searchWithQuery = Evaluate("urlWithSearch.search").AsString();
+        var searchWithoutQuery = Evaluate("urlWithoutSearch.search").AsString();
 
         Assert.Equal("?key=value", searchWithQuery);
         Assert.Equal("", searchWithoutQuery);
@@ -168,11 +164,11 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void HashShouldIncludeHashSymbolWhenPresent()
     {
-        Engine.Execute("const urlWithHash = new URL('https://example.com#section');");
-        Engine.Execute("const urlWithoutHash = new URL('https://example.com');");
+        Execute("const urlWithHash = new URL('https://example.com#section');");
+        Execute("const urlWithoutHash = new URL('https://example.com');");
 
-        var hashWithFragment = Engine.Evaluate("urlWithHash.hash").AsString();
-        var hashWithoutFragment = Engine.Evaluate("urlWithoutHash.hash").AsString();
+        var hashWithFragment = Evaluate("urlWithHash.hash").AsString();
+        var hashWithoutFragment = Evaluate("urlWithoutHash.hash").AsString();
 
         Assert.Equal("#section", hashWithFragment);
         Assert.Equal("", hashWithoutFragment);
@@ -181,10 +177,10 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void UsernameAndPasswordShouldBeEmptyByDefault()
     {
-        Engine.Execute("const url = new URL('https://example.com');");
+        Execute("const url = new URL('https://example.com');");
 
-        var username = Engine.Evaluate("url.username").AsString();
-        var password = Engine.Evaluate("url.password").AsString();
+        var username = Evaluate("url.username").AsString();
+        var password = Evaluate("url.password").AsString();
 
         Assert.Equal("", username);
         Assert.Equal("", password);
@@ -193,12 +189,12 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void SettingUsernameAndPasswordShouldWork()
     {
-        Engine.Execute("const url = new URL('https://example.com');");
-        Engine.Execute("url.username = 'testuser';");
-        Engine.Execute("url.password = 'testpass';");
+        Execute("const url = new URL('https://example.com');");
+        Execute("url.username = 'testuser';");
+        Execute("url.password = 'testpass';");
 
-        var username = Engine.Evaluate("url.username").AsString();
-        var password = Engine.Evaluate("url.password").AsString();
+        var username = Evaluate("url.username").AsString();
+        var password = Evaluate("url.password").AsString();
 
         Assert.Equal("testuser", username);
         Assert.Equal("testpass", password);
@@ -207,12 +203,12 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void SearchParamsPropertyShouldReflectSearchString()
     {
-        Engine.Execute("const url = new URL('https://example.com?key1=value1&key2=value2');");
-        Engine.Execute("const param1 = url.searchParams.get('key1');");
-        Engine.Execute("const param2 = url.searchParams.get('key2');");
+        Execute("const url = new URL('https://example.com?key1=value1&key2=value2');");
+        Execute("const param1 = url.searchParams.get('key1');");
+        Execute("const param2 = url.searchParams.get('key2');");
 
-        var param1Value = Engine.Evaluate("param1").AsString();
-        var param2Value = Engine.Evaluate("param2").AsString();
+        var param1Value = Evaluate("param1").AsString();
+        var param2Value = Evaluate("param2").AsString();
 
         Assert.Equal("value1", param1Value);
         Assert.Equal("value2", param2Value);
@@ -221,29 +217,27 @@ public sealed class PropertyTests : TestBase
     [Fact]
     public void UpdatingSearchShouldUpdateSearchParams()
     {
-        Engine.Execute("const url = new URL('https://example.com');");
-        Engine.Execute("url.search = '?newkey=newvalue';");
-        Engine.Execute("const newParam = url.searchParams.get('newkey');");
+        Execute("const url = new URL('https://example.com');");
+        Execute("url.search = '?newkey=newvalue';");
+        Execute("const newParam = url.searchParams.get('newkey');");
 
-        Assert.Equal("newvalue", Engine.Evaluate("newParam"));
+        Assert.Equal("newvalue", Evaluate("newParam"));
     }
 
     [Fact]
     public void PropertySettersShouldHandleEmptyStrings()
     {
-        Engine.Execute(
-            "const url = new URL('https://user:pass@example.com:8080/path?query=value#hash');"
-        );
+        Execute("const url = new URL('https://user:pass@example.com:8080/path?query=value#hash');");
 
-        Engine.Execute("url.username = '';");
-        Engine.Execute("url.password = '';");
-        Engine.Execute("url.search = '';");
-        Engine.Execute("url.hash = '';");
+        Execute("url.username = '';");
+        Execute("url.password = '';");
+        Execute("url.search = '';");
+        Execute("url.hash = '';");
 
-        var username = Engine.Evaluate("url.username").AsString();
-        var password = Engine.Evaluate("url.password").AsString();
-        var search = Engine.Evaluate("url.search").AsString();
-        var hash = Engine.Evaluate("url.hash").AsString();
+        var username = Evaluate("url.username").AsString();
+        var password = Evaluate("url.password").AsString();
+        var search = Evaluate("url.search").AsString();
+        var hash = Evaluate("url.hash").AsString();
 
         Assert.Equal("", username);
         Assert.Equal("", password);

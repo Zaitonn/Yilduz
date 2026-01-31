@@ -28,7 +28,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("WritableStream.prototype.getWriter()")]
     public void WritableStreamShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Theory]
@@ -59,7 +59,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("WritableStreamDefaultWriter.prototype.write()")]
     public void WritableStreamDefaultWriterShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Theory]
@@ -80,6 +80,6 @@ public sealed class PrototypeTests : TestBase
     [InlineData("WritableStreamDefaultController.prototype.error()")]
     public void WritableStreamDefaultControllerShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 }

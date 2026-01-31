@@ -30,13 +30,13 @@ public sealed class PrototypeTests : TestBase
     [InlineData("ReadableStreamDefaultController.prototype.error()")]
     public void ReadableStreamDefaultControllerShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute(
+        Execute(
             """
             let controllerToStringTag;
             const stream = new ReadableStream({
@@ -48,7 +48,7 @@ public sealed class PrototypeTests : TestBase
         );
         Assert.Equal(
             "[object ReadableStreamDefaultController]",
-            Engine.Evaluate("controllerToStringTag").AsString()
+            Evaluate("controllerToStringTag").AsString()
         );
     }
 
@@ -57,23 +57,19 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "ReadableStreamDefaultController",
-            Engine.Evaluate("ReadableStreamDefaultController.name").AsString()
+            Evaluate("ReadableStreamDefaultController.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldNotBeCallableAsFunction()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("ReadableStreamDefaultController()")
-        );
+        Assert.Throws<JavaScriptException>(() => Evaluate("ReadableStreamDefaultController()"));
     }
 
     [Fact]
     public void ShouldNotBeConstructableDirectly()
     {
-        Assert.Throws<JavaScriptException>(
-            () => Engine.Evaluate("new ReadableStreamDefaultController()")
-        );
+        Assert.Throws<JavaScriptException>(() => Evaluate("new ReadableStreamDefaultController()"));
     }
 }

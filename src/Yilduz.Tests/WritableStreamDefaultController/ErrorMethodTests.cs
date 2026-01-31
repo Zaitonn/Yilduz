@@ -10,7 +10,7 @@ public sealed class ErrorMethodTests : TestBase
     [Fact]
     public void ShouldHaveErrorMethod()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -21,13 +21,13 @@ public sealed class ErrorMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("typeof controller.error === 'function'").AsBoolean());
+        Assert.True(Evaluate("typeof controller.error === 'function'").AsBoolean());
     }
 
     [Fact]
     public void ShouldErrorStreamWithCustomReason()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let errorReason = null;
@@ -46,13 +46,13 @@ public sealed class ErrorMethodTests : TestBase
             """
         );
 
-        Assert.NotNull(Engine.Evaluate("errorReason"));
+        Assert.NotNull(Evaluate("errorReason"));
     }
 
     [Fact]
     public void ShouldRejectWriterPromises()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let closedRejected = false;
@@ -73,13 +73,13 @@ public sealed class ErrorMethodTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("closedRejected").AsBoolean());
+        Assert.True(Evaluate("closedRejected").AsBoolean());
     }
 
     [Fact]
     public void ShouldBeIdempotent()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -100,7 +100,7 @@ public sealed class ErrorMethodTests : TestBase
     [Fact]
     public void ShouldPreventFutureWrites()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -115,7 +115,7 @@ public sealed class ErrorMethodTests : TestBase
         );
 
         Assert.Throws<PromiseRejectedException>(
-            () => Engine.Evaluate("writer.write('test')").UnwrapIfPromise()
+            () => Evaluate("writer.write('test')").UnwrapIfPromise()
         );
     }
 }

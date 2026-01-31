@@ -8,29 +8,29 @@ public sealed class ConstructorTests : TestBase
     [Fact]
     public void ShouldCreateByteLengthQueuingStrategyWithHighWaterMark()
     {
-        Engine.Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });");
-        Assert.Equal("ByteLengthQueuingStrategy", Engine.Evaluate("strategy.constructor.name"));
-        Assert.Equal(16, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 16 });");
+        Assert.Equal("ByteLengthQueuingStrategy", Evaluate("strategy.constructor.name"));
+        Assert.Equal(16, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateByteLengthQueuingStrategyWithZeroHighWaterMark()
     {
-        Engine.Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 0 });");
-        Assert.Equal(0, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 0 });");
+        Assert.Equal(0, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldCreateByteLengthQueuingStrategyWithFloatHighWaterMark()
     {
-        Engine.Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 1.5 });");
-        Assert.Equal(1.5, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: 1.5 });");
+        Assert.Equal(1.5, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructedWithoutOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             let caughtError;
             try {
@@ -40,13 +40,13 @@ public sealed class ConstructorTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructedWithoutHighWaterMark()
     {
-        Engine.Execute(
+        Execute(
             """
             let caughtError;
             try {
@@ -56,13 +56,13 @@ public sealed class ConstructorTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldThrowWhenConstructedWithNullOptions()
     {
-        Engine.Execute(
+        Execute(
             """
             let caughtError;
             try {
@@ -72,20 +72,20 @@ public sealed class ConstructorTests : TestBase
             }
             """
         );
-        Assert.True(Engine.Evaluate("caughtError instanceof TypeError").AsBoolean());
+        Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
     [Fact]
     public void ShouldAcceptNegativeHighWaterMark()
     {
-        Engine.Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: -1 });");
-        Assert.Equal(-1, Engine.Evaluate("strategy.highWaterMark").AsNumber());
+        Execute("const strategy = new ByteLengthQueuingStrategy({ highWaterMark: -1 });");
+        Assert.Equal(-1, Evaluate("strategy.highWaterMark").AsNumber());
     }
 
     [Fact]
     public void ShouldIgnoreExtraProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const strategy = new ByteLengthQueuingStrategy({ 
                 highWaterMark: 8, 
@@ -93,7 +93,7 @@ public sealed class ConstructorTests : TestBase
             });
             """
         );
-        Assert.Equal(8, Engine.Evaluate("strategy.highWaterMark").AsNumber());
-        Assert.True(Engine.Evaluate("strategy.extraProperty === undefined").AsBoolean());
+        Assert.Equal(8, Evaluate("strategy.highWaterMark").AsNumber());
+        Assert.True(Evaluate("strategy.extraProperty === undefined").AsBoolean());
     }
 }

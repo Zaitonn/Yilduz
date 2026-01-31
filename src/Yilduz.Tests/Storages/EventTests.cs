@@ -41,7 +41,7 @@ public sealed class EventTests : TestBase
     {
         var storage = GetActiveStorage(type);
 
-        Engine.Execute($"{type}.setItem('testKey', 'testValue');");
+        Execute($"{type}.setItem('testKey', 'testValue');");
 
         storage.Updated += (_, args) =>
         {
@@ -51,7 +51,7 @@ public sealed class EventTests : TestBase
             Assert.Equal("testValue", args.OldValue);
         };
 
-        Engine.Execute($"{type}.removeItem('testKey');");
+        Execute($"{type}.removeItem('testKey');");
         Assert.True(_eventTriggered);
     }
 
@@ -67,7 +67,7 @@ public sealed class EventTests : TestBase
             _ => throw new ArgumentOutOfRangeException(nameof(type), type, null),
         };
 
-        Engine.Execute(
+        Execute(
             $"""
             {type}.setItem('key1', 'value1');
             {type}.setItem('key2', 'value2');
@@ -82,7 +82,7 @@ public sealed class EventTests : TestBase
             Assert.Null(args.OldValue);
         };
 
-        Engine.Execute($"{type}.clear();");
+        Execute($"{type}.clear();");
         Assert.True(_eventTriggered);
     }
 
@@ -112,7 +112,7 @@ public sealed class EventTests : TestBase
             }
         };
 
-        Engine.Execute(
+        Execute(
             $"""
                 {type}.setItem('updateKey', 'initialValue');
                 {type}.setItem('updateKey', 'updatedValue');
@@ -130,7 +130,7 @@ public sealed class EventTests : TestBase
         var storage = GetActiveStorage(type);
         storage.Updated += (_, _) => _eventTriggered = true;
 
-        Engine.Execute($"{type}.removeItem('nonExistentKey');");
+        Execute($"{type}.removeItem('nonExistentKey');");
         Assert.False(_eventTriggered);
     }
 
@@ -144,7 +144,7 @@ public sealed class EventTests : TestBase
         StorageInstance? eventStorageArea = null;
         storage.Updated += (_, args) => eventStorageArea = args.StorageArea;
 
-        Engine.Execute($"{type}.setItem('areaKey', 'areaValue');");
+        Execute($"{type}.setItem('areaKey', 'areaValue');");
 
         Assert.NotNull(eventStorageArea);
         Assert.Same(storage, eventStorageArea);
@@ -163,7 +163,7 @@ public sealed class EventTests : TestBase
             Assert.Equal("special_value!@#$%^&*()", args.NewValue);
         };
 
-        Engine.Execute($"{type}.setItem('special_key@#$%', 'special_value!@#$%^&*()');");
+        Execute($"{type}.setItem('special_key@#$%', 'special_value!@#$%^&*()');");
         Assert.True(_eventTriggered);
     }
 
@@ -183,7 +183,7 @@ public sealed class EventTests : TestBase
             Assert.NotNull(args.NewValue);
         };
 
-        Engine.Execute(
+        Execute(
             $"""
                 {type}.setItem('nullKey', null);
                 {type}.setItem('nullKey', undefined);
@@ -209,7 +209,7 @@ public sealed class EventTests : TestBase
             Assert.Equal(longValue, args.NewValue);
         };
 
-        Engine.Execute($"{type}.setItem('{longKey}', '{longValue}');");
+        Execute($"{type}.setItem('{longKey}', '{longValue}');");
         Assert.True(_eventTriggered);
     }
 
@@ -226,7 +226,7 @@ public sealed class EventTests : TestBase
             Assert.Equal("numericValue", args.NewValue);
         };
 
-        Engine.Execute($"{type}.setItem(123, 'numericValue');");
+        Execute($"{type}.setItem(123, 'numericValue');");
         Assert.True(_eventTriggered);
     }
 
@@ -243,7 +243,7 @@ public sealed class EventTests : TestBase
             Assert.Equal("", args.NewValue);
         };
 
-        Engine.Execute($"{type}.setItem('', '');");
+        Execute($"{type}.setItem('', '');");
         Assert.True(_eventTriggered);
     }
 
@@ -261,7 +261,7 @@ public sealed class EventTests : TestBase
             Assert.Equal("bracketValue", args.NewValue);
         };
 
-        Engine.Execute($"{type}['bracketKey'] = 'bracketValue';");
+        Execute($"{type}['bracketKey'] = 'bracketValue';");
         Assert.True(_eventTriggered);
     }
 }

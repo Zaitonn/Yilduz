@@ -13,7 +13,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void CanCreateNewAbortController()
     {
-        var result = Engine.Evaluate("new AbortController()");
+        var result = Evaluate("new AbortController()");
         Assert.NotNull(result);
         Assert.True(result is AbortControllerInstance);
     }
@@ -21,23 +21,23 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void CanAccessSignalProperty()
     {
-        Engine.Execute("var controller = new AbortController();");
-        var signal = Engine.Evaluate("controller.signal");
+        Execute("var controller = new AbortController();");
+        var signal = Evaluate("controller.signal");
 
         Assert.NotNull(signal);
         Assert.True(signal is AbortSignalInstance);
 
-        Assert.Equal(JsValue.Undefined, Engine.Evaluate("controller.signal.reason"));
-        Assert.Equal(false, Engine.Evaluate("controller.signal.aborted"));
+        Assert.Equal(JsValue.Undefined, Evaluate("controller.signal.reason"));
+        Assert.Equal(false, Evaluate("controller.signal.aborted"));
     }
 
     [Fact]
     public void CanAbort()
     {
-        Engine.Execute("var controller = new AbortController();");
-        Engine.Execute("controller.abort('Test reason');");
+        Execute("var controller = new AbortController();");
+        Execute("controller.abort('Test reason');");
 
-        var controller = Engine.Evaluate("controller") as AbortControllerInstance;
+        var controller = Evaluate("controller") as AbortControllerInstance;
 
         Assert.NotNull(controller);
         Assert.True(controller.Signal.Aborted);
@@ -47,18 +47,18 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void CanAbortWithoutReason()
     {
-        Engine.Execute("var controller = new AbortController();");
-        Engine.Execute("controller.abort();");
+        Execute("var controller = new AbortController();");
+        Execute("controller.abort();");
 
-        var controller = Engine.Evaluate("controller") as AbortControllerInstance;
+        var controller = Evaluate("controller") as AbortControllerInstance;
 
         Assert.NotNull(controller);
-        Assert.NotNull(Engine.Evaluate("controller"));
+        Assert.NotNull(Evaluate("controller"));
 
         Assert.True(controller.Signal.Aborted);
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
 
-        var reason = Engine.Evaluate("controller.signal.reason");
+        var reason = Evaluate("controller.signal.reason");
         Assert.IsType<DOMExceptionInstance>(reason);
         Assert.Equal("AbortError: signal is aborted without reason", reason.ToString());
     }
@@ -66,32 +66,32 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void CanAbortMultipleTimes()
     {
-        Engine.Execute("var controller = new AbortController();");
-        Engine.Execute("controller.abort('First reason');");
-        Engine.Execute("controller.abort('Second reason');");
+        Execute("var controller = new AbortController();");
+        Execute("controller.abort('First reason');");
+        Execute("controller.abort('Second reason');");
 
-        var controller = Engine.Evaluate("controller") as AbortControllerInstance;
+        var controller = Evaluate("controller") as AbortControllerInstance;
 
         Assert.NotNull(controller);
         Assert.True(controller.Signal.Aborted);
         Assert.Equal("First reason", controller.Signal.Reason);
 
-        Assert.NotNull(Engine.Evaluate("controller"));
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
-        Assert.Equal("First reason", Engine.Evaluate("controller.signal.reason").AsString());
+        Assert.NotNull(Evaluate("controller"));
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.Equal("First reason", Evaluate("controller.signal.reason").AsString());
     }
 
     [Fact]
     public void ShouldCreateWithFreshSignal()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller1 = new AbortController();
             const controller2 = new AbortController();
             """
         );
 
-        Assert.True(Engine.Evaluate("controller1.signal !== controller2.signal").AsBoolean());
+        Assert.True(Evaluate("controller1.signal !== controller2.signal").AsBoolean());
         Assert.True(
             Engine
                 .Evaluate("!controller1.signal.aborted && !controller2.signal.aborted")
@@ -102,7 +102,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldAbortWithCustomReason()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             const customReason = new Error('Custom abort reason');
@@ -110,45 +110,45 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
         Assert.Equal(
             "Custom abort reason",
-            Engine.Evaluate("controller.signal.reason.message").AsString()
+            Evaluate("controller.signal.reason.message").AsString()
         );
     }
 
     [Fact]
     public void ShouldAbortWithStringReason()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             controller.abort('String reason');
             """
         );
 
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
-        Assert.Equal("String reason", Engine.Evaluate("controller.signal.reason").AsString());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.Equal("String reason", Evaluate("controller.signal.reason").AsString());
     }
 
     [Fact]
     public void ShouldAbortWithNumberReason()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             controller.abort(42);
             """
         );
 
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
-        Assert.Equal(42, Engine.Evaluate("controller.signal.reason").AsNumber());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.Equal(42, Evaluate("controller.signal.reason").AsNumber());
     }
 
     [Fact]
     public void ShouldAbortWithObjectReason()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             const reason = { code: 'TIMEOUT', message: 'Operation timed out' };
@@ -156,22 +156,22 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("controller.signal.aborted").AsBoolean());
-        Assert.Equal("TIMEOUT", Engine.Evaluate("controller.signal.reason.code").AsString());
+        Assert.True(Evaluate("controller.signal.aborted").AsBoolean());
+        Assert.Equal("TIMEOUT", Evaluate("controller.signal.reason.code").AsString());
         Assert.Equal(
             "Operation timed out",
-            Engine.Evaluate("controller.signal.reason.message").AsString()
+            Evaluate("controller.signal.reason.message").AsString()
         );
     }
 
     [Fact]
     public void ShouldSupportSignalInheritance()
     {
-        Engine.Execute("const controller = new AbortController();");
+        Execute("const controller = new AbortController();");
 
-        Assert.True(Engine.Evaluate("controller.signal instanceof EventTarget").AsBoolean());
-        Assert.True(Engine.Evaluate("'aborted' in controller.signal").AsBoolean());
-        Assert.True(Engine.Evaluate("'reason' in controller.signal").AsBoolean());
+        Assert.True(Evaluate("controller.signal instanceof EventTarget").AsBoolean());
+        Assert.True(Evaluate("'aborted' in controller.signal").AsBoolean());
+        Assert.True(Evaluate("'reason' in controller.signal").AsBoolean());
     }
 
     [Fact]
@@ -179,7 +179,7 @@ public sealed class RuntimeTests : TestBase
     {
         var exception = Assert.Throws<JavaScriptException>(() =>
         {
-            Engine.Execute("new AbortSignal();");
+            Execute("new AbortSignal();");
         });
 
         Assert.Contains("AbortSignal", exception.Message);
@@ -188,21 +188,15 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldHaveCorrectToString()
     {
-        Engine.Execute("const controller = new AbortController();");
-        Assert.Equal(
-            "[object AbortController]",
-            Engine.Evaluate("controller.toString()").AsString()
-        );
-        Assert.Equal(
-            "[object AbortSignal]",
-            Engine.Evaluate("controller.signal.toString()").AsString()
-        );
+        Execute("const controller = new AbortController();");
+        Assert.Equal("[object AbortController]", Evaluate("controller.toString()").AsString());
+        Assert.Equal("[object AbortSignal]", Evaluate("controller.signal.toString()").AsString());
     }
 
     [Fact]
     public void ShouldHandleCustomErrors()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             const customError = new Error('Custom error message');
@@ -212,8 +206,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        var errorMessage = Engine.Evaluate("error.message").AsString();
-        var errorCode = Engine.Evaluate("error.code").AsString();
+        var errorMessage = Evaluate("error.message").AsString();
+        var errorCode = Evaluate("error.code").AsString();
 
         Assert.Equal("Custom error message", errorMessage);
         Assert.Equal("CUSTOM_CODE", errorCode);
@@ -222,7 +216,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void CanSetOnAbort()
     {
-        Engine.Execute(
+        Execute(
             """
             const controller = new AbortController();
             const signal = controller.signal;
@@ -235,6 +229,6 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("called").AsBoolean());
+        Assert.True(Evaluate("called").AsBoolean());
     }
 }

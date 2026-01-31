@@ -23,11 +23,11 @@ public sealed class RuntimeTests : TestBase
         var storage = Engine.GetValue(storageName) as StorageInstance;
         Assert.NotNull(storage);
 
-        Engine.Execute($"{storageName}.setItem('testKey', 'testValue')");
-        Assert.Equal("testValue", Engine.Evaluate($"{storageName}.getItem('testKey')"));
+        Execute($"{storageName}.setItem('testKey', 'testValue')");
+        Assert.Equal("testValue", Evaluate($"{storageName}.getItem('testKey')"));
 
         storage["testKey"] = "newValue";
-        Assert.Equal("newValue", Engine.Evaluate($"{storageName}.getItem('testKey')"));
+        Assert.Equal("newValue", Evaluate($"{storageName}.getItem('testKey')"));
     }
 
     [Theory]
@@ -35,11 +35,11 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void CanClearStorage(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('testKey', 'testValue')");
-        Assert.Equal("testValue", Engine.Evaluate($"{storageName}.getItem('testKey')"));
+        Execute($"{storageName}.setItem('testKey', 'testValue')");
+        Assert.Equal("testValue", Evaluate($"{storageName}.getItem('testKey')"));
 
-        Engine.Execute($"{storageName}.clear()");
-        Assert.Equal(JsValue.Null, Engine.Evaluate($"{storageName}.getItem('testKey')"));
+        Execute($"{storageName}.clear()");
+        Assert.Equal(JsValue.Null, Evaluate($"{storageName}.getItem('testKey')"));
     }
 
     [Theory]
@@ -47,11 +47,11 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void CanRemoveItem(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('testKey', 'testValue')");
-        Assert.Equal("testValue", Engine.Evaluate($"{storageName}.getItem('testKey')"));
+        Execute($"{storageName}.setItem('testKey', 'testValue')");
+        Assert.Equal("testValue", Evaluate($"{storageName}.getItem('testKey')"));
 
-        Engine.Execute($"{storageName}.removeItem('testKey')");
-        Assert.Equal(JsValue.Null, Engine.Evaluate($"{storageName}.getItem('testKey')"));
+        Execute($"{storageName}.removeItem('testKey')");
+        Assert.Equal(JsValue.Null, Evaluate($"{storageName}.getItem('testKey')"));
     }
 
     [Theory]
@@ -59,16 +59,16 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void CanGetStorageLength(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('testKey1', 'value1')");
-        Engine.Execute($"{storageName}.setItem('testKey2', 'value2')");
+        Execute($"{storageName}.setItem('testKey1', 'value1')");
+        Execute($"{storageName}.setItem('testKey2', 'value2')");
 
-        Assert.Equal(2, Engine.Evaluate($"{storageName}.length"));
+        Assert.Equal(2, Evaluate($"{storageName}.length"));
 
-        Engine.Execute($"{storageName}.removeItem('testKey1')");
-        Assert.Equal(1, Engine.Evaluate($"{storageName}.length"));
+        Execute($"{storageName}.removeItem('testKey1')");
+        Assert.Equal(1, Evaluate($"{storageName}.length"));
 
-        Engine.Execute($"{storageName}.clear()");
-        Assert.Equal(0, Engine.Evaluate($"{storageName}.length"));
+        Execute($"{storageName}.clear()");
+        Assert.Equal(0, Evaluate($"{storageName}.length"));
     }
 
     [Theory]
@@ -76,13 +76,13 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void CanGetKeyByIndex(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('testKey1', 'value1')");
-        Engine.Execute($"{storageName}.setItem('testKey2', 'value2')");
+        Execute($"{storageName}.setItem('testKey1', 'value1')");
+        Execute($"{storageName}.setItem('testKey2', 'value2')");
 
-        Assert.Equal("testKey1", Engine.Evaluate($"{storageName}.key(0)"));
-        Assert.Equal("testKey2", Engine.Evaluate($"{storageName}.key(1)"));
+        Assert.Equal("testKey1", Evaluate($"{storageName}.key(0)"));
+        Assert.Equal("testKey2", Evaluate($"{storageName}.key(1)"));
 
-        Assert.Equal(JsValue.Null, Engine.Evaluate($"{storageName}.key(2)"));
+        Assert.Equal(JsValue.Null, Evaluate($"{storageName}.key(2)"));
     }
 
     [Theory]
@@ -90,27 +90,25 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void CanGetAndSetValueByKey(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('testKey', 'value')");
+        Execute($"{storageName}.setItem('testKey', 'value')");
 
-        Assert.Equal("value", Engine.Evaluate($"{storageName}['testKey']"));
-        Assert.Equal(JsValue.Null, Engine.Evaluate($"{storageName}['non-existing-key']"));
+        Assert.Equal("value", Evaluate($"{storageName}['testKey']"));
+        Assert.Equal(JsValue.Null, Evaluate($"{storageName}['non-existing-key']"));
 
-        Engine.Execute($"{storageName}['testKey'] = 'newValue'");
-        Assert.Equal("newValue", Engine.Evaluate($"{storageName}['testKey']"));
-        Assert.Equal("newValue", Engine.Evaluate($"{storageName}.getItem('testKey')"));
-        Assert.True(Engine.Evaluate($"{storageName}.hasOwnProperty('testKey')").AsBoolean());
+        Execute($"{storageName}['testKey'] = 'newValue'");
+        Assert.Equal("newValue", Evaluate($"{storageName}['testKey']"));
+        Assert.Equal("newValue", Evaluate($"{storageName}.getItem('testKey')"));
+        Assert.True(Evaluate($"{storageName}.hasOwnProperty('testKey')").AsBoolean());
 
-        Engine.Execute($"{storageName}[123] = 'value'");
-        Assert.Equal("value", Engine.Evaluate($"{storageName}['123']"));
-        Assert.Equal("value", Engine.Evaluate($"{storageName}.getItem('123')"));
-        Assert.True(Engine.Evaluate($"{storageName}.hasOwnProperty('123')").AsBoolean());
+        Execute($"{storageName}[123] = 'value'");
+        Assert.Equal("value", Evaluate($"{storageName}['123']"));
+        Assert.Equal("value", Evaluate($"{storageName}.getItem('123')"));
+        Assert.True(Evaluate($"{storageName}.hasOwnProperty('123')").AsBoolean());
 
-        Engine.Execute($"{storageName}[{{}}] = 'value'");
-        Assert.Equal("value", Engine.Evaluate($"{storageName}['[object Object]']"));
-        Assert.Equal("value", Engine.Evaluate($"{storageName}.getItem('[object Object]')"));
-        Assert.True(
-            Engine.Evaluate($"{storageName}.hasOwnProperty('[object Object]')").AsBoolean()
-        );
+        Execute($"{storageName}[{{}}] = 'value'");
+        Assert.Equal("value", Evaluate($"{storageName}['[object Object]']"));
+        Assert.Equal("value", Evaluate($"{storageName}.getItem('[object Object]')"));
+        Assert.True(Evaluate($"{storageName}.hasOwnProperty('[object Object]')").AsBoolean());
     }
 
     [Theory]
@@ -118,20 +116,17 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldHandleSpecialCharacters(string storageName)
     {
-        Engine.Execute($"{storageName}.clear();");
-        Engine.Execute($"{storageName}.setItem('key with spaces', 'value with spaces');");
-        Engine.Execute($"{storageName}.setItem('unicode测试', '中文值');");
-        Engine.Execute($"{storageName}.setItem('symbols!@#$', 'special%^&*');");
+        Execute($"{storageName}.clear();");
+        Execute($"{storageName}.setItem('key with spaces', 'value with spaces');");
+        Execute($"{storageName}.setItem('unicode测试', '中文值');");
+        Execute($"{storageName}.setItem('symbols!@#$', 'special%^&*');");
 
         Assert.Equal(
             "value with spaces",
-            Engine.Evaluate($"{storageName}.getItem('key with spaces')").AsString()
+            Evaluate($"{storageName}.getItem('key with spaces')").AsString()
         );
-        Assert.Equal("中文值", Engine.Evaluate($"{storageName}.getItem('unicode测试')").AsString());
-        Assert.Equal(
-            "special%^&*",
-            Engine.Evaluate($"{storageName}.getItem('symbols!@#$')").AsString()
-        );
+        Assert.Equal("中文值", Evaluate($"{storageName}.getItem('unicode测试')").AsString());
+        Assert.Equal("special%^&*", Evaluate($"{storageName}.getItem('symbols!@#$')").AsString());
     }
 
     [Theory]
@@ -139,15 +134,12 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldHandleNullAndUndefinedValues(string storageName)
     {
-        Engine.Execute($"{storageName}.clear();");
-        Engine.Execute($"{storageName}.setItem('nullKey', null);");
-        Engine.Execute($"{storageName}.setItem('undefinedKey', undefined);");
+        Execute($"{storageName}.clear();");
+        Execute($"{storageName}.setItem('nullKey', null);");
+        Execute($"{storageName}.setItem('undefinedKey', undefined);");
 
-        Assert.Equal("null", Engine.Evaluate($"{storageName}.getItem('nullKey')").AsString());
-        Assert.Equal(
-            "undefined",
-            Engine.Evaluate($"{storageName}.getItem('undefinedKey')").AsString()
-        );
+        Assert.Equal("null", Evaluate($"{storageName}.getItem('nullKey')").AsString());
+        Assert.Equal("undefined", Evaluate($"{storageName}.getItem('undefinedKey')").AsString());
     }
 
     [Theory]
@@ -155,13 +147,13 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldConvertNonStringValues(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('number', 123);");
-        Engine.Execute($"{storageName}.setItem('boolean', true);");
-        Engine.Execute($"{storageName}.setItem('object', {{toString: () => 'custom'}});");
+        Execute($"{storageName}.setItem('number', 123);");
+        Execute($"{storageName}.setItem('boolean', true);");
+        Execute($"{storageName}.setItem('object', {{toString: () => 'custom'}});");
 
-        Assert.Equal("123", Engine.Evaluate($"{storageName}.getItem('number')"));
-        Assert.Equal("true", Engine.Evaluate($"{storageName}.getItem('boolean')").AsString());
-        Assert.Equal("custom", Engine.Evaluate($"{storageName}.getItem('object')").AsString());
+        Assert.Equal("123", Evaluate($"{storageName}.getItem('number')"));
+        Assert.Equal("true", Evaluate($"{storageName}.getItem('boolean')").AsString());
+        Assert.Equal("custom", Evaluate($"{storageName}.getItem('object')").AsString());
     }
 
     [Theory]
@@ -169,10 +161,10 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldHandleEmptyKeys(string storageName)
     {
-        Engine.Execute($"{storageName}.setItem('', 'empty key value');");
+        Execute($"{storageName}.setItem('', 'empty key value');");
 
-        Assert.Equal("empty key value", Engine.Evaluate($"{storageName}.getItem('')").AsString());
-        Assert.Equal(1, Engine.Evaluate($"{storageName}.length").AsNumber());
+        Assert.Equal("empty key value", Evaluate($"{storageName}.getItem('')").AsString());
+        Assert.Equal(1, Evaluate($"{storageName}.length").AsNumber());
     }
 
     [Theory]
@@ -180,14 +172,14 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldPreserveKeyOrder(string storageName)
     {
-        Engine.Execute($"{storageName}.clear();");
-        Engine.Execute($"{storageName}.setItem('z', '1');");
-        Engine.Execute($"{storageName}.setItem('a', '2');");
-        Engine.Execute($"{storageName}.setItem('m', '3');");
+        Execute($"{storageName}.clear();");
+        Execute($"{storageName}.setItem('z', '1');");
+        Execute($"{storageName}.setItem('a', '2');");
+        Execute($"{storageName}.setItem('m', '3');");
 
-        Assert.Equal("z", Engine.Evaluate($"{storageName}.key(0)").AsString());
-        Assert.Equal("a", Engine.Evaluate($"{storageName}.key(1)").AsString());
-        Assert.Equal("m", Engine.Evaluate($"{storageName}.key(2)").AsString());
+        Assert.Equal("z", Evaluate($"{storageName}.key(0)").AsString());
+        Assert.Equal("a", Evaluate($"{storageName}.key(1)").AsString());
+        Assert.Equal("m", Evaluate($"{storageName}.key(2)").AsString());
     }
 
     [Theory]
@@ -195,13 +187,13 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldHandleSetItemWithSameKey(string storageName)
     {
-        Engine.Execute($"{storageName}.clear();");
-        Engine.Execute($"{storageName}.setItem('key', 'value1');");
-        Engine.Execute($"{storageName}.setItem('key', 'value2');");
-        Engine.Execute($"{storageName}.setItem('key', 'value3');");
+        Execute($"{storageName}.clear();");
+        Execute($"{storageName}.setItem('key', 'value1');");
+        Execute($"{storageName}.setItem('key', 'value2');");
+        Execute($"{storageName}.setItem('key', 'value3');");
 
-        Assert.Equal(1, Engine.Evaluate($"{storageName}.length").AsNumber());
-        Assert.Equal("value3", Engine.Evaluate($"{storageName}.getItem('key')").AsString());
+        Assert.Equal(1, Evaluate($"{storageName}.length").AsNumber());
+        Assert.Equal("value3", Evaluate($"{storageName}.getItem('key')").AsString());
     }
 
     [Theory]
@@ -209,18 +201,18 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldHandleEdgeCaseOperations(string storageName)
     {
-        Engine.Execute($"{storageName}.clear();");
+        Execute($"{storageName}.clear();");
 
-        Engine.Execute($"{storageName}.removeItem('nonexistent');");
-        Engine.Execute($"{storageName}.removeItem('nonexistent');");
-        Engine.Execute($"{storageName}.removeItem('nonexistent');");
+        Execute($"{storageName}.removeItem('nonexistent');");
+        Execute($"{storageName}.removeItem('nonexistent');");
+        Execute($"{storageName}.removeItem('nonexistent');");
 
-        Assert.Equal(0, Engine.Evaluate($"{storageName}.length").AsNumber());
+        Assert.Equal(0, Evaluate($"{storageName}.length").AsNumber());
 
-        Engine.Execute($"{storageName}.clear();");
-        Assert.Equal(0, Engine.Evaluate($"{storageName}.length").AsNumber());
+        Execute($"{storageName}.clear();");
+        Assert.Equal(0, Evaluate($"{storageName}.length").AsNumber());
 
-        Assert.True(Engine.Evaluate($"{storageName}.key(0)").IsNull());
+        Assert.True(Evaluate($"{storageName}.key(0)").IsNull());
     }
 
     [Theory]
@@ -228,8 +220,8 @@ public sealed class RuntimeTests : TestBase
     [InlineData("sessionStorage")]
     public void ShouldHandleComplexObjectValues(string storageName)
     {
-        Engine.Execute($"{storageName}.clear();");
-        Engine.Execute(
+        Execute($"{storageName}.clear();");
+        Execute(
             $$"""
             const obj = { nested: { value: 'test' }, array: [1, 2, 3] };
             {{storageName}}.setItem('object', obj);
@@ -238,14 +230,8 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal(
-            "[object Object]",
-            Engine.Evaluate($"{storageName}.getItem('object')").AsString()
-        );
-        Assert.Equal("1,2,3", Engine.Evaluate($"{storageName}.getItem('array')").AsString());
-        Assert.Contains(
-            "function",
-            Engine.Evaluate($"{storageName}.getItem('function')").AsString()
-        );
+        Assert.Equal("[object Object]", Evaluate($"{storageName}.getItem('object')").AsString());
+        Assert.Equal("1,2,3", Evaluate($"{storageName}.getItem('array')").AsString());
+        Assert.Contains("function", Evaluate($"{storageName}.getItem('function')").AsString());
     }
 }

@@ -9,7 +9,7 @@ public sealed class QueueManagementTests : TestBase
     [Fact]
     public void ShouldManageQueueCorrectly()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -29,7 +29,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write chunks to fill the queue
-        Engine.Execute(
+        Execute(
             """
             writer.write('chunk1');
             writer.write('chunk2');
@@ -38,15 +38,13 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Verify controller is managing the queue
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleQueueWithCustomSizeFunction()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -68,7 +66,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write chunks with different sizes
-        Engine.Execute(
+        Execute(
             """
             writer.write('a');        // size 1
             writer.write('hello');    // size 5
@@ -76,15 +74,13 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleQueueBackpressure()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let writeCount = 0;
@@ -109,7 +105,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write enough chunks to trigger backpressure
-        Engine.Execute(
+        Execute(
             """
             writer.write('chunk1');
             writer.write('chunk2');
@@ -118,15 +114,13 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleEmptyQueue()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -138,15 +132,13 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Queue should be empty initially
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldProcessQueueInOrder()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             let processedChunks = [];
@@ -165,7 +157,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write chunks in specific order
-        Engine.Execute(
+        Execute(
             """
             writer.write('first');
             writer.write('second');
@@ -173,16 +165,14 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
         // In a full implementation, we would verify the order of processed chunks
     }
 
     [Fact]
     public void ShouldHandleQueueDuringClose()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -204,7 +194,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write and then close
-        Engine.Execute(
+        Execute(
             """
             writer.write('chunk1');
             writer.write('chunk2');
@@ -212,15 +202,13 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleQueueDuringError()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -239,7 +227,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write and then error
-        Engine.Execute(
+        Execute(
             """
             writer.write('chunk1');
             writer.write('chunk2');
@@ -247,15 +235,13 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleZeroSizedChunks()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -275,7 +261,7 @@ public sealed class QueueManagementTests : TestBase
         );
 
         // Write zero-sized chunks
-        Engine.Execute(
+        Execute(
             """
             writer.write('chunk1');
             writer.write('chunk2');
@@ -283,8 +269,6 @@ public sealed class QueueManagementTests : TestBase
             """
         );
 
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 }

@@ -34,7 +34,7 @@ public sealed class PrototypeTests : TestBase
     [InlineData("WritableStreamDefaultWriter.prototype.write()")]
     public void ShouldThrowOnInvalidInvocation(string expression)
     {
-        Assert.Throws<JavaScriptException>(() => Engine.Evaluate(expression));
+        Assert.Throws<JavaScriptException>(() => Evaluate(expression));
     }
 
     [Fact]
@@ -42,14 +42,14 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "WritableStreamDefaultWriter",
-            Engine.Evaluate("WritableStreamDefaultWriter.name").AsString()
+            Evaluate("WritableStreamDefaultWriter.name").AsString()
         );
     }
 
     [Fact]
     public void ShouldHaveCorrectPrototypeChain()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -66,7 +66,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldHaveCorrectToStringTag()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -86,7 +86,7 @@ public sealed class PrototypeTests : TestBase
     [Fact]
     public void ShouldNotBeEnumerable()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -94,13 +94,13 @@ public sealed class PrototypeTests : TestBase
             """
         );
 
-        Assert.Equal(0, Engine.Evaluate("keys.length").AsNumber());
+        Assert.Equal(0, Evaluate("keys.length").AsNumber());
     }
 
     [Fact]
     public void ShouldHaveNonEnumerableProperties()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -108,14 +108,10 @@ public sealed class PrototypeTests : TestBase
         );
 
         // Check that properties are non-enumerable
+        Assert.False(Evaluate("Object.propertyIsEnumerable.call(writer, 'closed')").AsBoolean());
+        Assert.False(Evaluate("Object.propertyIsEnumerable.call(writer, 'ready')").AsBoolean());
         Assert.False(
-            Engine.Evaluate("Object.propertyIsEnumerable.call(writer, 'closed')").AsBoolean()
-        );
-        Assert.False(
-            Engine.Evaluate("Object.propertyIsEnumerable.call(writer, 'ready')").AsBoolean()
-        );
-        Assert.False(
-            Engine.Evaluate("Object.propertyIsEnumerable.call(writer, 'desiredSize')").AsBoolean()
+            Evaluate("Object.propertyIsEnumerable.call(writer, 'desiredSize')").AsBoolean()
         );
     }
 
@@ -124,19 +120,19 @@ public sealed class PrototypeTests : TestBase
     {
         Assert.Equal(
             "write",
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.write.name").AsString()
+            Evaluate("WritableStreamDefaultWriter.prototype.write.name").AsString()
         );
         Assert.Equal(
             "close",
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.close.name").AsString()
+            Evaluate("WritableStreamDefaultWriter.prototype.close.name").AsString()
         );
         Assert.Equal(
             "abort",
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.abort.name").AsString()
+            Evaluate("WritableStreamDefaultWriter.prototype.abort.name").AsString()
         );
         Assert.Equal(
             "releaseLock",
-            Engine.Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.name").AsString()
+            Evaluate("WritableStreamDefaultWriter.prototype.releaseLock.name").AsString()
         );
     }
 }

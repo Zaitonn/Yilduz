@@ -9,7 +9,7 @@ public sealed class RuntimeTests : TestBase
     [Fact]
     public void ShouldDecodeUtf8String()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8');
             const bytes = new Uint8Array([72, 101, 108, 108, 111]); // 'Hello'
@@ -17,39 +17,39 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldDecodeEmptyInput()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const result = decoder.decode();
             """
         );
 
-        Assert.Equal("", Engine.Evaluate("result").AsString());
+        Assert.Equal("", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldDecodeUndefinedInput()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const result = decoder.decode(undefined);
             """
         );
 
-        Assert.Equal("", Engine.Evaluate("result").AsString());
+        Assert.Equal("", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldDecodeArrayBuffer()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const buffer = new ArrayBuffer(5);
@@ -63,13 +63,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldDecodeDataView()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const buffer = new ArrayBuffer(5);
@@ -83,13 +83,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldDecodeTypedArray()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const bytes = new Uint8Array([72, 101, 108, 108, 111]);
@@ -97,13 +97,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldDecodeUtf8WithEmoji()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8');
             const bytes = new Uint8Array([240, 159, 152, 128]); // 😀 emoji
@@ -111,13 +111,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("😀", Engine.Evaluate("result").AsString());
+        Assert.Equal("😀", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldHandleStreamOption()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder();
             const bytes = new Uint8Array([72, 101, 108, 108, 111]);
@@ -125,7 +125,7 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 
     [Theory]
@@ -134,7 +134,7 @@ public sealed class RuntimeTests : TestBase
     [InlineData("ascii")]
     public void ShouldWorkWithDifferentEncodings(string encoding)
     {
-        Engine.Execute(
+        Execute(
             $"""
             const decoder = new TextDecoder('{encoding}');
             const encoder = new TextEncoder(); // Always UTF-8
@@ -146,15 +146,15 @@ public sealed class RuntimeTests : TestBase
         // For UTF-8, should work correctly
         if (encoding == "utf-8")
         {
-            Engine.Execute("const result = decoder.decode(bytes);");
-            Assert.Equal("Hello World", Engine.Evaluate("result").AsString());
+            Execute("const result = decoder.decode(bytes);");
+            Assert.Equal("Hello World", Evaluate("result").AsString());
         }
     }
 
     [Fact]
     public void ShouldRespectFatalOption()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8', { fatal: false });
             const invalidBytes = new Uint8Array([0xFF, 0xFE]); // Invalid UTF-8
@@ -163,21 +163,21 @@ public sealed class RuntimeTests : TestBase
         );
 
         // Should not throw and return some result (possibly with replacement characters)
-        Assert.NotNull(Engine.Evaluate("result").AsString());
+        Assert.NotNull(Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldThrowInvalidArgumentForInvalidInput()
     {
-        Engine.Execute("const decoder = new TextDecoder();");
+        Execute("const decoder = new TextDecoder();");
 
-        Assert.Throws<JavaScriptException>(() => Engine.Execute("decoder.decode('invalid');"));
+        Assert.Throws<JavaScriptException>(() => Execute("decoder.decode('invalid');"));
     }
 
     [Fact]
     public void ShouldIgnoreBOMWhenOptionSet()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8', { ignoreBOM: true });
             const bytesWithBOM = new Uint8Array([0xEF, 0xBB, 0xBF, 72, 101, 108, 108, 111]); // BOM + 'Hello'
@@ -185,13 +185,13 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("\ufeffHello", Engine.Evaluate("result").AsString());
+        Assert.Equal("\ufeffHello", Evaluate("result").AsString());
     }
 
     [Fact]
     public void ShouldRemoveBOMByDefault()
     {
-        Engine.Execute(
+        Execute(
             """
             const decoder = new TextDecoder('utf-8');
             const bytesWithBOM = new Uint8Array([0xEF, 0xBB, 0xBF, 72, 101, 108, 108, 111]); // BOM + 'Hello'
@@ -199,6 +199,6 @@ public sealed class RuntimeTests : TestBase
             """
         );
 
-        Assert.Equal("Hello", Engine.Evaluate("result").AsString());
+        Assert.Equal("Hello", Evaluate("result").AsString());
     }
 }

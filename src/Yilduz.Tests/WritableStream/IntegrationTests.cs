@@ -9,7 +9,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldHandleBasicWriteFlow()
     {
-        Engine.Execute(
+        Execute(
             """
             let writtenChunks = [];
             const stream = new WritableStream({
@@ -28,13 +28,13 @@ public sealed class IntegrationTests : TestBase
 
         // The chunks should be written to the underlying sink
         // Note: In a real implementation, this would involve async operations
-        Assert.True(Engine.Evaluate("writtenChunks.length >= 0").AsBoolean());
+        Assert.True(Evaluate("writtenChunks.length >= 0").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleWriteWithStrategy()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream({
                 write(chunk, controller) {
@@ -51,14 +51,14 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("stream instanceof WritableStream").AsBoolean());
-        Assert.True(Engine.Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
+        Assert.True(Evaluate("stream instanceof WritableStream").AsBoolean());
+        Assert.True(Evaluate("writer instanceof WritableStreamDefaultWriter").AsBoolean());
     }
 
     [Fact]
     public void ShouldHandleAbortFlow()
     {
-        Engine.Execute(
+        Execute(
             """
             let abortReason = null;
             const stream = new WritableStream({
@@ -79,7 +79,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldHandleCloseFlow()
     {
-        Engine.Execute(
+        Execute(
             """
             let closeCalled = false;
             const stream = new WritableStream({
@@ -100,7 +100,7 @@ public sealed class IntegrationTests : TestBase
     [Fact]
     public void ShouldHandleErrorFromController()
     {
-        Engine.Execute(
+        Execute(
             """
             let controller = null;
             const stream = new WritableStream({
@@ -115,15 +115,13 @@ public sealed class IntegrationTests : TestBase
         );
 
         // The controller error should be handled
-        Assert.True(
-            Engine.Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean()
-        );
+        Assert.True(Evaluate("controller instanceof WritableStreamDefaultController").AsBoolean());
     }
 
     [Fact]
     public void ShouldSupportMultipleWriteOperations()
     {
-        Engine.Execute(
+        Execute(
             """
             const stream = new WritableStream();
             const writer = stream.getWriter();
@@ -134,15 +132,15 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("promise1 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("promise2 instanceof Promise").AsBoolean());
-        Assert.True(Engine.Evaluate("promise3 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise1 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise2 instanceof Promise").AsBoolean());
+        Assert.True(Evaluate("promise3 instanceof Promise").AsBoolean());
     }
 
     [Fact]
     public void ShouldWorkWithUnderlyingSinkMethods()
     {
-        Engine.Execute(
+        Execute(
             """
             let startCalled = false;
             let writeCalled = false;
@@ -169,7 +167,7 @@ public sealed class IntegrationTests : TestBase
             """
         );
 
-        Assert.True(Engine.Evaluate("startCalled").AsBoolean());
+        Assert.True(Evaluate("startCalled").AsBoolean());
         // Note: write and close callbacks would be called in a full implementation
     }
 }
