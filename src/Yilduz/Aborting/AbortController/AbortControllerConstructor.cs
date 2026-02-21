@@ -11,7 +11,7 @@ internal sealed class AbortControllerConstructor : Constructor
     public AbortControllerConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(AbortController))
     {
-        PrototypeObject = new AbortControllerPrototype(engine, this);
+        PrototypeObject = new(engine, this);
 
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
         _webApiIntrinsics = webApiIntrinsics;
@@ -26,7 +26,7 @@ internal sealed class AbortControllerConstructor : Constructor
 
     public AbortControllerInstance Construct()
     {
-        return new AbortControllerInstance(Engine)
+        return new(Engine)
         {
             Prototype = PrototypeObject,
             Signal = _webApiIntrinsics.AbortSignal.ConstructAbortSignal(),

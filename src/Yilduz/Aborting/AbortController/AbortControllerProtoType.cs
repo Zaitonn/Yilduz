@@ -5,6 +5,7 @@ using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
+using Yilduz.Aborting.AbortSignal;
 using Yilduz.Extensions;
 
 namespace Yilduz.Aborting.AbortController;
@@ -36,12 +37,12 @@ internal sealed class AbortControllerPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetSignal(JsValue thisObject, JsValue[] arguments)
+    private static AbortSignalInstance GetSignal(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<AbortControllerInstance>().Signal;
     }
 
-    private JsValue Abort(JsValue thisObject, params JsValue[] arguments)
+    private static JsValue Abort(JsValue thisObject, params JsValue[] arguments)
     {
         thisObject.EnsureThisObject<AbortControllerInstance>().Abort(arguments.At(0));
 

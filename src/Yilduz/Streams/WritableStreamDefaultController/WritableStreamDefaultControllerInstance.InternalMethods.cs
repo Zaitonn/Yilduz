@@ -213,8 +213,23 @@ public sealed partial class WritableStreamDefaultControllerInstance
 
                 if (!sinkWritePromise.IsPromise())
                 {
-                    // Upon fulfillment of sinkWritePromise
                     OnCompletedSuccessfully();
+                    return;
+                }
+
+                var eventLoop = Engine.GetWebApiIntrinsics().EventLoop;
+
+                if (!sinkWritePromise.IsPendingPromise())
+                {
+                    if (sinkWritePromise.TryGetRejectedValue(out var rejected))
+                    {
+                        eventLoop.QueueMacrotask(() => OnError(rejected));
+                    }
+                    else
+                    {
+                        eventLoop.QueueMacrotask(OnCompletedSuccessfully);
+                    }
+
                     return;
                 }
 
@@ -222,9 +237,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
                 {
                     _writeCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
                         _engine.GetWebApiIntrinsics().Options.CancellationToken
-                    );
-                    _writeCancellationTokenSource.Token.Register(
-                        _writeCancellationTokenSource.Dispose
                     );
                 }
 

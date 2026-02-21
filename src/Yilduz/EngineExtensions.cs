@@ -1,6 +1,5 @@
 using System;
 using System.Runtime.CompilerServices;
-using Acornima;
 using Jint;
 
 namespace Yilduz;
@@ -10,18 +9,20 @@ namespace Yilduz;
 /// </summary>
 public static class EngineExtensions
 {
-    private static readonly ConditionalWeakTable<Engine, WebApiIntrinsics> EngineTable = [];
+    private static readonly ConditionalWeakTable<Engine, WebApiIntrinsics> EngineTable = new();
 
     /// <summary>
     /// Initializes the Jint engine with Web API intrinsics.
     /// </summary>
     public static Engine InitializeWebApi(this Engine engine, Options options)
     {
-        if (!EngineTable.TryGetValue(engine, out _))
+        if (EngineTable.TryGetValue(engine, out _))
         {
-            var webApiIntrinsics = new WebApiIntrinsics(engine, options);
-            EngineTable.Add(engine, webApiIntrinsics);
+            return engine;
         }
+
+        var webApiIntrinsics = new WebApiIntrinsics(engine, options);
+        EngineTable.Add(engine, webApiIntrinsics);
         return engine;
     }
 

@@ -1,8 +1,6 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
@@ -11,11 +9,12 @@ using Yilduz.Extensions;
 
 namespace Yilduz.Services;
 
-internal sealed class TimerProvider(Engine engine, Options options)
+internal sealed class TimerProvider(Engine engine, Options options, EventLoop eventLoop)
 {
-    private readonly List<long> _ids = [];
+    private readonly EventLoop _eventLoop =
+        eventLoop ?? throw new ArgumentNullException(nameof(eventLoop));
 
-    private long _currentId = 1;
+    private int _timerDepth;
 
     public JsValue SetTimeout(JsValue _, JsValue[] arguments)
     {
@@ -46,10 +45,7 @@ internal sealed class TimerProvider(Engine engine, Options options)
             return JsValue.Undefined;
         }
 
-        lock (_ids)
-        {
-            _ids.Remove((long)arguments[0].AsNumber());
-        }
+        _eventLoop.Cancel((long)id.AsNumber());
 
         return JsValue.Undefined;
     }
@@ -58,14 +54,9 @@ internal sealed class TimerProvider(Engine engine, Options options)
     {
         arguments.EnsureCount(engine, 1, repeat ? "setInterval" : "setTimeout", null);
 
-        var id = Interlocked.Read(ref _currentId);
-        Interlocked.Add(ref _currentId, 1);
-
-        _ids.Add(id);
-
         var firstArgument = arguments[0];
         var handler = firstArgument as Function;
-        var args = handler is not null ? arguments.Skip(2) : null;
+        var args = handler is not null ? arguments.Skip(2).ToArray() : null;
         var code = handler is null
             ? firstArgument.IsString()
                 ? firstArgument.AsString()
@@ -81,50 +72,45 @@ internal sealed class TimerProvider(Engine engine, Options options)
                         : 0
                 : 0;
 
-        if (timeout < 4)
+        if (timeout < 0)
+        {
+            timeout = 0;
+        }
+
+        if (Volatile.Read(ref _timerDepth) >= 5 && timeout < 4)
         {
             timeout = 4;
         }
 
-        Task.Run(
-            async () =>
-            {
-                do
-                {
-                    await Task.Delay(timeout, options.CancellationToken);
+        return _eventLoop.ScheduleTimer(BuildCallback(handler, code, args), timeout, repeat);
+    }
 
-                    if (options.CancellationToken.IsCancellationRequested || !_ids.Contains(id))
-                    {
-                        break;
-                    }
-
-                    try
-                    {
-                        FastExecute();
-                    }
-                    catch { }
-
-                    if (options.CancellationToken.IsCancellationRequested || !_ids.Contains(id))
-                    {
-                        break;
-                    }
-                } while (repeat);
-            },
-            options.CancellationToken
-        );
-
-        return id;
-
-        void FastExecute()
+    private Action BuildCallback(Function? handler, string? code, JsValue[]? args)
+    {
+        return () =>
         {
-            if (handler is not null)
+            Interlocked.Increment(ref _timerDepth);
+
+            try
             {
-                Execute(handler, args!);
+                FastExecute(handler, code, args);
             }
-            else if (!string.IsNullOrEmpty(code))
+            finally
             {
-                Execute(code!);
+                Interlocked.Decrement(ref _timerDepth);
             }
+        };
+    }
+
+    private void FastExecute(Function? handler, string? code, JsValue[]? arguments)
+    {
+        if (handler is not null)
+        {
+            Execute(handler, arguments ?? []);
+        }
+        else if (!string.IsNullOrEmpty(code))
+        {
+            Execute(code!);
         }
     }
 

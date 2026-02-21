@@ -68,6 +68,8 @@ async Task StartLoop()
                     AnsiConsole.MarkupLineInterpolated($"[lightsteelblue3]{result}[/]");
                     break;
 
+                case Types.Empty:
+                case Types.Object:
                 default:
                     if (promptResult.SubmitKeyInfo.Modifiers.HasFlag(ConsoleModifiers.Control))
                     {

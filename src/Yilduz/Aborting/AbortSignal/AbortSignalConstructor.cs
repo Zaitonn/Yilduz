@@ -19,7 +19,7 @@ public sealed class AbortSignalConstructor : Constructor
     internal AbortSignalConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(AbortSignal))
     {
-        PrototypeObject = new AbortSignalPrototype(engine, this)
+        PrototypeObject = new(engine, this)
         {
             Prototype = webApiIntrinsics.EventTarget.PrototypeObject,
         };
@@ -46,7 +46,7 @@ public sealed class AbortSignalConstructor : Constructor
 
     internal AbortSignalInstance ConstructAbortSignal()
     {
-        return new AbortSignalInstance(Engine) { Prototype = PrototypeObject };
+        return new(Engine) { Prototype = PrototypeObject };
     }
 
     /// <summary>

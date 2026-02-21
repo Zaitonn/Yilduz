@@ -82,6 +82,7 @@ public sealed class WebApiIntrinsics
     public StorageInstance SessionStorage { get; }
 
     internal Base64Provider Base64Provider { get; }
+    internal EventLoop EventLoop { get; }
     internal TimerProvider TimerProvider { get; }
     public ConsoleInstance Console { get; }
 
@@ -152,7 +153,8 @@ public sealed class WebApiIntrinsics
         Storage = new(_engine);
 
         Base64Provider = new(_engine);
-        TimerProvider = new(_engine, Options);
+        EventLoop = new(Options);
+        TimerProvider = new(_engine, Options, EventLoop);
 
         Console = new(
             _engine,
