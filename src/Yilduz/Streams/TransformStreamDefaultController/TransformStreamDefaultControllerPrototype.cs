@@ -63,7 +63,7 @@ internal sealed class TransformStreamDefaultControllerPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
     {
         var controller = thisObject.EnsureThisObject<TransformStreamDefaultControllerInstance>();
         var desiredSize = controller.DesiredSize;
@@ -73,7 +73,7 @@ internal sealed class TransformStreamDefaultControllerPrototype : ObjectInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#ts-default-controller-enqueue
     /// </summary>
-    private JsValue Enqueue(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Enqueue(JsValue thisObject, JsValue[] arguments)
     {
         var controller = thisObject.EnsureThisObject<TransformStreamDefaultControllerInstance>();
         var chunk = arguments.At(0);
@@ -84,7 +84,7 @@ internal sealed class TransformStreamDefaultControllerPrototype : ObjectInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#ts-default-controller-error
     /// </summary>
-    private JsValue Error(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Error(JsValue thisObject, JsValue[] arguments)
     {
         var controller = thisObject.EnsureThisObject<TransformStreamDefaultControllerInstance>();
         var e = arguments.At(0);
@@ -95,7 +95,7 @@ internal sealed class TransformStreamDefaultControllerPrototype : ObjectInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#ts-default-controller-terminate
     /// </summary>
-    private JsValue Terminate(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Terminate(JsValue thisObject, JsValue[] arguments)
     {
         var controller = thisObject.EnsureThisObject<TransformStreamDefaultControllerInstance>();
         controller.Terminate();

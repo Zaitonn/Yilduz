@@ -44,7 +44,7 @@ internal sealed class WritableStreamDefaultControllerPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultController/error
     /// </summary>
-    private JsValue Error(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Error(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamDefaultControllerInstance>();
         var error = arguments.At(0);
@@ -57,7 +57,7 @@ internal sealed class WritableStreamDefaultControllerPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultController/signal
     /// </summary>
-    private JsValue GetSignal(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetSignal(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<WritableStreamDefaultControllerInstance>().Signal;
     }

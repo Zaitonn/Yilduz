@@ -6,6 +6,7 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
+using Yilduz.Utils;
 
 namespace Yilduz.Files.Blob;
 
@@ -20,6 +21,7 @@ internal sealed class BlobPrototype : ObjectInstance
     private static readonly string StreamName = nameof(Stream).ToJsStyleName();
     private static readonly string TextName = nameof(Text).ToJsStyleName();
     private static readonly string ArrayBufferName = nameof(ArrayBuffer).ToJsStyleName();
+    private static readonly string BytesName = nameof(Bytes).ToJsStyleName();
 
     public BlobPrototype(Engine engine, BlobConstructor constructor)
         : base(engine)
@@ -56,17 +58,21 @@ internal sealed class BlobPrototype : ObjectInstance
             new(new ClrFunction(Engine, ArrayBufferName, ArrayBuffer), false, false, true)
         );
         FastSetProperty(
+            BytesName,
+            new(new ClrFunction(Engine, BytesName, Bytes), false, false, true)
+        );
+        FastSetProperty(
             SliceName,
             new(new ClrFunction(Engine, SliceName, Slice), false, false, true)
         );
     }
 
-    private JsValue GetSize(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetSize(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<BlobInstance>().Size;
     }
 
-    private JsValue GetType(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetType(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<BlobInstance>().Type;
     }
@@ -74,25 +80,25 @@ internal sealed class BlobPrototype : ObjectInstance
     private JsValue Text(JsValue thisObject, JsValue[] arguments)
     {
         var blob = thisObject.EnsureThisObject<BlobInstance>();
-        var (promise, resolve, _) = Engine.Advanced.RegisterPromise();
-        resolve(blob.Text());
-        return promise;
+        return PromiseHelper.CreateResolvedPromise(Engine, blob.Text()).Promise;
     }
 
     private JsValue Stream(JsValue thisObject, JsValue[] arguments)
     {
         var blob = thisObject.EnsureThisObject<BlobInstance>();
-        var (promise, resolve, _) = Engine.Advanced.RegisterPromise();
-        resolve(blob.Stream());
-        return promise;
+        return PromiseHelper.CreateResolvedPromise(Engine, blob.Stream()).Promise;
     }
 
     private JsValue ArrayBuffer(JsValue thisObject, JsValue[] arguments)
     {
         var blob = thisObject.EnsureThisObject<BlobInstance>();
-        var (promise, resolve, _) = Engine.Advanced.RegisterPromise();
-        resolve(blob.ArrayBuffer());
-        return promise;
+        return PromiseHelper.CreateResolvedPromise(Engine, blob.ArrayBuffer()).Promise;
+    }
+
+    private JsValue Bytes(JsValue thisObject, JsValue[] arguments)
+    {
+        var blob = thisObject.EnsureThisObject<BlobInstance>();
+        return PromiseHelper.CreateResolvedPromise(Engine, blob.Bytes()).Promise;
     }
 
     private JsValue Slice(JsValue thisObject, JsValue[] arguments)

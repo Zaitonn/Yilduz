@@ -42,12 +42,12 @@ internal sealed class FilePrototype : ObjectInstance
         );
     }
 
-    private JsValue GetLastModified(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetLastModified(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<FileInstance>().LastModified;
     }
 
-    private JsValue GetName(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetName(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<FileInstance>().Name;
     }

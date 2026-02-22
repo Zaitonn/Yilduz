@@ -59,7 +59,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         FastSetProperty(TeeName, new(new ClrFunction(Engine, TeeName, Tee), false, false, true));
     }
 
-    private JsValue GetLocked(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetLocked(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<ReadableStreamInstance>().Locked;
     }
@@ -67,7 +67,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/cancel
     /// </summary>
-    private JsValue Cancel(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Cancel(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var reason = arguments.At(0);
@@ -75,7 +75,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         return instance.Cancel(reason);
     }
 
-    private ReadableStreamReader GetReader(JsValue thisObject, JsValue[] arguments)
+    private static ReadableStreamReader GetReader(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var options = arguments.At(0);
@@ -83,7 +83,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         return instance.GetReader(options);
     }
 
-    private JsValue PipeTo(JsValue thisObject, JsValue[] arguments)
+    private static JsValue PipeTo(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var destination = arguments.At(0).AsObject();
@@ -92,7 +92,7 @@ internal sealed class ReadableStreamPrototype : ObjectInstance
         return instance.PipeTo(destination, options);
     }
 
-    private JsValue PipeThrough(JsValue thisObject, JsValue[] arguments)
+    private static JsValue PipeThrough(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var transform = arguments.At(0).AsObject();

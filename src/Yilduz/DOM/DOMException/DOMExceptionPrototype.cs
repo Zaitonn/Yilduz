@@ -69,22 +69,22 @@ internal class DOMExceptionPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetName(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetName(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<DOMExceptionInstance>().Name;
     }
 
-    private JsValue GetMessage(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetMessage(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<DOMExceptionInstance>().Message;
     }
 
-    private JsValue GetCode(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetCode(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<DOMExceptionInstance>().Code;
     }
 
-    private JsValue ToString(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToString(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<DOMExceptionInstance>().ToString();
     }

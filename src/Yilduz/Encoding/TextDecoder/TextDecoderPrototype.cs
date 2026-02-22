@@ -63,31 +63,26 @@ internal sealed class TextDecoderPrototype : ObjectInstance
         // decode method
         FastSetProperty(
             DecodeName,
-            new PropertyDescriptor(
-                new ClrFunction(engine, DecodeName, Decode, length: 0),
-                false,
-                false,
-                true
-            )
+            new(new ClrFunction(engine, DecodeName, Decode, length: 0), false, false, true)
         );
     }
 
-    private JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderInstance>().Encoding;
     }
 
-    private JsValue GetFatal(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetFatal(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderInstance>().Fatal;
     }
 
-    private JsValue GetIgnoreBOM(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetIgnoreBOM(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderInstance>().IgnoreBOM;
     }
 
-    private JsValue Decode(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Decode(JsValue thisObject, JsValue[] arguments)
     {
         var decoder = thisObject.EnsureThisObject<TextDecoderInstance>();
 

@@ -7,6 +7,7 @@ using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Extensions;
 using Yilduz.Streams.ReadableStream;
+using Yilduz.Utils;
 using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Files.Blob;
@@ -45,8 +46,8 @@ public class BlobInstance : ObjectInstance
 
         if (endingsStr != "transparent" && endingsStr != "native")
         {
-            throw new JavaScriptException(
-                engine.Intrinsics.TypeError,
+            TypeErrorHelper.Throw(
+                engine,
                 $"Failed to read the 'endings' property from 'BlobPropertyBag': The provided value '{endings}' is not a valid enum value of type EndingType."
             );
         }

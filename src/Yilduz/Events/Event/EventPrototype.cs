@@ -204,35 +204,35 @@ public class EventPrototype : ObjectInstance
         return FromObject(Engine, thisObject.EnsureThisObject<EventInstance>().ComposedPath());
     }
 
-    private JsValue PreventDefault(JsValue thisObject, JsValue[] arguments)
+    private static JsValue PreventDefault(JsValue thisObject, JsValue[] arguments)
     {
         thisObject.EnsureThisObject<EventInstance>().PreventDefault();
         return Undefined;
     }
 
-    private JsValue StopPropagation(JsValue thisObject, JsValue[] arguments)
+    private static JsValue StopPropagation(JsValue thisObject, JsValue[] arguments)
     {
         thisObject.EnsureThisObject<EventInstance>().StopPropagation();
         return Undefined;
     }
 
-    private JsValue StopImmediatePropagation(JsValue thisObject, JsValue[] arguments)
+    private static JsValue StopImmediatePropagation(JsValue thisObject, JsValue[] arguments)
     {
         thisObject.EnsureThisObject<EventInstance>().StopImmediatePropagation();
         return Undefined;
     }
 
-    private JsValue GetBubbles(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetBubbles(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().Bubbles;
     }
 
-    private JsValue GetCancelable(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetCancelable(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().Cancelable;
     }
 
-    private JsValue GetComposed(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetComposed(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().Composed;
     }
@@ -242,17 +242,17 @@ public class EventPrototype : ObjectInstance
         return FromObject(Engine, thisObject.EnsureThisObject<EventInstance>().CurrentTarget);
     }
 
-    private JsValue GetDefaultPrevented(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetDefaultPrevented(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().DefaultPrevented;
     }
 
-    private JsValue GetEventPhase(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEventPhase(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().EventPhase;
     }
 
-    private JsValue GetIsTrusted(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetIsTrusted(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().IsTrusted;
     }
@@ -262,12 +262,12 @@ public class EventPrototype : ObjectInstance
         return FromObject(Engine, thisObject.EnsureThisObject<EventInstance>().Target);
     }
 
-    private JsValue GetTimeStamp(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetTimeStamp(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().TimeStamp;
     }
 
-    private JsValue GetEventType(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEventType(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<EventInstance>().Type;
     }

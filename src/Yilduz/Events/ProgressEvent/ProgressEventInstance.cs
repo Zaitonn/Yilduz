@@ -18,7 +18,7 @@ public sealed class ProgressEventInstance : EventInstance
             return;
         }
 
-        LengthComputable = options.Get("lengthComputable").ToBoolean();
+        LengthComputable = options.Get("lengthComputable").ConvertToBoolean();
 
         var loaded = options.Get("loaded");
         if (loaded.IsNumber())

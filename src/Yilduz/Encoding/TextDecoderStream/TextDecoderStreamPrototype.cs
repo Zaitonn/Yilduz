@@ -87,27 +87,27 @@ internal sealed class TextDecoderStreamPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderStreamInstance>().Encoding;
     }
 
-    private JsValue GetFatal(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetFatal(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderStreamInstance>().Fatal;
     }
 
-    private JsValue GetIgnoreBOM(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetIgnoreBOM(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderStreamInstance>().IgnoreBOM;
     }
 
-    private JsValue GetReadable(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetReadable(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderStreamInstance>().Readable;
     }
 
-    private JsValue GetWritable(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetWritable(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextDecoderStreamInstance>().Writable;
     }

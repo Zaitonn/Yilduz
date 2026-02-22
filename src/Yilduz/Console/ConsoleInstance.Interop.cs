@@ -10,7 +10,7 @@ public sealed partial class ConsoleInstance
 {
     private JsValue Assert(JsValue thisObject, JsValue[] arguments)
     {
-        var condition = arguments.Length > 0 && arguments[0].ToBoolean();
+        var condition = arguments.Length > 0 && arguments[0].ConvertToBoolean();
         var data =
             arguments.Length > 1
                 ? [.. arguments.Skip(1).Select(arg => (object)arg)]

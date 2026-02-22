@@ -59,17 +59,17 @@ internal sealed class TextEncoderStreamPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextEncoderStreamInstance>().Encoding;
     }
 
-    private JsValue GetReadable(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetReadable(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextEncoderStreamInstance>().Readable;
     }
 
-    private JsValue GetWritable(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetWritable(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextEncoderStreamInstance>().Writable;
     }

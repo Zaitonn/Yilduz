@@ -37,7 +37,7 @@ internal abstract class QueuingStrategyPrototype<T> : ObjectInstance
         );
     }
 
-    private JsValue GetHighWaterMark(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetHighWaterMark(JsValue thisObject, JsValue[] arguments)
     {
         var queuingStrategy = thisObject.EnsureThisObject<T>();
         return queuingStrategy.HighWaterMark;

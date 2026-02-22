@@ -51,7 +51,7 @@ internal sealed class ReadableStreamDefaultReaderPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetClosed(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetClosed(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<ReadableStreamDefaultReaderInstance>().Closed;
     }
@@ -104,7 +104,7 @@ internal sealed class ReadableStreamDefaultReaderPrototype : ObjectInstance
         return promise;
     }
 
-    private JsValue ReleaseLock(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReleaseLock(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamDefaultReaderInstance>();
         instance.ReleaseLock();

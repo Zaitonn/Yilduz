@@ -16,11 +16,11 @@ internal static class NamingExtensions
 
     public static string ToJsGetterName(this string name)
     {
-        return "get " + ToJsStyleName(name);
+        return "get " + name.ToJsStyleName();
     }
 
     public static string ToJsSetterName(this string name)
     {
-        return "set " + ToJsStyleName(name);
+        return "set " + name.ToJsStyleName();
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using Jint;
 using Jint.Native;
-using Jint.Runtime;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.Utils;
 
@@ -19,9 +18,7 @@ public sealed partial class ReadableStreamDefaultReaderInstance
         // If ! IsReadableStreamLocked(stream) is true, throw a TypeError exception.
         if (stream.Locked)
         {
-            throw new JavaScriptException(
-                Engine.Intrinsics.TypeError.Construct("Stream is already locked")
-            );
+            TypeErrorHelper.Throw(Engine, "Stream is already locked");
         }
 
         // Perform ! ReadableStreamReaderGenericInitialize(reader, stream).

@@ -35,11 +35,34 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public JsValue Error { get; private set; } = Null;
 
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/loadstart_event
+    /// </summary>
     public JsValue OnLoadStart { get; internal set; } = Null;
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/load_event
+    /// </summary>
     public JsValue OnLoad { get; internal set; } = Null;
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/loadend_event
+    /// </summary>
     public JsValue OnLoadEnd { get; internal set; } = Null;
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/error_event
+    /// </summary>
     public JsValue OnError { get; internal set; } = Null;
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/abort_event
+    /// </summary>
     public JsValue OnAbort { get; internal set; } = Null;
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/progress_event
+    /// </summary>
     public JsValue OnProgress { get; internal set; } = Null;
 
     internal FileReaderInstance(Engine engine)

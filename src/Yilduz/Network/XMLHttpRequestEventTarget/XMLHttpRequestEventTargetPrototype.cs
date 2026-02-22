@@ -109,84 +109,84 @@ internal sealed class XMLHttpRequestEventTargetPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetOnAbort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnAbort(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnAbort;
     }
 
-    private JsValue SetOnAbort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnAbort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnAbort = arguments.At(0);
         return instance.OnAbort;
     }
 
-    private JsValue GetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnError(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnError;
     }
 
-    private JsValue SetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnError(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnError = arguments.At(0);
         return instance.OnError;
     }
 
-    private JsValue GetOnLoad(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoad(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnLoad;
     }
 
-    private JsValue SetOnLoad(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoad(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnLoad = arguments.At(0);
         return instance.OnLoad;
     }
 
-    private JsValue GetOnLoadStart(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoadStart(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnLoadStart;
     }
 
-    private JsValue SetOnLoadStart(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoadStart(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnLoadStart = arguments.At(0);
         return instance.OnLoadStart;
     }
 
-    private JsValue GetOnProgress(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnProgress(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnProgress;
     }
 
-    private JsValue SetOnProgress(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnProgress(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnProgress = arguments.At(0);
         return instance.OnProgress;
     }
 
-    private JsValue GetOnTimeout(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnTimeout(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnTimeout;
     }
 
-    private JsValue SetOnTimeout(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnTimeout(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnTimeout = arguments.At(0);
         return instance.OnTimeout;
     }
 
-    private JsValue GetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnLoadEnd;
     }
 
-    private JsValue SetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
         instance.OnLoadEnd = arguments.At(0);

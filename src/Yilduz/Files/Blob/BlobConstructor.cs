@@ -30,7 +30,7 @@ internal sealed class BlobConstructor : Constructor
         catch (Exception e) when (e is not JavaScriptException)
         {
             TypeErrorHelper.Throw(Engine, "Failed to construct 'Blob': " + e.Message);
-            return null!;
+            return null;
         }
     }
 }

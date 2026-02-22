@@ -2,6 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
+using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
@@ -57,12 +58,12 @@ internal sealed class TextEncoderPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<TextEncoderInstance>().Encoding;
     }
 
-    private JsValue Encode(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Encode(JsValue thisObject, JsValue[] arguments)
     {
         var input = arguments.Length > 0 ? arguments[0].ToArgumentString() : string.Empty;
 
@@ -75,7 +76,7 @@ internal sealed class TextEncoderPrototype : ObjectInstance
 
         arguments.EnsureCount(Engine, 2, EncodeIntoName, nameof(TextEncoder));
 
-        var input = arguments[0].ToArgumentString();
+        var input = arguments.At(0).ToString();
         var destination = arguments[1];
 
         if (!destination.IsUint8Array() || destination is not JsTypedArray de)

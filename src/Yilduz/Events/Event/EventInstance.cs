@@ -17,12 +17,14 @@ public class EventInstance : ObjectInstance
     {
         Type = type.ToString();
 
-        if (options.IsObject())
+        if (!options.IsObject())
         {
-            Bubbles = options.Get("bubbles").ToBoolean();
-            Cancelable = options.Get("cancelable").ToBoolean();
-            Composed = options.Get("composed").ToBoolean();
+            return;
         }
+
+        Bubbles = options.Get("bubbles").ConvertToBoolean();
+        Cancelable = options.Get("cancelable").ConvertToBoolean();
+        Composed = options.Get("composed").ConvertToBoolean();
     }
 
     /// <summary>
@@ -78,7 +80,7 @@ public class EventInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath
     /// </summary>
-    /// <returns>An array of <seealso cref="EventTargetInstance"/> objects representing the objects on which an event listener will be invoked.</returns>
+    /// <returns>An array of <see cref="EventTargetInstance"/> objects representing the objects on which an event listener will be invoked.</returns>
     public virtual EventTargetInstance[] ComposedPath()
     {
         return [];

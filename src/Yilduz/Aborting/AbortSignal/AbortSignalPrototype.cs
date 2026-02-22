@@ -19,7 +19,7 @@ internal sealed class AbortSignalPrototype : ObjectInstance
     private static readonly string OnabortName = nameof(AbortSignalInstance.OnAbort)
         .ToLowerInvariant();
 
-    internal AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
+    public AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
         : base(engine)
     {
         Set(GlobalSymbolRegistry.ToStringTag, nameof(AbortSignal));
@@ -58,28 +58,28 @@ internal sealed class AbortSignalPrototype : ObjectInstance
         );
     }
 
-    private JsValue ThrowIfAborted(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ThrowIfAborted(JsValue thisObject, JsValue[] arguments)
     {
         thisObject.EnsureThisObject<AbortSignalInstance>().ThrowIfAborted();
         return Undefined;
     }
 
-    private JsValue GetReason(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetReason(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<AbortSignalInstance>().Reason;
     }
 
-    private JsValue GetAborted(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetAborted(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<AbortSignalInstance>().Aborted;
     }
 
-    private JsValue GetOnabort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnabort(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<AbortSignalInstance>().OnAbort;
     }
 
-    private JsValue SetOnabort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnabort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<AbortSignalInstance>();
         instance.OnAbort = arguments.At(0);

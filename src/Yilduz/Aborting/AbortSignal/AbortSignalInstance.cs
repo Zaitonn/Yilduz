@@ -25,6 +25,9 @@ public sealed class AbortSignalInstance : EventTargetInstance
     /// </summary>
     public JsValue Reason { get; private set; } = Undefined;
 
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal/abort_event
+    /// </summary>
     public JsValue OnAbort { get; set; } = Null;
 
     /// <summary>

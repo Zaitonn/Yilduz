@@ -76,9 +76,9 @@ public class EventTargetPrototype : ObjectInstance
             options.IsObject()
                 ? new()
                 {
-                    Capture = options.Get("capture").ToBoolean(),
-                    Once = options.Get("once").ToBoolean(),
-                    Passive = options.Get("passive").ToBoolean(),
+                    Capture = options.Get("capture").ConvertToBoolean(),
+                    Once = options.Get("once").ConvertToBoolean(),
+                    Passive = options.Get("passive").ConvertToBoolean(),
                     Signal = options.Get("signal") as AbortSignalInstance,
                 }
                 : default
@@ -108,9 +108,9 @@ public class EventTargetPrototype : ObjectInstance
             options.IsObject()
                 ? new()
                 {
-                    Capture = options.Get("capture").ToBoolean(),
-                    Once = options.Get("once").ToBoolean(),
-                    Passive = options.Get("passive").ToBoolean(),
+                    Capture = options.Get("capture").ConvertToBoolean(),
+                    Once = options.Get("once").ConvertToBoolean(),
+                    Passive = options.Get("passive").ConvertToBoolean(),
                     Signal = options.Get("signal") as AbortSignalInstance,
                 }
                 : default

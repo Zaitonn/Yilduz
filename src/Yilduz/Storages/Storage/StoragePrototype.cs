@@ -53,7 +53,7 @@ internal sealed class StoragePrototype : ObjectInstance
         FastSetProperty(KeyName, new(new ClrFunction(Engine, KeyName, Key), false, false, true));
     }
 
-    private JsValue GetLength(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetLength(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<StorageInstance>().Length;
     }
@@ -96,10 +96,9 @@ internal sealed class StoragePrototype : ObjectInstance
         return Undefined;
     }
 
-    private JsValue Clear(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Clear(JsValue thisObject, JsValue[] arguments)
     {
         thisObject.EnsureThisObject<StorageInstance>().Clear();
-
         return Undefined;
     }
 

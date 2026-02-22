@@ -18,19 +18,16 @@ internal static class JsValueExtensions
     {
         var obj = thisObject.AsObject();
 
-        if (obj is not T t)
+        if (obj is T t)
         {
-            TypeErrorHelper.Throw(
-                obj.Engine,
-                "Illegal invocation: this is not of the expected type"
-            );
-            return null;
+            return t;
         }
 
-        return t;
+        TypeErrorHelper.Throw(obj.Engine, "Illegal invocation: this is not of the expected type");
+        return null;
     }
 
-    public static bool ToBoolean(this JsValue value)
+    public static bool ConvertToBoolean(this JsValue value)
     {
         return value switch
         {
@@ -69,8 +66,8 @@ internal static class JsValueExtensions
         }
         else
         {
-            throw new JavaScriptException(
-                objectInstance.Engine.Intrinsics.TypeError,
+            TypeErrorHelper.Throw(
+                objectInstance.Engine,
                 $"{objectInstance} is not iterable (cannot read property Symbol(Symbol.iterator))"
             );
         }
@@ -98,24 +95,19 @@ internal static class JsValueExtensions
             return [.. arrayBuffer.Skip(byteOffset).Take(byteLength)];
         }
 
-        if (input.IsArray())
+        if (!input.IsArray())
         {
-            var array = input.AsArray();
-            var bytes = new List<byte>();
-
-            for (int i = 0; i < array.Length; i++)
-            {
-                var element = array[i];
-                if (element.IsNumber())
-                {
-                    bytes.Add((byte)((int)element.AsNumber() & 0xFF));
-                }
-            }
-
-            return [.. bytes];
+            return null;
         }
 
-        return null;
+        var array = input.AsArray();
+        var bytes = (
+            from element in array
+            where element.IsNumber()
+            select (byte)((int)element.AsNumber() & 0xFF)
+        ).ToList();
+
+        return [.. bytes];
     }
 
     /// <summary>
@@ -124,54 +116,55 @@ internal static class JsValueExtensions
     /// </summary>
     public static JsValue StructuredClone(this JsValue value)
     {
-        if (value.IsUndefined() || value.IsNull())
+        if (
+            value.IsUndefined()
+            || value.IsNull()
+            || value.IsBoolean()
+            || value.IsNumber()
+            || value.IsString()
+        )
         {
             return value;
         }
 
-        if (value.IsBoolean() || value.IsNumber() || value.IsString())
+        if (!value.IsObject())
         {
-            return value;
+            throw new NotSupportedException("Structured clone of this type is not supported");
         }
 
-        if (value.IsObject())
+        var obj = value.AsObject();
+
+        // Handle arrays
+        if (obj.IsArray())
         {
-            var obj = value.AsObject();
+            var array = obj.AsArray();
+            var clonedArray = array.Engine.Intrinsics.Array.Construct(Arguments.Empty);
 
-            // Handle arrays
-            if (obj.IsArray())
+            for (uint i = 0; i < array.Length; i++)
             {
-                var array = obj.AsArray();
-                var clonedArray = array.Engine.Intrinsics.Array.Construct(Arguments.Empty);
-
-                for (uint i = 0; i < array.Length; i++)
+                if (array.HasProperty(i))
                 {
-                    if (array.HasProperty(i))
-                    {
-                        var element = array.Get(i);
-                        clonedArray.Set(i, StructuredClone(element));
-                    }
-                }
-
-                return clonedArray;
-            }
-
-            // Handle plain objects
-            var clonedObj = obj.Engine.Intrinsics.Object.Construct(Arguments.Empty);
-            var properties = obj.GetOwnProperties();
-
-            foreach (var prop in properties)
-            {
-                if (prop.Value.Enumerable == true)
-                {
-                    var propValue = obj.Get(prop.Key);
-                    clonedObj.Set(prop.Key, StructuredClone(propValue));
+                    var element = array.Get(i);
+                    clonedArray.Set(i, element.StructuredClone());
                 }
             }
 
-            return clonedObj;
+            return clonedArray;
         }
 
-        throw new NotSupportedException("Structured clone of this type is not supported");
+        // Handle plain objects
+        var clonedObj = obj.Engine.Intrinsics.Object.Construct(Arguments.Empty);
+        var properties = obj.GetOwnProperties();
+
+        foreach (var prop in properties)
+        {
+            if (prop.Value.Enumerable == true)
+            {
+                var propValue = obj.Get(prop.Key);
+                clonedObj.Set(prop.Key, propValue.StructuredClone());
+            }
+        }
+
+        return clonedObj;
     }
 }

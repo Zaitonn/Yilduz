@@ -431,7 +431,7 @@ public sealed partial class WritableStreamInstance
         {
             if (WriteRequests.Count == 0)
             {
-                throw new JavaScriptException("No write requests in queue");
+                TypeErrorHelper.Throw(Engine, "No write requests in queue");
             }
 
             InFlightWriteRequest = WriteRequests[0];

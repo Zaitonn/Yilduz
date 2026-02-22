@@ -37,12 +37,12 @@ internal abstract class BaseIterator : ObjectInstance
         FastSetProperty(GlobalSymbolRegistry.ToStringTag, new(toStringTag, true, false, true));
     }
 
-    private JsValue ToIterator(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToIterator(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject;
     }
 
-    public JsValue Next(JsValue thisObject, JsValue[] arguments)
+    private JsValue Next(JsValue thisObject, JsValue[] arguments)
     {
         if (TryGetEntry(_position, out var key, out var value))
         {

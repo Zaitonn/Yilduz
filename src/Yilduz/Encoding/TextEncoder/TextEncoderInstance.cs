@@ -15,7 +15,7 @@ public sealed class TextEncoderInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encoding
     /// </summary>
-    public string Encoding { get; } = "utf-8";
+    public string Encoding => "utf-8";
 
     internal TextEncoderInstance(Engine engine)
         : base(engine) { }
@@ -95,7 +95,7 @@ public sealed class TextEncoderInstance : ObjectInstance
         {
             var tempBytes = new byte[length];
             Array.Copy(bytes, tempBytes, length);
-            SystemEncoding.UTF8.GetString(tempBytes);
+            _ = SystemEncoding.UTF8.GetString(tempBytes);
             return true;
         }
         catch

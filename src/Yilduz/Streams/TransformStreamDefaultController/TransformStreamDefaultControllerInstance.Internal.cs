@@ -21,9 +21,7 @@ public sealed partial class TransformStreamDefaultControllerInstance
     {
         if (Stream is null)
         {
-            throw new JavaScriptException(
-                ErrorHelper.Create(Engine, "TypeError", "Controller has no associated stream")
-            );
+            TypeErrorHelper.Throw(Engine, "Controller has no associated stream");
         }
 
         // Perform ! ReadableStreamDefaultControllerError(stream.[[readable]].[[controller]], e).
@@ -55,9 +53,7 @@ public sealed partial class TransformStreamDefaultControllerInstance
         // If ! ReadableStreamDefaultControllerCanCloseOrEnqueue(readableController) is false, throw a TypeError exception.
         if (!readableController.CanCloseOrEnqueue())
         {
-            throw new JavaScriptException(
-                ErrorHelper.Create(Engine, "TypeError", "Cannot enqueue chunk")
-            );
+            TypeErrorHelper.Throw(Engine, "Cannot enqueue chunk");
         }
 
         try

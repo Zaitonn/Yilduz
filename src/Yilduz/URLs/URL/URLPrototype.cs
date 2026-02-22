@@ -2,6 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
+using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
@@ -217,185 +218,155 @@ internal sealed class URLPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetOrigin(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOrigin(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Origin;
     }
 
-    private JsValue GetHref(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetHref(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Href;
     }
 
-    private JsValue SetHref(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetHref(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Href = arguments[0].ToString();
-        }
+        instance.Href = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetProtocol(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetProtocol(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Protocol;
     }
 
-    private JsValue SetProtocol(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetProtocol(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Protocol = arguments[0].ToString();
-        }
+        instance.Protocol = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetHost(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetHost(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Host;
     }
 
-    private JsValue SetHost(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetHost(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Host = arguments[0].ToString();
-        }
+        instance.Host = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetHostname(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetHostname(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Hostname;
     }
 
-    private JsValue SetHostname(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetHostname(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Hostname = arguments[0].ToString();
-        }
+        instance.Hostname = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetPort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetPort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Port;
     }
 
-    private JsValue SetPort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetPort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Port = arguments[0].ToString();
-        }
+        instance.Port = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetPathname(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetPathname(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Pathname;
     }
 
-    private JsValue SetPathname(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetPathname(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Pathname = arguments[0].ToString();
-        }
+        instance.Pathname = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetSearch(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetSearch(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Search;
     }
 
-    private JsValue SetSearch(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetSearch(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Search = arguments[0].ToString();
-        }
+        instance.Search = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetHash(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetHash(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Hash;
     }
 
-    private JsValue SetHash(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetHash(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Hash = arguments[0].ToString();
-        }
+        instance.Hash = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetUsername(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetUsername(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Username;
     }
 
-    private JsValue SetUsername(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetUsername(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Username = arguments[0].ToString();
-        }
+        instance.Username = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetPassword(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetPassword(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Password;
     }
 
-    private JsValue SetPassword(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetPassword(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
-        if (arguments.Length > 0)
-        {
-            instance.Password = arguments[0].ToString();
-        }
+        instance.Password = arguments.At(0).ToString();
         return Undefined;
     }
 
-    private JsValue GetSearchParams(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetSearchParams(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.SearchParams;
     }
 
-    private JsValue ToString(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToString(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Href;
     }
 
-    private JsValue ToJSON(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToJSON(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLInstance>();
         return instance.Href;

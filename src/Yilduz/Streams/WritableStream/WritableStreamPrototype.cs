@@ -52,7 +52,7 @@ internal sealed class WritableStreamPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetLocked(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetLocked(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<WritableStreamInstance>().Locked;
     }
@@ -60,29 +60,12 @@ internal sealed class WritableStreamPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStream/abort
     /// </summary>
-    private JsValue Abort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Abort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
         var reason = arguments.At(0);
 
-        var (promise, resolve, rejected) = Engine.Advanced.RegisterPromise();
-
-        instance
-            .Abort(reason)
-            .Then(
-                result =>
-                {
-                    resolve(result);
-                    return Undefined;
-                },
-                error =>
-                {
-                    rejected(error);
-                    return Undefined;
-                }
-            );
-
-        return promise;
+        return instance.Abort(reason);
     }
 
     /// <summary>
@@ -99,7 +82,7 @@ internal sealed class WritableStreamPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStream/getWriter
     /// </summary>
-    private JsValue GetWriter(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetWriter(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
         var writer = instance.GetWriter();

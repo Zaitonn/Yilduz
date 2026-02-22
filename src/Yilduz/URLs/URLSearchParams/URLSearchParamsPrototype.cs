@@ -96,7 +96,7 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetSize(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetSize(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<URLSearchParamsInstance>().Size;
     }
@@ -169,20 +169,20 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
         return Undefined;
     }
 
-    private JsValue Sort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Sort(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         instance.Sort();
         return Undefined;
     }
 
-    private JsValue ToString(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToString(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         return instance.ToString();
     }
 
-    private JsValue ToJSON(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToJSON(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
         return instance.ToString();

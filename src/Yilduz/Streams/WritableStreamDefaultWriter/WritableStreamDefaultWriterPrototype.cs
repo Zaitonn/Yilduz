@@ -90,17 +90,17 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetClosed(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetClosed(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>().Closed;
     }
 
-    private JsValue GetReady(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetReady(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>().Ready;
     }
 
-    private JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var size = instance.DesiredSize;
@@ -132,7 +132,7 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/close
     /// </summary>
-    private JsValue Close(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Close(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
 
@@ -142,7 +142,7 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/releaseLock
     /// </summary>
-    private JsValue ReleaseLock(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReleaseLock(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
 
@@ -154,7 +154,7 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/write
     /// </summary>
-    private JsValue Write(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Write(JsValue thisObject, JsValue[] arguments)
     {
         var writer = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var chunk = arguments.At(0);

@@ -56,21 +56,21 @@ internal sealed class ReadableStreamDefaultControllerPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamDefaultControllerInstance>();
         var desiredSize = instance.DesiredSize;
         return desiredSize.HasValue ? JsNumber.Create(desiredSize.Value) : Null;
     }
 
-    private JsValue Close(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Close(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamDefaultControllerInstance>();
         instance.Close();
         return Undefined;
     }
 
-    private JsValue Enqueue(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Enqueue(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamDefaultControllerInstance>();
         var chunk = arguments.At(0);
@@ -78,7 +78,7 @@ internal sealed class ReadableStreamDefaultControllerPrototype : ObjectInstance
         return Undefined;
     }
 
-    private JsValue Error(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Error(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<ReadableStreamDefaultControllerInstance>();
         var error = arguments.At(0);

@@ -1,5 +1,6 @@
 using System;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -16,6 +17,8 @@ namespace Yilduz.Encoding.TextDecoder;
 public sealed class TextDecoderInstance : ObjectInstance
 {
     private readonly SystemEncoding _encoding;
+    private Decoder? _decoder;
+    private bool _bomSeen;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/encoding
@@ -32,6 +35,8 @@ public sealed class TextDecoderInstance : ObjectInstance
     /// </summary>
     public bool IgnoreBOM { get; }
 
+    private bool _doNotFlush;
+
     internal TextDecoderInstance(Engine engine, JsValue label, JsValue options)
         : base(engine)
     {
@@ -44,8 +49,8 @@ public sealed class TextDecoderInstance : ObjectInstance
         {
             var optionsObj = options.AsObject();
 
-            fatal = optionsObj.Get("fatal").ToBoolean();
-            ignoreBOM = optionsObj.Get("ignoreBOM").ToBoolean();
+            fatal = optionsObj.Get("fatal").ConvertToBoolean();
+            ignoreBOM = optionsObj.Get("ignoreBOM").ConvertToBoolean();
         }
 
         Fatal = fatal;
@@ -54,7 +59,13 @@ public sealed class TextDecoderInstance : ObjectInstance
         try
         {
             Encoding = EncodingHelper.NormalizeEncodingName(encodingLabel);
-            _encoding = SystemEncoding.GetEncoding(Encoding);
+            _encoding = SystemEncoding.GetEncoding(
+                Encoding,
+                EncoderFallback.ExceptionFallback,
+                fatal ? DecoderFallback.ExceptionFallback : DecoderFallback.ReplacementFallback
+            );
+
+            ResetDecoderState();
         }
         catch (ArgumentException e)
         {
@@ -82,7 +93,14 @@ public sealed class TextDecoderInstance : ObjectInstance
             stream = !streamValue.IsUndefined() && streamValue.AsBoolean();
         }
 
-        var bytes = input.IsUndefined() ? [] : input.TryAsBytes();
+        if (!_doNotFlush)
+        {
+            ResetDecoderState();
+        }
+
+        _doNotFlush = stream;
+
+        var bytes = input.IsUndefined() ? Array.Empty<byte>() : input.TryAsBytes();
 
         if (bytes is null)
         {
@@ -95,17 +113,33 @@ public sealed class TextDecoderInstance : ObjectInstance
             return null!;
         }
 
+        var copiedBytes = new byte[bytes.Length];
+        if (bytes.Length > 0)
+        {
+            Array.Copy(bytes, copiedBytes, bytes.Length);
+        }
+
+        var flush = !_doNotFlush;
+        return DecodeBytes(copiedBytes, flush);
+    }
+
+    private string DecodeBytes(byte[] bytes, bool flush)
+    {
         try
         {
-            if (!IgnoreBOM && bytes.Length > 0)
+            var charCount = _decoder!.GetCharCount(bytes, 0, bytes.Length, flush);
+
+            if (charCount == 0)
             {
-                bytes = RemoveBOMIfPresent(bytes);
+                return string.Empty;
             }
 
-            var result = _encoding.GetString(bytes);
-            return result;
+            var chars = new char[charCount];
+            var written = _decoder.GetChars(bytes, 0, bytes.Length, chars, 0, flush);
+
+            return SerializeOutput(chars, written);
         }
-        catch (Exception ex) when (Fatal)
+        catch (DecoderFallbackException ex) when (Fatal)
         {
             TypeErrorHelper.Throw(
                 Engine,
@@ -115,52 +149,48 @@ public sealed class TextDecoderInstance : ObjectInstance
             );
             return null!;
         }
-        catch
-        {
-            var decoder = _encoding.GetDecoder();
-            decoder.Fallback = System.Text.DecoderFallback.ReplacementFallback;
-
-            var charCount = decoder.GetCharCount(bytes, 0, bytes.Length);
-            var chars = new char[charCount];
-            decoder.GetChars(bytes, 0, bytes.Length, chars, 0);
-
-            return new string(chars);
-        }
     }
 
-    private byte[] RemoveBOMIfPresent(byte[] bytes)
+    private string SerializeOutput(char[] chars, int length)
     {
-        if (
-            _encoding == SystemEncoding.UTF8
-            && bytes.Length >= 3
-            && bytes[0] == 0xEF
-            && bytes[1] == 0xBB
-            && bytes[2] == 0xBF
-        )
+        if (length == 0)
         {
-            return [.. bytes.Skip(3)];
+            return string.Empty;
         }
 
-        if (
-            _encoding == SystemEncoding.Unicode
-            && bytes.Length >= 2
-            && bytes[0] == 0xFF
-            && bytes[1] == 0xFE
-        )
+        var span = new ReadOnlySpan<char>(chars, 0, length);
+        var startIndex = 0;
+
+        if (!_bomSeen && span.Length > 0)
         {
-            return [.. bytes.Skip(2)];
+            if (span[0] == '\uFEFF')
+            {
+                if (!IgnoreBOM)
+                {
+                    startIndex = 1;
+                }
+            }
+
+            _bomSeen = true;
         }
 
-        if (
-            _encoding == SystemEncoding.BigEndianUnicode
-            && bytes.Length >= 2
-            && bytes[0] == 0xFE
-            && bytes[1] == 0xFF
-        )
+        if (startIndex >= span.Length)
         {
-            return [.. bytes.Skip(2)];
+            return string.Empty;
         }
 
-        return bytes;
+#if NETSTANDARD
+        return new(span[startIndex..].ToArray());
+#else
+        return new(span[startIndex..]);
+#endif
+    }
+
+    [MemberNotNull(nameof(_decoder))]
+    private void ResetDecoderState()
+    {
+        _decoder = _encoding.GetDecoder();
+        _decoder.Fallback = _encoding.DecoderFallback;
+        _bomSeen = false;
     }
 }

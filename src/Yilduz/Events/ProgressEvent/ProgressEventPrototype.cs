@@ -59,17 +59,17 @@ internal sealed class ProgressEventPrototype : ObjectInstance
         );
     }
 
-    private JsValue GetLengthComputable(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetLengthComputable(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<ProgressEventInstance>().LengthComputable;
     }
 
-    private JsValue GetLoaded(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetLoaded(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<ProgressEventInstance>().Loaded;
     }
 
-    private JsValue GetTotal(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetTotal(JsValue thisObject, JsValue[] arguments)
     {
         return thisObject.EnsureThisObject<ProgressEventInstance>().Total;
     }
