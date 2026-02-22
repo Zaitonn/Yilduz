@@ -1,32 +1,34 @@
+using System.Linq;
 using Jint;
 using Jint.Native;
+using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
-using Yilduz.Files.Blob;
 using Yilduz.Iterator;
+using Yilduz.Utils;
 
-namespace Yilduz.Network.FormData;
+namespace Yilduz.Network.Headers;
 
-internal sealed class FormDataPrototype : ObjectInstance
+internal sealed class HeadersPrototype : ObjectInstance
 {
     private static readonly string AppendName = nameof(Append).ToJsStyleName();
     private static readonly string DeleteName = nameof(Delete).ToJsStyleName();
     private static readonly string GetName = nameof(Get).ToJsStyleName();
-    private static readonly string GetAllName = nameof(GetAll).ToJsStyleName();
     private static readonly string HasName = nameof(Has).ToJsStyleName();
     private static readonly string SetName = nameof(Set).ToJsStyleName();
     private static readonly string EntriesName = nameof(Entries).ToJsStyleName();
     private static readonly string KeysName = nameof(Keys).ToJsStyleName();
     private static readonly string ValuesName = nameof(Values).ToJsStyleName();
     private static readonly string ForEachName = nameof(ForEach).ToJsStyleName();
+    private static readonly string GetSetCookieName = nameof(GetSetCookie).ToJsStyleName();
 
-    public FormDataPrototype(Engine engine, FormDataConstructor constructor)
+    public HeadersPrototype(Engine engine, HeadersConstructor constructor)
         : base(engine)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(FormData));
+        Set(GlobalSymbolRegistry.ToStringTag, nameof(Headers));
         SetOwnProperty("constructor", new(constructor, false, false, true));
 
         FastSetProperty(
@@ -38,12 +40,12 @@ internal sealed class FormDataPrototype : ObjectInstance
             new(new ClrFunction(Engine, DeleteName, Delete), false, false, true)
         );
         FastSetProperty(GetName, new(new ClrFunction(Engine, GetName, Get), false, false, true));
-        FastSetProperty(
-            GetAllName,
-            new(new ClrFunction(Engine, GetAllName, GetAll), false, false, true)
-        );
         FastSetProperty(HasName, new(new ClrFunction(Engine, HasName, Has), false, false, true));
         FastSetProperty(SetName, new(new ClrFunction(Engine, SetName, Set), false, false, true));
+        FastSetProperty(
+            GetSetCookieName,
+            new(new ClrFunction(Engine, GetSetCookieName, GetSetCookie), false, false, true)
+        );
         FastSetProperty(
             EntriesName,
             new(new ClrFunction(Engine, EntriesName, Entries), false, false, true)
@@ -70,30 +72,21 @@ internal sealed class FormDataPrototype : ObjectInstance
 
     private JsValue Append(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 2, AppendName, nameof(FormData));
+        arguments.EnsureCount(Engine, 2, AppendName, nameof(Headers));
 
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
+        var value = arguments[1].ToString();
 
-        if (arguments[1] is BlobInstance blobValue)
-        {
-            var fileName = arguments.Length >= 3 ? arguments[2].ToString() : "";
-            instance.Append(name, blobValue, fileName);
-        }
-        else
-        {
-            var value = arguments[1].ToString();
-            instance.Append(name, value);
-        }
-
+        instance.Append(name, value);
         return Undefined;
     }
 
     private JsValue Delete(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, DeleteName, nameof(FormData));
+        arguments.EnsureCount(Engine, 1, DeleteName, nameof(Headers));
 
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         instance.Delete(name);
         return Undefined;
@@ -101,88 +94,81 @@ internal sealed class FormDataPrototype : ObjectInstance
 
     private JsValue Get(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, GetName, nameof(FormData));
+        arguments.EnsureCount(Engine, 1, GetName, nameof(Headers));
 
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         var result = instance.Get(name);
-
-        return result.HasValue ? result.Value.Value : Null;
+        return result ?? Null;
     }
 
-    private JsValue GetAll(JsValue thisObject, JsValue[] arguments)
+    private JsValue GetSetCookie(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, GetAllName, nameof(FormData));
-
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
-        var name = arguments[0].ToString();
-        var array = Engine.Intrinsics.Array.Construct(Arguments.Empty);
-
-        foreach (var (_, value, _) in instance.GetAll(name))
-        {
-            array.Push(value);
-        }
-
-        return array;
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
+        var result = instance.GetSetCookie();
+        return result is null
+            ? Null
+            : Engine.Intrinsics.Array.Construct([.. result.Select<string, JsValue>(r => r)]);
     }
 
     private JsValue Has(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, HasName, nameof(FormData));
+        arguments.EnsureCount(Engine, 1, HasName, nameof(Headers));
 
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         return instance.Has(name);
     }
 
     private JsValue Set(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 2, SetName, nameof(FormData));
+        arguments.EnsureCount(Engine, 2, SetName, nameof(Headers));
 
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
-
-        if (arguments[1] is BlobInstance blobValue)
-        {
-            var fileName = arguments.Length >= 3 ? arguments[2].ToString() : "";
-            instance.Set(name, blobValue, fileName);
-        }
-        else
-        {
-            var value = arguments[1].ToString();
-            instance.Set(name, value);
-        }
-
+        var value = arguments[1].ToString();
+        instance.Set(name, value);
         return Undefined;
     }
 
-    private ObjectInstance Entries(JsValue thisObject, JsValue[] arguments)
+    private HeadersIterator Entries(JsValue thisObject, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
-        return new FormDataIterator(Engine, instance, IteratorType.KeyAndValue);
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
+        return new HeadersIterator(Engine, instance, IteratorType.KeyAndValue);
     }
 
-    private ObjectInstance Keys(JsValue thisObject, JsValue[] arguments)
+    private HeadersIterator Keys(JsValue thisObject, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
-        return new FormDataIterator(Engine, instance, IteratorType.Key);
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
+        return new HeadersIterator(Engine, instance, IteratorType.Key);
     }
 
-    private ObjectInstance Values(JsValue thisObject, JsValue[] arguments)
+    private HeadersIterator Values(JsValue thisObject, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
-        return new FormDataIterator(Engine, instance, IteratorType.Value);
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
+        return new HeadersIterator(Engine, instance, IteratorType.Value);
     }
 
     private JsValue ForEach(JsValue thisObject, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, ForEachName, nameof(FormData));
-        var instance = thisObject.EnsureThisObject<FormDataInstance>();
+        arguments.EnsureCount(Engine, 1, ForEachName, nameof(Headers));
 
-        var callback = arguments[0].AsFunctionInstance();
-        var thisArg = arguments.Length >= 2 ? arguments[1] : Undefined;
+        var instance = thisObject.EnsureThisObject<HeadersInstance>();
 
-        foreach (var (name, value, _) in instance.EntryList.ToArray())
+        if (arguments.At(0) is not Function callback)
+        {
+            TypeErrorHelper.Throw(
+                Engine,
+                "parameter 1 is not of type 'Function'.",
+                ForEachName,
+                nameof(Headers)
+            );
+            return Undefined;
+        }
+
+        var thisArg = arguments.At(1);
+
+        foreach (var (name, value) in instance.GetSortedAndCombinedEntries())
         {
             Engine.Call(callback, thisArg, [value, name, instance]);
         }

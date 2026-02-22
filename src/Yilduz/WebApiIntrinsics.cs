@@ -17,6 +17,7 @@ using Yilduz.Files.File;
 using Yilduz.Files.FileReader;
 using Yilduz.Files.FileReaderSync;
 using Yilduz.Network.FormData;
+using Yilduz.Network.Headers;
 using Yilduz.Network.XMLHttpRequest;
 using Yilduz.Network.XMLHttpRequestEventTarget;
 using Yilduz.Network.XMLHttpRequestUpload;
@@ -87,6 +88,7 @@ public sealed class WebApiIntrinsics
     public ConsoleInstance Console { get; }
 
     internal FormDataConstructor FormData { get; }
+    internal HeadersConstructor Headers { get; }
     internal XMLHttpRequestConstructor XMLHttpRequest { get; }
     internal XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
     internal XMLHttpRequestUploadConstructor XMLHttpRequestUpload { get; }
@@ -146,6 +148,7 @@ public sealed class WebApiIntrinsics
         ByteLengthQueuingStrategy = new(_engine);
 
         FormData = new(_engine);
+        Headers = new(_engine);
         XMLHttpRequestEventTarget = new(_engine, this);
         XMLHttpRequestUpload = new(_engine, this);
         XMLHttpRequest = new(_engine, this);
@@ -204,6 +207,7 @@ public sealed class WebApiIntrinsics
         );
         _engine.SetValue(nameof(Storage), Storage);
         _engine.SetValue(nameof(FormData), FormData);
+        _engine.SetValue(nameof(Headers), Headers);
         _engine.SetValue(nameof(XMLHttpRequest), XMLHttpRequest);
         _engine.SetValue(nameof(XMLHttpRequestEventTarget), XMLHttpRequestEventTarget);
         _engine.SetValue(nameof(XMLHttpRequestUpload), XMLHttpRequestUpload);

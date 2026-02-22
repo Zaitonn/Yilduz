@@ -1,6 +1,5 @@
 using System;
 using System.Threading;
-using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
@@ -83,7 +82,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     {
         PrepareForReading(blob, FileReaderPrototype.ReadAsArrayBufferName);
 
-        Task.Run(() =>
+        _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
             try
             {
@@ -113,12 +112,13 @@ public sealed class FileReaderInstance : EventTargetInstance
     public void ReadAsText(JsValue blob, string encoding = "UTF-8")
     {
         PrepareForReading(blob, FileReaderPrototype.ReadAsTextName);
-        DispatchEvent("loadstart");
 
-        Task.Run(() =>
+        _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
             try
             {
+                DispatchEvent("loadstart");
+
                 Result = _fileReaderSyncInstance.ReadAsText(blob, encoding);
                 ReadyState = FileReaderState.DONE;
 
@@ -144,7 +144,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     {
         PrepareForReading(blob, FileReaderPrototype.ReadAsDataURLName);
 
-        Task.Run(() =>
+        _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
             try
             {

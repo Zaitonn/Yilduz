@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Jint;
 using Jint.Native.Object;
 
@@ -28,15 +29,12 @@ public sealed class DOMExceptionInstance : ObjectInstance
     {
         Name = name;
         Message = message;
-        Code = ErrorCodes.Codes.TryGetValue(name, out var code) ? code : 0;
-    }
 
-    /// <summary>
-    /// Creates a DOMException with a specific error name
-    /// </summary>
-    public static DOMExceptionInstance Create(Engine engine, string name, string message = "")
-    {
-        return new DOMExceptionInstance(engine, message, name);
+#if NETSTANDARD
+        Code = ErrorCodes.Codes.TryGetValue(name, out var code) ? code : 0;
+#else
+        Code = ErrorCodes.Codes.GetValueOrDefault(name);
+#endif
     }
 
     /// <summary>

@@ -8,6 +8,7 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
+using Yilduz.Iterator;
 using Yilduz.Utils;
 
 namespace Yilduz.URLs.URLSearchParams;
@@ -214,22 +215,18 @@ internal sealed class URLSearchParamsPrototype : ObjectInstance
     private ObjectInstance Entries(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
-        return new URLSearchParamsIterator(
-            Engine,
-            instance,
-            URLSearchParamsIteratorType.KeyAndValue
-        );
+        return new URLSearchParamsIterator(Engine, instance, IteratorType.KeyAndValue);
     }
 
     private ObjectInstance Keys(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
-        return new URLSearchParamsIterator(Engine, instance, URLSearchParamsIteratorType.Key);
+        return new URLSearchParamsIterator(Engine, instance, IteratorType.Key);
     }
 
     private ObjectInstance Values(JsValue thisObject, JsValue[] arguments)
     {
         var instance = thisObject.EnsureThisObject<URLSearchParamsInstance>();
-        return new URLSearchParamsIterator(Engine, instance, URLSearchParamsIteratorType.Value);
+        return new URLSearchParamsIterator(Engine, instance, IteratorType.Value);
     }
 }

@@ -120,10 +120,10 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
     private readonly List<byte> _receivedBytes;
     private readonly Dictionary<string, string> _authorRequestHeaders;
 
-    internal XMLHttpRequestInstance(Engine engine)
+    internal XMLHttpRequestInstance(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine)
     {
-        _fetchController = new FetchController(engine);
+        _fetchController = new(engine, webApiIntrinsics);
         _receivedBytes = [];
         _authorRequestHeaders = [];
 
@@ -231,7 +231,7 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
             DOMExceptionHelper.CreateSyntaxError(Engine, "Invalid header value").Throw();
         }
 
-        if (HttpHelper.IsForbiddenHeader(name, value))
+        if (HttpHelper.IsForbiddenRequestHeader(name, value))
         {
             return;
         }

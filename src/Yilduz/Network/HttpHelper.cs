@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Yilduz.Network;
 
 internal static class HttpHelper
 {
-    private static readonly HashSet<string> ForbiddenHeaderNames =
+    private static readonly HashSet<string> ForbiddenRequestHeaderNames =
     [
         "accept-charset",
         "accept-encoding",
@@ -23,16 +24,18 @@ internal static class HttpHelper
         "keep-alive",
         "origin",
         "referer",
+        "set-cookie",
+        "set-cookie2",
         "te",
         "trailer",
         "transfer-encoding",
         "upgrade",
-        "user-agent",
+        "via",
     ];
 
-    public static bool IsForbiddenHeader(string name, string value)
+    public static bool IsForbiddenRequestHeader(string name, string value)
     {
-        if (ForbiddenHeaderNames.Contains(name.ToLowerInvariant()))
+        if (ForbiddenRequestHeaderNames.Contains(name.ToLowerInvariant()))
         {
             return true;
         }
@@ -62,22 +65,99 @@ internal static class HttpHelper
         return value.Split(',');
     }
 
-    public static bool IsHeaderValue(string value)
+    public static bool IsHeaderName([NotNullWhen(true)] string? name)
     {
-        if (value.StartsWith("\x20") || value.EndsWith("\x20"))
+        if (string.IsNullOrWhiteSpace(name))
         {
             return false;
         }
 
-        if (value.StartsWith("\x09") || value.EndsWith("\x09"))
+        foreach (var c in name)
+        {
+            if (c < 0x21 || c > 0x7E)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#header-value
+    /// </summary>
+    public static bool IsHeaderValue([NotNullWhen(true)] string? value)
+    {
+#if NETSTANDARD
+        var space = "\x20";
+        var tab = "\x09";
+#else
+        var space = '\x20';
+        var tab = '\x09';
+#endif
+
+        // Has no leading or trailing HTTP tab or space bytes.
+        if (
+            value is null
+            || value.StartsWith(space)
+            || value.EndsWith(space)
+            || value.StartsWith(tab)
+            || value.EndsWith(tab)
+        )
         {
             return false;
         }
 
-        return !value.Contains('\0')
-            && !value.Contains('\n')
-            && !value.Contains('\r')
-            && !value.Contains(':');
+        // Contains no 0x00 (NUL) or HTTP newline bytes.
+        return !value.Contains('\0') && !value.Contains('\n') && !value.Contains('\r');
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#forbidden-request-header
+    /// </summary>
+    public static bool IsForbiddenRequestHeader(string name)
+    {
+        // If name is a byte-case-insensitive match for one of:
+        // then return true.
+        if (ForbiddenRequestHeaderNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        // If name when byte-lowercased starts with `proxy-` or `sec-`, then return true.
+        if (
+            name.StartsWith("sec-", StringComparison.OrdinalIgnoreCase)
+            || name.StartsWith("proxy-", StringComparison.OrdinalIgnoreCase)
+        )
+        {
+            return true;
+        }
+
+        // If name is a byte-case-insensitive match for one of:
+        if (
+            name.Equals("X-HTTP-Method", StringComparison.InvariantCultureIgnoreCase)
+            || name.Equals("X-HTTP-Method-Override", StringComparison.InvariantCultureIgnoreCase)
+            || name.Equals("X-Method-Override", StringComparison.InvariantCultureIgnoreCase)
+        )
+        // then:
+        {
+            // Let parsedValues be the result of getting, decoding, and splitting value.
+            // For each method of parsedValues: if the isomorphic encoding of method is a forbidden method, then return true.
+
+            var parsedValues = GetDecodeAndSplit(name);
+            return parsedValues.Any(IsForbiddenMethod);
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#forbidden-response-header-name
+    /// </summary>
+    public static bool IsForbiddenResponseHeader(string name)
+    {
+        return name.Equals("set-cookie", StringComparison.InvariantCultureIgnoreCase)
+            || name.Equals("set-cookie2", StringComparison.InvariantCultureIgnoreCase);
     }
 
     public static bool IsForbiddenMethod(string method)
@@ -85,5 +165,167 @@ internal static class HttpHelper
         return method.Equals("CONNECT", StringComparison.InvariantCultureIgnoreCase)
             || method.Equals("TRACE", StringComparison.InvariantCultureIgnoreCase)
             || method.Equals("TRACK", StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    private static readonly HashSet<string> NoCORSUnsafeRequestHeaderNames =
+    [
+        "accept",
+        "accept-language",
+        "content-language",
+        "content-type",
+    ];
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#no-cors-safelisted-request-header-name
+    /// </summary>
+    public static bool IsNoCORSUnsafeRequestHeaderName(string name)
+    {
+        return NoCORSUnsafeRequestHeaderNames.Contains(name, StringComparer.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#no-cors-safelisted-request-header
+    /// </summary>
+    public static bool IsNoCORSUnsafeRequestHeader(string name, string value)
+    {
+        if (IsNoCORSUnsafeRequestHeaderName(name))
+        {
+            return false;
+        }
+
+        return IsCorsSafelistedRequestHeader(name, value);
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#cors-safelisted-request-header
+    /// </summary>
+    public static bool IsCorsSafelistedRequestHeader(string name, string value)
+    {
+        // If value’s length is greater than 128, then return false.
+        if (value.Length > 128)
+        {
+            return false;
+        }
+
+        // Byte-lowercase name and switch on the result:
+        switch (name.ToLowerInvariant())
+        {
+            case "accept":
+                // If value contains a CORS-unsafe request-header byte, then return false.
+                if (value.Any(IsCORSUnsafeRequestHeaderByte))
+                {
+                    return false;
+                }
+                break;
+
+            case "accept-language":
+            case "content-language":
+                // If value contains a byte that is not in the range 0x30 (0) to 0x39 (9), inclusive, is not in the range 0x41 (A) to 0x5A (Z), inclusive, is not in the range 0x61 (a) to 0x7A (z), inclusive, and is not 0x20 (SP), 0x2A (*), 0x2C (,), 0x2D (-), 0x2E (.), 0x3B (;), or 0x3D (=), then return false.
+
+                foreach (var c in value)
+                {
+                    if (
+                        (c >= '0' && c <= '9')
+                        || (c >= 'A' && c <= 'Z')
+                        || (c >= 'a' && c <= 'z')
+                        || c == '\x20'
+                        || c == '*'
+                        || c == ','
+                        || c == '-'
+                        || c == '.'
+                        || c == ';'
+                        || c == '='
+                    )
+                    {
+                        continue;
+                    }
+
+                    return false;
+                }
+                break;
+
+            case "content-type":
+                // If value contains a CORS-unsafe request-header byte, then return false.
+                if (value.Any(IsCORSUnsafeRequestHeaderByte))
+                {
+                    return false;
+                }
+
+                // Let mimeType be the result of parsing the result of isomorphic decoding value.
+                // If mimeType is failure, then return false.
+                // If mimeType’s essence is not "application/x-www-form-urlencoded", "multipart/form-data", or "text/plain", then return false.
+                throw new NotImplementedException();
+
+            case "range":
+                try
+                {
+                    // Let rangeValue be the result of parsing a single range header value given value and false.
+                    var (start, _) = ParseSingleRangeHeaderValue(value, false);
+
+                    // If rangeValue[0] is null, then return false.
+                    if (start == null)
+                    {
+                        return false;
+                    }
+                }
+                catch
+                {
+                    // If rangeValue is failure, then return false.
+
+                    return false;
+                }
+                break;
+
+            // Otherwise, return false.
+            default:
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#simple-range-header-value
+    /// </summary>
+    private static (int? Start, int? End) ParseSingleRangeHeaderValue(
+        string value,
+        bool allowWhitespace
+    )
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#cors-unsafe-request-header-byte
+    /// </summary>
+    public static bool IsCORSUnsafeRequestHeaderByte(char c)
+    {
+        // a byte byte for which one of the following is true
+        //  byte is less than 0x20 and is not 0x09 HT
+        if (c < 0x20 && c != 0x09)
+        {
+            return true;
+        }
+
+        //  byte is 0x22 ("), 0x28 (left parenthesis), 0x29 (right parenthesis), 0x3A (:), 0x3C (<), 0x3E (>), 0x3F (?), 0x40 (@), 0x5B ([), 0x5C (\), 0x5D (]), 0x7B ({), 0x7D (}), or 0x7F DEL.
+        return c == 0x22
+            || c == 0x28
+            || c == 0x29
+            || c == 0x3A
+            || c == 0x3C
+            || c == 0x3E
+            || c == 0x3F
+            || c == 0x40
+            || c == 0x5B
+            || c == 0x5C
+            || c == 0x5D
+            || c == 0x7B
+            || c == 0x7D
+            || c == 0x7F;
+    }
+
+    public static bool IsPrivilegedNoCORSRequestHeaderName(string name)
+    {
+        return name.Equals("range", StringComparison.OrdinalIgnoreCase);
     }
 }

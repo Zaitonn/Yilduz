@@ -70,7 +70,7 @@ cts.Dispose();
   - [ ] `XMLHttpRequestEventTarget`
   - [ ] `XMLHttpRequestUpload`
   - [ ] `fetch()`
-  - [ ] `Headers`
+  - [x] `Headers`
   - [ ] `Request`
   - [ ] `RequestInit`
   - [ ] `Response`
@@ -79,6 +79,7 @@ cts.Dispose();
   - [x] `CountQueuingStrategy`
   - [ ] `ReadableByteStreamController`
   - [x] `ReadableStream`
+    - Async iteration is not implemented yet in Jint
   - [ ] `ReadableStreamBYOBReader`
   - [ ] `ReadableStreamBYOBRequest`
   - [x] `ReadableStreamDefaultReader`
@@ -103,12 +104,6 @@ cts.Dispose();
 </details>
 
 ## Known Issues
-
-### Undefined Behaviors with Asynchronous Code
-
-Due to poor multi-threading support in the Jint library used in this project [(More info here)](https://github.com/sebastienros/jint?tab=readme-ov-file#thread-safety), asynchronous code is employed when handling certain Promise operations.
-
-**This may lead to some undefined behaviors.**
 
 ### Encoding Support
 

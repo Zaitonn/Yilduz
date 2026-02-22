@@ -6,9 +6,12 @@ namespace Yilduz.Network.XMLHttpRequest;
 
 internal sealed class XMLHttpRequestConstructor : Constructor
 {
+    private readonly WebApiIntrinsics _webApiIntrinsics;
+
     public XMLHttpRequestConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(XMLHttpRequest))
     {
+        _webApiIntrinsics = webApiIntrinsics;
         PrototypeObject = new(_engine, this)
         {
             Prototype = webApiIntrinsics.XMLHttpRequestEventTarget.PrototypeObject,
@@ -18,7 +21,10 @@ internal sealed class XMLHttpRequestConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        return new XMLHttpRequestInstance(Engine) { Prototype = PrototypeObject };
+        return new XMLHttpRequestInstance(Engine, _webApiIntrinsics)
+        {
+            Prototype = PrototypeObject,
+        };
     }
 
     public XMLHttpRequestPrototype PrototypeObject { get; }
