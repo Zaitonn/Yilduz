@@ -11,22 +11,17 @@ namespace Yilduz.Services;
 
 internal sealed class TimerProvider(Engine engine, Options options, EventLoop eventLoop)
 {
-    private readonly EventLoop _eventLoop =
-        eventLoop ?? throw new ArgumentNullException(nameof(eventLoop));
-
     private int _timerDepth;
 
     public JsValue SetTimeout(JsValue _, JsValue[] arguments)
     {
         options.CancellationToken.ThrowIfCancellationRequested();
-
         return StartTimer(false, arguments);
     }
 
     public JsValue SetInterval(JsValue _, JsValue[] arguments)
     {
         options.CancellationToken.ThrowIfCancellationRequested();
-
         return StartTimer(true, arguments);
     }
 
@@ -45,7 +40,7 @@ internal sealed class TimerProvider(Engine engine, Options options, EventLoop ev
             return JsValue.Undefined;
         }
 
-        _eventLoop.Cancel((long)id.AsNumber());
+        eventLoop.Cancel((long)id.AsNumber());
 
         return JsValue.Undefined;
     }
@@ -56,12 +51,8 @@ internal sealed class TimerProvider(Engine engine, Options options, EventLoop ev
 
         var firstArgument = arguments[0];
         var handler = firstArgument as Function;
-        var args = handler is not null ? arguments.Skip(2).ToArray() : null;
-        var code = handler is null
-            ? firstArgument.IsString()
-                ? firstArgument.AsString()
-                : firstArgument.ToString()
-            : null;
+        var args = handler is not null ? arguments.Skip(2).ToArray() : [];
+        var code = handler is null ? firstArgument.ToString() : null;
 
         var timeout =
             arguments.Length > 1
@@ -82,10 +73,10 @@ internal sealed class TimerProvider(Engine engine, Options options, EventLoop ev
             timeout = 4;
         }
 
-        return _eventLoop.ScheduleTimer(BuildCallback(handler, code, args), timeout, repeat);
+        return eventLoop.ScheduleTimer(BuildCallback(handler, code, args), timeout, repeat);
     }
 
-    private Action BuildCallback(Function? handler, string? code, JsValue[]? args)
+    private Action BuildCallback(Function? handler, string? code, JsValue[] args)
     {
         return () =>
         {
@@ -102,11 +93,11 @@ internal sealed class TimerProvider(Engine engine, Options options, EventLoop ev
         };
     }
 
-    private void FastExecute(Function? handler, string? code, JsValue[]? arguments)
+    private void FastExecute(Function? handler, string? code, JsValue[] arguments)
     {
         if (handler is not null)
         {
-            Execute(handler, arguments ?? []);
+            Execute(handler, arguments);
         }
         else if (!string.IsNullOrEmpty(code))
         {

@@ -1,7 +1,5 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
@@ -192,8 +190,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
 
     private readonly object _writeLock = new();
 
-    private CancellationTokenSource? _writeCancellationTokenSource;
-
     /// <summary>
     /// https://streams.spec.whatwg.org/#writable-stream-default-controller-process-write
     /// </summary>
@@ -233,13 +229,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
                     return;
                 }
 
-                if (_writeCancellationTokenSource is null)
-                {
-                    _writeCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(
-                        _engine.GetWebApiIntrinsics().Options.CancellationToken
-                    );
-                }
-
                 sinkWritePromise.Then(
                     onFulfilled: _ =>
                     {
@@ -252,8 +241,7 @@ public sealed partial class WritableStreamDefaultControllerInstance
                         // Upon rejection of sinkWritePromise with reason
                         OnError(reason);
                         return Undefined;
-                    },
-                    _writeCancellationTokenSource.Token
+                    }
                 );
             }
         }
@@ -379,11 +367,6 @@ public sealed partial class WritableStreamDefaultControllerInstance
 
         // Perform ! WritableStreamStartErroring(stream, error).
         Stream.StartErroring(error);
-
-        if (_writeCancellationTokenSource is { IsCancellationRequested: false })
-        {
-            _writeCancellationTokenSource.Cancel();
-        }
     }
 
     internal void CloseInternal()

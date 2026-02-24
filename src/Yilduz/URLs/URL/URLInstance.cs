@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using Jint;
 using Jint.Native.Object;
 using Yilduz.URLs.URLSearchParams;
@@ -10,7 +11,6 @@ namespace Yilduz.URLs.URL;
 /// </summary>
 public sealed class URLInstance : ObjectInstance
 {
-    private string _pathname = string.Empty;
     private string _search = string.Empty;
 
     internal URLInstance(Engine engine)
@@ -56,11 +56,7 @@ public sealed class URLInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/URL/pathname
     /// </summary>
-    public string Pathname
-    {
-        get => _pathname.StartsWith("/") ? _pathname : '/' + _pathname;
-        set => _pathname = value.StartsWith("/") ? value : '/' + value;
-    }
+    public string Pathname { get; set; } = string.Empty;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/URL/search
@@ -104,7 +100,7 @@ public sealed class URLInstance : ObjectInstance
         Search = uri.Query;
         Hostname = uri.Host;
         Host = uri.Authority;
-        Pathname = uri.AbsolutePath;
+        Pathname = string.Join(string.Empty, uri.Segments);
         Protocol = uri.Scheme + ":";
         Hash = uri.Fragment;
         Username = username;
@@ -130,10 +126,47 @@ public sealed class URLInstance : ObjectInstance
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    // https://url.spec.whatwg.org/#concept-url-serializer
     public override string ToString()
     {
-        return string.IsNullOrEmpty(Username) && string.IsNullOrEmpty(Password)
-            ? $"{Protocol}//{Host}{Pathname}{Search}{Hash}"
-            : $"{Protocol}//{Username}:{Password}@{Host}{Pathname}{Search}{Hash}";
+        var sb = new StringBuilder();
+
+        sb.Append(Protocol);
+
+        if (!string.IsNullOrEmpty(Host))
+        {
+            sb.Append("//");
+
+            if (!string.IsNullOrEmpty(Username))
+            {
+                sb.Append(Username);
+                if (!string.IsNullOrEmpty(Password))
+                {
+                    sb.Append(':');
+                    sb.Append(Password);
+                }
+                sb.Append('@');
+            }
+
+            sb.Append(Host);
+        }
+        else if (string.Equals(Protocol, "file:", StringComparison.OrdinalIgnoreCase))
+        {
+            sb.Append("//");
+        }
+
+        sb.Append(Pathname);
+
+        if (!string.IsNullOrEmpty(Search))
+        {
+            sb.Append(Search);
+        }
+
+        if (!string.IsNullOrEmpty(Hash))
+        {
+            sb.Append(Hash);
+        }
+
+        return sb.ToString();
     }
 }

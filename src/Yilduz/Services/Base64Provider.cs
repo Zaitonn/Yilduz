@@ -29,12 +29,12 @@ internal sealed class Base64Provider(Engine engine)
         {
             return SystemEncoding.ASCII.GetString(Convert.FromBase64String(input));
         }
-        catch (FormatException)
+        catch (Exception ex) when (ex is FormatException or ArgumentException)
         {
             DOMExceptionHelper
                 .CreateInvalidCharacterError(
                     engine,
-                    "The string to be decoded is not correctly encoded."
+                    "The string to be decoded is not correctly encoded: " + ex.Message
                 )
                 .Throw();
 

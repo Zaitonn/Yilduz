@@ -19,6 +19,7 @@ public abstract class ReadableStreamReader : ObjectInstance
 
     public abstract JsValue Closed { get; }
     public abstract JsValue Cancel(JsValue reason);
+
     internal ReadableStreamInstance? Stream { get; set; }
     internal ManualPromise ClosedPromise { get; set; }
     internal bool PromiseIsHandled { get; set; }

@@ -29,7 +29,7 @@ internal sealed class AbortControllerConstructor : Constructor
         return new(Engine)
         {
             Prototype = PrototypeObject,
-            Signal = _webApiIntrinsics.AbortSignal.ConstructAbortSignal(),
+            Signal = _webApiIntrinsics.AbortSignal.Construct(),
         };
     }
 }

@@ -41,12 +41,33 @@ public sealed class AbortSignalConstructor : Constructor
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         TypeErrorHelper.Throw(Engine, "Failed to construct 'AbortSignal': Illegal constructor");
-        return null!;
+        return null;
     }
 
-    internal AbortSignalInstance ConstructAbortSignal()
+    internal AbortSignalInstance Construct()
     {
         return new(Engine) { Prototype = PrototypeObject };
+    }
+
+    internal AbortSignalInstance CreateDependentSignal(AbortSignalInstance? parent)
+    {
+        var signal = Construct();
+
+        if (parent is null)
+        {
+            return signal;
+        }
+
+        if (parent.Aborted)
+        {
+            signal.SetAborted(parent.Reason);
+        }
+        else
+        {
+            parent.Abort += (_, _) => signal.SetAborted(parent.Reason);
+        }
+
+        return signal;
     }
 
     /// <summary>
@@ -54,7 +75,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Abort(JsValue reason)
     {
-        var signal = ConstructAbortSignal();
+        var signal = Construct();
         signal.SetAborted(reason);
 
         return signal;
@@ -70,7 +91,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Timeout(ulong time)
     {
-        var signal = ConstructAbortSignal();
+        var signal = Construct();
 
         Task.Delay(TimeSpan.FromMilliseconds(time))
             .ContinueWith(_ =>
@@ -92,7 +113,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Any(JsArray signals)
     {
-        var abortSignal = ConstructAbortSignal();
+        var abortSignal = Construct();
         foreach (var signal in signals)
         {
             if (signal is AbortSignalInstance instance)

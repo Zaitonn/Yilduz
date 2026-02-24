@@ -136,8 +136,7 @@ internal static class PromiseHelper
     public static JsValue Then(
         this JsValue jsValue,
         Func<JsValue, JsValue>? onFulfilled = null,
-        Func<JsValue, JsValue>? onRejected = null,
-        CancellationToken _ = default
+        Func<JsValue, JsValue>? onRejected = null
     )
     {
         if (!jsValue.IsPromise())

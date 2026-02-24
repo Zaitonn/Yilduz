@@ -3,7 +3,7 @@
 [![wakatime](https://wakatime.com/badge/github/Zaitonn/Yilduz.svg)](https://wakatime.com/badge/github/Zaitonn/Yilduz)
 [![NuGet Version](https://img.shields.io/nuget/v/Yilduz)](https://www.nuget.org/packages/Yilduz)
 
-Web api implementation ([`AbortController`](https://developer.mozilla.org/en-US/docs/Web/API/AbortController), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.) for [Jint](https://github.com/sebastienros/jint)
+An extension library for Jint that adds [Web API](https://developer.mozilla.org/en-US/docs/Web/API) implementations such as [`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream), [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.
 
 ## Usage
 
@@ -17,8 +17,8 @@ using Yilduz;
 
 var cts = new CancellationTokenSource();
 var engine = new Engine((o) => o.CancellationToken(cts.Token)).InitializeWebApi(
-            new() { CancellationToken = cts.Token }
-        );
+    new() { CancellationToken = cts.Token }
+);
 
 engine.Execute(
     """
@@ -71,8 +71,7 @@ cts.Dispose();
   - [ ] `XMLHttpRequestUpload`
   - [ ] `fetch()`
   - [x] `Headers`
-  - [ ] `Request`
-  - [ ] `RequestInit`
+  - [x] `Request`
   - [ ] `Response`
 - Streams
   - [x] `ByteLengthQueuingStrategy`

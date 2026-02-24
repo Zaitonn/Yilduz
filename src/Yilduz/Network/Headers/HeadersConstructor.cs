@@ -18,6 +18,16 @@ internal class HeadersConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        return new HeadersInstance(Engine, arguments.At(0)) { Prototype = PrototypeObject };
+        return Construct(arguments.At(0), Guard.None);
+    }
+
+    public HeadersInstance Construct(JsValue init, Guard guard)
+    {
+        return new HeadersInstance(Engine, init, guard) { Prototype = PrototypeObject };
+    }
+
+    public HeadersInstance Construct(HeaderList list, Guard guard)
+    {
+        return new HeadersInstance(Engine, list, guard) { Prototype = PrototypeObject };
     }
 }

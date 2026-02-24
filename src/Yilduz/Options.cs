@@ -12,4 +12,6 @@ public sealed partial class Options
     public required CancellationToken CancellationToken { get; init; }
 
     public TimeSpan WaitingTimeout { get; init; } = TimeSpan.FromSeconds(10);
+
+    public Uri? BaseUrl { get; init; }
 }

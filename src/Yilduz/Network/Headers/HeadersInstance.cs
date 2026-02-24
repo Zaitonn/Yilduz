@@ -16,14 +16,21 @@ namespace Yilduz.Network.Headers;
 /// </summary>
 public sealed partial class HeadersInstance : ObjectInstance
 {
-    private readonly List<(string Name, string Value)> _headers;
-    private readonly Guard _guard;
+    private readonly HeaderList _headers;
+    internal Guard Guard { get; set; }
 
-    internal HeadersInstance(Engine engine, JsValue init)
+    internal HeadersInstance(Engine engine, HeaderList list, Guard guard)
+        : base(engine)
+    {
+        _headers = list;
+        Guard = guard;
+    }
+
+    internal HeadersInstance(Engine engine, JsValue init, Guard guard)
         : base(engine)
     {
         _headers = [];
-        _guard = Guard.None;
+        Guard = guard;
 
         if (!init.IsUndefined() && !init.IsNull())
         {
@@ -31,7 +38,12 @@ public sealed partial class HeadersInstance : ObjectInstance
         }
     }
 
-    internal IReadOnlyList<(string Name, string Value)> HeaderList => _headers;
+    internal IReadOnlyList<HeaderEntry> HeaderList => _headers;
+
+    internal void Clear()
+    {
+        _headers.Clear();
+    }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Headers/append
@@ -45,7 +57,7 @@ public sealed partial class HeadersInstance : ObjectInstance
             return;
         }
 
-        if (_guard == Guard.RequestNoCors)
+        if (Guard == Guard.RequestNoCors)
         {
             // Let temporaryValue be the result of getting name from headers’s header list.
             var temporaryValue = Get(name);
@@ -64,9 +76,9 @@ public sealed partial class HeadersInstance : ObjectInstance
             }
         }
 
-        _headers.Add((name, normalizedValue));
+        _headers.Add(new(name, normalizedValue));
 
-        if (_guard == Guard.RequestNoCors)
+        if (Guard == Guard.RequestNoCors)
         {
             RemovePrivilegedNoCORSRequestHeaders();
         }
@@ -85,7 +97,7 @@ public sealed partial class HeadersInstance : ObjectInstance
 
         // If this’s guard is "request-no-cors", name is not a no-CORS-safelisted request-header name, and name is not a privileged no-CORS request-header name, then return.
         if (
-            _guard == Guard.RequestNoCors
+            Guard == Guard.RequestNoCors
             && !HttpHelper.IsNoCORSUnsafeRequestHeaderName(name)
             && !HttpHelper.IsPrivilegedNoCORSRequestHeaderName(name)
         )
@@ -98,7 +110,7 @@ public sealed partial class HeadersInstance : ObjectInstance
         _headers.RemoveAll(header => header.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
 
         // If this’s guard is "request-no-cors", then remove privileged no-CORS request-headers from this.
-        if (_guard == Guard.RequestNoCors)
+        if (Guard == Guard.RequestNoCors)
         {
             RemovePrivilegedNoCORSRequestHeaders();
         }
@@ -171,7 +183,7 @@ public sealed partial class HeadersInstance : ObjectInstance
         }
 
         if (
-            _guard == Guard.RequestNoCors
+            Guard == Guard.RequestNoCors
             && !HttpHelper.IsNoCORSUnsafeRequestHeader(name, normalizedValue)
         )
         {
@@ -180,7 +192,7 @@ public sealed partial class HeadersInstance : ObjectInstance
 
         SetInternal(name, normalizedValue);
 
-        if (_guard == Guard.RequestNoCors)
+        if (Guard == Guard.RequestNoCors)
         {
             RemovePrivilegedNoCORSRequestHeaders();
         }
@@ -190,7 +202,7 @@ public sealed partial class HeadersInstance : ObjectInstance
     {
         if (!_headers.Any(header => header.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
         {
-            _headers.Add((name, value));
+            _headers.Add(new(name, value));
         }
         else
         {
@@ -201,7 +213,7 @@ public sealed partial class HeadersInstance : ObjectInstance
                 {
                     if (!found)
                     {
-                        _headers[i] = (name, value);
+                        _headers[i] = new(name, value);
                         found = true;
                     }
                     else
@@ -239,8 +251,10 @@ public sealed partial class HeadersInstance : ObjectInstance
         ];
     }
 
-    // https://fetch.spec.whatwg.org/#concept-headers-fill
-    private void Fill(JsValue init)
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#concept-headers-fill
+    /// </summary>
+    internal void Fill(JsValue init)
     {
         if (init.IsObject())
         {
@@ -341,7 +355,7 @@ public sealed partial class HeadersInstance : ObjectInstance
             TypeErrorHelper.Throw(Engine, "Invalid header value", method, nameof(Headers));
         }
 
-        switch (_guard)
+        switch (Guard)
         {
             case Guard.Request:
                 if (HttpHelper.IsForbiddenRequestHeader(name, value))

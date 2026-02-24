@@ -56,7 +56,7 @@ public sealed class EdgeCasesTests : TestBase
         var pathname = Evaluate("url.pathname").AsString();
 
         Assert.Equal("file:", protocol);
-        Assert.Contains("/C:/Users/test/document.txt", pathname);
+        Assert.Equal("/C:/Users/test/document.txt", pathname);
     }
 
     [Fact]

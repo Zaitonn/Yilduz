@@ -60,9 +60,10 @@ internal static class HttpHelper
         return false;
     }
 
-    public static string[] GetDecodeAndSplit(string value)
+    [return: NotNullIfNotNull(nameof(value))]
+    public static string[]? GetDecodeAndSplit(string? value)
     {
-        return value.Split(',');
+        return value?.Split(',');
     }
 
     public static bool IsHeaderName([NotNullWhen(true)] string? name)
@@ -72,7 +73,7 @@ internal static class HttpHelper
             return false;
         }
 
-        foreach (var c in name)
+        foreach (var c in name!)
         {
             if (c < 0x21 || c > 0x7E)
             {
@@ -327,5 +328,110 @@ internal static class HttpHelper
     public static bool IsPrivilegedNoCORSRequestHeaderName(string name)
     {
         return name.Equals("range", StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#collect-an-http-quoted-string
+    /// </summary>
+    public static string CollectHTTPQuotedString(
+        string input,
+        ref int position,
+        bool extractValue = false
+    )
+    {
+        // 1. Let positionStart be position.
+        var positionStart = position;
+
+        // 2. Let value be the empty string.
+        var value = string.Empty;
+
+        // 3. Assert: the code point at position within input is U+0022 (").
+        if (position >= input.Length || input[position] != '"')
+        {
+            throw new InvalidOperationException("Expected opening quote for HTTP quoted string");
+        }
+
+        // 4. Advance position by 1.
+        position++;
+
+        // 5. While true:
+        while (true)
+        {
+            // 5.1. Append the result of collecting a sequence of code points that are not U+0022 (") or U+005C (\\) from input, given position, to value.
+            value += CollectSequenceOfCodePoints(input, ref position, c => c != '"' && c != '\\');
+
+            // 5.2. If position is past the end of input, then break.
+            if (position >= input.Length)
+            {
+                break;
+            }
+
+            // 5.3. Let quoteOrBackslash be the code point at position within input.
+            var quoteOrBackslash = input[position];
+
+            // 5.4. Advance position by 1.
+            position++;
+
+            // 5.5. If quoteOrBackslash is U+005C (\\), then:
+            if (quoteOrBackslash == '\\')
+            {
+                // 5.5.1. If position is past the end of input, then append U+005C (\\) to value and break.
+                if (position >= input.Length)
+                {
+                    value += '\\';
+                    break;
+                }
+
+                // 5.5.2. Append the code point at position within input to value.
+                value += input[position];
+
+                // 5.5.3. Advance position by 1.
+                position++;
+            }
+            else
+            {
+                // 5.6.1. Assert: quoteOrBackslash is U+0022 (").
+                if (quoteOrBackslash != '"')
+                {
+                    throw new InvalidOperationException("Invalid HTTP quoted string terminator");
+                }
+
+                // 5.6.2. Break.
+                break;
+            }
+        }
+
+        // 7. If extract-value is true, then return value.
+        if (extractValue)
+        {
+            return value;
+        }
+
+        // 8. Return the code points from positionStart to position, inclusive, within input.
+        return input[positionStart..position];
+    }
+
+    private static string CollectSequenceOfCodePoints(
+        string input,
+        ref int position,
+        Func<char, bool> predicate
+    )
+    {
+        var result = string.Empty;
+
+        while (position < input.Length)
+        {
+            var c = input[position];
+
+            if (!predicate(c))
+            {
+                break;
+            }
+
+            result += c;
+            position++;
+        }
+
+        return result;
     }
 }
