@@ -31,6 +31,6 @@ internal sealed class TransformStreamDefaultControllerConstructor : Constructor
             Engine,
             "Failed to construct 'TransformStreamDefaultController': Illegal constructor"
         );
-        return null!;
+        return null;
     }
 }

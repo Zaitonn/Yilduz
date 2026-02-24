@@ -30,7 +30,7 @@ internal sealed class ReadableStreamBYOBReaderConstructor : Constructor
                 Engine,
                 "Failed to construct 'ReadableStreamBYOBReader': parameter 1 is not of type 'ReadableStream'."
             );
-            return null!;
+            return null;
         }
 
         return Construct(stream);

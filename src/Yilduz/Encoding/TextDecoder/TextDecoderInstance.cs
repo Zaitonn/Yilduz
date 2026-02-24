@@ -110,7 +110,7 @@ public sealed class TextDecoderInstance : ObjectInstance
                 "decode",
                 nameof(TextDecoder)
             );
-            return null!;
+            return null;
         }
 
         var copiedBytes = new byte[bytes.Length];

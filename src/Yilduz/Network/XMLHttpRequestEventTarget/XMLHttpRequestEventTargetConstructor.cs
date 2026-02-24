@@ -23,7 +23,7 @@ internal sealed class XMLHttpRequestEventTargetConstructor : Constructor
             Engine,
             "Failed to construct 'XMLHttpRequestEventTarget': Illegal constructor"
         );
-        return null!;
+        return null;
     }
 
     public XMLHttpRequestEventTargetPrototype PrototypeObject { get; }

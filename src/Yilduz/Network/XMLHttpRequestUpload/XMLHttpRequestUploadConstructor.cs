@@ -23,7 +23,7 @@ internal sealed class XMLHttpRequestUploadConstructor : Constructor
             Engine,
             "Failed to construct 'XMLHttpRequestUpload': Illegal constructor"
         );
-        return null!;
+        return null;
     }
 
     public XMLHttpRequestUploadPrototype PrototypeObject { get; }

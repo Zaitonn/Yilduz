@@ -212,7 +212,7 @@ internal sealed class RequestConstructor : Constructor
             // request.Url = request.CurrentURL;
 
             // Set request’s URL list to « request’s URL ».
-            request.URLList.Add(request.Url!);
+            request.URLList.Add(request.Url);
         }
 
         #region referrer
@@ -510,7 +510,7 @@ internal sealed class RequestConstructor : Constructor
             // If type is non-null and this’s headers’s header list does not contain `Content-Type`, then append (`Content-Type`, type) to this’s headers.
             if (!string.IsNullOrEmpty(type) && !requestInstance.Headers.Has("Content-Type"))
             {
-                requestInstance.Headers.Append("Content-Type", type!);
+                requestInstance.Headers.Append("Content-Type", type);
             }
         }
 
@@ -597,7 +597,7 @@ internal sealed class RequestConstructor : Constructor
             return false;
         }
 
-        foreach (var c in method!)
+        foreach (var c in method)
         {
             if (char.IsControl(c) || char.IsWhiteSpace(c))
             {

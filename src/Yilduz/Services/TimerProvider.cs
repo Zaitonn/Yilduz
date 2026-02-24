@@ -101,7 +101,7 @@ internal sealed class TimerProvider(Engine engine, Options options, EventLoop ev
         }
         else if (!string.IsNullOrEmpty(code))
         {
-            Execute(code!);
+            Execute(code);
         }
     }
 

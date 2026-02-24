@@ -33,7 +33,7 @@ internal sealed class FileConstructor : Constructor
         catch (Exception e) when (e is not JavaScriptException)
         {
             TypeErrorHelper.Throw(Engine, "Failed to construct 'File': " + e.Message);
-            return null!;
+            return null;
         }
     }
 }

@@ -21,7 +21,7 @@ internal sealed class ReadableStreamDefaultControllerConstructor : Constructor
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         TypeErrorHelper.Throw(Engine, "Illegal constructor");
-        return null!;
+        return null;
     }
 
     public ReadableStreamDefaultControllerInstance Construct(

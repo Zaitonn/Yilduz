@@ -46,7 +46,7 @@ internal sealed partial class URLConstructor : Constructor
         catch (Exception e) when (e is not JavaScriptException)
         {
             TypeErrorHelper.Throw(Engine, $"Failed to construct 'URL': {e.Message}");
-            return null!;
+            return null;
         }
     }
 

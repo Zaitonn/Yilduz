@@ -73,7 +73,7 @@ internal static class HttpHelper
             return false;
         }
 
-        foreach (var c in name!)
+        foreach (var c in name)
         {
             if (c < 0x21 || c > 0x7E)
             {
