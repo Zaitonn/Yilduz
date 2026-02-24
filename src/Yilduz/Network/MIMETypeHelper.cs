@@ -4,6 +4,7 @@ using System.Linq;
 using Yilduz.Network.Body;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
+using Yilduz.Network.Response;
 
 namespace Yilduz.Network;
 
@@ -14,25 +15,14 @@ internal static partial class MIMETypeHelper
     /// </summary>
     public static MIMEType? Get(BodyInstance body)
     {
-        HeadersInstance headers;
-
-        if (body is RequestInstance request)
+        var headers = body switch
         {
-            headers = request.Headers;
-        }
-        // else if (body is ResponseInstance response)
-
-        // {
-
-        //     headers = response.Headers;
-
-        // }
-        else
-        {
-            throw new InvalidOperationException(
+            RequestInstance request => request.Headers,
+            ResponseInstance response => response.Headers,
+            _ => throw new InvalidOperationException(
                 "BodyInstance must be either RequestInstance or ResponseInstance"
-            );
-        }
+            ),
+        };
 
         try
         {

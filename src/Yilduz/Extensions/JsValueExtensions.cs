@@ -167,4 +167,14 @@ internal static class JsValueExtensions
 
         return clonedObj;
     }
+
+    public static ulong GetByteLength(this JsValue typedArray)
+    {
+        return (ulong)typedArray.Get("byteLength").AsNumber();
+    }
+
+    public static ulong GetByteOffset(this JsValue typedArray)
+    {
+        return (ulong)typedArray.Get("byteOffset").AsNumber();
+    }
 }

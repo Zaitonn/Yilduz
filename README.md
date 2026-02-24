@@ -72,7 +72,7 @@ cts.Dispose();
   - [ ] `fetch()`
   - [x] `Headers`
   - [x] `Request`
-  - [ ] `Response`
+  - [x] `Response`
 - Streams
   - [x] `ByteLengthQueuingStrategy`
   - [x] `CountQueuingStrategy`
@@ -80,7 +80,7 @@ cts.Dispose();
   - [x] `ReadableStream`
     - Async iteration is not implemented yet in Jint
   - [ ] `ReadableStreamBYOBReader`
-  - [ ] `ReadableStreamBYOBRequest`
+  - [x] `ReadableStreamBYOBRequest`
   - [x] `ReadableStreamDefaultReader`
   - [x] `ReadableStreamDefaultController`
   - [x] `WritableStream`

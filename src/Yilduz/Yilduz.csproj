@@ -5,7 +5,7 @@
     <Title>Yilduz</Title>
     <Authors>Zaitonn</Authors>
     <Description>Web api implementation for Jint</Description>
-    <Version>0.0.12</Version>
+    <Version>0.0.13</Version>
     <Copyright>Zaitonn</Copyright>
     <RepositoryUrl>https://github.com/Zaitonn/Yilduz</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -16,7 +16,8 @@
     <IncludeSymbols>true</IncludeSymbols>
   </PropertyGroup>
 
-  <PropertyGroup Condition="$(TargetFramework) != 'net8.0'">
+  <!-- Suppress invalid warnings when building project -->
+  <PropertyGroup Condition="$(TargetFramework) != 'net8.0' and '$(DesignTimeBuild)' != 'true'">
     <NoWarn>$(NoWarn);CS8601;CS8602;CS8604</NoWarn>
   </PropertyGroup>
 

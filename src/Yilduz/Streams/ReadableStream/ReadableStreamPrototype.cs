@@ -6,7 +6,6 @@ using Jint.Runtime;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
-using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStream;
 

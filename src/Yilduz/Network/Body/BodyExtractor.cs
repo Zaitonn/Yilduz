@@ -17,22 +17,26 @@ internal static class BodyExtractor
         // Step 1: Let stream be null.
         ReadableStreamInstance? stream = null;
 
-        // Step 2: If object is a ReadableStream object, then set stream to object.
-        if (obj is ReadableStreamInstance readableStream)
+        switch (obj)
         {
-            stream = readableStream;
-        }
-        // Step 3: Otherwise, if object is a Blob object, set stream to the result of running object’s get stream.
-        else if (obj is BlobInstance blob)
-        {
-            stream = blob.Stream();
-        }
-        else
-        {
+            // Step 2: If object is a ReadableStream object, then set stream to object.
+            case ReadableStreamInstance readableStream:
+                stream = readableStream;
+                break;
+
+            // Step 3: Otherwise, if object is a Blob object, set stream to the result of running object’s get stream.
+            case BlobInstance blobInstance:
+                stream = blobInstance.Stream();
+                break;
+
             // Step 4: Otherwise, set stream to a new ReadableStream object, and set up stream with byte reading support.
-            stream = engine
-                .GetWebApiIntrinsics()
-                .ReadableStream.Construct(JsValue.Undefined, JsValue.Undefined);
+            default:
+                var underlyingSource = new JsObject(engine);
+                // underlyingSource.Set("type", "bytes");
+                stream = engine
+                    .GetWebApiIntrinsics()
+                    .ReadableStream.Construct(underlyingSource, JsValue.Undefined);
+                break;
         }
 
         // Step 5: Assert: stream is a ReadableStream object.

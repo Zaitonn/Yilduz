@@ -14,9 +14,6 @@ public abstract class ReadableStreamController : ObjectInstance
         Stream = stream;
     }
 
-    internal abstract JsValue CancelSteps(JsValue reason);
-    internal abstract void PullSteps(ReadRequest readRequest);
-    internal abstract void ReleaseSteps();
     internal ReadableStreamInstance Stream { get; private set; }
     internal Function? StrategySizeAlgorithm { get; set; }
     internal double StrategyHWM { get; set; }
@@ -30,6 +27,9 @@ public abstract class ReadableStreamController : ObjectInstance
     internal abstract void ErrorInternal(JsValue error);
     internal abstract void CloseInternal();
     internal abstract void CallPullIfNeeded();
+    internal abstract JsValue CancelSteps(JsValue reason);
+    internal abstract void PullSteps(ReadRequest readRequest);
+    internal abstract void ReleaseSteps();
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-default-controller-clear-algorithms

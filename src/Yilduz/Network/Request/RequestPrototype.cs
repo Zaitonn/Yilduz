@@ -3,7 +3,6 @@ using Jint.Native;
 using Jint.Native.Symbol;
 using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
-using Yilduz.Aborting.AbortSignal;
 using Yilduz.Extensions;
 using Yilduz.Network.Body;
 

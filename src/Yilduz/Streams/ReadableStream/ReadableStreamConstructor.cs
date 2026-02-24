@@ -7,9 +7,12 @@ namespace Yilduz.Streams.ReadableStream;
 
 internal sealed class ReadableStreamConstructor : Constructor
 {
-    public ReadableStreamConstructor(Engine engine)
+    private readonly WebApiIntrinsics _webApiIntrinsics;
+
+    public ReadableStreamConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(ReadableStream))
     {
+        _webApiIntrinsics = webApiIntrinsics;
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
@@ -23,7 +26,7 @@ internal sealed class ReadableStreamConstructor : Constructor
 
     public ReadableStreamInstance Construct(JsValue underlyingSource, JsValue strategy)
     {
-        return new ReadableStreamInstance(Engine, underlyingSource, strategy)
+        return new(_webApiIntrinsics, Engine, underlyingSource, strategy)
         {
             Prototype = PrototypeObject,
         };

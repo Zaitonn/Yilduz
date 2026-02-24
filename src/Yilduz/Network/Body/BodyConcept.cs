@@ -3,7 +3,7 @@ using Yilduz.Streams.ReadableStream;
 
 namespace Yilduz.Network.Body;
 
-internal class BodyConcept(ReadableStreamInstance stream, JsValue? source, long length)
+internal sealed class BodyConcept(ReadableStreamInstance stream, JsValue? source, long length)
 {
     public ReadableStreamInstance Stream { get; private set; } = stream;
     public JsValue? Source { get; } = source;

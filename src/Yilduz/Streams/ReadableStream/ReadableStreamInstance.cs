@@ -1,7 +1,7 @@
-using System;
 using System.Diagnostics.CodeAnalysis;
 using Jint;
 using Jint.Native;
+using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Aborting.AbortSignal;
@@ -35,10 +35,15 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/ReadableStream
     /// </summary>
-    internal ReadableStreamInstance(Engine engine, JsValue underlyingSource, JsValue strategy)
+    internal ReadableStreamInstance(
+        WebApiIntrinsics webApiIntrinsics,
+        Engine engine,
+        JsValue underlyingSource,
+        JsValue strategy
+    )
         : base(engine)
     {
-        _webApiIntrinsics = engine.GetWebApiIntrinsics();
+        _webApiIntrinsics = webApiIntrinsics;
 
         // If underlyingSource is missing, set it to null.
         underlyingSource = underlyingSource.IsUndefined() ? Null : underlyingSource;
@@ -75,11 +80,7 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
             var highWaterMark = AbstractOperations.ExtractHighWaterMark(engine, strategy, 0);
 
             // Perform ? SetUpReadableByteStreamControllerFromUnderlyingSource(this, underlyingSource, underlyingSourceDict, highWaterMark).
-            SetUpByteControllerFromUnderlyingSource(
-                underlyingSource,
-                underlyingSourceDict,
-                highWaterMark
-            );
+            SetUpByteControllerFromUnderlyingSource(underlyingSourceDict, highWaterMark);
         }
         // Otherwise,
         else
@@ -105,12 +106,7 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
             );
 
             // Perform ? SetUpReadableStreamDefaultControllerFromUnderlyingSource(this, underlyingSource, underlyingSourceDict, highWaterMark, sizeAlgorithm).
-            SetUpControllerFromUnderlyingSource(
-                underlyingSource,
-                underlyingSourceDict,
-                highWaterMark,
-                sizeAlgorithm
-            );
+            SetUpControllerFromUnderlyingSource(underlyingSourceDict, highWaterMark, sizeAlgorithm);
         }
     }
 

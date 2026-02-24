@@ -199,27 +199,24 @@ public sealed partial class ReadableStreamInstance
             }
         }
 
-        var cancelPromise = PromiseHelper.CreateResolvedPromise(Engine, Undefined);
-
+        // Let sourceCancelPromise be ! stream.[[controller]].[[CancelSteps]](reason).
         // Return the result of reacting to sourceCancelPromise with a fulfillment step that returns undefined.
-        if (Controller?.CancelAlgorithm is not null)
+        try
         {
-            try
+            var sourceCancelPromise = Controller.CancelSteps(reason);
+            if (!sourceCancelPromise.IsPromise())
             {
-                // Let sourceCancelPromise be ! stream.[[controller]].[[CancelSteps]](reason).
-                var result = Controller.CancelAlgorithm.Call(Undefined, [reason]);
-                if (result is not null && result.IsPromise())
-                {
-                    cancelPromise = PromiseHelper.CreateResolvedPromise(Engine, result);
-                }
+                sourceCancelPromise = PromiseHelper
+                    .CreateResolvedPromise(Engine, sourceCancelPromise)
+                    .Promise;
             }
-            catch (JavaScriptException ex)
-            {
-                return PromiseHelper.CreateRejectedPromise(Engine, ex.Error).Promise;
-            }
-        }
 
-        return cancelPromise.Promise;
+            return sourceCancelPromise.Then(onFulfilled: (_) => Undefined);
+        }
+        catch (JavaScriptException ex)
+        {
+            return PromiseHelper.CreateRejectedPromise(Engine, ex.Error).Promise;
+        }
     }
 
     /// <summary>
@@ -227,7 +224,6 @@ public sealed partial class ReadableStreamInstance
     /// </summary>
     [MemberNotNull(nameof(Controller))]
     private void SetUpControllerFromUnderlyingSource(
-        JsValue underlyingSource,
         ObjectInstance? underlyingSourceDict,
         double highWaterMark,
         Function? sizeAlgorithm
@@ -250,7 +246,6 @@ public sealed partial class ReadableStreamInstance
         // Let startAlgorithm be an algorithm that returns undefined.
         // Let pullAlgorithm be an algorithm that returns a promise resolved with undefined.
         // Let cancelAlgorithm be an algorithm that returns a promise resolved with undefined.
-
         if (underlyingSourceDict is not null)
         {
             var start = underlyingSourceDict.Get("start");
@@ -272,7 +267,7 @@ public sealed partial class ReadableStreamInstance
             }
         }
 
-        SetUpReadableStreamDefaultController(
+        SetUpDefaultController(
             controller,
             startAlgorithm ?? new ClrFunction(Engine, string.Empty, (_, _) => Undefined),
             pullAlgorithm
@@ -295,7 +290,7 @@ public sealed partial class ReadableStreamInstance
     /// <summary>
     /// https://streams.spec.whatwg.org/#set-up-readable-stream-default-controller
     /// </summary>
-    private void SetUpReadableStreamDefaultController(
+    private void SetUpDefaultController(
         ReadableStreamDefaultControllerInstance controller,
         Function startAlgorithm,
         Function pullAlgorithm,
@@ -397,7 +392,6 @@ public sealed partial class ReadableStreamInstance
     /// </summary>
     [MemberNotNull(nameof(Controller))]
     private void SetUpByteControllerFromUnderlyingSource(
-        JsValue underlyingSource,
         ObjectInstance? underlyingSourceDict,
         double highWaterMark
     )
@@ -420,31 +414,31 @@ public sealed partial class ReadableStreamInstance
         Function cancelAlgorithm = emptyPromiseFunction;
 
         double? autoAllocateChunkSize = null;
-        if (underlyingSource.IsObject())
+        if (underlyingSourceDict is not null)
         {
             // If underlyingSourceDict["start"] exists, then set startAlgorithm to an algorithm which returns the result of invoking underlyingSourceDict["start"] with argument list « controller » and callback this value underlyingSource.
-            var start = underlyingSource.Get("start");
+            var start = underlyingSourceDict.Get("start");
             if (!start.IsUndefined())
             {
                 startAlgorithm = start.AsFunctionInstance();
             }
 
             // If underlyingSourceDict["pull"] exists, then set pullAlgorithm to an algorithm which returns the result of invoking underlyingSourceDict["pull"] with argument list « controller » and callback this value underlyingSource.
-            var pull = underlyingSource.Get("pull");
+            var pull = underlyingSourceDict.Get("pull");
             if (!pull.IsUndefined())
             {
                 pullAlgorithm = pull.AsFunctionInstance();
             }
 
             // If underlyingSourceDict["cancel"] exists, then set cancelAlgorithm to an algorithm which takes an argument reason and returns the result of invoking underlyingSourceDict["cancel"] with argument list « reason » and callback this value underlyingSource.
-            var cancel = underlyingSource.Get("cancel");
+            var cancel = underlyingSourceDict.Get("cancel");
             if (!cancel.IsUndefined())
             {
                 cancelAlgorithm = cancel.AsFunctionInstance();
             }
 
             // Let autoAllocateChunkSize be underlyingSourceDict["autoAllocateChunkSize"], if it exists, or undefined otherwise.
-            var autoAllocateChunkSizeProperty = underlyingSource.Get("autoAllocateChunkSize");
+            var autoAllocateChunkSizeProperty = underlyingSourceDict.Get("autoAllocateChunkSize");
             if (!autoAllocateChunkSizeProperty.IsUndefined())
             {
                 autoAllocateChunkSize = autoAllocateChunkSizeProperty.AsNumber();
@@ -458,7 +452,7 @@ public sealed partial class ReadableStreamInstance
         }
 
         // Perform ? SetUpReadableByteStreamController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, autoAllocateChunkSize).
-        SetUpReadableByteStreamController(
+        SetUpByteController(
             controller,
             startAlgorithm,
             pullAlgorithm,
@@ -472,7 +466,7 @@ public sealed partial class ReadableStreamInstance
     /// https://streams.spec.whatwg.org/#set-up-readable-byte-stream-controller
     /// </summary>
     [MemberNotNull(nameof(Controller))]
-    private void SetUpReadableByteStreamController(
+    private void SetUpByteController(
         ReadableByteStreamControllerInstance controller,
         Function startAlgorithm,
         Function pullAlgorithm,
@@ -586,6 +580,11 @@ public sealed partial class ReadableStreamInstance
     }
 
     /// <summary>
+    /// https://streams.spec.whatwg.org/#readablestream-set-up-with-byte-reading-support
+    /// </summary>
+    private void SetUpWithByteReadingSupport() { }
+
+    /// <summary>
     /// https://streams.spec.whatwg.org/#readable-stream-tee
     /// </summary>
     /// <param name="cloneForBranch2">The second argument, cloneForBranch2, governs whether or not the data from the original stream will be cloned (using HTML’s serializable objects framework) before appearing in the second of the returned branches. This is useful for scenarios where both branches are to be consumed in such a way that they might otherwise interfere with each other, such as by transferring their chunks. However, it does introduce a noticeable asymmetry between the two branches, and limits the possible chunks to serializable ones.</param>
@@ -600,7 +599,9 @@ public sealed partial class ReadableStreamInstance
         //   return ? ReadableByteStreamTee(stream).
         if (Controller is ReadableByteStreamControllerInstance)
         {
-            throw new NotImplementedException("Tee is not yet implemented");
+            throw new NotImplementedException(
+                "Tee is not yet implemented for readable byte streams"
+            );
         }
 
         // Return ? ReadableStreamDefaultTee(stream, cloneForBranch2).
@@ -650,8 +651,9 @@ public sealed partial class ReadableStreamInstance
                 if (reading)
                 {
                     // Set readAgain to true.
-                    // Return a promise resolved with undefined.
                     readAgain = true;
+
+                    // Return a promise resolved with undefined.
                     return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
                 }
 
@@ -661,62 +663,64 @@ public sealed partial class ReadableStreamInstance
                 // Let readRequest be a read request with the following items:
                 var readRequest = new ReadRequest(
                     ChunkSteps: (chunk) =>
-                    {
-                        // Set readAgain to false.
-                        readAgain = true;
-
-                        // Let chunk1 and chunk2 be chunk.
-                        var chunk1 = chunk;
-                        var chunk2 = chunk;
-
-                        // If canceled2 is false and cloneForBranch2 is true,
-                        if (!canceled2 && cloneForBranch2)
+                        // Queue a microtask to perform the following steps:
+                        _webApiIntrinsics.EventLoop.QueueMicrotask(() =>
                         {
-                            try
-                            {
-                                // Let cloneResult be StructuredClone(chunk2).
-                                chunk2 = chunk2.StructuredClone();
-                            }
-                            catch (JavaScriptException ex)
-                            {
-                                // If cloneResult is an abrupt completion,
-                                //   Perform ! ReadableStreamDefaultControllerError(branch1.[[controller]], cloneResult.[[Value]]).
-                                //   Perform ! ReadableStreamDefaultControllerError(branch2.[[controller]], cloneResult.[[Value]]).
-                                //   Resolve cancelPromise with ! ReadableStreamCancel(stream, cloneResult.[[Value]]).
-                                //   Return.
-                                var error = ex.Error;
-
-                                branch1?.Controller.ErrorInternal(error);
-                                branch2?.Controller.ErrorInternal(error);
-
-                                var cancelResult = CancelInternal(error);
-                                cancelPromise.Resolve(cancelResult);
-                                return;
-                            }
-                        }
-
-                        // If canceled1 is false, perform ! ReadableStreamDefaultControllerEnqueue(branch1.[[controller]], chunk1).
-                        if (!canceled1)
-                        {
-                            branch1?.Controller.EnqueueInternal(chunk1);
-                        }
-
-                        // If canceled2 is false, perform ! ReadableStreamDefaultControllerEnqueue(branch2.[[controller]], chunk2).
-                        if (!canceled2)
-                        {
-                            branch2?.Controller.EnqueueInternal(chunk2);
-                        }
-
-                        // Set reading to false.
-                        reading = false;
-
-                        // If readAgain is true, perform pullAlgorithm.
-                        if (readAgain)
-                        {
+                            // Set readAgain to false.
                             readAgain = false;
-                            pullAlgorithm.Call(Undefined, Arguments.Empty);
-                        }
-                    },
+
+                            // Let chunk1 and chunk2 be chunk.
+                            var chunk1 = chunk;
+                            var chunk2 = chunk;
+
+                            // If canceled2 is false and cloneForBranch2 is true,
+                            if (!canceled2 && cloneForBranch2)
+                            {
+                                try
+                                {
+                                    // Let cloneResult be StructuredClone(chunk2).
+                                    // Otherwise, set chunk2 to cloneResult.[[Value]].
+                                    chunk2 = chunk2.StructuredClone();
+                                }
+                                catch (JavaScriptException ex)
+                                {
+                                    // If cloneResult is an abrupt completion,
+                                    //   Perform ! ReadableStreamDefaultControllerError(branch1.[[controller]], cloneResult.[[Value]]).
+                                    //   Perform ! ReadableStreamDefaultControllerError(branch2.[[controller]], cloneResult.[[Value]]).
+                                    //   Resolve cancelPromise with ! ReadableStreamCancel(stream, cloneResult.[[Value]]).
+                                    //   Return.
+                                    var error = ex.Error;
+
+                                    branch1?.Controller.ErrorInternal(error);
+                                    branch2?.Controller.ErrorInternal(error);
+
+                                    var cancelResult = CancelInternal(error);
+                                    cancelPromise.Resolve(cancelResult);
+                                    return;
+                                }
+                            }
+
+                            // If canceled1 is false, perform ! ReadableStreamDefaultControllerEnqueue(branch1.[[controller]], chunk1).
+                            if (!canceled1)
+                            {
+                                branch1?.Controller.EnqueueInternal(chunk1);
+                            }
+
+                            // If canceled2 is false, perform ! ReadableStreamDefaultControllerEnqueue(branch2.[[controller]], chunk2).
+                            if (!canceled2)
+                            {
+                                branch2?.Controller.EnqueueInternal(chunk2);
+                            }
+
+                            // Set reading to false.
+                            reading = false;
+
+                            // If readAgain is true, perform pullAlgorithm.
+                            if (readAgain)
+                            {
+                                pullAlgorithm.Call(Undefined, Arguments.Empty);
+                            }
+                        }),
                     CloseSteps: (_) =>
                     {
                         // Set reading to false.
@@ -812,19 +816,64 @@ public sealed partial class ReadableStreamInstance
 
         // Let startAlgorithm be an algorithm that returns undefined.
         var startAlgorithm = new ClrFunction(Engine, string.Empty, (_, _) => Undefined);
+        var sizeAlgorithm = new ClrFunction(Engine, string.Empty, (_, _) => JsNumber.Create(1));
 
-        // Set branch1 to ! CreateReadableStream(startAlgorithm, pullAlgorithm, cancel1Algorithm).
-        branch1 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel1Algorithm);
-        // Set branch2 to ! CreateReadableStream(startAlgorithm, pullAlgorithm, cancel2Algorithm).
-        branch2 = CreateReadableStream(startAlgorithm, pullAlgorithm, cancel2Algorithm);
+        // Phase 1: Create and assign both branch stream instances BEFORE initializing their
+        // controllers, so that pullAlgorithm (which closes over branch1/branch2) can safely
+        // reference them when SetUpDefaultController triggers CallPullIfNeeded synchronously.
+
+        // Set branch1 to a new ReadableStream.
+        branch1 = (ReadableStreamInstance)
+            _webApiIntrinsics.ReadableStream.Construct(Arguments.Empty, Undefined);
+        branch1.InitializeReadableStream();
+
+        // Set branch2 to a new ReadableStream.
+        branch2 = (ReadableStreamInstance)
+            _webApiIntrinsics.ReadableStream.Construct(Arguments.Empty, Undefined);
+        branch2.InitializeReadableStream();
+
+        // Create controllers for both branches and bind them to their streams.
+        var branchController1 = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+            branch1,
+            1,
+            sizeAlgorithm
+        );
+        branch1.Controller = branchController1;
+
+        var branchController2 = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+            branch2,
+            1,
+            sizeAlgorithm
+        );
+        branch2.Controller = branchController2;
+
+        // Phase 2: Initialize controllers. pullAlgorithm may be invoked synchronously here
+        // (via CallPullIfNeeded), but branch1/branch2 are already assigned above.
+        SetUpDefaultController(
+            branchController1,
+            startAlgorithm,
+            pullAlgorithm,
+            cancel1Algorithm,
+            1,
+            sizeAlgorithm
+        );
+        SetUpDefaultController(
+            branchController2,
+            startAlgorithm,
+            pullAlgorithm,
+            cancel2Algorithm,
+            1,
+            sizeAlgorithm
+        );
 
         // Upon rejection of reader.[[closedPromise]] with reason r,
         if (reader.ClosedPromise.Promise.TryGetRejectedValue(out var r))
         {
             // Perform ! ReadableStreamDefaultControllerError(branch1.[[controller]], r).
-            Controller.ErrorInternal(r);
+            branch1.Controller.ErrorInternal(r);
+
             // Perform ! ReadableStreamDefaultControllerError(branch2.[[controller]], r).
-            Controller.ErrorInternal(r);
+            branch2.Controller.ErrorInternal(r);
         }
 
         return (branch1, branch2);
@@ -847,7 +896,6 @@ public sealed partial class ReadableStreamInstance
             readRequest.CloseSteps(Undefined);
         }
         // Otherwise, if stream.[[state]] is "errored", perform readRequest’s error steps given stream.[[storedError]].
-
         else if (State == ReadableStreamState.Errored)
         {
             readRequest.ErrorSteps(StoredError);
@@ -859,38 +907,6 @@ public sealed partial class ReadableStreamInstance
             //   Perform ! stream.[[controller]].[[PullSteps]](readRequest).
             Controller.PullSteps(readRequest);
         }
-    }
-
-    /// <summary>
-    /// https://streams.spec.whatwg.org/#readable-stream-default-controller-error
-    /// </summary>
-    private void DefaultControllerError(JsValue e)
-    {
-        // Let stream be controller.[[stream]].
-
-        // If stream.[[state]] is not "readable", return.
-        if (State != ReadableStreamState.Readable)
-        {
-            return;
-        }
-
-        // Perform ! ResetQueue(controller).
-        switch (Controller)
-        {
-            case ReadableStreamDefaultControllerInstance defaultController:
-                defaultController.ResetQueue();
-                break;
-
-            case ReadableByteStreamControllerInstance byteController:
-                byteController.ResetQueue();
-                break;
-        }
-
-        // Perform ! ReadableStreamDefaultControllerClearAlgorithms(controller).
-        Controller.ClearAlgorithms();
-
-        // Perform ! ReadableStreamError(stream, e).
-        ErrorInternal(e);
     }
 
     /// <summary>
@@ -928,8 +944,11 @@ public sealed partial class ReadableStreamInstance
             sizeAlgorithm // sizeAlgorithm
         );
 
+        // Set stream.[[controller]] to controller.
+        stream.Controller = controller;
+
         // Perform ? SetUpReadableStreamDefaultController(stream, controller, startAlgorithm, pullAlgorithm, cancelAlgorithm, highWaterMark, sizeAlgorithm).
-        SetUpReadableStreamDefaultController(
+        SetUpDefaultController(
             controller,
             startAlgorithm,
             pullAlgorithm,

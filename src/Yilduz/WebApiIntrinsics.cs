@@ -19,6 +19,7 @@ using Yilduz.Files.FileReaderSync;
 using Yilduz.Network.FormData;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
+using Yilduz.Network.Response;
 using Yilduz.Network.XMLHttpRequest;
 using Yilduz.Network.XMLHttpRequestEventTarget;
 using Yilduz.Network.XMLHttpRequestUpload;
@@ -29,6 +30,7 @@ using Yilduz.Streams.CountQueuingStrategy;
 using Yilduz.Streams.ReadableByteStreamController;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.Streams.ReadableStreamBYOBReader;
+using Yilduz.Streams.ReadableStreamBYOBRequest;
 using Yilduz.Streams.ReadableStreamDefaultController;
 using Yilduz.Streams.ReadableStreamDefaultReader;
 using Yilduz.Streams.TransformStream;
@@ -70,6 +72,7 @@ public sealed class WebApiIntrinsics
     internal ReadableStreamDefaultControllerConstructor ReadableStreamDefaultController { get; }
     internal ReadableStreamDefaultReaderConstructor ReadableStreamDefaultReader { get; }
     internal ReadableStreamBYOBReaderConstructor ReadableStreamBYOBReader { get; }
+    internal ReadableStreamBYOBRequestConstructor ReadableStreamBYOBRequest { get; }
     internal ReadableByteStreamControllerConstructor ReadableByteStreamController { get; }
     internal WritableStreamConstructor WritableStream { get; }
     internal WritableStreamDefaultWriterConstructor WritableStreamDefaultWriter { get; }
@@ -90,6 +93,7 @@ public sealed class WebApiIntrinsics
 
     internal FormDataConstructor FormData { get; }
     internal RequestConstructor Request { get; }
+    internal ResponseConstructor Response { get; }
     internal HeadersConstructor Headers { get; }
     internal XMLHttpRequestConstructor XMLHttpRequest { get; }
     internal XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
@@ -137,10 +141,11 @@ public sealed class WebApiIntrinsics
         WritableStreamDefaultWriter = new(_engine);
         WritableStreamDefaultController = new(_engine);
 
-        ReadableStream = new(_engine);
+        ReadableStream = new(_engine, this);
         ReadableStreamDefaultController = new(_engine);
         ReadableStreamDefaultReader = new(_engine);
         ReadableStreamBYOBReader = new(_engine);
+        ReadableStreamBYOBRequest = new(_engine);
         ReadableByteStreamController = new(_engine);
 
         TransformStream = new(_engine);
@@ -151,6 +156,7 @@ public sealed class WebApiIntrinsics
 
         FormData = new(_engine);
         Request = new(_engine, this);
+        Response = new(_engine, this);
         Headers = new(_engine);
         XMLHttpRequestEventTarget = new(_engine, this);
         XMLHttpRequestUpload = new(_engine, this);
@@ -199,6 +205,7 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(ReadableStreamDefaultController), ReadableStreamDefaultController);
         _engine.SetValue(nameof(ReadableStreamDefaultReader), ReadableStreamDefaultReader);
         _engine.SetValue(nameof(ReadableStreamBYOBReader), ReadableStreamBYOBReader);
+        _engine.SetValue(nameof(ReadableStreamBYOBRequest), ReadableStreamBYOBRequest);
         _engine.SetValue(nameof(ReadableByteStreamController), ReadableByteStreamController);
         _engine.SetValue(nameof(WritableStream), WritableStream);
         _engine.SetValue(nameof(WritableStreamDefaultWriter), WritableStreamDefaultWriter);
@@ -211,6 +218,7 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(Storage), Storage);
         _engine.SetValue(nameof(FormData), FormData);
         _engine.SetValue(nameof(Request), Request);
+        _engine.SetValue(nameof(Response), Response);
         _engine.SetValue(nameof(Headers), Headers);
         _engine.SetValue(nameof(XMLHttpRequest), XMLHttpRequest);
         _engine.SetValue(nameof(XMLHttpRequestEventTarget), XMLHttpRequestEventTarget);

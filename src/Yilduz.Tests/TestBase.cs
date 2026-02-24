@@ -100,25 +100,12 @@ public abstract class TestBase : IDisposable
                     return;
                 }
             }
-            catch (OperationCanceledException)
-            {
-                // Test is being disposed; rethrow to allow proper cleanup
-                throw;
-            }
             catch (JavaScriptException)
             {
                 // Condition might reference undefined variables initially; continue polling
             }
 
-            try
-            {
-                await Task.Delay(pollingIntervalMs, Token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Test is being disposed; rethrow to allow proper cleanup
-                throw;
-            }
+            await Task.Delay(pollingIntervalMs, Token);
         }
 
         throw new TimeoutException(

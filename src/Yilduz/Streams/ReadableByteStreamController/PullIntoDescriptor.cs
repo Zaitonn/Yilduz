@@ -2,11 +2,9 @@ using Jint.Native;
 
 namespace Yilduz.Streams.ReadableByteStreamController;
 
-internal record struct PullIntoDescriptor
+internal record struct PullIntoDescriptor()
 {
-    public PullIntoDescriptor() { }
-
-    public byte[] Buffer { get; } = [];
+    public JsArrayBuffer? Buffer { get; }
 
     public int BufferByteLength { get; }
 
