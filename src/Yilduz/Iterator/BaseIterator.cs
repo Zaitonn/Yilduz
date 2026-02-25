@@ -1,3 +1,4 @@
+using System;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
@@ -52,7 +53,8 @@ internal abstract class BaseIterator : ObjectInstance
             {
                 IteratorType.Key => CreateIteratorResult(key, false),
                 IteratorType.Value => CreateIteratorResult(value, false),
-                _ => CreateEntryIteratorResult(key, value),
+                IteratorType.KeyAndValue => CreateEntryIteratorResult(key, value),
+                _ => throw new InvalidOperationException("Invalid iterator type"),
             };
         }
 

@@ -1,4 +1,4 @@
-namespace Yilduz.Files.FileReader;
+namespace Yilduz.Data.FileReader;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readyState

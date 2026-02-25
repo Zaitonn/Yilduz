@@ -7,7 +7,7 @@ using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 
-namespace Yilduz.Files.FileReader;
+namespace Yilduz.Data.FileReader;
 
 internal sealed class FileReaderPrototype : ObjectInstance
 {

@@ -2,7 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 
-namespace Yilduz.Network.FormData;
+namespace Yilduz.Data.FormData;
 
 internal sealed class FormDataConstructor : Constructor
 {

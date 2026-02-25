@@ -6,7 +6,7 @@ using Jint.Runtime;
 using Yilduz.Extensions;
 using Yilduz.Utils;
 
-namespace Yilduz.Files.File;
+namespace Yilduz.Data.File;
 
 internal sealed class FileConstructor : Constructor
 {

@@ -2,7 +2,7 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 
-namespace Yilduz.Files.FileReader;
+namespace Yilduz.Data.FileReader;
 
 internal sealed class FileReaderConstructor : Constructor
 {

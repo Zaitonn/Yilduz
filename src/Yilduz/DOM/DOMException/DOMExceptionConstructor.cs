@@ -28,6 +28,9 @@ public sealed class DOMExceptionConstructor : Constructor
         }
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         var message = arguments.Length > 0 ? arguments[0].ToString() : "";

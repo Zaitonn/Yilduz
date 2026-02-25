@@ -4,11 +4,11 @@ using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime;
 using Jint.Runtime.Interop;
+using Yilduz.Data.Blob;
 using Yilduz.Extensions;
-using Yilduz.Files.Blob;
 using Yilduz.Iterator;
 
-namespace Yilduz.Network.FormData;
+namespace Yilduz.Data.FormData;
 
 internal sealed class FormDataPrototype : ObjectInstance
 {
@@ -77,7 +77,7 @@ internal sealed class FormDataPrototype : ObjectInstance
 
         if (arguments[1] is BlobInstance blobValue)
         {
-            var fileName = arguments.Length >= 3 ? arguments[2].ToString() : "";
+            var fileName = arguments.Length >= 3 ? arguments[2].ToString() : null;
             instance.Append(name, blobValue, fileName);
         }
         else
@@ -144,7 +144,7 @@ internal sealed class FormDataPrototype : ObjectInstance
 
         if (arguments[1] is BlobInstance blobValue)
         {
-            var fileName = arguments.Length >= 3 ? arguments[2].ToString() : "";
+            var fileName = arguments.Length >= 3 ? arguments[2].ToString() : null;
             instance.Set(name, blobValue, fileName);
         }
         else
@@ -179,8 +179,8 @@ internal sealed class FormDataPrototype : ObjectInstance
         arguments.EnsureCount(Engine, 1, ForEachName, nameof(FormData));
         var instance = thisObject.EnsureThisObject<FormDataInstance>();
 
-        var callback = arguments[0].AsFunctionInstance();
-        var thisArg = arguments.Length >= 2 ? arguments[1] : Undefined;
+        var callback = arguments.At(0).AsFunctionInstance();
+        var thisArg = arguments.At(1);
 
         foreach (var (name, value, _) in instance.EntryList.ToArray())
         {

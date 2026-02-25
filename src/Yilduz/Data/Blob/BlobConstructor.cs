@@ -5,7 +5,7 @@ using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Utils;
 
-namespace Yilduz.Files.Blob;
+namespace Yilduz.Data.Blob;
 
 internal sealed class BlobConstructor : Constructor
 {

@@ -3,13 +3,13 @@ using System.Threading;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
+using Yilduz.Data.Blob;
+using Yilduz.Data.FileReaderSync;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
-using Yilduz.Files.Blob;
-using Yilduz.Files.FileReaderSync;
 using Yilduz.Utils;
 
-namespace Yilduz.Files.FileReader;
+namespace Yilduz.Data.FileReader;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader

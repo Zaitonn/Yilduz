@@ -49,9 +49,9 @@ internal static class HttpHelper
         }
 
         if (
-            name.Equals("X-HTTP-Method", StringComparison.InvariantCultureIgnoreCase)
-            || name.Equals("X-HTTP-Method-Override", StringComparison.InvariantCultureIgnoreCase)
-            || name.Equals("X-Method-Override", StringComparison.InvariantCultureIgnoreCase)
+            name.Equals("X-HTTP-Method", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("X-HTTP-Method-Override", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("X-Method-Override", StringComparison.OrdinalIgnoreCase)
         )
         {
             return GetDecodeAndSplit(value).Any(IsForbiddenMethod);
@@ -136,9 +136,9 @@ internal static class HttpHelper
 
         // If name is a byte-case-insensitive match for one of:
         if (
-            name.Equals("X-HTTP-Method", StringComparison.InvariantCultureIgnoreCase)
-            || name.Equals("X-HTTP-Method-Override", StringComparison.InvariantCultureIgnoreCase)
-            || name.Equals("X-Method-Override", StringComparison.InvariantCultureIgnoreCase)
+            name.Equals("X-HTTP-Method", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("X-HTTP-Method-Override", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("X-Method-Override", StringComparison.OrdinalIgnoreCase)
         )
         // then:
         {
@@ -157,15 +157,15 @@ internal static class HttpHelper
     /// </summary>
     public static bool IsForbiddenResponseHeader(string name)
     {
-        return name.Equals("set-cookie", StringComparison.InvariantCultureIgnoreCase)
-            || name.Equals("set-cookie2", StringComparison.InvariantCultureIgnoreCase);
+        return name.Equals("set-cookie", StringComparison.OrdinalIgnoreCase)
+            || name.Equals("set-cookie2", StringComparison.OrdinalIgnoreCase);
     }
 
     public static bool IsForbiddenMethod(string method)
     {
-        return method.Equals("CONNECT", StringComparison.InvariantCultureIgnoreCase)
-            || method.Equals("TRACE", StringComparison.InvariantCultureIgnoreCase)
-            || method.Equals("TRACK", StringComparison.InvariantCultureIgnoreCase);
+        return method.Equals("CONNECT", StringComparison.OrdinalIgnoreCase)
+            || method.Equals("TRACE", StringComparison.OrdinalIgnoreCase)
+            || method.Equals("TRACK", StringComparison.OrdinalIgnoreCase);
     }
 
     private static readonly HashSet<string> NoCORSUnsafeRequestHeaderNames =

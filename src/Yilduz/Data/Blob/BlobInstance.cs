@@ -10,7 +10,7 @@ using Yilduz.Streams.ReadableStream;
 using Yilduz.Utils;
 using SystemEncoding = System.Text.Encoding;
 
-namespace Yilduz.Files.Blob;
+namespace Yilduz.Data.Blob;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/Blob

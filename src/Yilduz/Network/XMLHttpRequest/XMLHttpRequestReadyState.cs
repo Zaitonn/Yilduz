@@ -5,13 +5,13 @@ namespace Yilduz.Network.XMLHttpRequest;
 /// </summary>
 public enum XMLHttpRequestReadyState
 {
-    UNSENT = 0,
+    Unsent = 0,
 
-    OPENED = 1,
+    Opened = 1,
 
-    HEADERS_RECEIVED = 2,
+    HeadersReceived = 2,
 
-    LOADING = 3,
+    Loading = 3,
 
-    DONE = 4,
+    Done = 4,
 }

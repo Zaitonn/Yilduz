@@ -5,7 +5,7 @@ using Jint.Native.Symbol;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 
-namespace Yilduz.Files.FileReaderSync;
+namespace Yilduz.Data.FileReaderSync;
 
 internal sealed class FileReaderSyncPrototype : ObjectInstance
 {

@@ -1,76 +1,122 @@
 using System;
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
+using Jint.Native.Function;
 using Yilduz.DOM.DOMException;
 using Yilduz.Utils;
 
 namespace Yilduz.Network.Fetch;
 
-internal class FetchController(Engine engine, WebApiIntrinsics webApiIntrinsics)
+/// <summary>
+/// https://fetch.spec.whatwg.org/#fetch-controller
+/// </summary>
+internal struct FetchController(Engine engine)
 {
+    private readonly Engine _engine = engine;
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-state
+    /// </summary>
     public FetchControllerState State { get; set; }
 
-    public FetchTimingInfo TimingInfo { get; set; }
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-full-timing-info
+    /// </summary>
+    public FetchTimingInfo? FullTimingInfo { get; set; }
 
-    public JsValue ReportTimingSteps { get; set; } = JsValue.Null;
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-report-timing-steps
+    /// </summary>
+    public Function? ReportTimingSteps { get; set; }
 
-    public JsValue AbortReason { get; set; } = JsValue.Null;
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-next-manual-redirect-steps
+    /// </summary>
+    public Function? NextManualStep { get; set; }
 
-    public JsValue NextManualStep { get; set; } = JsValue.Null;
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-serialized-abort-reason
+    /// </summary>
+    public JsValue? SerializedAbortReason { get; set; }
 
-    public void ReportTiming(JsValue global)
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#finalize-and-report-timing
+    /// </summary>
+    public readonly void ReportTiming(JsValue global)
     {
-        if (ReportTimingSteps.IsNull())
+        // Assert: controller’s report timing steps is non-null.
+        if (ReportTimingSteps is null)
         {
             throw new InvalidOperationException("ReportTimingSteps is null");
         }
 
-        if (ReportTimingSteps is ObjectInstance objectInstance)
-        {
-            objectInstance.Call(global);
-        }
+        // Call controller’s report timing steps with global.
+        ReportTimingSteps.Call(global);
     }
 
-    public void ProcessNextManualStep(JsValue global)
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-process-the-next-manual-redirect
+    /// </summary>
+    public readonly void ProcessNextManualStep(JsValue global)
     {
-        if (NextManualStep.IsNull())
+        // Assert: controller’s next manual redirect steps is non-null.
+        if (NextManualStep is null)
         {
-            throw new InvalidOperationException("ReportTimingSteps is null");
+            throw new InvalidOperationException("NextManualStep is null");
         }
 
-        if (NextManualStep is ObjectInstance objectInstance)
-        {
-            objectInstance.Call(global);
-        }
+        // Call controller’s next manual redirect steps.
+        NextManualStep.Call(global);
     }
 
-    public void Abort(JsValue? reason)
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#extract-full-timing-info
+    /// </summary>
+    public readonly FetchTimingInfo? ExtractFullTimingInfo()
     {
+        return FullTimingInfo;
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-abort
+    /// </summary>
+    public void Abort(JsValue error)
+    {
+        // Set controller’s state to "aborted".
         State = FetchControllerState.Aborted;
-        AbortReason = reason ?? DOMExceptionHelper.CreateAbortError(engine, "Fetch aborted");
+
+        // Let fallbackError be an "AbortError" DOMException.
+        var fallbackError = DOMExceptionHelper.CreateAbortError(_engine);
+
+        // Set error to fallbackError if it is not given.
+
+        // Let serializedError be StructuredSerialize(error). If that threw an exception, catch it, and let serializedError be StructuredSerialize(fallbackError).
+
+        // Set controller’s serialized abort reason to serializedError.
+        SerializedAbortReason = error.IsUndefined() ? fallbackError : error;
     }
 
-    public FetchTimingInfo ExtractFullTimingInfo()
-    {
-        return TimingInfo;
-    }
-
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#fetch-controller-terminate
+    /// </summary>
     public void Terminate()
     {
         State = FetchControllerState.Terminated;
     }
 
-    public DOMExceptionInstance DeserializeAbortReason(JsValue abortReason)
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#deserialize-a-serialized-abort-reason
+    /// </summary>
+    public readonly DOMExceptionInstance DeserializeAbortReason(JsValue abortReason)
     {
         // Let fallbackError be an "AbortError" DOMException.
-        var fallbackError = webApiIntrinsics.DOMException.CreateInstance("AbortError");
+        var fallbackError = DOMExceptionHelper.CreateAbortError(_engine);
 
         // Let deserializedError be fallbackError.
         var deserializedError = fallbackError;
 
-        // If abortReason is non-null, then set deserializedError to StructuredDeserialize(abortReason, realm). If that threw an exception or returned undefined, then set deserializedError to fallbackError.
-        if (!abortReason.IsNull()) { }
+        // If abortReason is non-null, then set deserializedError to StructuredDeserialize(abortReason, realm).
+        // If that threw an exception or returned undefined, then set deserializedError to fallbackError.
 
         // Return deserializedError.
         return deserializedError;

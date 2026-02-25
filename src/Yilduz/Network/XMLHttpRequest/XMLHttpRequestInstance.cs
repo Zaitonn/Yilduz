@@ -24,7 +24,7 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
     /// </summary>
     public XMLHttpRequestReadyState ReadyState { get; private set; } =
-        XMLHttpRequestReadyState.UNSENT;
+        XMLHttpRequestReadyState.Unsent;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response
@@ -88,8 +88,8 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
         set
         {
             if (
-                ReadyState != XMLHttpRequestReadyState.UNSENT
-                    && ReadyState != XMLHttpRequestReadyState.OPENED
+                ReadyState != XMLHttpRequestReadyState.Unsent
+                    && ReadyState != XMLHttpRequestReadyState.Opened
                 || _sendFlag
             )
             {
@@ -123,7 +123,7 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
     internal XMLHttpRequestInstance(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine)
     {
-        _fetchController = new(engine, webApiIntrinsics);
+        _fetchController = new(engine);
         _receivedBytes = [];
         _authorRequestHeaders = [];
 
@@ -148,9 +148,9 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
 #else
             || method.Contains("\x20")
 #endif
-            || method.Equals("CONNECT", StringComparison.InvariantCultureIgnoreCase)
-            || method.Equals("TRACE", StringComparison.InvariantCultureIgnoreCase)
-            || method.Equals("TRACK", StringComparison.InvariantCultureIgnoreCase)
+            || method.Equals("CONNECT", StringComparison.OrdinalIgnoreCase)
+            || method.Equals("TRACE", StringComparison.OrdinalIgnoreCase)
+            || method.Equals("TRACK", StringComparison.OrdinalIgnoreCase)
         )
         {
             DOMExceptionHelper.CreateSecurityError(Engine, "Invalid method").Throw();
@@ -201,9 +201,9 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
         _response = DOMExceptionHelper.CreateNetworkError(Engine, "Request not sent");
         _responseObject = Null;
 
-        if (ReadyState != XMLHttpRequestReadyState.OPENED)
+        if (ReadyState != XMLHttpRequestReadyState.Opened)
         {
-            ReadyState = XMLHttpRequestReadyState.OPENED;
+            ReadyState = XMLHttpRequestReadyState.Opened;
             DispatchEvent(
                 _webApiIntrinsics.Event.ConstructWithEventName("readystatechange", Undefined)
             );
@@ -215,7 +215,7 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
     /// </summary>
     public void SetRequestHeader(string name, string value)
     {
-        if (ReadyState != XMLHttpRequestReadyState.OPENED)
+        if (ReadyState != XMLHttpRequestReadyState.Opened)
         {
             DOMExceptionHelper.CreateInvalidStateError(Engine, "Request not opened").Throw();
         }

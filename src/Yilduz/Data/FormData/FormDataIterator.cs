@@ -2,7 +2,7 @@ using Jint;
 using Jint.Native;
 using Yilduz.Iterator;
 
-namespace Yilduz.Network.FormData;
+namespace Yilduz.Data.FormData;
 
 internal sealed class FormDataIterator(Engine engine, FormDataInstance formData, IteratorType kind)
     : BaseIterator(engine, kind, "FormData Iterator")

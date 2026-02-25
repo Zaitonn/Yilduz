@@ -1,9 +1,9 @@
 using System;
 using Jint;
 using Jint.Native;
-using Yilduz.Files.Blob;
+using Yilduz.Data.Blob;
 
-namespace Yilduz.Files.File;
+namespace Yilduz.Data.File;
 
 public sealed class FileInstance : BlobInstance
 {

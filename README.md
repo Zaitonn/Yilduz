@@ -69,7 +69,7 @@ cts.Dispose();
   - [ ] `XMLHttpRequest`
   - [ ] `XMLHttpRequestEventTarget`
   - [ ] `XMLHttpRequestUpload`
-  - [ ] `fetch()`
+  - [x] `fetch()`
   - [x] `Headers`
   - [x] `Request`
   - [x] `Response`

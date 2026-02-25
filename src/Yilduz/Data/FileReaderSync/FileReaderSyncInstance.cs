@@ -4,11 +4,11 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
-using Yilduz.Files.Blob;
+using Yilduz.Data.Blob;
 using Yilduz.Utils;
 using SystemEncoding = System.Text.Encoding;
 
-namespace Yilduz.Files.FileReaderSync;
+namespace Yilduz.Data.FileReaderSync;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/FileReaderSync

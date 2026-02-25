@@ -4,6 +4,11 @@ using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
 using Yilduz.Console;
+using Yilduz.Data.Blob;
+using Yilduz.Data.File;
+using Yilduz.Data.FileReader;
+using Yilduz.Data.FileReaderSync;
+using Yilduz.Data.FormData;
 using Yilduz.DOM.DOMException;
 using Yilduz.Encoding.TextDecoder;
 using Yilduz.Encoding.TextDecoderStream;
@@ -12,11 +17,7 @@ using Yilduz.Encoding.TextEncoderStream;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
 using Yilduz.Events.ProgressEvent;
-using Yilduz.Files.Blob;
-using Yilduz.Files.File;
-using Yilduz.Files.FileReader;
-using Yilduz.Files.FileReaderSync;
-using Yilduz.Network.FormData;
+using Yilduz.Network.Fetch;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
 using Yilduz.Network.Response;
@@ -99,6 +100,8 @@ public sealed class WebApiIntrinsics
     internal XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
     internal XMLHttpRequestUploadConstructor XMLHttpRequestUpload { get; }
 
+    internal FetchProvider FetchProvider { get; }
+
     private readonly Engine _engine;
 
     internal WebApiIntrinsics(Engine engine, Options options)
@@ -161,6 +164,8 @@ public sealed class WebApiIntrinsics
         XMLHttpRequestEventTarget = new(_engine, this);
         XMLHttpRequestUpload = new(_engine, this);
         XMLHttpRequest = new(_engine, this);
+
+        FetchProvider = new(_engine, this);
 
         Storage = new(_engine);
 
@@ -228,6 +233,7 @@ public sealed class WebApiIntrinsics
         _engine.SetValue("sessionStorage", SessionStorage);
         _engine.SetValue("atob", new ClrFunction(_engine, "atob", Base64Provider.Decode));
         _engine.SetValue("btoa", new ClrFunction(_engine, "btoa", Base64Provider.Encode));
+        _engine.SetValue("fetch", new ClrFunction(_engine, "fetch", FetchProvider.Fetch));
 
         _engine.SetValue(
             "setTimeout",

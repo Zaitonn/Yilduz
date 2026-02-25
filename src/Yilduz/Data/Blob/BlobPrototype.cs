@@ -8,7 +8,7 @@ using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 using Yilduz.Utils;
 
-namespace Yilduz.Files.Blob;
+namespace Yilduz.Data.Blob;
 
 internal sealed class BlobPrototype : ObjectInstance
 {

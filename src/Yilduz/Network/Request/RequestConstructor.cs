@@ -59,7 +59,7 @@ internal sealed class RequestConstructor : Constructor
     /// <summary>
     /// https://fetch.spec.whatwg.org/#dom-request
     /// </summary>
-    private RequestInstance Create(JsValue input, JsValue init)
+    internal RequestInstance Create(JsValue input, JsValue init)
     {
         var headerList = new List<(string Name, string Value)>();
 

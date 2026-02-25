@@ -6,7 +6,7 @@ using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 
-namespace Yilduz.Files.File;
+namespace Yilduz.Data.File;
 
 internal sealed class FilePrototype : ObjectInstance
 {

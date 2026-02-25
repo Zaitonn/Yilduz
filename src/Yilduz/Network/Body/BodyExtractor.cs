@@ -1,9 +1,11 @@
 using System;
+using System.IO;
+using System.Text;
 using Jint;
 using Jint.Native;
+using Yilduz.Data.Blob;
+using Yilduz.Data.FormData;
 using Yilduz.Extensions;
-using Yilduz.Files.Blob;
-using Yilduz.Network.FormData;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.URLs.URLSearchParams;
 using Yilduz.Utils;
@@ -95,20 +97,10 @@ internal static class BodyExtractor
         }
         else if (obj is FormDataInstance formData)
         {
-            // Step 10 (FormData): Set action to the multipart/form-data encoding algorithm placeholder.
-            action = () =>
-                throw new NotImplementedException(
-                    "multipart/form-data encoding is not implemented yet."
-                );
-
-            // Step 10 (FormData): Set source to object.
-            source = formData;
-
-            // Step 10 (FormData): Set length to unclear (unknown) per spec.
-            length = null;
-
-            // Step 10 (FormData): Set type to `multipart/form-data; boundary=` + generated boundary string.
+            // Step 10 (FormData): Encode multipart/form-data body.
             var boundary = $"--------------------------{Guid.NewGuid():N}";
+            sourceBytes = EncodeMultipartFormData(formData, boundary);
+            source = JsValue.FromObject(engine, sourceBytes);
             type = $"multipart/form-data; boundary={boundary}";
         }
         else if (obj is URLSearchParamsInstance searchParams)
@@ -201,6 +193,59 @@ internal static class BodyExtractor
     {
         return value.IsArrayBuffer() || value.IsDataView() || value is JsTypedArray;
     }
+
+    private static byte[] EncodeMultipartFormData(FormDataInstance formData, string boundary)
+    {
+        using var ms = new MemoryStream();
+
+        foreach (var (name, value, fileName) in formData.EntryList)
+        {
+            WriteString(ms, $"--{boundary}\r\n");
+
+            var disposition = new StringBuilder("Content-Disposition: form-data; name=\"")
+                .Append(EscapeQuotes(name))
+                .Append('\"');
+
+            if (value is BlobInstance)
+            {
+                disposition
+                    .Append("; filename=\"")
+                    .Append(EscapeQuotes(string.IsNullOrEmpty(fileName) ? "blob" : fileName))
+                    .Append('\"');
+            }
+
+            WriteString(ms, disposition.ToString());
+
+            if (value is BlobInstance blob)
+            {
+                var contentType = string.IsNullOrEmpty(blob.Type)
+                    ? "application/octet-stream"
+                    : blob.Type;
+                WriteString(ms, $"\r\nContent-Type: {contentType}\r\n\r\n");
+                ms.Write([.. blob.Value], 0, blob.Value.Count);
+            }
+            else
+            {
+                var text = value.ToString();
+                var bytes = System.Text.Encoding.UTF8.GetBytes(text);
+                WriteString(ms, "\r\n\r\n");
+                ms.Write(bytes, 0, bytes.Length);
+            }
+
+            WriteString(ms, "\r\n");
+        }
+
+        WriteString(ms, $"--{boundary}--\r\n");
+        return ms.ToArray();
+    }
+
+    private static void WriteString(Stream stream, string value)
+    {
+        var bytes = System.Text.Encoding.UTF8.GetBytes(value);
+        stream.Write(bytes, 0, bytes.Length);
+    }
+
+    private static string EscapeQuotes(string value) => value.Replace("\"", "\\\"");
 }
 
 internal sealed record BodyWithType(BodyConcept Body, string? Type);

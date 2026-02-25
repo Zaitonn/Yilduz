@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Jint;
 using Jint.Native.Object;
-using Yilduz.Files.Blob;
+using Yilduz.Data.Blob;
+using Yilduz.Data.File;
 using Entry = (string Name, Jint.Native.JsValue Value, string? FileName);
 
-namespace Yilduz.Network.FormData;
+namespace Yilduz.Data.FormData;
 
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/FormData
@@ -28,9 +29,11 @@ public sealed class FormDataInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FormData/append
     /// </summary>
-    public void Append(string name, BlobInstance blobValue, string fileName = "")
+    public void Append(string name, BlobInstance blobValue, string? fileName = null)
     {
-        EntryList.Add((name, blobValue, fileName));
+        EntryList.Add(
+            (name, blobValue, fileName ?? (blobValue is FileInstance file ? file.Name : "blob"))
+        );
     }
 
     /// <summary>
@@ -85,9 +88,9 @@ public sealed class FormDataInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FormData/set
     /// </summary>
-    public void Set(string name, BlobInstance blobValue, string fileName = "")
+    public void Set(string name, BlobInstance blobValue, string? fileName = null)
     {
         Delete(name);
-        Append(name, blobValue, fileName);
+        Append(name, blobValue, fileName ?? (blobValue is FileInstance file ? file.Name : "blob"));
     }
 }

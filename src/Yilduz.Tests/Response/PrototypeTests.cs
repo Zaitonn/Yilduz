@@ -1,5 +1,4 @@
 using Jint;
-using Jint.Runtime;
 using Xunit;
 
 namespace Yilduz.Tests.Response;
@@ -102,5 +101,4 @@ public sealed class PrototypeTests : TestBase
 
         Assert.Equal("Response", Evaluate("res.constructor.name").AsString());
     }
-
 }
