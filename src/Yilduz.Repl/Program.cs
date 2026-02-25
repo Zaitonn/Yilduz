@@ -2,96 +2,104 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Web;
 using Jint;
-using Jint.Native.Json;
-using Jint.Runtime;
-using PrettyPrompt;
 using Spectre.Console;
-using Yilduz;
 
-var engine = new Engine(cfg => cfg.AllowClr()).InitializeWebApi(
-    new() { CancellationToken = CancellationToken.None }
-);
-var assembly = Assembly.GetExecutingAssembly();
-var version = assembly.GetName().Version?.ToString();
+namespace Yilduz.Repl;
 
-Console.CancelKeyPress += (_, e) => e.Cancel = true;
-AnsiConsole.MarkupLine($"Welcome to [steelblue1_1]Yilduz.Repl[/] ({version})");
-AnsiConsole.WriteLine();
-
-var parsingOptions = new ScriptParsingOptions { Tolerant = true };
-var serializer = new JsonSerializer(engine);
-
-await StartLoop();
-
-async Task StartLoop()
+internal static class Program
 {
-    var prompt = new Prompt(configuration: new(prompt: "Yilduz> "));
-    while (true)
+    private const string PromptText = "Yilduz> ";
+
+    public static async Task Main(string[] args)
     {
-        var promptResult = await prompt.ReadLineAsync();
-        var input = promptResult.Text;
+        using var cts = new CancellationTokenSource();
 
-        if (!promptResult.IsSuccess)
+        System.Console.Clear();
+        System.Console.CancelKeyPress += (_, e) =>
         {
-            continue;
-        }
-        if (input is "exit" or ".exit")
+            e.Cancel = true;
+            cts.Cancel();
+        };
+
+        var version = Assembly.GetExecutingAssembly().GetName().Version?.ToString();
+        var watchPath = TryGetWatchPath(args);
+
+        PrintWelcome(version);
+        PrintHelp();
+
+        var executor = new EngineExecutor(cts.Token);
+
+        var watcherTask = Task.CompletedTask;
+        if (!string.IsNullOrWhiteSpace(watchPath))
         {
-            return;
+            var watcher = new ScriptWatcher(watchPath, executor);
+            watcher.PrintWatching();
+
+            try
+            {
+                await watcher.ExecuteInitialAsync(cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
+
+            watcherTask = watcher.RunAsync(cts.Token, skipInitial: true, printWatching: false);
         }
 
+        var repl = new ReplApp(executor, PromptText);
         try
         {
-            var result = engine.Evaluate(input, parsingOptions);
+            await repl.RunAsync(cts.Token);
+        }
+        catch (OperationCanceledException)
+        {
+            // Swallow cancellation on exit.
+        }
 
-            switch (result.Type)
+        cts.Cancel();
+        try
+        {
+            await watcherTask;
+        }
+        catch (OperationCanceledException)
+        {
+            // Swallow cancellation on exit.
+        }
+    }
+
+    private static void PrintWelcome(string? version)
+    {
+        AnsiConsole.MarkupLine($"Welcome to [Khaki1]Yilduz.Repl[/] ({version})");
+        AnsiConsole.WriteLine();
+    }
+
+    private static void PrintHelp()
+    {
+        AnsiConsole.MarkupLine("Commands:");
+        AnsiConsole.MarkupLine("  [NavajoWhite1]Enter[/] : evaluate");
+        AnsiConsole.MarkupLine(
+            "  [NavajoWhite1]Ctrl[/]+[NavajoWhite1]Enter[/] : evaluate (detailed) — expand objects, enumerate lists"
+        );
+        AnsiConsole.MarkupLine("  [RosyBrown]#q[/] : quit");
+        AnsiConsole.MarkupLine("  [RosyBrown]#c[/] : clear screen");
+        AnsiConsole.MarkupLine("  [RosyBrown]#r[/] : reset engine");
+        AnsiConsole.MarkupLine("  [Cornsilk1]-w <file>[/] : watch a file for changes at startup");
+        AnsiConsole.MarkupLine("Repository: [link]https://github.com/Zaitonn/Yilduz[/]");
+        AnsiConsole.WriteLine();
+    }
+
+    private static string? TryGetWatchPath(string[] args)
+    {
+        for (var i = 0; i < args.Length; i++)
+        {
+            if (args[i] is "--watch" or "-w")
             {
-                case Types.Null:
-                case Types.Undefined:
-                case Types.Boolean:
-                    AnsiConsole.MarkupLineInterpolated($"[deepskyblue3_1]{result}[/]");
-                    break;
-
-                case Types.String:
-                    AnsiConsole.MarkupLineInterpolated(
-                        $"[darkorange3]{HttpUtility.JavaScriptStringEncode(result.AsString(), true)}[/]"
-                    );
-                    break;
-
-                case Types.BigInt:
-                case Types.Number:
-                    AnsiConsole.MarkupLineInterpolated($"[darkseagreen2]{result}[/]");
-                    break;
-                case Types.Symbol:
-                    AnsiConsole.MarkupLineInterpolated($"[lightsteelblue3]{result}[/]");
-                    break;
-
-                case Types.Empty:
-                case Types.Object:
-                default:
-                    if (promptResult.SubmitKeyInfo.Modifiers.HasFlag(ConsoleModifiers.Control))
-                    {
-                        var json = serializer.Serialize(result);
-                        AnsiConsole.MarkupLineInterpolated($"[palegreen3]{json}[/]");
-                    }
-                    else
-                    {
-                        AnsiConsole.MarkupLineInterpolated(
-                            $"[palegreen3]{result.ToString().EscapeMarkup()}[/]"
-                        );
-                    }
-                    break;
+                return i + 1 < args.Length ? args[i + 1].Trim('"') : null;
             }
         }
-        catch (JavaScriptException je)
-        {
-            AnsiConsole.MarkupLine($"[red]{je.Error.ToString().EscapeMarkup()}[/]");
-        }
-        catch (Exception e)
-        {
-            AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
-        }
+
+        return null;
     }
 }

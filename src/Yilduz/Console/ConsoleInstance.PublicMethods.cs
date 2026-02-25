@@ -1,9 +1,11 @@
+using Jint.Native;
+
 namespace Yilduz.Console;
 
 public sealed partial class ConsoleInstance
 {
     /// <inheritdoc/>
-    public void Assert(bool condition, params object[] data)
+    public void Assert(bool condition, params JsValue[] data)
     {
         _console.Assert(condition, data);
     }
@@ -15,49 +17,49 @@ public sealed partial class ConsoleInstance
     }
 
     /// <inheritdoc/>
-    public void Count(string? label = null)
+    public void Count(string label)
     {
         _console.Count(label);
     }
 
     /// <inheritdoc/>
-    public void CountReset(string? label = null)
+    public void CountReset(string label)
     {
         _console.CountReset(label);
     }
 
     /// <inheritdoc/>
-    public void Debug(params object[] data)
+    public void Debug(params JsValue[] data)
     {
         _console.Debug(data);
     }
 
     /// <inheritdoc/>
-    public void Dir(object? item = null, object? options = null)
+    public void Dir(JsValue item, JsValue options)
     {
         _console.Dir(item, options);
     }
 
     /// <inheritdoc/>
-    public void Dirxml(params object[] data)
+    public void Dirxml(params JsValue[] data)
     {
         _console.Dirxml(data);
     }
 
     /// <inheritdoc/>
-    public void Error(params object[] data)
+    public void Error(params JsValue[] data)
     {
         _console.Error(data);
     }
 
     /// <inheritdoc/>
-    public void Group(params object[] data)
+    public void Group(params JsValue[] data)
     {
         _console.Group(data);
     }
 
     /// <inheritdoc/>
-    public void GroupCollapsed(params object[] data)
+    public void GroupCollapsed(params JsValue[] data)
     {
         _console.GroupCollapsed(data);
     }
@@ -69,55 +71,55 @@ public sealed partial class ConsoleInstance
     }
 
     /// <inheritdoc/>
-    public void Info(params object[] data)
+    public void Info(params JsValue[] data)
     {
         _console.Info(data);
     }
 
     /// <inheritdoc/>
-    public void Log(params object[] data)
+    public void Log(params JsValue[] data)
     {
         _console.Log(data);
     }
 
     /// <inheritdoc/>
-    public void Table(object? tabularData = null, string[]? properties = null)
+    public void Table(JsValue tabularData, string[]? properties = null)
     {
         _console.Table(tabularData, properties);
     }
 
     /// <inheritdoc/>
-    public void Time(string? label = null)
+    public void Time(string label)
     {
         _console.Time(label);
     }
 
     /// <inheritdoc/>
-    public void TimeEnd(string? label = null)
+    public void TimeEnd(string label)
     {
         _console.TimeEnd(label);
     }
 
     /// <inheritdoc/>
-    public void TimeLog(string? label = null, params object[] data)
+    public void TimeLog(string label, params JsValue[] data)
     {
         _console.TimeLog(label, data);
     }
 
     /// <inheritdoc/>
-    public void TimeStamp(string? label = null)
+    public void TimeStamp(string label)
     {
         _console.TimeStamp(label);
     }
 
     /// <inheritdoc/>
-    public void Trace(params object[] data)
+    public void Trace(params JsValue[] data)
     {
         _console.Trace(data);
     }
 
     /// <inheritdoc/>
-    public void Warn(params object[] data)
+    public void Warn(params JsValue[] data)
     {
         _console.Warn(data);
     }

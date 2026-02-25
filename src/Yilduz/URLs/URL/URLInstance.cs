@@ -22,7 +22,7 @@ public sealed class URLInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/URL/origin
     /// </summary>
-    public string Origin => $"{Protocol}//{Host}";
+    public string Origin { get; private set; } = string.Empty;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/URL/href
@@ -105,6 +105,7 @@ public sealed class URLInstance : ObjectInstance
         Hash = uri.Fragment;
         Username = username;
         Password = password;
+        Origin = uri.OriginalString;
     }
 
     private static (string Username, string Password) ParseUserInfo(string userInfo)

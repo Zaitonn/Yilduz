@@ -47,6 +47,12 @@ cts.Dispose();
   - [ ] `DecompressionStream`
 - Console
   - [x] `console`
+- Data
+  - [x] `Blob`
+  - [x] `File`
+  - [x] `FileReader`
+  - [x] `FileReaderSync`
+  - [x] `FormData`
 - DOM
   - [ ] `DOMError`
   - [x] `DOMException`
@@ -55,24 +61,19 @@ cts.Dispose();
   - [x] `TextDecoderStream`
   - [x] `TextEncoder`
   - [x] `TextEncoderStream`
-- Files
-  - [x] `Blob`
-  - [x] `File`
-  - [x] `FileReader`
-  - [x] `FileReaderSync`
 - Events
   - [x] `Event`
   - [x] `EventTarget`
   - [x] `ProgressEvent`
 - Network
-  - [x] `FormData`
-  - [ ] `XMLHttpRequest`
-  - [ ] `XMLHttpRequestEventTarget`
-  - [ ] `XMLHttpRequestUpload`
   - [x] `fetch()`
   - [x] `Headers`
   - [x] `Request`
   - [x] `Response`
+  - [ ] `WebSocket`
+  - [ ] `XMLHttpRequest`
+  - [ ] `XMLHttpRequestEventTarget`
+  - [ ] `XMLHttpRequestUpload`
 - Streams
   - [x] `ByteLengthQueuingStrategy`
   - [x] `CountQueuingStrategy`
@@ -123,6 +124,13 @@ engine.Evaluate("new TextDecoder('gb_2312').encoding"); // = 'gbk'
 ```
 
 This enables support for legacy encodings such as Windows-1252, Shift-JIS, and other code page encodings.
+
+### Spec Deviations
+
+Some behaviors may differ slightly from Web specs because certain features wrap .NET types; we're working through these gaps. For example:
+
+- `new URL("about:blank").origin` should be `'null'` instead of `'about:blank'`
+- `new URL("http://example.com").port` should be `''` instead of `'80'`
 
 ## Origin of the name
 

@@ -22,7 +22,9 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="Yilduz.Repl" />
     <InternalsVisibleTo Include="Yilduz.Tests" />
+
     <None Include="../../README.md" Pack="true" PackagePath="/" />
 
     <PackageReference Include="Jint" Version="4.5.0" />

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Jint.Native;
 using Yilduz.Console;
 
 namespace Yilduz.Tests.Console;
@@ -7,9 +8,9 @@ public sealed class MockConsole : IConsole
 {
     public List<string> LogCalls = [];
 
-    public void Assert(bool condition, params object[] data)
+    public void Assert(bool condition, params JsValue[] data)
     {
-        LogCalls.Add($"Assert: {condition}, data: {string.Join(", ", data)}");
+        LogCalls.Add($"Assert: {condition}, data: {string.Join<JsValue>(", ", data)}");
     }
 
     public void Clear()
@@ -17,44 +18,44 @@ public sealed class MockConsole : IConsole
         LogCalls.Add("Clear");
     }
 
-    public void Count(string? label = null)
+    public void Count(string label)
     {
-        LogCalls.Add($"Count: {label ?? "default"}");
+        LogCalls.Add($"Count: {label}");
     }
 
-    public void CountReset(string? label = null)
+    public void CountReset(string label)
     {
-        LogCalls.Add($"CountReset: {label ?? "default"}");
+        LogCalls.Add($"CountReset: {label}");
     }
 
-    public void Debug(params object[] data)
+    public void Debug(params JsValue[] data)
     {
-        LogCalls.Add($"Debug: {string.Join(", ", data)}");
+        LogCalls.Add($"Debug: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void Dir(object? item = null, object? options = null)
+    public void Dir(JsValue item, JsValue options)
     {
         LogCalls.Add($"Dir: {item}, options: {options}");
     }
 
-    public void Dirxml(params object[] data)
+    public void Dirxml(params JsValue[] data)
     {
-        LogCalls.Add($"DirXml: {string.Join(", ", data)}");
+        LogCalls.Add($"DirXml: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void Error(params object[] data)
+    public void Error(params JsValue[] data)
     {
-        LogCalls.Add($"Error: {string.Join(", ", data)}");
+        LogCalls.Add($"Error: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void Group(params object[] data)
+    public void Group(params JsValue[] data)
     {
-        LogCalls.Add($"Group: {string.Join(", ", data)}");
+        LogCalls.Add($"Group: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void GroupCollapsed(params object[] data)
+    public void GroupCollapsed(params JsValue[] data)
     {
-        LogCalls.Add($"GroupCollapsed: {string.Join(", ", data)}");
+        LogCalls.Add($"GroupCollapsed: {string.Join<JsValue>(", ", data)}");
     }
 
     public void GroupEnd()
@@ -62,49 +63,49 @@ public sealed class MockConsole : IConsole
         LogCalls.Add("GroupEnd");
     }
 
-    public void Info(params object[] data)
+    public void Info(params JsValue[] data)
     {
-        LogCalls.Add($"Info: {string.Join(", ", data)}");
+        LogCalls.Add($"Info: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void Log(params object[] data)
+    public void Log(params JsValue[] data)
     {
-        LogCalls.Add($"Log: {string.Join(", ", data)}");
+        LogCalls.Add($"Log: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void Table(object? tabularData = null, string[]? properties = null)
+    public void Table(JsValue tabularData, string[]? properties = null)
     {
         var props = properties != null ? string.Join(", ", properties) : "null";
         LogCalls.Add($"Table: {tabularData}, properties: {props}");
     }
 
-    public void Time(string? label = null)
+    public void Time(string label)
     {
-        LogCalls.Add($"Time: {label ?? "default"}");
+        LogCalls.Add($"Time: {label}");
     }
 
-    public void TimeEnd(string? label = null)
+    public void TimeEnd(string label)
     {
-        LogCalls.Add($"TimeEnd: {label ?? "default"}");
+        LogCalls.Add($"TimeEnd: {label}");
     }
 
-    public void TimeLog(string? label = null, params object[] data)
+    public void TimeLog(string label, params JsValue[] data)
     {
-        LogCalls.Add($"TimeLog: {label ?? "default"}, data: {string.Join(", ", data)}");
+        LogCalls.Add($"TimeLog: {label}, data: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void TimeStamp(string? label = null)
+    public void TimeStamp(string label)
     {
-        LogCalls.Add($"TimeStamp: {label ?? "default"}");
+        LogCalls.Add($"TimeStamp: {label}");
     }
 
-    public void Trace(params object[] data)
+    public void Trace(params JsValue[] data)
     {
-        LogCalls.Add($"Trace: {string.Join(", ", data)}");
+        LogCalls.Add($"Trace: {string.Join<JsValue>(", ", data)}");
     }
 
-    public void Warn(params object[] data)
+    public void Warn(params JsValue[] data)
     {
-        LogCalls.Add($"Warn: {string.Join(", ", data)}");
+        LogCalls.Add($"Warn: {string.Join<JsValue>(", ", data)}");
     }
 }

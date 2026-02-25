@@ -154,7 +154,7 @@ public sealed class IntegrationTests : TestBase
         Assert.True(Evaluate("sizeCallCount > 0").AsBoolean());
     }
 
-    [Fact(Skip = "Tee functionality is not fully implemented yet")]
+    [Fact]
     public void ShouldWorkWithTeeBothStreamsSeparately()
     {
         Execute(

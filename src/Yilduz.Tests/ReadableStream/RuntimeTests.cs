@@ -108,7 +108,7 @@ public sealed class RuntimeTests : TestBase
         Assert.True(Evaluate("caughtError instanceof TypeError").AsBoolean());
     }
 
-    [Fact(Skip = "TransformStream is not implemented yet")]
+    [Fact]
     public void ShouldPipeThroughTransformStream()
     {
         Execute(
