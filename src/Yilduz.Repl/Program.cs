@@ -2,7 +2,6 @@
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Jint;
 using Spectre.Console;
 
 namespace Yilduz.Repl;
@@ -14,6 +13,11 @@ internal static class Program
     public static async Task Main(string[] args)
     {
         using var cts = new CancellationTokenSource();
+
+        if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+        {
+            System.Console.Title = "Yilduz.Repl";
+        }
 
         System.Console.Clear();
         System.Console.CancelKeyPress += (_, e) =>

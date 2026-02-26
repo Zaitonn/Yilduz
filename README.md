@@ -103,6 +103,19 @@ cts.Dispose();
 
 </details>
 
+## Try Yilduz.Repl
+
+*Want to try these features right now?*
+
+Just use Yilduz.Repl, a JavaScript REPL (Read-Eval-Print-Loop) program with Web API support, syntax error hints and syntax highlighting. Grab the latest artifact from the [build workflow](https://github.com/Zaitonn/Yilduz/actions/workflows/build.yml).
+
+<details>
+<summary>Example (click to expand)</summary>
+
+![repl](https://github.com/user-attachments/assets/c3e224d0-29b6-4634-9ac1-37f427120e72)
+
+</details>
+
 ## Known Issues
 
 ### Encoding Support

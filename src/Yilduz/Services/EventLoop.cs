@@ -21,11 +21,23 @@ internal sealed class EventLoop
 
     private readonly SemaphoreSlim _signal = new(0, int.MaxValue);
 
+    private readonly Action<Exception>? _unhandledExceptionHandler;
+
     private long _timerId;
 
     public EventLoop(Options options)
     {
         _options = options ?? throw new ArgumentNullException(nameof(options));
+        _unhandledExceptionHandler = options.UnhandledExceptionHandler is null
+            ? null
+            : ex =>
+            {
+                try
+                {
+                    options.UnhandledExceptionHandler(ex);
+                }
+                catch { }
+            };
 
         _ = Task.Run(RunAsync, options.CancellationToken);
     }
@@ -158,7 +170,10 @@ internal sealed class EventLoop
         {
             timer.Callback();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _unhandledExceptionHandler?.Invoke(ex);
+        }
 
         if (
             timer.Repeat
@@ -192,7 +207,10 @@ internal sealed class EventLoop
         {
             action();
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _unhandledExceptionHandler?.Invoke(ex);
+        }
 
         FlushMicrotasks();
     }
@@ -217,7 +235,10 @@ internal sealed class EventLoop
             {
                 microtask();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _unhandledExceptionHandler?.Invoke(ex);
+            }
         }
     }
 

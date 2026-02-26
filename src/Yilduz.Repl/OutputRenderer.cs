@@ -6,6 +6,7 @@ using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Spectre.Console;
+using Spectre.Console.Rendering;
 
 namespace Yilduz.Repl;
 
@@ -36,12 +37,14 @@ internal static class OutputRenderer
         {
             try
             {
-                var valueCell = error is null ? RenderMarkup(propValue) : RenderException(error);
+                var valueCell = error is null
+                    ? RenderMarkup(propValue)
+                    : RenderExceptionInline(error);
                 table.AddRow(ColorizeKey(key, depth), valueCell);
             }
             catch (Exception ex)
             {
-                table.AddRow(ColorizeKey(key, depth), RenderException(ex));
+                table.AddRow(ColorizeKey(key, depth), RenderExceptionInline(ex));
             }
         }
 
@@ -61,7 +64,7 @@ internal static class OutputRenderer
                 return $"[deepskyblue3_1]{value}[/]";
 
             case Types.String:
-                return $"[LightSalmon3_1]\"{value.AsString().Replace("\"", "\\\"").EscapeMarkup()}\"[/]";
+                return $"[#d69d85]\"{value.AsString().Replace("\"", "\\\"").EscapeMarkup()}\"[/]";
 
             case Types.BigInt:
             case Types.Number:
@@ -78,16 +81,32 @@ internal static class OutputRenderer
 
     private static string RenderObject(JsValue value)
     {
+        var str = value.ToString().EscapeMarkup();
         switch (value)
         {
             case Constructor:
-                return $"[LightPink3]{value.ToString().EscapeMarkup()}[/]";
+                return $"[#4EC9B0]{str}[/]";
 
             case Function:
-                return $"[MediumPurple2_1]{value.ToString().EscapeMarkup()}[/]";
+                return $"[MediumPurple2_1]{str}[/]";
+
+            case JsArray:
+                return $"[Tan]{str}[/]";
+
+            case JsDate:
+                return $"[LightSeaGreen]{str}[/]";
+
+            case JsRegExp:
+                return $"[IndianRed_1]{str}[/]";
+
+            case JsError:
+                return $"[red]{str}[/]";
+
+            case ObjectInstance when value.IsPromise():
+                return $"[LightSlateBlue]{str}[/]";
 
             default:
-                return $"[DarkSlateGray3]{value.ToString().EscapeMarkup()}[/]";
+                return $"[DarkSlateGray3]{str}[/]";
         }
     }
 
@@ -108,27 +127,56 @@ internal static class OutputRenderer
             }
             catch (Exception ex)
             {
-                table.AddRow(index, RenderException(ex));
+                table.AddRow(index, RenderExceptionInline(ex));
             }
         }
 
         AnsiConsole.Write(table);
     }
 
-    public static void RenderError(JavaScriptException javaScriptException)
+    public static void RenderError(JavaScriptException javaScriptException, string? title = null)
     {
-        AnsiConsole.Write(
-            new Panel(
-                javaScriptException.Error.ToString().EscapeMarkup()
-                    + Environment.NewLine
-                    + $"[italic Gray54]{javaScriptException.JavaScriptStackTrace.EscapeMarkup()}[/]"
-            )
-                .BorderColor(Color.Red)
-                .RoundedBorder()
-        );
+        List<IRenderable> items =
+        [
+            new Markup(javaScriptException.Error.ToString().EscapeMarkup()),
+            new Markup(
+                $"[italic Gray54]{javaScriptException.JavaScriptStackTrace.EscapeMarkup()}[/]"
+            ),
+        ];
+
+        if (!string.IsNullOrEmpty(title))
+        {
+            items.Insert(0, Text.NewLine);
+            items.Insert(0, new Markup($"[red bold]{title}[/]"));
+        }
+
+        AnsiConsole.Write(new Panel(new Rows(items)).BorderColor(Color.Red).RoundedBorder());
     }
 
-    private static string RenderException(Exception ex)
+    private static readonly ExceptionSettings ExceptionSettings = new()
+    {
+        Format = ExceptionFormats.ShortenTypes | ExceptionFormats.ShortenPaths,
+        Style =
+        {
+            Exception = new Style(Color.Red, Color.Default, Decoration.Bold),
+            Message = Color.Red,
+            Path = new Style(Color.Grey, Color.Default, Decoration.Italic),
+            LineNumber = new Style(Color.Grey, Color.Default, Decoration.Italic),
+            Dimmed = Color.Grey,
+            NonEmphasized = Color.FromHex("#DCDCDC"),
+            Method = Color.FromHex("#DCDCAA"),
+            ParameterType = Color.FromHex("#4EC9B0"),
+            ParameterName = Color.FromHex("#9CDCFE"),
+        },
+    };
+
+    public static void RenderException(Exception ex)
+    {
+        AnsiConsole.WriteLine();
+        AnsiConsole.WriteException(ex, ExceptionSettings);
+    }
+
+    private static string RenderExceptionInline(Exception ex)
     {
         var error =
             ex is JavaScriptException jsEx ? jsEx.Error
@@ -139,6 +187,7 @@ internal static class OutputRenderer
         {
             return $"[red italic][[!]]{(ex.GetType() + ex.Message).EscapeMarkup()}[/]";
         }
+
         return $"[red italic][[!]]{error.ToString().EscapeMarkup()}[/]";
     }
 

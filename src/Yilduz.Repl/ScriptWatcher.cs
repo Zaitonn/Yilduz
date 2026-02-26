@@ -30,7 +30,9 @@ internal sealed class ScriptWatcher
 
     public void PrintWatching()
     {
-        AnsiConsole.MarkupLine($"[steelblue1_1]Watching[/] {_fullPath}");
+        AnsiConsole.MarkupLineInterpolated(
+            $"[LightSkyBlue1][[!]][/][gray italic] Watching {_fullPath}[/]"
+        );
     }
 
     public Task ExecuteInitialAsync(CancellationToken cancellationToken)
@@ -102,7 +104,7 @@ internal sealed class ScriptWatcher
     {
         if (!File.Exists(_fullPath))
         {
-            AnsiConsole.MarkupLine($"[red]File not found:[/] {_fullPath}");
+            AnsiConsole.MarkupLineInterpolated($"[red italic][[!]] File not found:[/] {_fullPath}");
             return;
         }
 
@@ -110,15 +112,19 @@ internal sealed class ScriptWatcher
         if (!suppressChangeMessage)
         {
             AnsiConsole.Clear();
-            AnsiConsole.MarkupLineInterpolated($"[palegreen3]{_fileName} changed.[/]");
+            AnsiConsole.MarkupLineInterpolated(
+                $"[LightSkyBlue1][[!]][/][gray italic] {_fileName} changed at {DateTime.Now:T}.[/]"
+            );
         }
 
         await _executor.ResetEngine(cancellationToken);
 
         try
         {
-            await _executor.ExecuteAsync(script, cancellationToken);
-            AnsiConsole.MarkupLine("[palegreen3 italic]Execution completed.[/]");
+            await _executor.ExecuteAsync(script, _fileName, cancellationToken);
+            AnsiConsole.MarkupLine(
+                "[DarkOliveGreen3_1][[!]][/][gray italic] Execution completed.[/]"
+            );
         }
         catch (JavaScriptException je)
         {

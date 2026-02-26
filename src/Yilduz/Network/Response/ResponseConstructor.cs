@@ -220,7 +220,7 @@ internal sealed class ResponseConstructor : Constructor
         {
             parsedUrl = _webApiIntrinsics.URL.Parse(
                 url.AsString(),
-                _webApiIntrinsics.Options.BaseUrl?.ToString()
+                _webApiIntrinsics.Options.Network.BaseUrl?.ToString()
             );
         }
         catch (Exception e) when (e is not JavaScriptException)

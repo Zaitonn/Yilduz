@@ -15,5 +15,7 @@ public sealed partial class Options
         /// When null, a shared default <see cref="HttpClient"/> instance is used.
         /// </summary>
         public Func<HttpClient>? HttpClientFactory { get; init; }
+
+        public Uri? BaseUrl { get; init; }
     }
 }

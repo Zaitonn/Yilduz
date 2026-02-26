@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Jint;
 using Jint.Runtime;
 using PrettyPrompt;
+using PrettyPrompt.Highlighting;
 using Spectre.Console;
 
 namespace Yilduz.Repl;
@@ -20,7 +21,16 @@ internal sealed class ReplApp
         _executor = executor ?? throw new ArgumentNullException(nameof(executor));
         _parsingOptions = new() { Tolerant = true };
         _promptText = promptText;
-        _prompt = new(".history", configuration: new() { Prompt = _promptText });
+        _prompt = new(
+            ".history",
+            new ReplPromptCallbacks(),
+            configuration: new(
+                prompt: _promptText,
+                completionBoxBorderFormat: new() { Foreground = AnsiColor.BrightBlack },
+                selectedCompletionItemBackground: AnsiColor.Rgb(30, 30, 30),
+                selectedTextBackground: AnsiColor.Rgb(20, 61, 102)
+            )
+        );
     }
 
     public async Task RunAsync(CancellationToken cancellationToken = default)
@@ -43,7 +53,7 @@ internal sealed class ReplApp
             else if (input is "#r")
             {
                 await _executor.ResetEngine(cancellationToken);
-                AnsiConsole.MarkupLine("[green]Engine reset.[/]");
+                AnsiConsole.MarkupLine("[DarkOliveGreen3_1][[!]][/][gray italic] Engine reset.[/]");
                 continue;
             }
             else if (input is "#q" or "exit")
@@ -60,10 +70,11 @@ internal sealed class ReplApp
             try
             {
                 var result = await _executor.EvaluateAsync(
-                    script: script,
+                    script,
                     parsingOptions: _parsingOptions,
                     cancellationToken: cancellationToken
                 );
+
                 if (submitWithCtrlEnter)
                 {
                     OutputRenderer.RenderObjectTable(result);
@@ -83,7 +94,7 @@ internal sealed class ReplApp
             }
             catch (Exception e)
             {
-                AnsiConsole.WriteException(e, ExceptionFormats.ShortenEverything);
+                OutputRenderer.RenderException(e);
             }
         }
     }

@@ -19,3 +19,9 @@ jobs:
       
       - name: Run build
         run: dotnet build --configuration Release
+
+      - name: Upload repl
+        uses: actions/upload-artifact@v6
+        with:
+          name: Yilduz.Repl_net8.0
+          path: src/Yilduz.Repl/bin/Release/net8.0/

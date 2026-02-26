@@ -70,7 +70,7 @@ internal sealed class RequestConstructor : Constructor
         string? fallbackMode = null;
 
         // Let baseURL be this’s relevant settings object’s API base URL.
-        var baseUrl = _webApiIntrinsics.Options.BaseUrl;
+        var baseUrl = _webApiIntrinsics.Options.Network.BaseUrl;
 
         // Let signal be null.
         AbortSignalInstance? signal = null;
@@ -139,9 +139,9 @@ internal sealed class RequestConstructor : Constructor
         }
 
         // Let origin be this’s relevant settings object’s origin.
-        var origin = _webApiIntrinsics.Options.BaseUrl is null
+        var origin = _webApiIntrinsics.Options.Network.BaseUrl is null
             ? null
-            : $"{_webApiIntrinsics.Options.BaseUrl.Scheme}://{_webApiIntrinsics.Options.BaseUrl.Authority}";
+            : $"{_webApiIntrinsics.Options.Network.BaseUrl.Scheme}://{_webApiIntrinsics.Options.Network.BaseUrl.Authority}";
 
         // Let traversableForUserPrompts be "client".
         var traversableForUserPrompts = "client";

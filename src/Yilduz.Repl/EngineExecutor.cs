@@ -1,8 +1,9 @@
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
+using Spectre.Console;
 
 namespace Yilduz.Repl;
 
@@ -39,6 +40,18 @@ internal sealed class EngineExecutor
             {
                 CancellationToken = _cancellationTokenSource.Token,
                 ConsoleFactory = engine => new ReplConsole(engine),
+                UnhandledExceptionHandler = ex =>
+                {
+                    AnsiConsole.WriteLine();
+                    if (ex is JavaScriptException jsEx)
+                    {
+                        OutputRenderer.RenderError(jsEx, "Unhandled JavaScript Exception:");
+                    }
+                    else
+                    {
+                        AnsiConsole.WriteException(ex);
+                    }
+                },
             }
         );
     }
@@ -76,12 +89,16 @@ internal sealed class EngineExecutor
         }
     }
 
-    public async Task ExecuteAsync(string script, CancellationToken cancellationToken = default)
+    public async Task ExecuteAsync(
+        string script,
+        string source,
+        CancellationToken cancellationToken = default
+    )
     {
         await _semaphore.WaitAsync(cancellationToken);
         try
         {
-            Engine.Execute(script);
+            Engine.Execute(script, source);
         }
         finally
         {

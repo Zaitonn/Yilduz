@@ -13,5 +13,5 @@ public sealed partial class Options
 
     public TimeSpan WaitingTimeout { get; init; } = TimeSpan.FromSeconds(10);
 
-    public Uri? BaseUrl { get; init; }
+    public Action<Exception>? UnhandledExceptionHandler { get; init; }
 }
