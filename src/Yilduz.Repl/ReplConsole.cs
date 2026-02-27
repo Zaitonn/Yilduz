@@ -206,7 +206,7 @@ internal sealed class ReplConsole : IConsole
 
     private void WriteLine(string label, string labelColor, params JsValue[] data)
     {
-        var labelMarkup = $"[{labelColor}][[{label.EscapeMarkup()}]][/]";
+        var labelMarkup = $"[{labelColor}]{label.EscapeMarkup()}[/]";
         if (data is null || data.Length == 0)
         {
             AnsiConsole.MarkupLine(labelMarkup);
@@ -214,7 +214,18 @@ internal sealed class ReplConsole : IConsole
         }
 
         var rendered = string.Join(" ", data.Select(OutputRenderer.RenderMarkup));
-        AnsiConsole.MarkupLine($"{labelMarkup} {rendered}");
+
+        AnsiConsole.Write(
+            new Table()
+                .AddColumn("1")
+                .AddColumn("1")
+                .AddRow(labelMarkup, rendered)
+                .NoBorder()
+                .NoSafeBorder()
+                .HideRowSeparators()
+                .HideFooters()
+                .HideHeaders()
+        );
     }
 
     private static JsValue[] Prepend(JsValue value, JsValue[] data)

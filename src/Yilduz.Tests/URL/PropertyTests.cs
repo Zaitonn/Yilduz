@@ -127,6 +127,16 @@ public sealed class PropertyTests : TestBase
     }
 
     [Fact]
+    public void HttpUrlPortShouldBeEmptyStringWhenNoPortIsSpecified()
+    {
+        Execute("const url = new URL('http://example.com');");
+
+        var port = Evaluate("url.port").AsString();
+
+        Assert.Equal(string.Empty, port);
+    }
+
+    [Fact]
     public void PortShouldReturnExplicitPort()
     {
         Execute("const url = new URL('https://example.com:9000');");
@@ -184,6 +194,22 @@ public sealed class PropertyTests : TestBase
 
         Assert.Equal("", username);
         Assert.Equal("", password);
+    }
+
+    [Fact]
+    public void BlobUrlShouldExposeOriginAndPort()
+    {
+        const string input = "blob:https://example.com:9443/resource-id";
+
+        Execute($"const url = new URL('{input}');");
+
+        var origin = Evaluate("url.origin").AsString();
+        var protocol = Evaluate("url.protocol").AsString();
+        var href = Evaluate("url.href").AsString();
+
+        Assert.Equal("blob:", protocol);
+        Assert.Equal("https://example.com:9443", origin);
+        Assert.Equal(input, href);
     }
 
     [Fact]

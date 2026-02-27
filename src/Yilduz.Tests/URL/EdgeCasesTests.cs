@@ -225,4 +225,84 @@ public sealed class EdgeCasesTests : TestBase
             () => Execute("const url = new URL('https://example.com path');")
         );
     }
+
+    [Fact]
+    public void ShouldParseMailtoUrl()
+    {
+        Execute("const url = new URL('mailto:user@example.com');");
+
+        var protocol = Evaluate("url.protocol").AsString();
+
+        Assert.Equal("mailto:", protocol);
+    }
+
+    [Fact]
+    public void MailtoToStringShouldPreserveSchemeAndAddress()
+    {
+        Execute("const url = new URL('mailto:user@example.com');");
+
+        var result = Evaluate("url.toString()").AsString();
+
+        Assert.StartsWith("mailto:", result);
+        Assert.Contains("user", result);
+        Assert.Contains("example.com", result);
+    }
+
+    [Fact]
+    public void MailtoCanParseShouldReturnTrue()
+    {
+        var result = Evaluate("URL.canParse('mailto:user@example.com')").AsBoolean();
+
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void ShouldParseCustomSchemeUrl()
+    {
+        Execute("const url = new URL('weixin://scanqrcode');");
+
+        Assert.Equal("weixin:", Evaluate("url.protocol"));
+        Assert.Equal("scanqrcode", Evaluate("url.hostname"));
+
+        var result = Evaluate("url.toString()").AsString();
+
+        Assert.StartsWith("weixin://", result);
+        Assert.Contains("scanqrcode", result);
+    }
+
+    [Fact]
+    public void CustomSchemeWithPathShouldParse()
+    {
+        Execute("const url = new URL('myapp://open/screen?id=42#section');");
+
+        var protocol = Evaluate("url.protocol").AsString();
+        var hostname = Evaluate("url.hostname").AsString();
+        var pathname = Evaluate("url.pathname").AsString();
+        var search = Evaluate("url.search").AsString();
+        var hash = Evaluate("url.hash").AsString();
+
+        Assert.Equal("myapp:", protocol);
+        Assert.Equal("open", hostname);
+        Assert.Contains("screen", pathname);
+        Assert.Contains("id=42", search);
+        Assert.Contains("section", hash);
+
+        var result = Evaluate("url.toString()").AsString();
+
+        Assert.StartsWith("myapp://", result);
+        Assert.Contains("screen", result);
+        Assert.Contains("id=42", result);
+        Assert.Contains("section", result);
+    }
+
+    [Theory]
+    [InlineData("weixin://scanqrcode")]
+    [InlineData("myapp://host/path")]
+    [InlineData("intent://example.com/#Intent;scheme=http;end")]
+    public void VariousCustomSchemesShouldBeAccepted(string input)
+    {
+        var canParse = Evaluate($"URL.canParse('{input}')").AsBoolean();
+
+        Assert.True(canParse);
+    }
 }

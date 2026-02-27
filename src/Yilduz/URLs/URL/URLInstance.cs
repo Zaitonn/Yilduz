@@ -22,7 +22,32 @@ public sealed class URLInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/URL/origin
     /// </summary>
-    public string Origin { get; private set; } = string.Empty;
+    public string Origin
+    {
+        get
+        {
+            switch (Protocol.ToLowerInvariant())
+            {
+                case "file:":
+                    return "null";
+
+                case "blob:":
+                    var uri = new Uri(Pathname);
+                    return $"{uri.Scheme}://{uri.Authority}";
+
+                case "http:":
+                case "https:":
+                case "ws:":
+                case "wss:":
+                default:
+                    if (string.IsNullOrEmpty(Host))
+                    {
+                        return "null";
+                    }
+                    return $"{Protocol}//{Host}";
+            }
+        }
+    }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/URL/href
@@ -96,7 +121,10 @@ public sealed class URLInstance : ObjectInstance
         var uri = new Uri(value);
         var (username, password) = ParseUserInfo(uri.UserInfo);
 
-        Port = uri.Port.ToString();
+        Port =
+            uri.Port < 0 || !uri.Authority.EndsWith($":{uri.Port}")
+                ? string.Empty
+                : uri.Port.ToString();
         Search = uri.Query;
         Hostname = uri.Host;
         Host = uri.Authority;
@@ -105,7 +133,6 @@ public sealed class URLInstance : ObjectInstance
         Hash = uri.Fragment;
         Username = username;
         Password = password;
-        Origin = uri.OriginalString;
     }
 
     private static (string Username, string Password) ParseUserInfo(string userInfo)

@@ -1,5 +1,4 @@
 using Jint;
-using Jint.Runtime;
 using Xunit;
 
 namespace Yilduz.Tests.URL;
@@ -17,6 +16,7 @@ public sealed class ToStringTests : TestBase
     [InlineData("http://localhost:3000/api/v1")]
     [InlineData("https://example.com:8080/path?q=1#frag")]
     [InlineData("ftp://ftp.example.com/pub/file.txt")]
+    [InlineData("blob:https://example.com:8080/resource-id")]
     public void HrefShouldRoundTripForStandardUrls(string input)
     {
         Execute($"const url = new URL('{input}');");
@@ -24,6 +24,8 @@ public sealed class ToStringTests : TestBase
 
         Assert.Contains(Evaluate("url.protocol").AsString().TrimEnd(':'), href);
         Assert.Contains(Evaluate("url.hostname").AsString(), href);
+        Assert.Contains(Evaluate("url.pathname").AsString(), href);
+        Assert.Equal(input, href);
     }
 
     [Fact]
@@ -100,105 +102,5 @@ public sealed class ToStringTests : TestBase
         Assert.Contains("/updated", result);
         Assert.Contains("newkey=newval", result);
         Assert.Contains("newhash", result);
-    }
-
-    [Fact]
-    public void ShouldParseMailtoUrl()
-    {
-        Execute("const url = new URL('mailto:user@example.com');");
-
-        var protocol = Evaluate("url.protocol").AsString();
-
-        Assert.Equal("mailto:", protocol);
-    }
-
-    [Fact]
-    public void MailtoToStringShouldPreserveSchemeAndAddress()
-    {
-        Execute("const url = new URL('mailto:user@example.com');");
-
-        var result = Evaluate("url.toString()").AsString();
-
-        Assert.StartsWith("mailto:", result);
-        Assert.Contains("user", result);
-        Assert.Contains("example.com", result);
-    }
-
-    [Fact]
-    public void MailtoCanParseShouldReturnTrue()
-    {
-        var result = Evaluate("URL.canParse('mailto:user@example.com')").AsBoolean();
-
-        Assert.True(result);
-    }
-
-    [Fact]
-    public void ShouldParseCustomSchemeUrl()
-    {
-        Execute("const url = new URL('weixin://scanqrcode');");
-
-        Assert.Equal("weixin:", Evaluate("url.protocol"));
-        Assert.Equal("scanqrcode", Evaluate("url.hostname"));
-    }
-
-    [Fact]
-    public void CustomSchemeToStringShouldRoundTrip()
-    {
-        Execute("const url = new URL('weixin://scanqrcode');");
-
-        var result = Evaluate("url.toString()").AsString();
-
-        Assert.StartsWith("weixin://", result);
-        Assert.Contains("scanqrcode", result);
-    }
-
-    [Fact]
-    public void CustomSchemeWithPathShouldParse()
-    {
-        Execute("const url = new URL('myapp://open/screen?id=42#section');");
-
-        var protocol = Evaluate("url.protocol").AsString();
-        var hostname = Evaluate("url.hostname").AsString();
-        var pathname = Evaluate("url.pathname").AsString();
-        var search = Evaluate("url.search").AsString();
-        var hash = Evaluate("url.hash").AsString();
-
-        Assert.Equal("myapp:", protocol);
-        Assert.Equal("open", hostname);
-        Assert.Contains("screen", pathname);
-        Assert.Contains("id=42", search);
-        Assert.Contains("section", hash);
-    }
-
-    [Fact]
-    public void CustomSchemeToStringShouldContainAllComponents()
-    {
-        Execute("const url = new URL('myapp://open/screen?id=42#section');");
-
-        var result = Evaluate("url.toString()").AsString();
-
-        Assert.StartsWith("myapp://", result);
-        Assert.Contains("screen", result);
-        Assert.Contains("id=42", result);
-        Assert.Contains("section", result);
-    }
-
-    [Fact]
-    public void CustomSchemeCanParseShouldReturnTrue()
-    {
-        var result = Evaluate("URL.canParse('weixin://scanqrcode')").AsBoolean();
-
-        Assert.True(result);
-    }
-
-    [Theory]
-    [InlineData("weixin://scanqrcode")]
-    [InlineData("myapp://host/path")]
-    [InlineData("intent://example.com/#Intent;scheme=http;end")]
-    public void VariousCustomSchemesShouldBeAccepted(string input)
-    {
-        var canParse = Evaluate($"URL.canParse('{input}')").AsBoolean();
-
-        Assert.True(canParse);
     }
 }

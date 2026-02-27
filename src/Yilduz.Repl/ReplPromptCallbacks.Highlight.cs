@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Acornima;
@@ -28,7 +27,7 @@ public sealed partial class ReplPromptCallbacks
             {
                 var script = _parser.ParseScript(text);
 
-                CollectSpans(spans, script, stringLikeRanges);
+                CollectSpans(text, script, spans, stringLikeRanges);
                 AddCommentSpans(text, spans, stringLikeRanges);
             }
             catch (SyntaxErrorException ex)
@@ -75,10 +74,10 @@ public sealed partial class ReplPromptCallbacks
     }
 
     private static void CollectSpans(
-        List<FormatSpan> spans,
+        string text,
         INode node,
-        List<(int start, int end)> stringLikeRanges,
-        INode? parent = null
+        List<FormatSpan> spans,
+        List<(int start, int end)> stringLikeRanges
     )
     {
         if (node == null)
@@ -90,7 +89,7 @@ public sealed partial class ReplPromptCallbacks
         {
             case StringLiteral:
                 stringLikeRanges.Add((node.Start, node.End));
-                spans.Add(GetFormatSpanWithFormat(node, FormatString));
+                spans.Add(GetFormatSpan(node, FormatString));
                 break;
 
             case RegExpLiteral regExpLiteral:
@@ -134,7 +133,7 @@ public sealed partial class ReplPromptCallbacks
                 foreach (var quasi in templateLiteral.Quasis)
                 {
                     stringLikeRanges.Add((quasi.Start, quasi.End));
-                    spans.Add(GetFormatSpanWithFormat(quasi, FormatString));
+                    spans.Add(GetFormatSpan(quasi, FormatString));
                 }
 
                 foreach (var expression in templateLiteral.Expressions)
@@ -158,29 +157,33 @@ public sealed partial class ReplPromptCallbacks
 
                 break;
 
+            case NullLiteral:
+                spans.Add(GetFormatSpan(node, FormatKeyword));
+                break;
+
             case CallExpression { Callee: MemberExpression memberExpression }:
-                spans.Add(GetFormatSpanWithFormat(memberExpression.Property, FormatCall));
+                spans.Add(GetFormatSpan(memberExpression.Property, FormatCall));
                 break;
 
             case CallExpression { Callee: Identifier identifier }:
-                spans.Add(GetFormatSpanWithFormat(identifier, FormatCall));
+                spans.Add(GetFormatSpan(identifier, FormatCall));
                 break;
 
             case CallExpression { Callee: Super super }:
-                spans.Add(GetFormatSpanWithFormat(super, FormatKeyword));
+                spans.Add(GetFormatSpan(super, FormatKeyword));
                 break;
 
             case Identifier:
-                spans.Add(GetFormatSpanWithFormat(node, FormatIdentifier));
+                spans.Add(GetFormatSpan(node, FormatIdentifier));
                 break;
 
             case NumericLiteral:
-                spans.Add(GetFormatSpanWithFormat(node, FormatNumber));
+                spans.Add(GetFormatSpan(node, FormatNumber));
                 break;
 
             case MethodDefinition methodDefinition
                 when methodDefinition.Kind == PropertyKind.Method:
-                spans.Add(GetFormatSpanWithFormat(methodDefinition.Key, FormatCall));
+                spans.Add(GetFormatSpan(methodDefinition.Key, FormatCall));
 
                 spans.Add(
                     GetFormatSpanWithFormat(
@@ -193,7 +196,7 @@ public sealed partial class ReplPromptCallbacks
 
             case MethodDefinition methodDefinition
                 when methodDefinition.Kind == PropertyKind.Constructor:
-                spans.Add(GetFormatSpanWithFormat(methodDefinition.Key, FormatKeyword));
+                spans.Add(GetFormatSpan(methodDefinition.Key, FormatKeyword));
                 break;
 
             case MethodDefinition methodDefinition
@@ -237,7 +240,7 @@ public sealed partial class ReplPromptCallbacks
                     )
                 );
 
-                spans.Add(GetFormatSpanWithFormat(newExpression.Callee, FormatType));
+                spans.Add(GetFormatSpan(newExpression.Callee, FormatType));
                 break;
 
             case ClassDeclaration classDeclaration when classDeclaration.Id is not null:
@@ -259,26 +262,49 @@ public sealed partial class ReplPromptCallbacks
                         )
                     );
 
-                    spans.Add(GetFormatSpanWithFormat(classDeclaration.SuperClass, FormatType));
+                    spans.Add(GetFormatSpan(classDeclaration.SuperClass, FormatType));
                 }
 
-                spans.Add(GetFormatSpanWithFormat(classDeclaration.Id, FormatType));
+                spans.Add(GetFormatSpan(classDeclaration.Id, FormatType));
                 break;
 
             case ArrowFunctionExpression arrowFunctionExpression:
-                spans.Add(
-                    GetFormatSpanWithFormat(
-                        arrowFunctionExpression.Params.Max(param => param.End),
-                        arrowFunctionExpression.Body.Start,
-                        FormatKeyword
-                    )
-                );
+                for (
+                    var i = arrowFunctionExpression.Body.Start;
+                    i > arrowFunctionExpression.Start;
+                    i--
+                )
+                {
+                    if (arrowFunctionExpression.Start > 0 && text[i - 1] == '=')
+                    {
+                        spans.Add(
+                            GetFormatSpanWithFormat(arrowFunctionExpression.Start, i, FormatKeyword)
+                        );
+                        break;
+                    }
+                }
+
+                if (
+                    arrowFunctionExpression.Async
+                    && arrowFunctionExpression.Start + 5 <= text.Length
+                    && text[arrowFunctionExpression.Start..(arrowFunctionExpression.Start + 5)]
+                        == "async"
+                )
+                {
+                    spans.Add(
+                        GetFormatSpanWithFormat(
+                            arrowFunctionExpression.Start,
+                            arrowFunctionExpression.Start + 5,
+                            FormatKeyword
+                        )
+                    );
+                }
                 break;
         }
 
         foreach (var child in node.ChildNodes)
         {
-            CollectSpans(spans, child, stringLikeRanges, node);
+            CollectSpans(text, child, spans, stringLikeRanges);
         }
     }
 
@@ -287,7 +313,7 @@ public sealed partial class ReplPromptCallbacks
         return new(start, end - start, format);
     }
 
-    private static FormatSpan GetFormatSpanWithFormat(INode node, ConsoleFormat format)
+    private static FormatSpan GetFormatSpan(INode node, ConsoleFormat format)
     {
         return GetFormatSpanWithFormat(node.Start, node.End, format);
     }

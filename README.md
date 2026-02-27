@@ -140,10 +140,7 @@ This enables support for legacy encodings such as Windows-1252, Shift-JIS, and o
 
 ### Spec Deviations
 
-Some behaviors may differ slightly from Web specs because certain features wrap .NET types; we're working through these gaps. For example:
-
-- `new URL("about:blank").origin` should be `'null'` instead of `'about:blank'`
-- `new URL("http://example.com").port` should be `''` instead of `'80'`
+Some behaviors may differ slightly from Web specs because certain features wrap .NET types; we're working through these gaps.
 
 ## Origin of the name
 

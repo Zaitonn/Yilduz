@@ -99,13 +99,12 @@ public sealed class StaticMethodsTests : TestBase
     [Fact]
     public void CanParseShouldHandleComplexURLs()
     {
-        var result = Engine
-            .Evaluate(
-                "URL.canParse('https://user:pass@subdomain.example.com:8080/path?query=value#hash')"
-            )
-            .AsBoolean();
-
-        Assert.True(result);
+        Assert.True(
+            Evaluate(
+                    "URL.canParse('https://user:pass@subdomain.example.com:8080/path?query=value#hash')"
+                )
+                .AsBoolean()
+        );
     }
 
     [Fact]
