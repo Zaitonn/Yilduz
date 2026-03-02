@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class MethodTests : FetchTestBase
+public sealed class MethodTests : HttpRouteTestBase
 {
     [Fact]
     public void ShouldSendPostRequestWithStringBody()

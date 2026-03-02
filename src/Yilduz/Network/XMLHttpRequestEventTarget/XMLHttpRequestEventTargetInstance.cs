@@ -46,4 +46,7 @@ public class XMLHttpRequestEventTargetInstance : EventTargetInstance
 
     internal XMLHttpRequestEventTargetInstance(Engine engine)
         : base(engine) { }
+
+    internal XMLHttpRequestEventTargetInstance(Engine engine, WebApiIntrinsics webApiIntrinsics)
+        : base(engine, webApiIntrinsics) { }
 }

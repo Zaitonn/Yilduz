@@ -157,4 +157,14 @@ public class EventTargetInstance : ObjectInstance
 
         return !(evt.Cancelable && evt.DefaultPrevented);
     }
+
+    internal virtual void FireEvent(string type)
+    {
+        DispatchEvent(_webApiIntrinsics.Event.CreateInstanceWithEventName(type, Undefined));
+    }
+
+    internal bool HasEventListeners()
+    {
+        return _listeners.Values.Any(listeners => listeners.Count > 0);
+    }
 }

@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class InvalidInputTests : FetchTestBase
+public sealed class InvalidInputTests : HttpRouteTestBase
 {
     [Theory]
     [InlineData("not-a-url")]

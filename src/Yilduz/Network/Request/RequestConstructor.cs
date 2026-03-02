@@ -78,35 +78,17 @@ internal sealed class RequestConstructor : Constructor
         // If input is a string, then:
         if (input.IsString())
         {
-            try
-            {
-                // Let parsedURL be the result of parsing input with baseURL.
-                var parsedUrl = _webApiIntrinsics.URL.Parse(input.AsString(), baseUrl?.ToString());
+            // Let parsedURL be the result of parsing input with baseURL.
+            var parsedUrl = _webApiIntrinsics.URL.TryParse(input.AsString(), baseUrl);
 
-                // If parsedURL is failure, then throw a TypeError.
-                // If parsedURL includes credentials, then throw a TypeError.
-                if (
-                    parsedUrl.IsNull()
-                    || !string.IsNullOrEmpty(parsedUrl.Username)
-                    || !string.IsNullOrEmpty(parsedUrl.Password)
-                )
-                {
-                    TypeErrorHelper.Throw(
-                        Engine,
-                        "Invalid URL provided to Request().",
-                        "constructor",
-                        nameof(Request)
-                    );
-                }
-
-                // Set request to a new request whose URL is parsedURL.
-                // request = new() { Url = parsedUrl };
-                request = new() { URLList = [parsedUrl] };
-
-                // Set fallbackMode to "cors".
-                fallbackMode = Mode.CORS;
-            }
-            catch (Exception e) when (e is not JavaScriptException)
+            // If parsedURL is failure, then throw a TypeError.
+            // If parsedURL includes credentials, then throw a TypeError.
+            if (
+                parsedUrl is null
+                || parsedUrl.IsNull()
+                || !string.IsNullOrEmpty(parsedUrl.Username)
+                || !string.IsNullOrEmpty(parsedUrl.Password)
+            )
             {
                 TypeErrorHelper.Throw(
                     Engine,
@@ -115,6 +97,13 @@ internal sealed class RequestConstructor : Constructor
                     nameof(Request)
                 );
             }
+
+            // Set request to a new request whose URL is parsedURL.
+            // request = new() { Url = parsedUrl };
+            request = new() { URLList = [parsedUrl] };
+
+            // Set fallbackMode to "cors".
+            fallbackMode = Mode.CORS;
         }
         else
         {

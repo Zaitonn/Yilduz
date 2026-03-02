@@ -75,7 +75,7 @@ public class EventInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/type
     /// </summary>
-    public new string Type { get; }
+    public new string Type { get; init; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/composedPath

@@ -15,8 +15,8 @@ dotnet add package Yilduz
 using Jint;
 using Yilduz;
 
-var cts = new CancellationTokenSource();
-var engine = new Engine((o) => o.CancellationToken(cts.Token)).InitializeWebApi(
+using var cts = new CancellationTokenSource();
+using var engine = new Engine((o) => o.CancellationToken(cts.Token)).InitializeWebApi(
     new() { CancellationToken = cts.Token }
 );
 
@@ -27,8 +27,7 @@ engine.Execute(
     """
 );
 
-engine.Dispose();
-cts.Dispose();
+cts.Cancel();
 ```
 
 ## Development Progress
@@ -49,6 +48,7 @@ cts.Dispose();
   - [x] `console`
 - Data
   - [x] `Blob`
+  - [ ] `Document`
   - [x] `File`
   - [x] `FileReader`
   - [x] `FileReaderSync`
@@ -73,9 +73,9 @@ cts.Dispose();
   - [x] `Request`
   - [x] `Response`
   - [x] `WebSocket`
-  - [ ] `XMLHttpRequest`
-  - [ ] `XMLHttpRequestEventTarget`
-  - [ ] `XMLHttpRequestUpload`
+  - [x] `XMLHttpRequest`
+  - [x] `XMLHttpRequestEventTarget`
+  - [x] `XMLHttpRequestUpload`
 - Streams
   - [x] `ByteLengthQueuingStrategy`
   - [x] `CountQueuingStrategy`

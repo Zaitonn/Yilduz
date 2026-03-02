@@ -3,7 +3,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class ErrorTests : FetchTestBase
+public sealed class ErrorTests : HttpRouteTestBase
 {
     [Fact]
     public void ShouldRejectOnNetworkError()

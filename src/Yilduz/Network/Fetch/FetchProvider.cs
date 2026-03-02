@@ -84,9 +84,9 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
         controller = FetchImplementation.Fetch(
             engine,
             webApiIntrinsics,
-            webApiIntrinsics.Options,
-            webApiIntrinsics.EventLoop,
             request,
+            processRequestBodyChunkLength: null,
+            processRequestEndOfBody: null,
             processResponse: response =>
             {
                 // Step 13.1. If locallyAborted is true, then abort these steps.

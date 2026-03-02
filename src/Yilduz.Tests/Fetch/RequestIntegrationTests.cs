@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class RequestIntegrationTests : FetchTestBase
+public sealed class RequestIntegrationTests : HttpRouteTestBase
 {
     [Fact]
     public void ShouldAcceptRequestObjectAsInput()

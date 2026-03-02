@@ -1,4 +1,3 @@
-using System;
 using Jint;
 using Jint.Native;
 using Jint.Native.Json;
@@ -8,7 +7,6 @@ using Jint.Runtime.Descriptors;
 using Jint.Runtime.Interop;
 using Yilduz.Network.Body;
 using Yilduz.Network.Headers;
-using Yilduz.URLs.URL;
 using Yilduz.Utils;
 
 namespace Yilduz.Network.Response;
@@ -215,18 +213,19 @@ internal sealed class ResponseConstructor : Constructor
             TypeErrorHelper.Throw(Engine, "URL is required.", "redirect", "Response");
         }
 
-        URLInstance parsedUrl;
-        try
+        var parsedUrl = _webApiIntrinsics.URL.TryParse(
+            url.AsString(),
+            _webApiIntrinsics.Options.BaseUrl
+        );
+
+        if (parsedUrl is null)
         {
-            parsedUrl = _webApiIntrinsics.URL.Parse(
-                url.AsString(),
-                _webApiIntrinsics.Options.BaseUrl?.ToString()
+            TypeErrorHelper.Throw(
+                Engine,
+                $"Invalid URL: '{url.AsString()}'.",
+                "redirect",
+                "Response"
             );
-        }
-        catch (Exception e) when (e is not JavaScriptException)
-        {
-            TypeErrorHelper.Throw(Engine, "Invalid URL.", "redirect", "Response");
-            return Undefined;
         }
 
         // 2. If status is not a redirect status, then throw a RangeError.

@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class ResponsePropertyTests : FetchTestBase
+public sealed class ResponsePropertyTests : HttpRouteTestBase
 {
     [Theory]
     [InlineData(200, true)]

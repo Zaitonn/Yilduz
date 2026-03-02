@@ -5,7 +5,6 @@ using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Extensions;
-using Yilduz.URLs.URL;
 using Yilduz.Utils;
 
 namespace Yilduz.Network.WebSocket;
@@ -61,26 +60,19 @@ internal sealed class WebSocketConstructor : Constructor
 
         // Let baseURL be this’s relevant settings object’s API base URL.
         // Let urlRecord be the result of applying the URL parser to url with baseURL.
-        URLInstance urlRecord;
+        var urlRecord = _webApiIntrinsics.URL.TryParse(
+            urlArg.ToString(),
+            _webApiIntrinsics.Options.BaseUrl
+        );
 
-        try
+        if (urlRecord == null)
         {
-            urlRecord = _webApiIntrinsics.URL.Parse(
-                urlArg.ToString(),
-                _webApiIntrinsics.Options.BaseUrl?.ToString()
-            );
-        }
-        catch (Exception e) when (e is not JavaScriptException)
-        {
-            // If urlRecord is failure, then throw a "SyntaxError" DOMException.
             DOMExceptionHelper
                 .CreateSyntaxError(
                     Engine,
-                    $"Failed to construct 'WebSocket': An unexpected error occurred while parsing the URL. {e.Message}"
+                    $"Failed to construct 'WebSocket': The URL '{urlArg}' is not a valid URL."
                 )
                 .Throw();
-
-            return null;
         }
 
         var scheme = urlRecord.Protocol.TrimEnd(':');

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using Yilduz.Network.Headers;
 
 namespace Yilduz.Network;
 
@@ -433,5 +434,51 @@ internal static class HttpHelper
         }
 
         return result;
+    }
+
+    public static bool IsMethod(string method)
+    {
+        return !(string.IsNullOrEmpty(method)
+#if NETCOREAPP
+            || method.Contains('\x20')
+#else
+            || method.Contains("\x20")
+#endif
+        );
+    }
+
+    private static readonly HashSet<string> ShouldNormalizeMethodNames = new(
+        StringComparer.OrdinalIgnoreCase
+    )
+    {
+        "delete",
+        "get",
+        "head",
+        "options",
+        "post",
+        "put",
+    };
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#concept-method-normalize
+    /// </summary>
+    public static string NormalizeMethod(string method)
+    {
+        // To normalize a method, if it is a byte-case-insensitive match for `DELETE`, `GET`, `HEAD`, `OPTIONS`, `POST`, or `PUT`, byte-uppercase it.
+        if (ShouldNormalizeMethodNames.Contains(method))
+        {
+            return method.ToUpperInvariant();
+        }
+
+        return method;
+    }
+
+    /// <summary>
+    /// https://fetch.spec.whatwg.org/#concept-header-value-normalize
+    /// </summary>
+    public static string Normalize(string byteSequence)
+    {
+        // To normalize a byte sequence potentialValue, remove any leading and trailing HTTP whitespace bytes from potentialValue.
+        return byteSequence.Trim();
     }
 }

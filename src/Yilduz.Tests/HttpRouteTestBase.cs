@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using Xunit;
 
-namespace Yilduz.Tests.Fetch;
+namespace Yilduz.Tests;
 
-public abstract class FetchTestBase : HttpServerTestBase
+[Collection(nameof(HttpRouteTestBase))]
+public abstract class HttpRouteTestBase : HttpServerTestBase
 {
     private readonly Dictionary<string, Func<HttpListenerContext, Task>> _routes = [];
 

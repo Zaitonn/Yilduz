@@ -50,7 +50,7 @@ public sealed partial class HeadersInstance : ObjectInstance
     /// </summary>
     public void Append(string name, string value)
     {
-        var normalizedValue = Normalize(value);
+        var normalizedValue = HttpHelper.Normalize(value);
 
         if (!Validate(name, normalizedValue, nameof(Append)))
         {
@@ -126,20 +126,7 @@ public sealed partial class HeadersInstance : ObjectInstance
             TypeErrorHelper.Throw(Engine, "Invalid header name", nameof(Get), nameof(Headers));
         }
 
-        return GetInternal(name);
-    }
-
-    /// <summary>
-    /// https://fetch.spec.whatwg.org/#concept-header-list-get
-    /// </summary>
-    private string? GetInternal(string name)
-    {
-        var values = _headers
-            .Where(header => header.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            .Select(header => header.Value)
-            .ToArray();
-
-        return values.Length == 0 ? null : string.Join(", ", values);
+        return _headers.Get(name);
     }
 
     /// <summary>
@@ -175,7 +162,7 @@ public sealed partial class HeadersInstance : ObjectInstance
     /// </summary>
     public void Set(string name, string value)
     {
-        var normalizedValue = Normalize(value);
+        var normalizedValue = HttpHelper.Normalize(value);
 
         if (!Validate(name, normalizedValue, nameof(Set)))
         {
@@ -190,39 +177,11 @@ public sealed partial class HeadersInstance : ObjectInstance
             return;
         }
 
-        SetInternal(name, normalizedValue);
+        _headers.Set(name, normalizedValue);
 
         if (Guard == Guard.RequestNoCors)
         {
             RemovePrivilegedNoCORSRequestHeaders();
-        }
-    }
-
-    private void SetInternal(string name, string value)
-    {
-        if (!_headers.Any(header => header.Name.Equals(name, StringComparison.OrdinalIgnoreCase)))
-        {
-            _headers.Add(new(name, value));
-        }
-        else
-        {
-            var found = false;
-            for (int i = 0; i < _headers.Count; i++)
-            {
-                if (_headers[i].Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-                {
-                    if (!found)
-                    {
-                        _headers[i] = new(name, value);
-                        found = true;
-                    }
-                    else
-                    {
-                        _headers.RemoveAt(i);
-                        i--;
-                    }
-                }
-            }
         }
     }
 
@@ -377,15 +336,6 @@ public sealed partial class HeadersInstance : ObjectInstance
         }
 
         return true;
-    }
-
-    /// <summary>
-    /// https://fetch.spec.whatwg.org/#concept-header-value-normalize
-    /// </summary>
-    private static string Normalize(string byteSequence)
-    {
-        // To normalize a byte sequence potentialValue, remove any leading and trailing HTTP whitespace bytes from potentialValue.
-        return byteSequence.Trim();
     }
 
     /// <summary>

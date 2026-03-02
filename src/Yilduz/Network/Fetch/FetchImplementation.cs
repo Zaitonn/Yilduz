@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -11,7 +13,6 @@ using Yilduz.Network.Body;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
 using Yilduz.Network.Response;
-using Yilduz.Services;
 using Yilduz.URLs.URL;
 
 namespace Yilduz.Network.Fetch;
@@ -34,9 +35,9 @@ internal static class FetchImplementation
     internal static FetchController Fetch(
         Engine engine,
         WebApiIntrinsics webApiIntrinsics,
-        Options options,
-        EventLoop eventLoop,
         RequestConcept request,
+        Action<long>? processRequestBodyChunkLength,
+        Action? processRequestEndOfBody,
         Action<ResponseConcept>? processResponse,
         Action<ResponseConcept>? processResponseEndOfBody,
         CancellationToken cancellationToken
@@ -59,9 +60,9 @@ internal static class FetchImplementation
                 await MainFetchAsync(
                         engine,
                         webApiIntrinsics,
-                        options,
-                        eventLoop,
                         fetchParams,
+                        processRequestBodyChunkLength,
+                        processRequestEndOfBody,
                         processResponse,
                         processResponseEndOfBody,
                         cancellationToken
@@ -79,9 +80,9 @@ internal static class FetchImplementation
     private static async Task MainFetchAsync(
         Engine engine,
         WebApiIntrinsics webApiIntrinsics,
-        Options options,
-        EventLoop eventLoop,
         FetchParams fetchParams,
+        Action<long>? processRequestBodyChunkLength,
+        Action? processRequestEndOfBody,
         Action<ResponseConcept>? processResponse,
         Action<ResponseConcept>? processResponseEndOfBody,
         CancellationToken cancellationToken
@@ -95,9 +96,9 @@ internal static class FetchImplementation
             response = await HttpFetchAsync(
                     engine,
                     webApiIntrinsics,
-                    options,
-                    eventLoop,
                     request,
+                    processRequestBodyChunkLength,
+                    processRequestEndOfBody,
                     cancellationToken
                 )
                 .ConfigureAwait(false);
@@ -111,7 +112,19 @@ internal static class FetchImplementation
             response = ResponseConcept.CreateNetworkError();
         }
 
-        eventLoop.QueueMacrotask(() => processResponse?.Invoke(response));
+        // Queue processResponse, then processResponseEndOfBody on the event loop.
+        // Since we buffer the entire response body before returning from HttpFetchAsync,
+        // the body is already fully consumed by the time processResponse fires.
+        // Per spec: processResponseEndOfBody fires after the body has been fully transmitted.
+        webApiIntrinsics.EventLoop.QueueMacrotask(() =>
+        {
+            processResponse?.Invoke(response);
+
+            // https://fetch.spec.whatwg.org/#fetch-params-process-response-end-of-body
+            // After processResponse has been invoked and the body is known to be fully
+            // consumed, invoke processResponseEndOfBody with the same response.
+            processResponseEndOfBody?.Invoke(response);
+        });
     }
 
     /// <summary>
@@ -123,9 +136,9 @@ internal static class FetchImplementation
     private static async Task<ResponseConcept> HttpFetchAsync(
         Engine engine,
         WebApiIntrinsics webApiIntrinsics,
-        Options options,
-        EventLoop eventLoop,
         RequestConcept request,
+        Action<long>? processRequestBodyChunkLength,
+        Action? processRequestEndOfBody,
         CancellationToken cancellationToken
     )
     {
@@ -135,6 +148,8 @@ internal static class FetchImplementation
         // redirect mode so that AllowAutoRedirect can be configured correctly.
         HttpClient httpClient;
         var ownsClient = false;
+
+        var options = webApiIntrinsics.Options;
 
         if (options.Network.HttpClientFactory is not null)
         {
@@ -157,7 +172,11 @@ internal static class FetchImplementation
 
         try
         {
-            using var httpRequest = BuildHttpRequest(request);
+            using var httpRequest = BuildHttpRequest(
+                request,
+                processRequestBodyChunkLength,
+                processRequestEndOfBody
+            );
 
             using var httpResponse = await httpClient
                 .SendAsync(httpRequest, HttpCompletionOption.ResponseHeadersRead, cancellationToken)
@@ -184,7 +203,6 @@ internal static class FetchImplementation
             return await BuildResponseConceptAsync(
                     engine,
                     webApiIntrinsics,
-                    eventLoop,
                     httpResponse,
                     responseBytes,
                     cancellationToken
@@ -204,7 +222,11 @@ internal static class FetchImplementation
     /// Constructs an <see cref="HttpRequestMessage"/> from a <see cref="RequestConcept"/>.
     /// https://fetch.spec.whatwg.org/#http-network-or-cache-fetch
     /// </summary>
-    private static HttpRequestMessage BuildHttpRequest(RequestConcept request)
+    private static HttpRequestMessage BuildHttpRequest(
+        RequestConcept request,
+        Action<long>? processRequestBodyChunkLength,
+        Action? processRequestEndOfBody
+    )
     {
         var httpMethod = new HttpMethod(request.Method);
         var requestUri = request.CurrentURL.Href;
@@ -213,7 +235,21 @@ internal static class FetchImplementation
         var bodyBytes = GetRequestBodyBytes(request);
         if (bodyBytes is { Length: > 0 })
         {
-            httpRequest.Content = new ByteArrayContent(bodyBytes);
+            // If a chunk-length or end-of-body callback is provided, use ProgressContent
+            // to report upload progress.
+            // https://fetch.spec.whatwg.org/#fetch-params-process-request-body-chunk-length
+            httpRequest.Content =
+                processRequestBodyChunkLength is not null || processRequestEndOfBody is not null
+                    ? new ProgressContent(
+                        bodyBytes,
+                        processRequestBodyChunkLength,
+                        processRequestEndOfBody
+                    )
+                    : new ByteArrayContent(bodyBytes);
+        }
+        else
+        {
+            httpRequest.Content = new StringContent(string.Empty);
         }
 
         foreach (var header in request.HeaderList)
@@ -222,7 +258,6 @@ internal static class FetchImplementation
             // must be added to Content.Headers; all others go on the request.
             if (!httpRequest.Headers.TryAddWithoutValidation(header.Name, header.Value))
             {
-                httpRequest.Content ??= new ByteArrayContent(Array.Empty<byte>());
                 httpRequest.Content.Headers.TryAddWithoutValidation(header.Name, header.Value);
             }
         }
@@ -230,16 +265,9 @@ internal static class FetchImplementation
         return httpRequest;
     }
 
-    /// <summary>
-    /// Builds a <see cref="ResponseConcept"/> from the raw HTTP response data.
-    /// Body creation (ReadableStream) must happen on the JS thread, so this method
-    /// posts the work back via <paramref name="eventLoop"/> and awaits the result.
-    /// https://fetch.spec.whatwg.org/#concept-response
-    /// </summary>
     private static Task<ResponseConcept> BuildResponseConceptAsync(
         Engine engine,
         WebApiIntrinsics webApiIntrinsics,
-        EventLoop eventLoop,
         HttpResponseMessage httpResponse,
         byte[] responseBytes,
         CancellationToken cancellationToken
@@ -256,7 +284,7 @@ internal static class FetchImplementation
 
         var tcs = new TaskCompletionSource<ResponseConcept>();
 
-        eventLoop.QueueMacrotask(() =>
+        webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
             try
             {
@@ -278,10 +306,10 @@ internal static class FetchImplementation
                     );
                 }
 
-                var urlList = new System.Collections.Generic.List<URLInstance>();
+                var urlList = new List<URLInstance>();
                 if (finalUri is not null)
                 {
-                    var parsedUrl = webApiIntrinsics.URL.Parse(finalUri.AbsoluteUri, null);
+                    var parsedUrl = webApiIntrinsics.URL.Parse(finalUri.AbsoluteUri);
                     if (!parsedUrl.IsNull())
                     {
                         urlList.Add(parsedUrl);
@@ -376,4 +404,57 @@ internal static class FetchImplementation
     /// </summary>
     private static bool IsRedirectStatus(HttpStatusCode status) =>
         (int)status is 301 or 302 or 303 or 307 or 308;
+
+    private sealed class ProgressContent(byte[] data, Action<long>? onChunk, Action? onEndOfBody)
+        : HttpContent
+    {
+#if NET5_0_OR_GREATER
+        protected override async Task SerializeToStreamAsync(
+            Stream stream,
+            TransportContext? context,
+            CancellationToken cancellationToken
+        )
+        {
+            await WriteChunksAsync(stream, cancellationToken).ConfigureAwait(false);
+        }
+#endif
+
+        protected override async Task SerializeToStreamAsync(
+            Stream stream,
+            TransportContext? context
+        )
+        {
+            await WriteChunksAsync(stream, CancellationToken.None).ConfigureAwait(false);
+        }
+
+        private async Task WriteChunksAsync(Stream stream, CancellationToken cancellationToken)
+        {
+            var offset = 0;
+            while (offset < data.Length)
+            {
+                var count = Math.Min(65_536, data.Length - offset);
+#if NET5_0_OR_GREATER
+                await stream
+                    .WriteAsync(data.AsMemory(offset, count), cancellationToken)
+                    .ConfigureAwait(false);
+#else
+                await stream
+                    .WriteAsync(data, offset, count, cancellationToken)
+                    .ConfigureAwait(false);
+#endif
+                // https://fetch.spec.whatwg.org/#fetch-params-process-request-body-chunk-length
+                onChunk?.Invoke(count);
+                offset += count;
+            }
+
+            // https://fetch.spec.whatwg.org/#fetch-params-process-request-end-of-body
+            onEndOfBody?.Invoke();
+        }
+
+        protected override bool TryComputeLength(out long length)
+        {
+            length = data.Length;
+            return true;
+        }
+    }
 }

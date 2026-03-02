@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using Yilduz.Network.Body;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
@@ -91,7 +92,7 @@ internal static partial class MIMETypeHelper
     /// <summary>
     /// https://mimesniff.spec.whatwg.org/#parse-a-mime-type
     /// </summary>
-    private static MIMEType Parse(string value)
+    public static MIMEType Parse(string value)
     {
         // 1. Remove any leading and trailing HTTP whitespace from input.
         var input = value.Trim();
@@ -276,5 +277,56 @@ internal static partial class MIMETypeHelper
         }
 
         return result;
+    }
+
+    /// <summary>
+    /// https://mimesniff.spec.whatwg.org/#serialize-a-mime-type
+    /// </summary>
+    public static string Serialize(MIMEType mimeType)
+    {
+        // Let serialization be the concatenation of mimeType’s type, U+002F (/), and mimeType’s subtype.
+        var serialization = new StringBuilder($"{mimeType.Type}/{mimeType.Subtype}");
+
+        // For each name → value of mimeType’s parameters:
+#if NETCOREAPP
+        foreach (var (name, value) in mimeType.Parameters)
+        {
+#else
+        foreach (var kvp in mimeType.Parameters)
+        {
+            var name = kvp.Key;
+            var value = kvp.Value;
+#endif
+            // Append U+003B (;) to serialization.
+            serialization.Append(';');
+
+            // Append name to serialization.
+            serialization.Append(name);
+
+            // Append U+003D (=) to serialization.
+            serialization.Append('=');
+
+            // If value does not solely contain HTTP token code points or value is the empty string, then:
+            if (string.IsNullOrEmpty(value) || value.Any(c => !TokenCodePoints.Contains(c)))
+            {
+                // Precede each occurrence of U+0022 (") or U+005C (\) in value with U+005C (\).
+                var v = value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+
+                // Prepend U+0022 (") to value
+                // Append U+0022 (") to value
+                v = $"\"{v}\"";
+
+                // Append value to serialization
+                serialization.Append(v);
+            }
+            else
+            {
+                // Append value to serialization
+                serialization.Append(value);
+            }
+        }
+
+        // Return serialization.
+        return serialization.ToString();
     }
 }

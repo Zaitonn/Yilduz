@@ -16,6 +16,27 @@ internal sealed class XMLHttpRequestConstructor : Constructor
         {
             Prototype = webApiIntrinsics.XMLHttpRequestEventTarget.PrototypeObject,
         };
+
+        SetOwnProperty(
+            nameof(XMLHttpRequestReadyState.Unsent).ToUpperInvariant(),
+            new((int)XMLHttpRequestReadyState.Unsent, false, false, false)
+        );
+        SetOwnProperty(
+            nameof(XMLHttpRequestReadyState.Opened).ToUpperInvariant(),
+            new((int)XMLHttpRequestReadyState.Opened, false, false, false)
+        );
+        SetOwnProperty(
+            nameof(XMLHttpRequestReadyState.Headers_Received).ToUpperInvariant(),
+            new((int)XMLHttpRequestReadyState.Headers_Received, false, false, false)
+        );
+        SetOwnProperty(
+            nameof(XMLHttpRequestReadyState.Loading).ToUpperInvariant(),
+            new((int)XMLHttpRequestReadyState.Loading, false, false, false)
+        );
+        SetOwnProperty(
+            nameof(XMLHttpRequestReadyState.Done).ToUpperInvariant(),
+            new((int)XMLHttpRequestReadyState.Done, false, false, false)
+        );
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 

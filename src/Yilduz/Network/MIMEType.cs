@@ -12,7 +12,10 @@ sealed record MIMEType
     }
 
     internal string Type { get; }
+
     internal string Subtype { get; }
+
     internal Dictionary<string, string> Parameters { get; }
+
     internal string Essence => $"{Type}/{Subtype}";
 }

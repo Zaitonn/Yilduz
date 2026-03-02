@@ -5,7 +5,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class MultipartTests : FetchTestBase
+public sealed class MultipartTests : HttpRouteTestBase
 {
     [Fact]
     public void ShouldUploadMultipartFormDataText()

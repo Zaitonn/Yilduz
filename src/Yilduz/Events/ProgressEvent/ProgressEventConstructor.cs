@@ -29,4 +29,21 @@ internal sealed class ProgressEventConstructor : Constructor
             Prototype = PrototypeObject,
         };
     }
+
+    public ProgressEventInstance CreateInstance(
+        string type,
+        ulong loaded,
+        ulong total,
+        bool lengthComputable
+    )
+    {
+        return new ProgressEventInstance(Engine, Undefined, Undefined)
+        {
+            Prototype = PrototypeObject,
+            Loaded = loaded,
+            Type = type,
+            Total = total,
+            LengthComputable = lengthComputable,
+        };
+    }
 }

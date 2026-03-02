@@ -84,15 +84,55 @@ internal sealed partial class URLConstructor : Constructor
         }
     }
 
-    internal URLInstance Parse(string url, string? baseUrl)
+    internal URLInstance? TryParse(string url, Uri? baseUrl)
+    {
+        try
+        {
+            var uri = new Uri(url, UriKind.RelativeOrAbsolute);
+
+            if (!uri.IsAbsoluteUri)
+            {
+                if (baseUrl is not null)
+                {
+                    uri = new(baseUrl, uri);
+                }
+                else
+                {
+                    return null;
+                }
+            }
+
+            var urlInstance = new URLInstance(Engine)
+            {
+                Prototype = PrototypeObject,
+                Href = uri.AbsoluteUri,
+            };
+
+            return urlInstance;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    internal URLInstance Parse(string url, string? baseUrl = null)
     {
         var uri = new Uri(url, UriKind.RelativeOrAbsolute);
 
         if (!uri.IsAbsoluteUri)
         {
-            uri = baseUrl is not null
-                ? new(new(baseUrl, UriKind.RelativeOrAbsolute), uri)
-                : throw new ArgumentException("Invalid base URL");
+            if (baseUrl is not null)
+            {
+                uri = new(new(baseUrl, UriKind.RelativeOrAbsolute), uri);
+            }
+            else
+            {
+                TypeErrorHelper.Throw(
+                    Engine,
+                    $"Failed to parse URL: '{url}' is not an absolute URL and no base URL was provided."
+                );
+            }
         }
 
         var urlInstance = new URLInstance(Engine)

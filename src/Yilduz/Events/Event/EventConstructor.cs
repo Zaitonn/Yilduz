@@ -35,10 +35,10 @@ public class EventConstructor : Constructor
     {
         arguments.EnsureCount(Engine, 1, "Failed to construct 'Event'");
 
-        return ConstructWithEventName(arguments.At(0).ToString(), arguments.At(1));
+        return CreateInstanceWithEventName(arguments.At(0).ToString(), arguments.At(1));
     }
 
-    public EventInstance ConstructWithEventName(string eventName, JsValue options)
+    public EventInstance CreateInstanceWithEventName(string eventName, JsValue options)
     {
         return new(Engine, eventName, options) { Prototype = PrototypeObject };
     }

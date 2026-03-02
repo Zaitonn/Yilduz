@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class BodyUploadTests : FetchTestBase
+public sealed class BodyUploadTests : HttpRouteTestBase
 {
     [Fact]
     public void ShouldUploadStringBody()

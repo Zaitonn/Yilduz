@@ -1,7 +1,6 @@
+using System;
 using Jint;
-using Jint.Native.Function;
 using Yilduz.Network.Request;
-using Yilduz.Network.Response;
 
 namespace Yilduz.Network.Fetch;
 
@@ -17,33 +16,36 @@ internal sealed record FetchParams(Engine engine)
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-process-request-body-chunk-length
+    /// Called for each chunk of the request body transmitted, with the byte length of that chunk.
     /// </summary>
-    public ulong? ProcessRequestBodyChunkLength { get; set; }
+    public Action<long>? ProcessRequestBodyChunkLength { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-process-request-end-of-body
+    /// Called when the entire request body has been transmitted.
     /// </summary>
-    public Function? ProcessRequestEndOfBody { get; set; }
+    public Action? ProcessRequestEndOfBody { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-process-early-hints-response
     /// </summary>
-    public Function? ProcessEarlyHintsResponse { get; set; }
+    public object? ProcessEarlyHintsResponse { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-process-response
     /// </summary>
-    public Function? ProcessResponse { get; set; }
+    public object? ProcessResponse { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-process-response-end-of-body
+    /// Called after the response body has been fully consumed.
     /// </summary>
-    public Function? ProcessResponseEndOfBody { get; set; }
+    public object? ProcessResponseEndOfBody { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-process-response-consume-body
     /// </summary>
-    public Function? ProcessResponseConsumeBody { get; set; }
+    public object? ProcessResponseConsumeBody { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-params-task-destination

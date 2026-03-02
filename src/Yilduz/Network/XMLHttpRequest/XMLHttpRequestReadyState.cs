@@ -9,7 +9,7 @@ public enum XMLHttpRequestReadyState
 
     Opened = 1,
 
-    HeadersReceived = 2,
+    Headers_Received = 2,
 
     Loading = 3,
 

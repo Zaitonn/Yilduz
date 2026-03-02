@@ -8,6 +8,13 @@ namespace Yilduz.Network.XMLHttpRequestUpload;
 /// </summary>
 public sealed class XMLHttpRequestUploadInstance : XMLHttpRequestEventTargetInstance
 {
-    internal XMLHttpRequestUploadInstance(Engine engine)
-        : base(engine) { }
+    internal XMLHttpRequestUploadInstance(Engine engine, WebApiIntrinsics webApiIntrinsics)
+        : base(engine, webApiIntrinsics) { }
+
+    internal void FireEvent(string eventName, ulong transmitted, ulong length)
+    {
+        DispatchEvent(
+            _webApiIntrinsics.ProgressEvent.CreateInstance(eventName, transmitted, length, true)
+        );
+    }
 }

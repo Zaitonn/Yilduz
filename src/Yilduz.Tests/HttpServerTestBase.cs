@@ -2,9 +2,11 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace Yilduz.Tests;
 
+[Collection(nameof(HttpServerTestBase))]
 public abstract class HttpServerTestBase : TestBase
 {
     private readonly HttpListener _listener;

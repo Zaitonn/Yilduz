@@ -46,7 +46,7 @@ public sealed partial class WebSocketInstance
             _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
             {
                 ReadyState = WebSocketReadyState.Open;
-                FireSimpleEvent("open");
+                FireEvent("open");
             });
 
             await ReceiveLoopAsync(token).ConfigureAwait(false);
@@ -61,7 +61,7 @@ public sealed partial class WebSocketInstance
             {
                 ReadyState = WebSocketReadyState.Closed;
 
-                FireSimpleEvent("error");
+                FireEvent("error");
                 FireCloseEvent(false, 1006, string.Empty);
             });
         }
@@ -191,11 +191,6 @@ public sealed partial class WebSocketInstance
         {
             // If sending the close frame fails the receive loop will detect the disconnection.
         }
-    }
-
-    private void FireSimpleEvent(string type)
-    {
-        DispatchEvent(_webApiIntrinsics.Event.ConstructWithEventName(type, Undefined));
     }
 
     private void FireCloseEvent(bool wasClean, ushort code, string reason)

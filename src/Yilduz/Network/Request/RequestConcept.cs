@@ -47,7 +47,7 @@ internal sealed class RequestConcept
     /// <summary>
     /// https://fetch.spec.whatwg.org/#concept-request-reserved-client
     /// </summary>
-    public JsValue Client { get; set; } = JsValue.Null;
+    public object? Client { get; set; }
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#concept-request-reserved-client

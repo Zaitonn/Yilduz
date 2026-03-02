@@ -1,5 +1,7 @@
 using System;
+using System.Runtime.CompilerServices;
 using Jint;
+using Jint.Native;
 using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
@@ -203,71 +205,66 @@ public sealed class WebApiIntrinsics
 
     private void ConfigureEngine()
     {
-        _engine.SetValue(nameof(AbortController), AbortController);
-        _engine.SetValue(nameof(AbortSignal), AbortSignal);
-        _engine.SetValue(nameof(Blob), Blob);
-        _engine.SetValue(nameof(File), File);
-        _engine.SetValue(nameof(FileReader), FileReader);
-        _engine.SetValue(nameof(FileReaderSync), FileReaderSync);
-        _engine.SetValue(nameof(TextEncoder), TextEncoder);
-        _engine.SetValue(nameof(TextDecoder), TextDecoder);
-        _engine.SetValue(nameof(TextEncoderStream), TextEncoderStream);
-        _engine.SetValue(nameof(TextDecoderStream), TextDecoderStream);
-        _engine.SetValue(nameof(DOMException), DOMException);
-        _engine.SetValue(nameof(Event), Event);
-        _engine.SetValue(nameof(ProgressEvent), ProgressEvent);
-        _engine.SetValue(nameof(MessageEvent), MessageEvent);
-        _engine.SetValue(nameof(CloseEvent), CloseEvent);
-        _engine.SetValue(nameof(EventTarget), EventTarget);
-        _engine.SetValue(nameof(URL), URL);
-        _engine.SetValue(nameof(URLSearchParams), URLSearchParams);
-        _engine.SetValue(nameof(CountQueuingStrategy), CountQueuingStrategy);
-        _engine.SetValue(nameof(ByteLengthQueuingStrategy), ByteLengthQueuingStrategy);
-        _engine.SetValue(nameof(ReadableStream), ReadableStream);
-        _engine.SetValue(nameof(ReadableStreamDefaultController), ReadableStreamDefaultController);
-        _engine.SetValue(nameof(ReadableStreamDefaultReader), ReadableStreamDefaultReader);
-        _engine.SetValue(nameof(ReadableStreamBYOBReader), ReadableStreamBYOBReader);
-        _engine.SetValue(nameof(ReadableStreamBYOBRequest), ReadableStreamBYOBRequest);
-        _engine.SetValue(nameof(ReadableByteStreamController), ReadableByteStreamController);
-        _engine.SetValue(nameof(WritableStream), WritableStream);
-        _engine.SetValue(nameof(WritableStreamDefaultWriter), WritableStreamDefaultWriter);
-        _engine.SetValue(nameof(WritableStreamDefaultController), WritableStreamDefaultController);
-        _engine.SetValue(nameof(TransformStream), TransformStream);
-        _engine.SetValue(
-            nameof(TransformStreamDefaultController),
-            TransformStreamDefaultController
-        );
-        _engine.SetValue(nameof(Storage), Storage);
-        _engine.SetValue(nameof(FormData), FormData);
-        _engine.SetValue(nameof(Request), Request);
-        _engine.SetValue(nameof(Response), Response);
-        _engine.SetValue(nameof(Headers), Headers);
-        _engine.SetValue(nameof(WebSocket), WebSocket);
-        _engine.SetValue(nameof(XMLHttpRequest), XMLHttpRequest);
-        _engine.SetValue(nameof(XMLHttpRequestEventTarget), XMLHttpRequestEventTarget);
-        _engine.SetValue(nameof(XMLHttpRequestUpload), XMLHttpRequestUpload);
-        _engine.SetValue("console", Console);
-        _engine.SetValue("localStorage", LocalStorage);
-        _engine.SetValue("sessionStorage", SessionStorage);
-        _engine.SetValue("atob", new ClrFunction(_engine, "atob", Base64Provider.Decode));
-        _engine.SetValue("btoa", new ClrFunction(_engine, "btoa", Base64Provider.Encode));
-        _engine.SetValue("fetch", new ClrFunction(_engine, "fetch", FetchProvider.Fetch));
+        FastSet(AbortController);
+        FastSet(AbortSignal);
+        FastSet(Blob);
+        FastSet(File);
+        FastSet(FileReader);
+        FastSet(FileReaderSync);
+        FastSet(TextEncoder);
+        FastSet(TextDecoder);
+        FastSet(TextEncoderStream);
+        FastSet(TextDecoderStream);
+        FastSet(DOMException);
+        FastSet(Event);
+        FastSet(ProgressEvent);
+        FastSet(MessageEvent);
+        FastSet(CloseEvent);
+        FastSet(EventTarget);
+        FastSet(URL);
+        FastSet(URLSearchParams);
+        FastSet(CountQueuingStrategy);
+        FastSet(ByteLengthQueuingStrategy);
+        FastSet(ReadableStream);
+        FastSet(ReadableStreamDefaultController);
+        FastSet(ReadableStreamDefaultReader);
+        FastSet(ReadableStreamBYOBReader);
+        FastSet(ReadableStreamBYOBRequest);
+        FastSet(ReadableByteStreamController);
+        FastSet(WritableStream);
+        FastSet(WritableStreamDefaultWriter);
+        FastSet(WritableStreamDefaultController);
+        FastSet(TransformStream);
+        FastSet(TransformStreamDefaultController);
+        FastSet(Storage);
+        FastSet(FormData);
+        FastSet(Request);
+        FastSet(Response);
+        FastSet(Headers);
+        FastSet(WebSocket);
+        FastSet(XMLHttpRequest);
+        FastSet(XMLHttpRequestEventTarget);
+        FastSet(XMLHttpRequestUpload);
 
-        _engine.SetValue(
-            "setTimeout",
-            new ClrFunction(_engine, "setTimeout", TimerProvider.SetTimeout)
-        );
-        _engine.SetValue(
-            "setInterval",
-            new ClrFunction(_engine, "setInterval", TimerProvider.SetInterval)
-        );
-        _engine.SetValue(
-            "clearTimeout",
-            new ClrFunction(_engine, "clearTimeout", TimerProvider.Clear)
-        );
-        _engine.SetValue(
-            "clearInterval",
-            new ClrFunction(_engine, "clearInterval", TimerProvider.Clear)
-        );
+        Set("console", Console);
+        Set("localStorage", LocalStorage);
+        Set("sessionStorage", SessionStorage);
+        Set("atob", new ClrFunction(_engine, "atob", Base64Provider.Decode));
+        Set("btoa", new ClrFunction(_engine, "btoa", Base64Provider.Encode));
+        Set("fetch", new ClrFunction(_engine, "fetch", FetchProvider.Fetch));
+        Set("setTimeout", new ClrFunction(_engine, "setTimeout", TimerProvider.SetTimeout));
+        Set("setInterval", new ClrFunction(_engine, "setInterval", TimerProvider.SetInterval));
+        Set("clearTimeout", new ClrFunction(_engine, "clearTimeout", TimerProvider.Clear));
+        Set("clearInterval", new ClrFunction(_engine, "clearInterval", TimerProvider.Clear));
+
+        void Set(string key, JsValue jsValue)
+        {
+            _engine.SetValue(key, jsValue);
+        }
+
+        void FastSet(JsValue jsValue, [CallerArgumentExpression(nameof(jsValue))] string key = "")
+        {
+            _engine.SetValue(key, jsValue);
+        }
     }
 }

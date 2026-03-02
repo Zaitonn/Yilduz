@@ -23,7 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Yilduz\Yilduz.csproj" />
-    <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" />
+    <!-- <Content Include="xunit.runner.json" CopyToOutputDirectory="PreserveNewest" /> -->
   </ItemGroup>
 
 </Project>

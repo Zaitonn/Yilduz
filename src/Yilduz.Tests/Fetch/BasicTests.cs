@@ -4,7 +4,7 @@ using Xunit;
 
 namespace Yilduz.Tests.Fetch;
 
-public sealed class BasicTests : FetchTestBase
+public sealed class BasicTests : HttpRouteTestBase
 {
     [Fact]
     public void ShouldFetchTextResponse()
