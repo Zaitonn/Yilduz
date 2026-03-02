@@ -70,7 +70,10 @@ public sealed class ReadableByteStreamControllerInstance
                 // Set byobRequest.[[controller]] to controller.
                 // Set byobRequest.[[view]] to view.
                 // Set controller.[[byobRequest]] to byobRequest.
-                var byobRequest = _webApiIntrinsics.ReadableStreamBYOBRequest.Construct(this, view);
+                var byobRequest = _webApiIntrinsics.ReadableStreamBYOBRequest.CreateInstance(
+                    this,
+                    view
+                );
                 _byobRequest = byobRequest;
             }
 

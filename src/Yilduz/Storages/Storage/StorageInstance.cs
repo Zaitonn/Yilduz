@@ -77,7 +77,7 @@ public sealed class StorageInstance : ObjectInstance
     {
         lock (_map)
         {
-#if !NETSTANDARD2_0
+#if NETCOREAPP
             if (!_map.Remove(key, out var oldValue))
 #else
             if (!_map.TryGetValue(key, out var oldValue) || !_map.Remove(key))

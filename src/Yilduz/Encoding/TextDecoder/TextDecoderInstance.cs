@@ -179,10 +179,10 @@ public sealed class TextDecoderInstance : ObjectInstance
             return string.Empty;
         }
 
-#if NETSTANDARD
-        return new(span[startIndex..].ToArray());
-#else
+#if NETCOREAPP
         return new(span[startIndex..]);
+#else
+        return new(span[startIndex..].ToArray());
 #endif
     }
 

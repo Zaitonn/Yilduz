@@ -1,3 +1,4 @@
+using System;
 using Jint;
 using Jint.Native.Object;
 using Jint.Runtime.Interop;
@@ -7,12 +8,12 @@ namespace Yilduz.Console;
 
 public sealed partial class ConsoleInstance : ObjectInstance, IConsole
 {
-    private readonly IConsole _console;
+    private readonly Lazy<IConsole> _console;
 
-    internal ConsoleInstance(Engine engine, IConsole console)
+    internal ConsoleInstance(Engine engine, Lazy<IConsole> console)
         : base(engine)
     {
-        _console = console;
+        _console = console ?? throw new ArgumentNullException(nameof(console));
         Configure();
     }
 

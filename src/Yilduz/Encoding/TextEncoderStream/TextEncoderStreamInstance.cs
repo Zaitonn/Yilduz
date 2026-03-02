@@ -49,7 +49,7 @@ public sealed class TextEncoderStreamInstance : ObjectInstance, IGenericTransfor
             new ClrFunction(engine, "transform", (_, args) => Transform(args.At(0), args.At(1)))
         );
 
-        _transformStream = webApiIntrinsics.TransformStream.Construct(
+        _transformStream = webApiIntrinsics.TransformStream.CreateInstance(
             transformer,
             Undefined,
             Undefined

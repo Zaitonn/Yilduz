@@ -62,15 +62,17 @@ cts.Dispose();
   - [x] `TextEncoder`
   - [x] `TextEncoderStream`
 - Events
+  - [x] `CloseEvent`
   - [x] `Event`
   - [x] `EventTarget`
+  - [x] `MessageEvent`
   - [x] `ProgressEvent`
 - Network
   - [x] `fetch()`
   - [x] `Headers`
   - [x] `Request`
   - [x] `Response`
-  - [ ] `WebSocket`
+  - [x] `WebSocket`
   - [ ] `XMLHttpRequest`
   - [ ] `XMLHttpRequestEventTarget`
   - [ ] `XMLHttpRequestUpload`
@@ -141,6 +143,8 @@ This enables support for legacy encodings such as Windows-1252, Shift-JIS, and o
 ### Spec Deviations
 
 Some behaviors may differ slightly from Web specs because certain features wrap .NET types; we're working through these gaps.
+
+- [`WebSocket.extensions`](https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/extensions) is only available when using .NET 7.0 or later, since the [`ClientWebSocket.HttpResponseHeaders`](https://learn.microsoft.com/en-us/dotnet/api/system.net.websockets.clientwebsocket.httpresponseheaders) property requires .NET 7.0+. On earlier versions, this value will always be an empty string (`''`).
 
 ## Origin of the name
 

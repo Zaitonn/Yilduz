@@ -67,7 +67,7 @@ internal sealed class ResponseConstructor : Constructor
         var responseObject = new ResponseInstance(Engine, _webApiIntrinsics, response)
         {
             Prototype = PrototypeObject,
-            Headers = _webApiIntrinsics.Headers.Construct(response.HeaderList, guard),
+            Headers = _webApiIntrinsics.Headers.CreateInstance(response.HeaderList, guard),
         };
         return responseObject;
     }
@@ -220,7 +220,7 @@ internal sealed class ResponseConstructor : Constructor
         {
             parsedUrl = _webApiIntrinsics.URL.Parse(
                 url.AsString(),
-                _webApiIntrinsics.Options.Network.BaseUrl?.ToString()
+                _webApiIntrinsics.Options.BaseUrl?.ToString()
             );
         }
         catch (Exception e) when (e is not JavaScriptException)

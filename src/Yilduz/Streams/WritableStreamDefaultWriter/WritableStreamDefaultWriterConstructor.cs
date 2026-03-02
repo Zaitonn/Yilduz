@@ -37,7 +37,7 @@ internal sealed class WritableStreamDefaultWriterConstructor : Constructor
         return null;
     }
 
-    public WritableStreamDefaultWriterInstance Construct()
+    public WritableStreamDefaultWriterInstance CreateInstance()
     {
         return new(Engine) { Prototype = PrototypeObject };
     }

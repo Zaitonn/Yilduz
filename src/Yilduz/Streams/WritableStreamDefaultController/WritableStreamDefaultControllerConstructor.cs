@@ -24,7 +24,7 @@ internal sealed class WritableStreamDefaultControllerConstructor : Constructor
         return null;
     }
 
-    public WritableStreamDefaultControllerInstance Construct(
+    public WritableStreamDefaultControllerInstance CreateInstance(
         WritableStreamInstance writableStreamInstance,
         Function writeAlgorithm,
         Function closeAlgorithm,

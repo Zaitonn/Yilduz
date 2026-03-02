@@ -213,7 +213,7 @@ public sealed partial class WritableStreamInstance
     {
         Controller = Engine
             .GetWebApiIntrinsics()
-            .WritableStreamDefaultController.Construct(
+            .WritableStreamDefaultController.CreateInstance(
                 this,
                 writeAlgorithm,
                 closeAlgorithm,
@@ -481,7 +481,7 @@ public sealed partial class WritableStreamInstance
 
     internal WritableStreamDefaultWriterInstance AcquireWriter()
     {
-        var writer = Engine.GetWebApiIntrinsics().WritableStreamDefaultWriter.Construct();
+        var writer = Engine.GetWebApiIntrinsics().WritableStreamDefaultWriter.CreateInstance();
         SetUpWriter(writer);
         return writer;
     }

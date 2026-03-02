@@ -24,7 +24,7 @@ internal sealed class ReadableStreamDefaultControllerConstructor : Constructor
         return null;
     }
 
-    public ReadableStreamDefaultControllerInstance Construct(
+    public ReadableStreamDefaultControllerInstance CreateInstance(
         ReadableStreamInstance readableStreamInstance,
         double highWaterMark,
         Function? sizeAlgorithm

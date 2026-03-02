@@ -14,13 +14,16 @@ using Yilduz.Encoding.TextDecoder;
 using Yilduz.Encoding.TextDecoderStream;
 using Yilduz.Encoding.TextEncoder;
 using Yilduz.Encoding.TextEncoderStream;
+using Yilduz.Events.CloseEvent;
 using Yilduz.Events.Event;
 using Yilduz.Events.EventTarget;
+using Yilduz.Events.MessageEvent;
 using Yilduz.Events.ProgressEvent;
 using Yilduz.Network.Fetch;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
 using Yilduz.Network.Response;
+using Yilduz.Network.WebSocket;
 using Yilduz.Network.XMLHttpRequest;
 using Yilduz.Network.XMLHttpRequestEventTarget;
 using Yilduz.Network.XMLHttpRequestUpload;
@@ -65,6 +68,8 @@ public sealed class WebApiIntrinsics
     public EventTargetConstructor EventTarget { get; }
     public EventConstructor Event { get; }
     internal ProgressEventConstructor ProgressEvent { get; }
+    internal MessageEventConstructor MessageEvent { get; }
+    internal CloseEventConstructor CloseEvent { get; }
 
     internal URLConstructor URL { get; }
     internal URLSearchParamsConstructor URLSearchParams { get; }
@@ -96,6 +101,7 @@ public sealed class WebApiIntrinsics
     internal RequestConstructor Request { get; }
     internal ResponseConstructor Response { get; }
     internal HeadersConstructor Headers { get; }
+    internal WebSocketConstructor WebSocket { get; }
     internal XMLHttpRequestConstructor XMLHttpRequest { get; }
     internal XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
     internal XMLHttpRequestUploadConstructor XMLHttpRequestUpload { get; }
@@ -120,6 +126,8 @@ public sealed class WebApiIntrinsics
 
         Event = new(_engine);
         ProgressEvent = new(_engine, this);
+        MessageEvent = new(_engine, this);
+        CloseEvent = new(_engine, this);
         EventTarget = new(_engine);
 
         AbortSignal = new(_engine, this);
@@ -161,6 +169,7 @@ public sealed class WebApiIntrinsics
         Request = new(_engine, this);
         Response = new(_engine, this);
         Headers = new(_engine);
+        WebSocket = new(_engine, this);
         XMLHttpRequestEventTarget = new(_engine, this);
         XMLHttpRequestUpload = new(_engine, this);
         XMLHttpRequest = new(_engine, this);
@@ -175,7 +184,13 @@ public sealed class WebApiIntrinsics
 
         Console = new(
             _engine,
-            Options.ConsoleFactory?.Invoke(engine) ?? new DefaultConsole(engine)
+            new(
+                () =>
+                    Options.ConsoleFactory is not null
+                        ? Options.ConsoleFactory.Invoke(engine)
+                            ?? throw new InvalidOperationException("Console factory returned null.")
+                        : new DefaultConsole(engine)
+            )
         );
 
         LocalStorage = Storage.CreateInstance(Options.Storage.LocalStorageDataProvider);
@@ -201,6 +216,8 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(DOMException), DOMException);
         _engine.SetValue(nameof(Event), Event);
         _engine.SetValue(nameof(ProgressEvent), ProgressEvent);
+        _engine.SetValue(nameof(MessageEvent), MessageEvent);
+        _engine.SetValue(nameof(CloseEvent), CloseEvent);
         _engine.SetValue(nameof(EventTarget), EventTarget);
         _engine.SetValue(nameof(URL), URL);
         _engine.SetValue(nameof(URLSearchParams), URLSearchParams);
@@ -225,6 +242,7 @@ public sealed class WebApiIntrinsics
         _engine.SetValue(nameof(Request), Request);
         _engine.SetValue(nameof(Response), Response);
         _engine.SetValue(nameof(Headers), Headers);
+        _engine.SetValue(nameof(WebSocket), WebSocket);
         _engine.SetValue(nameof(XMLHttpRequest), XMLHttpRequest);
         _engine.SetValue(nameof(XMLHttpRequestEventTarget), XMLHttpRequestEventTarget);
         _engine.SetValue(nameof(XMLHttpRequestUpload), XMLHttpRequestUpload);

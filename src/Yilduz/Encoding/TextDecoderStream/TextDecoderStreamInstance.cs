@@ -66,7 +66,7 @@ public sealed class TextDecoderStreamInstance : ObjectInstance, IGenericTransfor
         );
         transformer.Set("flush", new ClrFunction(engine, "flush", (_, args) => Flush(args.At(0))));
 
-        _transformStream = webApiIntrinsics.TransformStream.Construct(
+        _transformStream = webApiIntrinsics.TransformStream.CreateInstance(
             transformer,
             Undefined,
             Undefined

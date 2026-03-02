@@ -44,14 +44,14 @@ public sealed class AbortSignalConstructor : Constructor
         return null;
     }
 
-    internal AbortSignalInstance Construct()
+    internal AbortSignalInstance CreateInstance()
     {
         return new(Engine) { Prototype = PrototypeObject };
     }
 
     internal AbortSignalInstance CreateDependentSignal(AbortSignalInstance? parent)
     {
-        var signal = Construct();
+        var signal = CreateInstance();
 
         if (parent is null)
         {
@@ -75,7 +75,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Abort(JsValue reason)
     {
-        var signal = Construct();
+        var signal = CreateInstance();
         signal.SetAborted(reason);
 
         return signal;
@@ -91,7 +91,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Timeout(ulong time)
     {
-        var signal = Construct();
+        var signal = CreateInstance();
 
         Task.Delay(TimeSpan.FromMilliseconds(time))
             .ContinueWith(_ =>
@@ -113,7 +113,7 @@ public sealed class AbortSignalConstructor : Constructor
     /// </summary>
     public AbortSignalInstance Any(JsArray signals)
     {
-        var abortSignal = Construct();
+        var abortSignal = CreateInstance();
         foreach (var signal in signals)
         {
             if (signal is AbortSignalInstance instance)

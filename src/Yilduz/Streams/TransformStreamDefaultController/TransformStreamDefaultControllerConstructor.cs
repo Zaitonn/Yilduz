@@ -17,14 +17,6 @@ internal sealed class TransformStreamDefaultControllerConstructor : Constructor
 
     public TransformStreamDefaultControllerPrototype PrototypeObject { get; }
 
-    public TransformStreamDefaultControllerInstance Construct(TransformStreamInstance stream)
-    {
-        return new TransformStreamDefaultControllerInstance(Engine, stream)
-        {
-            Prototype = PrototypeObject,
-        };
-    }
-
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         TypeErrorHelper.Throw(
@@ -32,5 +24,13 @@ internal sealed class TransformStreamDefaultControllerConstructor : Constructor
             "Failed to construct 'TransformStreamDefaultController': Illegal constructor"
         );
         return null;
+    }
+
+    public TransformStreamDefaultControllerInstance CreateInstance(TransformStreamInstance stream)
+    {
+        return new TransformStreamDefaultControllerInstance(Engine, stream)
+        {
+            Prototype = PrototypeObject,
+        };
     }
 }

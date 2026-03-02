@@ -264,7 +264,7 @@ internal static class FetchImplementation
                 if (responseBytes.Length > 0)
                 {
                     var underlyingSource = new JsObject(engine);
-                    var stream = webApiIntrinsics.ReadableStream.Construct(
+                    var stream = webApiIntrinsics.ReadableStream.CreateInstance(
                         underlyingSource,
                         JsValue.Undefined
                     );

@@ -37,7 +37,7 @@ internal static class BodyExtractor
                 // underlyingSource.Set("type", "bytes");
                 stream = engine
                     .GetWebApiIntrinsics()
-                    .ReadableStream.Construct(underlyingSource, JsValue.Undefined);
+                    .ReadableStream.CreateInstance(underlyingSource, JsValue.Undefined);
                 break;
         }
 

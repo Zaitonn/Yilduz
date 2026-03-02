@@ -22,10 +22,10 @@ internal sealed class TransformStreamConstructor : Constructor
         var writableStrategy = arguments.At(1);
         var readableStrategy = arguments.At(2);
 
-        return Construct(transformer, writableStrategy, readableStrategy);
+        return CreateInstance(transformer, writableStrategy, readableStrategy);
     }
 
-    public TransformStreamInstance Construct(
+    public TransformStreamInstance CreateInstance(
         JsValue transformer,
         JsValue writableStrategy,
         JsValue readableStrategy

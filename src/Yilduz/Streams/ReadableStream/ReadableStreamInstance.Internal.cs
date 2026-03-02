@@ -149,7 +149,7 @@ public sealed partial class ReadableStreamInstance
     /// </summary>
     private ReadableStreamDefaultReaderInstance AcquireDefaultReader()
     {
-        return _webApiIntrinsics.ReadableStreamDefaultReader.Construct(this);
+        return _webApiIntrinsics.ReadableStreamDefaultReader.CreateInstance(this);
     }
 
     /// <summary>
@@ -157,7 +157,7 @@ public sealed partial class ReadableStreamInstance
     /// </summary>
     private ReadableStreamBYOBReaderInstance AcquireBYOBReader()
     {
-        return _webApiIntrinsics.ReadableStreamBYOBReader.Construct(this);
+        return _webApiIntrinsics.ReadableStreamBYOBReader.CreateInstance(this);
     }
 
     /// <summary>
@@ -230,7 +230,7 @@ public sealed partial class ReadableStreamInstance
     )
     {
         // Let controller be a new ReadableStreamDefaultController.
-        var controller = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+        var controller = _webApiIntrinsics.ReadableStreamDefaultController.CreateInstance(
             this,
             highWaterMark,
             sizeAlgorithm
@@ -397,7 +397,7 @@ public sealed partial class ReadableStreamInstance
     )
     {
         // Let controller be a new ReadableByteStreamController.
-        var controller = _webApiIntrinsics.ReadableByteStreamController.Construct(this);
+        var controller = _webApiIntrinsics.ReadableByteStreamController.CreateInstance(this);
 
         // Let startAlgorithm be an algorithm that returns undefined.
         Function startAlgorithm = new ClrFunction(Engine, string.Empty, (_, _) => Undefined);
@@ -833,14 +833,14 @@ public sealed partial class ReadableStreamInstance
         branch2.InitializeReadableStream();
 
         // Create controllers for both branches and bind them to their streams.
-        var branchController1 = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+        var branchController1 = _webApiIntrinsics.ReadableStreamDefaultController.CreateInstance(
             branch1,
             1,
             sizeAlgorithm
         );
         branch1.Controller = branchController1;
 
-        var branchController2 = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+        var branchController2 = _webApiIntrinsics.ReadableStreamDefaultController.CreateInstance(
             branch2,
             1,
             sizeAlgorithm
@@ -938,7 +938,7 @@ public sealed partial class ReadableStreamInstance
         stream.InitializeReadableStream();
 
         // Let controller be a new ReadableStreamDefaultController.
-        var controller = _webApiIntrinsics.ReadableStreamDefaultController.Construct(
+        var controller = _webApiIntrinsics.ReadableStreamDefaultController.CreateInstance(
             stream,
             1, // highWaterMark
             sizeAlgorithm // sizeAlgorithm

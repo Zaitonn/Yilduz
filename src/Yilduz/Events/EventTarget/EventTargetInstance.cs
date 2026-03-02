@@ -21,6 +21,12 @@ public class EventTargetInstance : ObjectInstance
     private protected readonly WebApiIntrinsics _webApiIntrinsics;
     protected readonly Dictionary<string, List<EventPair>> _listeners = [];
 
+    protected internal EventTargetInstance(Engine engine, WebApiIntrinsics webApiIntrinsics)
+        : base(engine)
+    {
+        _webApiIntrinsics = webApiIntrinsics;
+    }
+
     protected internal EventTargetInstance(Engine engine)
         : base(engine)
     {

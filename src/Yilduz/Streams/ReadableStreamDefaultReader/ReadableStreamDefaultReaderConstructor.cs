@@ -23,7 +23,7 @@ internal sealed class ReadableStreamDefaultReaderConstructor : Constructor
         return null;
     }
 
-    public ReadableStreamDefaultReaderInstance Construct(ReadableStreamInstance readableStream)
+    public ReadableStreamDefaultReaderInstance CreateInstance(ReadableStreamInstance readableStream)
     {
         return new(Engine, readableStream) { Prototype = PrototypeObject };
     }

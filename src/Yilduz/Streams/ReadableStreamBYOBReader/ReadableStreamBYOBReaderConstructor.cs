@@ -33,10 +33,10 @@ internal sealed class ReadableStreamBYOBReaderConstructor : Constructor
             return null;
         }
 
-        return Construct(stream);
+        return CreateInstance(stream);
     }
 
-    public ReadableStreamBYOBReaderInstance Construct(ReadableStreamInstance readableStream)
+    public ReadableStreamBYOBReaderInstance CreateInstance(ReadableStreamInstance readableStream)
     {
         return new(Engine, readableStream) { Prototype = PrototypeObject };
     }

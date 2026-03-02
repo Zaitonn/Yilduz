@@ -21,10 +21,10 @@ internal sealed class ReadableStreamConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        return Construct(arguments.At(0), arguments.At(1));
+        return CreateInstance(arguments.At(0), arguments.At(1));
     }
 
-    public ReadableStreamInstance Construct(JsValue underlyingSource, JsValue strategy)
+    public ReadableStreamInstance CreateInstance(JsValue underlyingSource, JsValue strategy)
     {
         return new(_webApiIntrinsics, Engine, underlyingSource, strategy)
         {

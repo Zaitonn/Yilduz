@@ -38,6 +38,8 @@ public abstract class TestBase : IDisposable
         _cancellationTokenSource.Cancel();
         _cancellationTokenSource.Dispose();
         Engine.Dispose();
+
+        GC.SuppressFinalize(this);
     }
 
     protected virtual void OnDisposing() { }

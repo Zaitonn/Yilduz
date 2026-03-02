@@ -23,7 +23,7 @@ internal sealed class ReadableByteStreamControllerConstructor : Constructor
         return null;
     }
 
-    public ReadableByteStreamControllerInstance Construct(
+    public ReadableByteStreamControllerInstance CreateInstance(
         ReadableStreamInstance readableStreamInstance
     )
     {

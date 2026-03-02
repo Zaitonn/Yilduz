@@ -16,7 +16,7 @@ public abstract class HttpServerTestBase : TestBase
     protected HttpServerTestBase()
     {
         // Pick a random available port.
-        var port = GetAvailablePort();
+        var port = NetworkTestHelper.GetAvailablePort();
         BaseUrl = $"http://localhost:{port}/";
 
         _listener = new HttpListener();
@@ -118,14 +118,5 @@ public abstract class HttpServerTestBase : TestBase
         context.Response.ContentLength64 = body.Length;
         await context.Response.OutputStream.WriteAsync(body).ConfigureAwait(false);
         context.Response.Close();
-    }
-
-    private static int GetAvailablePort()
-    {
-        using var listener = new System.Net.Sockets.TcpListener(IPAddress.Loopback, 0);
-        listener.Start();
-        var port = ((IPEndPoint)listener.LocalEndpoint).Port;
-        listener.Stop();
-        return port;
     }
 }

@@ -89,12 +89,12 @@ internal static class HttpHelper
     /// </summary>
     public static bool IsHeaderValue([NotNullWhen(true)] string? value)
     {
-#if NETSTANDARD
-        var space = "\x20";
-        var tab = "\x09";
-#else
+#if NETCOREAPP
         var space = '\x20';
         var tab = '\x09';
+#else
+        var space = "\x20";
+        var tab = "\x09";
 #endif
 
         // Has no leading or trailing HTTP tab or space bytes.

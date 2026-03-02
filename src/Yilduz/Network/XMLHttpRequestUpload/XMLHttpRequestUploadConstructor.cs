@@ -28,7 +28,7 @@ internal sealed class XMLHttpRequestUploadConstructor : Constructor
 
     public XMLHttpRequestUploadPrototype PrototypeObject { get; }
 
-    public XMLHttpRequestUploadInstance Construct()
+    public XMLHttpRequestUploadInstance CreateInstance()
     {
         return new(Engine) { Prototype = PrototypeObject };
     }

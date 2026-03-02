@@ -249,13 +249,13 @@ internal sealed class EventLoop
             return _signal.WaitAsync(token);
         }
 
-#if NETSTANDARD
+#if NETCOREAPP
+        var clamped = Math.Clamp((int)delay.TotalMilliseconds, 0, int.MaxValue);
+#else
         var clamped =
             delay.TotalMilliseconds < 0 ? 0
             : delay.TotalMilliseconds > int.MaxValue ? int.MaxValue
             : (int)delay.TotalMilliseconds;
-#else
-        var clamped = Math.Clamp((int)delay.TotalMilliseconds, 0, int.MaxValue);
 #endif
 
         return _signal.WaitAsync(TimeSpan.FromMilliseconds(clamped), token);

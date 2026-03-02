@@ -30,10 +30,10 @@ public sealed class DOMExceptionInstance : ObjectInstance
         Name = name;
         Message = message;
 
-#if NETSTANDARD
-        Code = ErrorCodes.Codes.TryGetValue(name, out var code) ? code : 0;
-#else
+#if NETCOREAPP
         Code = ErrorCodes.Codes.GetValueOrDefault(name);
+#else
+        Code = ErrorCodes.Codes.TryGetValue(name, out var code) ? code : 0;
 #endif
     }
 

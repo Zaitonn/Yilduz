@@ -24,7 +24,7 @@ public sealed partial class WritableStreamDefaultControllerInstance : ObjectInst
         : base(engine)
     {
         Stream = stream;
-        AbortController = engine.GetWebApiIntrinsics().AbortController.Construct();
+        AbortController = engine.GetWebApiIntrinsics().AbortController.CreateInstance();
         StrategySizeAlgorithm = sizeAlgorithm;
 
         ClearAlgorithms();

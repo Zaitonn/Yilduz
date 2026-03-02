@@ -151,7 +151,10 @@ public sealed class RequestInstance : BodyInstance
         var clonedRequestObject = new RequestInstance(Engine, _webApiIntrinsics, clonedConcept)
         {
             Prototype = _webApiIntrinsics.Request.PrototypeObject,
-            Headers = _webApiIntrinsics.Headers.Construct(clonedConcept.HeaderList, Headers.Guard),
+            Headers = _webApiIntrinsics.Headers.CreateInstance(
+                clonedConcept.HeaderList,
+                Headers.Guard
+            ),
             Signal = clonedSignal,
         };
 

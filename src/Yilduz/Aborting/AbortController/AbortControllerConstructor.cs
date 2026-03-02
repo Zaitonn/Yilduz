@@ -21,15 +21,15 @@ internal sealed class AbortControllerConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        return Construct();
+        return CreateInstance();
     }
 
-    public AbortControllerInstance Construct()
+    public AbortControllerInstance CreateInstance()
     {
         return new(Engine)
         {
             Prototype = PrototypeObject,
-            Signal = _webApiIntrinsics.AbortSignal.Construct(),
+            Signal = _webApiIntrinsics.AbortSignal.CreateInstance(),
         };
     }
 }

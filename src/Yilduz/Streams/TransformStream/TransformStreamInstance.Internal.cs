@@ -79,7 +79,7 @@ public sealed partial class TransformStreamInstance
         writableStrategy.Set("size", writableSizeAlgorithm);
 
         // Set stream.[[writable]] to ! CreateWritableStream(startAlgorithm, writeAlgorithm, closeAlgorithm, abortAlgorithm, writableHighWaterMark, writableSizeAlgorithm).
-        writable = webApiIntrinsics.WritableStream.Construct(underlyingSink, writableStrategy);
+        writable = webApiIntrinsics.WritableStream.CreateInstance(underlyingSink, writableStrategy);
 
         var underlyingSource = new JsObject(Engine);
 
@@ -110,7 +110,10 @@ public sealed partial class TransformStreamInstance
         readableStrategy.Set("highWaterMark", readableHighWaterMark);
         readableStrategy.Set("size", readableSizeAlgorithm);
         // Set stream.[[readable]] to ! CreateReadableStream(startAlgorithm, pullAlgorithm, cancelAlgorithm, readableHighWaterMark, readableSizeAlgorithm).
-        readable = webApiIntrinsics.ReadableStream.Construct(underlyingSource, readableStrategy);
+        readable = webApiIntrinsics.ReadableStream.CreateInstance(
+            underlyingSource,
+            readableStrategy
+        );
 
         // Set stream.[[backpressure]] and stream.[[backpressureChangePromise]] to undefined.
         Backpressure = null;
@@ -137,7 +140,7 @@ public sealed partial class TransformStreamInstance
         // Let controller be a new TransformStreamDefaultController.
         var controller = Engine
             .GetWebApiIntrinsics()
-            .TransformStreamDefaultController.Construct(this);
+            .TransformStreamDefaultController.CreateInstance(this);
 
         ClrFunction transformAlgorithm;
 

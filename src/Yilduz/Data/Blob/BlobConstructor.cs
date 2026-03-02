@@ -33,4 +33,18 @@ internal sealed class BlobConstructor : Constructor
             return null;
         }
     }
+
+    /// <summary>
+    /// Creates a <see cref="BlobInstance"/> from a raw byte array with an explicit MIME type.
+    /// </summary>
+    public BlobInstance CreateInstance(byte[] bytes, string mimeType)
+    {
+        var instance = new BlobInstance(Engine, Undefined, Undefined)
+        {
+            Prototype = PrototypeObject,
+            Type = mimeType,
+        };
+        instance.Value.AddRange(bytes);
+        return instance;
+    }
 }

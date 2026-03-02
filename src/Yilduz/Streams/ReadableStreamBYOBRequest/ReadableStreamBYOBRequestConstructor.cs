@@ -23,7 +23,7 @@ internal sealed class ReadableStreamBYOBRequestConstructor : Constructor
         return null;
     }
 
-    internal ReadableStreamBYOBRequestInstance Construct(
+    internal ReadableStreamBYOBRequestInstance CreateInstance(
         ReadableByteStreamControllerInstance controller,
         JsValue view
     )

@@ -127,7 +127,7 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
         _receivedBytes = [];
         _authorRequestHeaders = [];
 
-        Upload = _webApiIntrinsics.XMLHttpRequestUpload.Construct();
+        Upload = _webApiIntrinsics.XMLHttpRequestUpload.CreateInstance();
     }
 
     /// <summary>
@@ -143,7 +143,7 @@ public sealed class XMLHttpRequestInstance : XMLHttpRequestEventTargetInstance
     {
         if (
             string.IsNullOrEmpty(method)
-#if !NETSTANDARD2_0
+#if NETCOREAPP
             || method.Contains('\x20')
 #else
             || method.Contains("\x20")

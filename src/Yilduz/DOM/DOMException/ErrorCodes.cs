@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-#if NET8_0
+#if NET8_0_OR_GREATER
 using System.Collections.Frozen;
 #endif
 
@@ -63,7 +63,7 @@ public static class ErrorCodes
             { 25, "DATA_CLONE_ERR" },
         };
 
-#if NET8_0
+#if NET8_0_OR_GREATER
         Codes = codes.ToFrozenDictionary();
         CodeConstantNames = names.ToFrozenDictionary();
 #else
