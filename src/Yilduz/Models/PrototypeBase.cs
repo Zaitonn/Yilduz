@@ -87,6 +87,11 @@ public abstract class PrototypeBase<T> : ObjectInstance
         }
     }
 
+    private protected void RegisterConstant(string name, int value)
+    {
+        FastSetProperty(name, new(value, false, false, true));
+    }
+
     private protected void RegisterConstant<TEnum>(string name, TEnum value)
         where TEnum : struct, Enum
     {
