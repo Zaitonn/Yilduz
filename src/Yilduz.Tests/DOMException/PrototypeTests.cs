@@ -88,17 +88,17 @@ public sealed class PrototypeTests : TestBase
         // Properties should be configured with getters but no setters
         Assert.True(Evaluate("typeof nameDesc.get === 'function'").AsBoolean());
         Assert.True(Evaluate("nameDesc.set === undefined").AsBoolean());
-        Assert.False(Evaluate("nameDesc.enumerable").AsBoolean());
+        Assert.True(Evaluate("nameDesc.enumerable").AsBoolean());
         Assert.True(Evaluate("nameDesc.configurable").AsBoolean());
 
         Assert.True(Evaluate("typeof messageDesc.get === 'function'").AsBoolean());
         Assert.True(Evaluate("messageDesc.set === undefined").AsBoolean());
-        Assert.False(Evaluate("messageDesc.enumerable").AsBoolean());
+        Assert.True(Evaluate("messageDesc.enumerable").AsBoolean());
         Assert.True(Evaluate("messageDesc.configurable").AsBoolean());
 
         Assert.True(Evaluate("typeof codeDesc.get === 'function'").AsBoolean());
         Assert.True(Evaluate("codeDesc.set === undefined").AsBoolean());
-        Assert.False(Evaluate("codeDesc.enumerable").AsBoolean());
+        Assert.True(Evaluate("codeDesc.enumerable").AsBoolean());
         Assert.True(Evaluate("codeDesc.configurable").AsBoolean());
     }
 

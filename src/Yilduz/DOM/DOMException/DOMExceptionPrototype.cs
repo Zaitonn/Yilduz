@@ -1,91 +1,38 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.DOM.DOMException;
 
-internal class DOMExceptionPrototype : ObjectInstance
+internal class DOMExceptionPrototype : PrototypeBase<DOMExceptionInstance>
 {
-    private static readonly string NameProperty = nameof(DOMExceptionInstance.Name).ToJsStyleName();
-    private static readonly string MessageProperty = nameof(DOMExceptionInstance.Message)
-        .ToJsStyleName();
-    private static readonly string CodeProperty = nameof(DOMExceptionInstance.Code).ToJsStyleName();
-    private static readonly string ToStringProperty = nameof(ToString).ToJsStyleName();
-
     internal DOMExceptionPrototype(Engine engine, DOMExceptionConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(DOMException), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(DOMException));
-        FastSetProperty("constructor", new(constructor, false, false, true));
+        RegisterProperty("name", GetName);
+        RegisterProperty("message", GetMessage);
+        RegisterProperty("code", GetCode);
 
-        FastSetProperty(
-            NameProperty,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, NameProperty.ToJsGetterName(), GetName),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            MessageProperty,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, MessageProperty.ToJsGetterName(), GetMessage),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            CodeProperty,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, CodeProperty.ToJsGetterName(), GetCode),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            CodeProperty,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, CodeProperty.ToJsGetterName(), GetCode),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ToStringProperty,
-            new(
-                new ClrFunction(engine, ToStringProperty.ToJsGetterName(), ToString),
-                false,
-                false,
-                true
-            )
-        );
+        RegisterMethod("toString", ToString);
     }
 
-    private static JsValue GetName(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetName(DOMExceptionInstance thisObject)
     {
-        return thisObject.EnsureThisObject<DOMExceptionInstance>().Name;
+        return thisObject.Name;
     }
 
-    private static JsValue GetMessage(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetMessage(DOMExceptionInstance thisObject)
     {
-        return thisObject.EnsureThisObject<DOMExceptionInstance>().Message;
+        return thisObject.Message;
     }
 
-    private static JsValue GetCode(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetCode(DOMExceptionInstance thisObject)
     {
-        return thisObject.EnsureThisObject<DOMExceptionInstance>().Code;
+        return thisObject.Code;
     }
 
-    private static JsValue ToString(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ToString(DOMExceptionInstance thisObject, JsValue[] arguments)
     {
-        return thisObject.EnsureThisObject<DOMExceptionInstance>().ToString();
+        return thisObject.ToString();
     }
 }

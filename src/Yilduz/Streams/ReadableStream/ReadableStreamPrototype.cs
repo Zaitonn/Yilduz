@@ -1,109 +1,58 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Streams.ReadableStream;
 
-internal sealed class ReadableStreamPrototype : ObjectInstance
+internal sealed class ReadableStreamPrototype : PrototypeBase<ReadableStreamInstance>
 {
-    private static readonly string LockedName = nameof(ReadableStreamInstance.Locked)
-        .ToJsStyleName();
-    private static readonly string LockedGetterName = LockedName.ToJsGetterName();
-
-    private static readonly string CancelName = nameof(Cancel).ToJsStyleName();
-    private static readonly string GetReaderName = nameof(GetReader).ToJsStyleName();
-    private static readonly string PipeToName = nameof(PipeTo).ToJsStyleName();
-    private static readonly string PipeThroughName = nameof(PipeThrough).ToJsStyleName();
-    private static readonly string TeeName = nameof(Tee).ToJsStyleName();
-
     public ReadableStreamPrototype(Engine engine, ReadableStreamConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(ReadableStream), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(ReadableStream));
-        SetOwnProperty("constructor", new(constructor, false, false, true));
+        RegisterProperty("locked", stream => stream.Locked);
 
-        // Locked property (getter only)
-        FastSetProperty(
-            LockedName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, LockedGetterName, GetLocked),
-                set: null,
-                false,
-                true
-            )
-        );
-
-        // Methods
-        FastSetProperty(
-            CancelName,
-            new(new ClrFunction(Engine, CancelName, Cancel), false, false, true)
-        );
-        FastSetProperty(
-            GetReaderName,
-            new(new ClrFunction(Engine, GetReaderName, GetReader), false, false, true)
-        );
-        FastSetProperty(
-            PipeToName,
-            new(new ClrFunction(Engine, PipeToName, PipeTo), false, false, true)
-        );
-        FastSetProperty(
-            PipeThroughName,
-            new(new ClrFunction(Engine, PipeThroughName, PipeThrough), false, false, true)
-        );
-        FastSetProperty(TeeName, new(new ClrFunction(Engine, TeeName, Tee), false, false, true));
+        RegisterMethod("cancel", Cancel);
+        RegisterMethod("getReader", GetReader);
+        RegisterMethod("pipeTo", PipeTo, 1);
+        RegisterMethod("pipeThrough", PipeThrough, 1);
+        RegisterMethod("tee", Tee);
     }
 
-    private static JsValue GetLocked(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Cancel(ReadableStreamInstance stream, JsValue[] arguments)
     {
-        return thisObject.EnsureThisObject<ReadableStreamInstance>().Locked;
-    }
-
-    /// <summary>
-    /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/cancel
-    /// </summary>
-    private static JsValue Cancel(JsValue thisObject, JsValue[] arguments)
-    {
-        var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var reason = arguments.At(0);
-
-        return instance.Cancel(reason);
+        return stream.Cancel(reason);
     }
 
-    private static ReadableStreamReader GetReader(JsValue thisObject, JsValue[] arguments)
+    private static ReadableStreamReader GetReader(
+        ReadableStreamInstance stream,
+        JsValue[] arguments
+    )
     {
-        var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var options = arguments.At(0);
 
-        return instance.GetReader(options);
+        return stream.GetReader(options);
     }
 
-    private static JsValue PipeTo(JsValue thisObject, JsValue[] arguments)
+    private static JsValue PipeTo(ReadableStreamInstance stream, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var destination = arguments.At(0).AsObject();
         var options = arguments.At(1);
 
-        return instance.PipeTo(destination, options);
+        return stream.PipeTo(destination, options);
     }
 
-    private static JsValue PipeThrough(JsValue thisObject, JsValue[] arguments)
+    private static JsValue PipeThrough(ReadableStreamInstance stream, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
         var transform = arguments.At(0).AsObject();
         var options = arguments.At(1);
-
-        return instance.PipeThrough(transform, options);
+        return stream.PipeThrough(transform, options);
     }
 
-    private JsArray Tee(JsValue thisObject, JsValue[] arguments)
+    private JsArray Tee(ReadableStreamInstance stream, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<ReadableStreamInstance>();
-        var streams = instance.Tee();
+        var streams = stream.Tee();
         return Engine.Intrinsics.Array.Construct([streams.Item1, streams.Item2]);
     }
 }

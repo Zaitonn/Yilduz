@@ -11,18 +11,18 @@ public sealed class StorageEventArgs : EventArgs
 
     public string? OldValue { get; }
 
-    public StorageInstance StorageArea { get; }
+    public StorageInstance Storage { get; }
 
     internal StorageEventArgs(
         string? key,
         string? newValue,
         string? oldValue,
-        StorageInstance storageArea
+        StorageInstance storage
     )
     {
         Key = key;
         NewValue = newValue;
         OldValue = oldValue;
-        StorageArea = storageArea;
+        Storage = storage;
     }
 }

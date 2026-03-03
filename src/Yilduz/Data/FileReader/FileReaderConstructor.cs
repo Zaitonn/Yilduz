@@ -16,16 +16,16 @@ internal sealed class FileReaderConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
 
         SetOwnProperty(
-            nameof(FileReaderState.EMPTY),
-            new((int)FileReaderState.EMPTY, false, false, true)
+            nameof(FileReaderReadyState.EMPTY),
+            new((int)FileReaderReadyState.EMPTY, false, false, true)
         );
         SetOwnProperty(
-            nameof(FileReaderState.LOADING),
-            new((int)FileReaderState.LOADING, false, false, true)
+            nameof(FileReaderReadyState.LOADING),
+            new((int)FileReaderReadyState.LOADING, false, false, true)
         );
         SetOwnProperty(
-            nameof(FileReaderState.DONE),
-            new((int)FileReaderState.DONE, false, false, true)
+            nameof(FileReaderReadyState.DONE),
+            new((int)FileReaderReadyState.DONE, false, false, true)
         );
     }
 

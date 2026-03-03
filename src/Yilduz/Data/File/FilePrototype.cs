@@ -1,54 +1,14 @@
 using Jint;
-using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Data.File;
 
-internal sealed class FilePrototype : ObjectInstance
+internal sealed class FilePrototype : PrototypeBase<FileInstance>
 {
-    private static readonly string LastModifiedName = nameof(FileInstance.LastModified)
-        .ToJsStyleName();
-    private static readonly string LastModifiedGetterName = LastModifiedName.ToJsGetterName();
-    private static readonly string NameName = nameof(FileInstance.Name).ToJsStyleName();
-    private static readonly string NameGetterName = NameName.ToJsGetterName();
-
     public FilePrototype(Engine engine, FileConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(File), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(File));
-        SetOwnProperty("constructor", new(constructor, false, false, false));
-
-        FastSetProperty(
-            LastModifiedName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, LastModifiedGetterName, GetLastModified),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            NameName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, NameGetterName, GetName),
-                set: null,
-                false,
-                true
-            )
-        );
-    }
-
-    private static JsValue GetLastModified(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<FileInstance>().LastModified;
-    }
-
-    private static JsValue GetName(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<FileInstance>().Name;
+        RegisterProperty("lastModified", file => file.LastModified);
+        RegisterProperty("name", file => file.Name);
     }
 }

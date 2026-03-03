@@ -1,82 +1,36 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
 using Yilduz.Extensions;
+using Yilduz.Models;
 using Yilduz.Utils;
 
 namespace Yilduz.Encoding.TextEncoder;
 
-internal sealed class TextEncoderPrototype : ObjectInstance
+internal sealed class TextEncoderPrototype : PrototypeBase<TextEncoderInstance>
 {
-    private static readonly string EncodingName = nameof(TextEncoderInstance.Encoding)
-        .ToJsStyleName();
-    private static readonly string EncodingGetterName = EncodingName.ToJsGetterName();
-    private static readonly string EncodeName = nameof(Encode).ToJsStyleName();
-    private static readonly string EncodeIntoName = nameof(EncodeInto).ToJsStyleName();
-
     public TextEncoderPrototype(Engine engine, TextEncoderConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(TextEncoder), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(TextEncoder));
-        SetOwnProperty("constructor", new(constructor, false, false, false));
+        RegisterProperty("encoding", encoder => encoder.Encoding);
 
-        // encoding property
-        FastSetProperty(
-            EncodingName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, EncodingGetterName, GetEncoding),
-                set: null,
-                false,
-                true
-            )
-        );
-
-        // encode method
-        FastSetProperty(
-            EncodeName,
-            new PropertyDescriptor(
-                new ClrFunction(engine, EncodeName, Encode, length: 1),
-                false,
-                false,
-                true
-            )
-        );
-
-        // encodeInto method
-        FastSetProperty(
-            EncodeIntoName,
-            new PropertyDescriptor(
-                new ClrFunction(engine, EncodeIntoName, EncodeInto, length: 2),
-                false,
-                false,
-                true
-            )
-        );
+        RegisterMethod("encode", Encode);
+        RegisterMethod("encodeInto", EncodeInto, 2);
     }
 
-    private static JsValue GetEncoding(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetEncoding(TextEncoderInstance encoder)
     {
-        return thisObject.EnsureThisObject<TextEncoderInstance>().Encoding;
+        return encoder.Encoding;
     }
 
-    private static JsValue Encode(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Encode(TextEncoderInstance encoder, JsValue[] arguments)
     {
         var input = arguments.Length > 0 ? arguments[0].ToArgumentString() : string.Empty;
-
-        return thisObject.EnsureThisObject<TextEncoderInstance>().Encode(input);
+        return encoder.Encode(input);
     }
 
-    private JsValue EncodeInto(JsValue thisObject, JsValue[] arguments)
+    private JsValue EncodeInto(TextEncoderInstance encoder, JsValue[] arguments)
     {
-        var textEncoder = thisObject.EnsureThisObject<TextEncoderInstance>();
-
-        arguments.EnsureCount(Engine, 2, EncodeIntoName, nameof(TextEncoder));
-
-        var input = arguments.At(0).ToString();
         var destination = arguments[1];
 
         if (!destination.IsUint8Array() || destination is not JsTypedArray de)
@@ -84,12 +38,12 @@ internal sealed class TextEncoderPrototype : ObjectInstance
             TypeErrorHelper.Throw(
                 Engine,
                 "parameter 2 is not of type 'Uint8Array'.",
-                EncodeIntoName,
+                "encodeInto",
                 nameof(TextEncoder)
             );
             return Undefined;
         }
 
-        return textEncoder.EncodeInto(input, de);
+        return encoder.EncodeInto(arguments.At(0).ToString(), de);
     }
 }

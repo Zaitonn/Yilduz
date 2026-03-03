@@ -3,7 +3,7 @@ namespace Yilduz.Data.FileReader;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readyState
 /// </summary>
-public enum FileReaderState
+public enum FileReaderReadyState
 {
     /// <summary>
     /// Reader has been created, but none of the read methods have been called yet.

@@ -2,79 +2,34 @@ using System.Linq;
 using Jint;
 using Jint.Native;
 using Jint.Native.Function;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
 using Yilduz.Iterator;
+using Yilduz.Models;
 using Yilduz.Utils;
 
 namespace Yilduz.Network.Headers;
 
-internal sealed class HeadersPrototype : ObjectInstance
+internal sealed class HeadersPrototype : PrototypeBase<HeadersInstance>
 {
-    private static readonly string AppendName = nameof(Append).ToJsStyleName();
-    private static readonly string DeleteName = nameof(Delete).ToJsStyleName();
-    private static readonly string GetName = nameof(Get).ToJsStyleName();
-    private static readonly string HasName = nameof(Has).ToJsStyleName();
-    private static readonly string SetName = nameof(Set).ToJsStyleName();
-    private static readonly string EntriesName = nameof(Entries).ToJsStyleName();
-    private static readonly string KeysName = nameof(Keys).ToJsStyleName();
-    private static readonly string ValuesName = nameof(Values).ToJsStyleName();
-    private static readonly string ForEachName = nameof(ForEach).ToJsStyleName();
-    private static readonly string GetSetCookieName = nameof(GetSetCookie).ToJsStyleName();
-
     public HeadersPrototype(Engine engine, HeadersConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(Headers), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(Headers));
-        SetOwnProperty("constructor", new(constructor, false, false, true));
+        RegisterMethod("append", Append, 2);
+        RegisterMethod("delete", Delete, 1);
+        RegisterMethod("get", Get, 1);
+        RegisterMethod("getSetCookie", GetSetCookie);
+        RegisterMethod("has", Has, 1);
+        RegisterMethod("set", Set, 2);
+        RegisterMethod("entries", Entries);
+        RegisterMethod("keys", Keys);
+        RegisterMethod("values", Values);
+        RegisterMethod("forEach", ForEach, 1);
 
-        FastSetProperty(
-            AppendName,
-            new(new ClrFunction(Engine, AppendName, Append), false, false, true)
-        );
-        FastSetProperty(
-            DeleteName,
-            new(new ClrFunction(Engine, DeleteName, Delete), false, false, true)
-        );
-        FastSetProperty(GetName, new(new ClrFunction(Engine, GetName, Get), false, false, true));
-        FastSetProperty(HasName, new(new ClrFunction(Engine, HasName, Has), false, false, true));
-        FastSetProperty(SetName, new(new ClrFunction(Engine, SetName, Set), false, false, true));
-        FastSetProperty(
-            GetSetCookieName,
-            new(new ClrFunction(Engine, GetSetCookieName, GetSetCookie), false, false, true)
-        );
-        FastSetProperty(
-            EntriesName,
-            new(new ClrFunction(Engine, EntriesName, Entries), false, false, true)
-        );
-        FastSetProperty(KeysName, new(new ClrFunction(Engine, KeysName, Keys), false, false, true));
-        FastSetProperty(
-            ValuesName,
-            new(new ClrFunction(Engine, ValuesName, Values), false, false, true)
-        );
-        FastSetProperty(
-            ForEachName,
-            new(new ClrFunction(Engine, ForEachName, ForEach), false, false, true)
-        );
-        FastSetProperty(
-            GlobalSymbolRegistry.Iterator,
-            new(
-                new ClrFunction(Engine, GlobalSymbolRegistry.Iterator.ToString(), Entries),
-                false,
-                false,
-                true
-            )
-        );
+        RegisterIterator(Entries);
     }
 
-    private JsValue Append(JsValue thisObject, JsValue[] arguments)
+    private JsValue Append(HeadersInstance instance, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 2, AppendName, nameof(Headers));
-
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         var value = arguments[1].ToString();
 
@@ -82,85 +37,65 @@ internal sealed class HeadersPrototype : ObjectInstance
         return Undefined;
     }
 
-    private JsValue Delete(JsValue thisObject, JsValue[] arguments)
+    private JsValue Delete(HeadersInstance instance, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, DeleteName, nameof(Headers));
-
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         instance.Delete(name);
         return Undefined;
     }
 
-    private JsValue Get(JsValue thisObject, JsValue[] arguments)
+    private JsValue Get(HeadersInstance instance, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, GetName, nameof(Headers));
-
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         var result = instance.Get(name);
         return result ?? Null;
     }
 
-    private JsValue GetSetCookie(JsValue thisObject, JsValue[] arguments)
+    private JsValue GetSetCookie(HeadersInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var result = instance.GetSetCookie();
         return result is null
             ? Null
             : Engine.Intrinsics.Array.Construct([.. result.Select<string, JsValue>(r => r)]);
     }
 
-    private JsValue Has(JsValue thisObject, JsValue[] arguments)
+    private JsValue Has(HeadersInstance instance, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, HasName, nameof(Headers));
-
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         return instance.Has(name);
     }
 
-    private JsValue Set(JsValue thisObject, JsValue[] arguments)
+    private JsValue Set(HeadersInstance instance, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 2, SetName, nameof(Headers));
-
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
         var name = arguments[0].ToString();
         var value = arguments[1].ToString();
         instance.Set(name, value);
         return Undefined;
     }
 
-    private HeadersIterator Entries(JsValue thisObject, JsValue[] arguments)
+    private HeadersIterator Entries(HeadersInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
-        return new HeadersIterator(Engine, instance, IteratorType.KeyAndValue);
+        return new(Engine, instance, IteratorType.KeyAndValue);
     }
 
-    private HeadersIterator Keys(JsValue thisObject, JsValue[] arguments)
+    private HeadersIterator Keys(HeadersInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
-        return new HeadersIterator(Engine, instance, IteratorType.Key);
+        return new(Engine, instance, IteratorType.Key);
     }
 
-    private HeadersIterator Values(JsValue thisObject, JsValue[] arguments)
+    private HeadersIterator Values(HeadersInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
-        return new HeadersIterator(Engine, instance, IteratorType.Value);
+        return new(Engine, instance, IteratorType.Value);
     }
 
-    private JsValue ForEach(JsValue thisObject, JsValue[] arguments)
+    private JsValue ForEach(HeadersInstance instance, JsValue[] arguments)
     {
-        arguments.EnsureCount(Engine, 1, ForEachName, nameof(Headers));
-
-        var instance = thisObject.EnsureThisObject<HeadersInstance>();
-
         if (arguments.At(0) is not Function callback)
         {
             TypeErrorHelper.Throw(
                 Engine,
                 "parameter 1 is not of type 'Function'.",
-                ForEachName,
+                "forEach",
                 nameof(Headers)
             );
             return Undefined;

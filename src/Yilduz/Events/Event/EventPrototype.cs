@@ -1,274 +1,51 @@
-using Jint;
+﻿using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Events.Event;
 
-public class EventPrototype : ObjectInstance
+public class EventPrototype : PrototypeBase<EventInstance>
 {
     internal EventPrototype(Engine engine, EventConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(Event), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(Event));
-        FastSetProperty("constructor", new(constructor, false, false, true));
+        RegisterProperty("bubbles", e => e.Bubbles);
+        RegisterProperty("cancelable", e => e.Cancelable);
+        RegisterProperty("composed", e => e.Composed);
+        RegisterProperty("currentTarget", e => FromObject(Engine, e.CurrentTarget));
+        RegisterProperty("defaultPrevented", e => e.DefaultPrevented);
+        RegisterProperty("eventPhase", e => e.EventPhase);
+        RegisterProperty("isTrusted", e => e.IsTrusted);
+        RegisterProperty("target", e => FromObject(Engine, e.Target));
+        RegisterProperty("timeStamp", e => e.TimeStamp);
+        RegisterProperty("type", e => e.Type);
 
-        FastSetProperty(
-            nameof(EventInstance.Bubbles).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.Bubbles).ToJsGetterName(),
-                    GetBubbles
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.Cancelable).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.Cancelable).ToJsGetterName(),
-                    GetCancelable
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.Composed).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.Composed).ToJsGetterName(),
-                    GetComposed
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.CurrentTarget).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.CurrentTarget).ToJsGetterName(),
-                    GetCurrentTarget
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.DefaultPrevented).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.DefaultPrevented).ToJsGetterName(),
-                    GetDefaultPrevented
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.EventPhase).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.EventPhase).ToJsGetterName(),
-                    GetEventPhase
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.IsTrusted).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.IsTrusted).ToJsGetterName(),
-                    GetIsTrusted
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.Target).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.Target).ToJsGetterName(),
-                    GetTarget
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.TimeStamp).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.TimeStamp).ToJsGetterName(),
-                    GetTimeStamp
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(EventInstance.Type).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    nameof(EventInstance.Type).ToJsGetterName(),
-                    GetEventType
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
+        RegisterMethod("composedPath", (e, _) => FromObject(Engine, e.ComposedPath()));
+        RegisterMethod("preventDefault", PreventDefault);
+        RegisterMethod("stopPropagation", StopPropagation);
+        RegisterMethod("stopImmediatePropagation", StopImmediatePropagation);
 
-        FastSetProperty(
-            nameof(ComposedPath).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(ComposedPath).ToJsStyleName(), ComposedPath),
-                false,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(PreventDefault).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(PreventDefault).ToJsStyleName(), PreventDefault),
-                false,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(StopPropagation).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(StopPropagation).ToJsStyleName(), StopPropagation),
-                false,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(StopImmediatePropagation).ToJsStyleName(),
-            new(
-                new ClrFunction(Engine, nameof(StopImmediatePropagation), StopImmediatePropagation),
-                false,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(nameof(EventPhases.NONE), new(EventPhases.NONE, true, false, true));
-        FastSetProperty(
-            nameof(EventPhases.CAPTURING_PHASE),
-            new(EventPhases.CAPTURING_PHASE, false, false, true)
-        );
-        FastSetProperty(
-            nameof(EventPhases.AT_TARGET),
-            new(EventPhases.AT_TARGET, false, false, true)
-        );
-        FastSetProperty(
-            nameof(EventPhases.BUBBLING_PHASE),
-            new(EventPhases.BUBBLING_PHASE, false, false, true)
-        );
+        RegisterConstant(nameof(EventPhases.NONE), EventPhases.NONE);
+        RegisterConstant(nameof(EventPhases.CAPTURING_PHASE), EventPhases.CAPTURING_PHASE);
+        RegisterConstant(nameof(EventPhases.AT_TARGET), EventPhases.AT_TARGET);
+        RegisterConstant(nameof(EventPhases.BUBBLING_PHASE), EventPhases.BUBBLING_PHASE);
     }
 
-    private JsValue ComposedPath(JsValue thisObject, JsValue[] arguments)
+    private static JsValue PreventDefault(EventInstance evt, JsValue[] arguments)
     {
-        return FromObject(Engine, thisObject.EnsureThisObject<EventInstance>().ComposedPath());
-    }
-
-    private static JsValue PreventDefault(JsValue thisObject, JsValue[] arguments)
-    {
-        thisObject.EnsureThisObject<EventInstance>().PreventDefault();
+        evt.PreventDefault();
         return Undefined;
     }
 
-    private static JsValue StopPropagation(JsValue thisObject, JsValue[] arguments)
+    private static JsValue StopPropagation(EventInstance evt, JsValue[] arguments)
     {
-        thisObject.EnsureThisObject<EventInstance>().StopPropagation();
+        evt.StopPropagation();
         return Undefined;
     }
 
-    private static JsValue StopImmediatePropagation(JsValue thisObject, JsValue[] arguments)
+    private static JsValue StopImmediatePropagation(EventInstance evt, JsValue[] arguments)
     {
-        thisObject.EnsureThisObject<EventInstance>().StopImmediatePropagation();
+        evt.StopImmediatePropagation();
         return Undefined;
-    }
-
-    private static JsValue GetBubbles(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().Bubbles;
-    }
-
-    private static JsValue GetCancelable(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().Cancelable;
-    }
-
-    private static JsValue GetComposed(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().Composed;
-    }
-
-    private JsValue GetCurrentTarget(JsValue thisObject, JsValue[] arguments)
-    {
-        return FromObject(Engine, thisObject.EnsureThisObject<EventInstance>().CurrentTarget);
-    }
-
-    private static JsValue GetDefaultPrevented(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().DefaultPrevented;
-    }
-
-    private static JsValue GetEventPhase(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().EventPhase;
-    }
-
-    private static JsValue GetIsTrusted(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().IsTrusted;
-    }
-
-    private JsValue GetTarget(JsValue thisObject, JsValue[] arguments)
-    {
-        return FromObject(Engine, thisObject.EnsureThisObject<EventInstance>().Target);
-    }
-
-    private static JsValue GetTimeStamp(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().TimeStamp;
-    }
-
-    private static JsValue GetEventType(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<EventInstance>().Type;
     }
 }

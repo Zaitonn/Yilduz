@@ -1,50 +1,22 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Aborting.AbortSignal;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Aborting.AbortController;
 
-internal sealed class AbortControllerPrototype : ObjectInstance
+internal sealed class AbortControllerPrototype : PrototypeBase<AbortControllerInstance>
 {
     internal AbortControllerPrototype(Engine engine, AbortControllerConstructor ctor)
-        : base(engine)
+        : base(engine, nameof(AbortController), ctor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(AbortController));
-        FastSetProperty("constructor", new(ctor, false, false, true));
-
-        FastSetProperty(
-            nameof(AbortControllerInstance.Signal).ToJsStyleName(),
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    Engine,
-                    nameof(AbortControllerInstance.Signal).ToJsGetterName(),
-                    GetSignal
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            nameof(Abort).ToJsStyleName(),
-            new(new ClrFunction(Engine, nameof(Abort).ToJsStyleName(), Abort), false, false, true)
-        );
+        RegisterMethod("abort", Abort);
+        RegisterProperty("signal", controller => controller.Signal);
     }
 
-    private static AbortSignalInstance GetSignal(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Abort(AbortControllerInstance thisObject, JsValue[] arguments)
     {
-        return thisObject.EnsureThisObject<AbortControllerInstance>().Signal;
-    }
-
-    private static JsValue Abort(JsValue thisObject, params JsValue[] arguments)
-    {
-        thisObject.EnsureThisObject<AbortControllerInstance>().Abort(arguments.At(0));
+        thisObject.Abort(arguments.At(0));
 
         return Undefined;
     }

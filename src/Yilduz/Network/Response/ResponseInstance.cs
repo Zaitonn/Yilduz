@@ -79,12 +79,7 @@ public sealed class ResponseInstance : BodyInstance
         // If this is unusable, then throw a TypeError.
         if (BodyUsed)
         {
-            TypeErrorHelper.Throw(
-                Engine,
-                "Body has already been used.",
-                ResponsePrototype.CloneName,
-                "Response"
-            );
+            TypeErrorHelper.Throw(Engine, "Body has already been used.", "clone", "Response");
         }
 
         // Let clonedResponse be the result of cloning this's response.

@@ -1,195 +1,113 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
-using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Network.XMLHttpRequestEventTarget;
 
-internal sealed class XMLHttpRequestEventTargetPrototype : ObjectInstance
+internal sealed class XMLHttpRequestEventTargetPrototype
+    : PrototypeBase<XMLHttpRequestEventTargetInstance>
 {
-    private static readonly string OnAbortName = nameof(XMLHttpRequestEventTargetInstance.OnAbort)
-        .ToLowerInvariant();
-    private static readonly string OnErrorName = nameof(XMLHttpRequestEventTargetInstance.OnError)
-        .ToLowerInvariant();
-    private static readonly string OnLoadName = nameof(XMLHttpRequestEventTargetInstance.OnLoad)
-        .ToLowerInvariant();
-    private static readonly string OnLoadStartName = nameof(
-            XMLHttpRequestEventTargetInstance.OnLoadStart
-        )
-        .ToLowerInvariant();
-    private static readonly string OnProgressName = nameof(
-            XMLHttpRequestEventTargetInstance.OnProgress
-        )
-        .ToLowerInvariant();
-    private static readonly string OnTimeoutName = nameof(
-            XMLHttpRequestEventTargetInstance.OnTimeout
-        )
-        .ToLowerInvariant();
-    private static readonly string OnLoadEndName = nameof(
-            XMLHttpRequestEventTargetInstance.OnLoadEnd
-        )
-        .ToLowerInvariant();
-
     public XMLHttpRequestEventTargetPrototype(
         Engine engine,
         XMLHttpRequestEventTargetConstructor constructor
     )
-        : base(engine)
+        : base(engine, nameof(XMLHttpRequestEventTarget), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(XMLHttpRequestEventTarget));
-        SetOwnProperty("constructor", new(constructor, false, false, true));
-
-        // Event handler properties
-        FastSetProperty(
-            OnAbortName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnAbortName.ToJsGetterName(), GetOnAbort),
-                set: new ClrFunction(engine, OnAbortName.ToJsSetterName(), SetOnAbort),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnErrorName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnErrorName.ToJsGetterName(), GetOnError),
-                set: new ClrFunction(engine, OnErrorName.ToJsSetterName(), SetOnError),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnLoadName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnLoadName.ToJsGetterName(), GetOnLoad),
-                set: new ClrFunction(engine, OnLoadName.ToJsSetterName(), SetOnLoad),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnLoadStartName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnLoadStartName.ToJsGetterName(), GetOnLoadStart),
-                set: new ClrFunction(engine, OnLoadStartName.ToJsSetterName(), SetOnLoadStart),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnProgressName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnProgressName.ToJsGetterName(), GetOnProgress),
-                set: new ClrFunction(engine, OnProgressName.ToJsSetterName(), SetOnProgress),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnTimeoutName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnTimeoutName.ToJsGetterName(), GetOnTimeout),
-                set: new ClrFunction(engine, OnTimeoutName.ToJsSetterName(), SetOnTimeout),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnLoadEndName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnLoadEndName.ToJsGetterName(), GetOnLoadEnd),
-                set: new ClrFunction(engine, OnLoadEndName.ToJsSetterName(), SetOnLoadEnd),
-                false,
-                true
-            )
-        );
+        RegisterProperty("onabort", GetOnAbort, SetOnAbort);
+        RegisterProperty("onerror", GetOnError, SetOnError);
+        RegisterProperty("onload", GetOnLoad, SetOnLoad);
+        RegisterProperty("onloadstart", GetOnLoadStart, SetOnLoadStart);
+        RegisterProperty("onprogress", GetOnProgress, SetOnProgress);
+        RegisterProperty("ontimeout", GetOnTimeout, SetOnTimeout);
+        RegisterProperty("onloadend", GetOnLoadEnd, SetOnLoadEnd);
     }
 
-    private static JsValue GetOnAbort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnAbort(XMLHttpRequestEventTargetInstance instance)
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnAbort;
-    }
-
-    private static JsValue SetOnAbort(JsValue thisObject, JsValue[] arguments)
-    {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnAbort = arguments.At(0);
         return instance.OnAbort;
     }
 
-    private static JsValue GetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnAbort(XMLHttpRequestEventTargetInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnError;
+        instance.OnAbort = argument;
+        return instance.OnAbort;
     }
 
-    private static JsValue SetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnError(XMLHttpRequestEventTargetInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnError = arguments.At(0);
         return instance.OnError;
     }
 
-    private static JsValue GetOnLoad(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnError(XMLHttpRequestEventTargetInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnLoad;
+        instance.OnError = argument;
+        return instance.OnError;
     }
 
-    private static JsValue SetOnLoad(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoad(XMLHttpRequestEventTargetInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnLoad = arguments.At(0);
         return instance.OnLoad;
     }
 
-    private static JsValue GetOnLoadStart(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoad(XMLHttpRequestEventTargetInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnLoadStart;
+        instance.OnLoad = argument;
+        return instance.OnLoad;
     }
 
-    private static JsValue SetOnLoadStart(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoadStart(XMLHttpRequestEventTargetInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnLoadStart = arguments.At(0);
         return instance.OnLoadStart;
     }
 
-    private static JsValue GetOnProgress(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoadStart(
+        XMLHttpRequestEventTargetInstance instance,
+        JsValue argument
+    )
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnProgress;
+        instance.OnLoadStart = argument;
+        return instance.OnLoadStart;
     }
 
-    private static JsValue SetOnProgress(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnProgress(XMLHttpRequestEventTargetInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnProgress = arguments.At(0);
         return instance.OnProgress;
     }
 
-    private static JsValue GetOnTimeout(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnProgress(
+        XMLHttpRequestEventTargetInstance instance,
+        JsValue argument
+    )
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnTimeout;
+        instance.OnProgress = argument;
+        return instance.OnProgress;
     }
 
-    private static JsValue SetOnTimeout(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnTimeout(XMLHttpRequestEventTargetInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnTimeout = arguments.At(0);
         return instance.OnTimeout;
     }
 
-    private static JsValue GetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnTimeout(
+        XMLHttpRequestEventTargetInstance instance,
+        JsValue argument
+    )
     {
-        return thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>().OnLoadEnd;
+        instance.OnTimeout = argument;
+        return instance.OnTimeout;
     }
 
-    private static JsValue SetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoadEnd(XMLHttpRequestEventTargetInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<XMLHttpRequestEventTargetInstance>();
-        instance.OnLoadEnd = arguments.At(0);
+        return instance.OnLoadEnd;
+    }
+
+    private static JsValue SetOnLoadEnd(
+        XMLHttpRequestEventTargetInstance instance,
+        JsValue argument
+    )
+    {
+        instance.OnLoadEnd = argument;
         return instance.OnLoadEnd;
     }
 }

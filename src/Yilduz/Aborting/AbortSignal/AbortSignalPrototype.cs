@@ -1,88 +1,35 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
-using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Aborting.AbortSignal;
 
-internal sealed class AbortSignalPrototype : ObjectInstance
+internal sealed class AbortSignalPrototype : PrototypeBase<AbortSignalInstance>
 {
-    private static readonly string AbortedName = nameof(AbortSignalInstance.Aborted)
-        .ToJsStyleName();
-    private static readonly string ReasonName = nameof(AbortSignalInstance.Reason).ToJsStyleName();
-    private static readonly string ThrowIfAbortedName = nameof(AbortSignalInstance.ThrowIfAborted)
-        .ToJsStyleName();
-    private static readonly string OnabortName = nameof(AbortSignalInstance.OnAbort)
-        .ToLowerInvariant();
-
     public AbortSignalPrototype(Engine engine, AbortSignalConstructor ctor)
-        : base(engine)
+        : base(engine, nameof(AbortSignal), ctor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(AbortSignal));
-        FastSetProperty("constructor", new(ctor, false, false, true));
+        RegisterMethod("throwIfAborted", ThrowIfAborted);
 
-        FastSetProperty(
-            ThrowIfAbortedName,
-            new(new ClrFunction(engine, ThrowIfAbortedName, ThrowIfAborted), false, false, true)
-        );
-        FastSetProperty(
-            AbortedName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, AbortedName.ToJsGetterName(), GetAborted),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ReasonName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ReasonName.ToJsGetterName(), GetReason),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnabortName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnabortName.ToJsGetterName(), GetOnabort),
-                set: new ClrFunction(engine, OnabortName.ToJsSetterName(), SetOnabort),
-                false,
-                true
-            )
-        );
+        RegisterProperty("aborted", signal => signal.Aborted);
+        RegisterProperty("reason", signal => signal.Reason);
+        RegisterProperty("onabort", GetOnabort, SetOnabort);
     }
 
-    private static JsValue ThrowIfAborted(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ThrowIfAborted(AbortSignalInstance thisObject, JsValue[] arguments)
     {
-        thisObject.EnsureThisObject<AbortSignalInstance>().ThrowIfAborted();
+        thisObject.ThrowIfAborted();
         return Undefined;
     }
 
-    private static JsValue GetReason(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnabort(AbortSignalInstance thisObject)
     {
-        return thisObject.EnsureThisObject<AbortSignalInstance>().Reason;
+        return thisObject.OnAbort;
     }
 
-    private static JsValue GetAborted(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnabort(AbortSignalInstance thisObject, JsValue argument)
     {
-        return thisObject.EnsureThisObject<AbortSignalInstance>().Aborted;
-    }
-
-    private static JsValue GetOnabort(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<AbortSignalInstance>().OnAbort;
-    }
-
-    private static JsValue SetOnabort(JsValue thisObject, JsValue[] arguments)
-    {
-        var instance = thisObject.EnsureThisObject<AbortSignalInstance>();
-        instance.OnAbort = arguments.At(0);
-        return instance.OnAbort;
+        thisObject.OnAbort = argument;
+        return thisObject.OnAbort;
     }
 }

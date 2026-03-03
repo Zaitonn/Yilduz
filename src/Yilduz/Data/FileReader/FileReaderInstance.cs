@@ -23,7 +23,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/readyState
     /// </summary>
-    public FileReaderState ReadyState { get; private set; } = FileReaderState.EMPTY;
+    public FileReaderReadyState ReadyState { get; private set; } = FileReaderReadyState.EMPTY;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/result
@@ -93,7 +93,7 @@ public sealed class FileReaderInstance : EventTargetInstance
 
         _currentTotal = (ulong)blobInstance.Value.Count;
         _isReading = true;
-        ReadyState = FileReaderState.LOADING;
+        ReadyState = FileReaderReadyState.LOADING;
         Result = Undefined;
         Error = Null;
     }
@@ -103,7 +103,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void ReadAsArrayBuffer(JsValue blob)
     {
-        PrepareForReading(blob, FileReaderPrototype.ReadAsArrayBufferName);
+        PrepareForReading(blob, "readAsArrayBuffer");
 
         _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
@@ -112,7 +112,7 @@ public sealed class FileReaderInstance : EventTargetInstance
                 DispatchEvent("loadstart");
 
                 Result = _fileReaderSyncInstance.ReadAsArrayBuffer(blob);
-                ReadyState = FileReaderState.DONE;
+                ReadyState = FileReaderReadyState.DONE;
 
                 DispatchEvent("progress");
                 DispatchEvent("load");
@@ -134,7 +134,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void ReadAsText(JsValue blob, string encoding = "UTF-8")
     {
-        PrepareForReading(blob, FileReaderPrototype.ReadAsTextName);
+        PrepareForReading(blob, "readAsText");
 
         _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
@@ -143,7 +143,7 @@ public sealed class FileReaderInstance : EventTargetInstance
                 DispatchEvent("loadstart");
 
                 Result = _fileReaderSyncInstance.ReadAsText(blob, encoding);
-                ReadyState = FileReaderState.DONE;
+                ReadyState = FileReaderReadyState.DONE;
 
                 DispatchEvent("progress");
                 DispatchEvent("load");
@@ -165,7 +165,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void ReadAsDataURL(JsValue blob)
     {
-        PrepareForReading(blob, FileReaderPrototype.ReadAsDataURLName);
+        PrepareForReading(blob, "readAsDataURL");
 
         _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
         {
@@ -174,7 +174,7 @@ public sealed class FileReaderInstance : EventTargetInstance
                 DispatchEvent("loadstart");
 
                 Result = _fileReaderSyncInstance.ReadAsDataURL(blob);
-                ReadyState = FileReaderState.DONE;
+                ReadyState = FileReaderReadyState.DONE;
 
                 DispatchEvent("progress");
                 DispatchEvent("load");
@@ -197,11 +197,7 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public JsValue ReadAsBinaryString(JsValue blob)
     {
-        _fileReaderSyncInstance.EnsureBlob(
-            blob,
-            FileReaderPrototype.ReadAsBinaryStringName,
-            out var blobInstance
-        );
+        _fileReaderSyncInstance.EnsureBlob(blob, "readAsBinaryString", out var blobInstance);
 
         try
         {
@@ -221,12 +217,12 @@ public sealed class FileReaderInstance : EventTargetInstance
     /// </summary>
     public void Abort()
     {
-        if (ReadyState != FileReaderState.LOADING)
+        if (ReadyState != FileReaderReadyState.LOADING)
         {
             return;
         }
 
-        ReadyState = FileReaderState.DONE;
+        ReadyState = FileReaderReadyState.DONE;
         Result = Undefined;
         _isReading = false;
 
@@ -241,7 +237,7 @@ public sealed class FileReaderInstance : EventTargetInstance
                 "An error occurred while reading the Blob or File: " + ex.Message
             );
 
-        ReadyState = FileReaderState.DONE;
+        ReadyState = FileReaderReadyState.DONE;
         DispatchEvent("error");
     }
 
@@ -263,7 +259,7 @@ public sealed class FileReaderInstance : EventTargetInstance
                 {
                     progressEvent.Total = _currentTotal.Value;
                     progressEvent.Loaded =
-                        ReadyState == FileReaderState.DONE ? _currentTotal.Value : 0;
+                        ReadyState == FileReaderReadyState.DONE ? _currentTotal.Value : 0;
                 }
 
                 DispatchEvent(progressEvent);

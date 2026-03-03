@@ -1,108 +1,32 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.WritableStreamDefaultWriter;
 
-internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
+internal sealed class WritableStreamDefaultWriterPrototype
+    : PrototypeBase<WritableStreamDefaultWriterInstance>
 {
-    private static readonly string ClosedName = nameof(WritableStreamDefaultWriterInstance.Closed)
-        .ToJsStyleName();
-    private static readonly string ClosedGetterName = ClosedName.ToJsGetterName();
-
-    private static readonly string ReadyName = nameof(WritableStreamDefaultWriterInstance.Ready)
-        .ToJsStyleName();
-    private static readonly string ReadyGetterName = ReadyName.ToJsGetterName();
-
-    private static readonly string DesiredSizeName = nameof(
-            WritableStreamDefaultWriterInstance.DesiredSize
-        )
-        .ToJsStyleName();
-    private static readonly string DesiredSizeGetterName = DesiredSizeName.ToJsGetterName();
-
-    private static readonly string AbortName = nameof(Abort).ToJsStyleName();
-    private static readonly string CloseName = nameof(Close).ToJsStyleName();
-    private static readonly string ReleaseLockName = nameof(ReleaseLock).ToJsStyleName();
-    private static readonly string WriteName = nameof(Write).ToJsStyleName();
-
     public WritableStreamDefaultWriterPrototype(
         Engine engine,
         WritableStreamDefaultWriterConstructor constructor
     )
-        : base(engine)
+        : base(engine, nameof(WritableStreamDefaultWriter), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, "WritableStreamDefaultWriter");
-        SetOwnProperty("constructor", new(constructor, false, false, false));
+        RegisterProperty("closed", instance => instance.Closed);
+        RegisterProperty("ready", instance => instance.Ready);
+        RegisterProperty("desiredSize", GetDesiredSize);
 
-        // Properties (getters only)
-        FastSetProperty(
-            ClosedName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ClosedGetterName, GetClosed),
-                set: null,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            ReadyName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ReadyGetterName, GetReady),
-                set: null,
-                false,
-                true
-            )
-        );
-
-        FastSetProperty(
-            DesiredSizeName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, DesiredSizeGetterName, GetDesiredSize),
-                set: null,
-                false,
-                true
-            )
-        );
-
-        // Methods
-        FastSetProperty(
-            AbortName,
-            new(new ClrFunction(Engine, AbortName, Abort), false, false, true)
-        );
-        FastSetProperty(
-            CloseName,
-            new(new ClrFunction(Engine, CloseName, Close), false, false, true)
-        );
-        FastSetProperty(
-            ReleaseLockName,
-            new(new ClrFunction(Engine, ReleaseLockName, ReleaseLock), false, false, true)
-        );
-        FastSetProperty(
-            WriteName,
-            new(new ClrFunction(Engine, WriteName, Write), false, false, true)
-        );
+        RegisterMethod("abort", Abort);
+        RegisterMethod("close", Close);
+        RegisterMethod("releaseLock", ReleaseLock);
+        RegisterMethod("write", Write);
     }
 
-    private static JsValue GetClosed(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetDesiredSize(WritableStreamDefaultWriterInstance instance)
     {
-        return thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>().Closed;
-    }
-
-    private static JsValue GetReady(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>().Ready;
-    }
-
-    private static JsValue GetDesiredSize(JsValue thisObject, JsValue[] arguments)
-    {
-        var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var size = instance.DesiredSize;
         return size ?? Null;
     }
@@ -110,9 +34,8 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/abort
     /// </summary>
-    private JsValue Abort(JsValue thisObject, JsValue[] arguments)
+    private JsValue Abort(WritableStreamDefaultWriterInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var reason = arguments.At(0);
 
         try
@@ -132,33 +55,29 @@ internal sealed class WritableStreamDefaultWriterPrototype : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/close
     /// </summary>
-    private static JsValue Close(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Close(WritableStreamDefaultWriterInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
-
         return instance.Close();
     }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/releaseLock
     /// </summary>
-    private static JsValue ReleaseLock(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReleaseLock(
+        WritableStreamDefaultWriterInstance instance,
+        JsValue[] arguments
+    )
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
-
         instance.ReleaseLock();
-
         return Undefined;
     }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStreamDefaultWriter/write
     /// </summary>
-    private static JsValue Write(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Write(WritableStreamDefaultWriterInstance instance, JsValue[] arguments)
     {
-        var writer = thisObject.EnsureThisObject<WritableStreamDefaultWriterInstance>();
         var chunk = arguments.At(0);
-
-        return writer.Write(chunk);
+        return instance.Write(chunk);
     }
 }

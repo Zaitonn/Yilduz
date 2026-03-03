@@ -24,10 +24,11 @@ public abstract class QueuingStrategyInstance : ObjectInstance
         {
             TypeErrorHelper.Throw(engine, "HighWaterMark is required for QueuingStrategy");
         }
+
+        SizeAlgorithm = new(Engine, nameof(Size).ToJsStyleName(), (_, args) => Size(args.At(0)));
     }
 
-    internal ClrFunction SizeAlgorithm =>
-        new(Engine, nameof(Size).ToJsStyleName(), (_, args) => Size(args.At(0)));
+    internal ClrFunction SizeAlgorithm { get; }
 
     public double HighWaterMark { get; protected set; }
 

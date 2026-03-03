@@ -1,91 +1,45 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 using Yilduz.Utils;
 
 namespace Yilduz.Streams.WritableStream;
 
-internal sealed class WritableStreamPrototype : ObjectInstance
+internal sealed class WritableStreamPrototype : PrototypeBase<WritableStreamInstance>
 {
-    private static readonly string LockedName = nameof(WritableStreamInstance.Locked)
-        .ToJsStyleName();
-    private static readonly string LockedGetterName = LockedName.ToJsGetterName();
-
-    private static readonly string AbortName = nameof(Abort).ToJsStyleName();
-    private static readonly string CloseName = nameof(Close).ToJsStyleName();
-    private static readonly string GetWriterName = nameof(GetWriter).ToJsStyleName();
-
     public WritableStreamPrototype(Engine engine, WritableStreamConstructor constructor)
-        : base(engine)
+        : base(engine, "WritableStream", constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(WritableStream));
-        SetOwnProperty("constructor", new(constructor, false, false, false));
-
-        // Locked property (getter only)
-        FastSetProperty(
-            LockedName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, LockedGetterName, GetLocked),
-                set: null,
-                false,
-                true
-            )
-        );
-
-        // Methods
-        FastSetProperty(
-            AbortName,
-            new(new ClrFunction(Engine, AbortName, Abort), false, false, true)
-        );
-        FastSetProperty(
-            CloseName,
-            new(new ClrFunction(Engine, CloseName, Close), false, false, true)
-        );
-        FastSetProperty(
-            GetWriterName,
-            new(new ClrFunction(Engine, GetWriterName, GetWriter), false, false, true)
-        );
-    }
-
-    private static JsValue GetLocked(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<WritableStreamInstance>().Locked;
+        RegisterProperty("locked", instance => instance.Locked);
+        RegisterMethod("abort", Abort);
+        RegisterMethod("close", Close);
+        RegisterMethod("getWriter", GetWriter);
     }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStream/abort
     /// </summary>
-    private static JsValue Abort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Abort(WritableStreamInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
         var reason = arguments.At(0);
-
         return instance.Abort(reason);
     }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStream/close
     /// </summary>
-    private JsValue Close(JsValue thisObject, JsValue[] arguments)
+    private JsValue Close(WritableStreamInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
         instance.Close();
-
         return PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
     }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WritableStream/getWriter
     /// </summary>
-    private static JsValue GetWriter(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetWriter(WritableStreamInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WritableStreamInstance>();
-        var writer = instance.GetWriter();
-        return writer;
+        return instance.GetWriter();
     }
 }

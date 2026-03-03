@@ -1,298 +1,130 @@
-using Jint;
+﻿using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Data.FileReader;
 
-internal sealed class FileReaderPrototype : ObjectInstance
+internal sealed class FileReaderPrototype : PrototypeBase<FileReaderInstance>
 {
-    private static readonly string ReadyStateName = nameof(FileReaderInstance.ReadyState)
-        .ToJsStyleName();
-    private static readonly string ReadyStateGetterName = ReadyStateName.ToJsGetterName();
-    private static readonly string ResultName = nameof(FileReaderInstance.Result).ToJsStyleName();
-    private static readonly string ResultGetterName = ResultName.ToJsGetterName();
-    private static readonly string ErrorName = nameof(FileReaderInstance.Error).ToJsStyleName();
-    private static readonly string ErrorGetterName = ErrorName.ToJsGetterName();
-
-    public static readonly string ReadAsArrayBufferName = nameof(ReadAsArrayBuffer).ToJsStyleName();
-    public static readonly string ReadAsTextName = nameof(ReadAsText).ToJsStyleName();
-    public static readonly string ReadAsDataURLName = nameof(ReadAsDataURL).ToJsStyleName();
-    public static readonly string ReadAsBinaryStringName = nameof(ReadAsBinaryString)
-        .ToJsStyleName();
-    private static readonly string AbortName = nameof(Abort).ToJsStyleName();
-
-    private static readonly string OnLoadStartName = nameof(FileReaderInstance.OnLoadStart)
-        .ToLowerInvariant();
-    private static readonly string OnLoadName = nameof(FileReaderInstance.OnLoad)
-        .ToLowerInvariant();
-    private static readonly string OnLoadEndName = nameof(FileReaderInstance.OnLoadEnd)
-        .ToLowerInvariant();
-    private static readonly string OnErrorName = nameof(FileReaderInstance.OnError)
-        .ToLowerInvariant();
-    private static readonly string OnAbortName = nameof(FileReaderInstance.OnAbort)
-        .ToLowerInvariant();
-    private static readonly string OnProgressName = nameof(FileReaderInstance.OnProgress)
-        .ToLowerInvariant();
-
     public FileReaderPrototype(Engine engine, FileReaderConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(FileReader), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(FileReader));
-        SetOwnProperty("constructor", new(constructor, false, false, false));
+        RegisterProperty("readyState", reader => (int)reader.ReadyState);
+        RegisterProperty("result", reader => reader.Result);
+        RegisterProperty("error", reader => reader.Error);
 
-        FastSetProperty(
-            ReadyStateName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ReadyStateGetterName, GetReadyState),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ResultName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ResultGetterName, GetResult),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ErrorName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ErrorGetterName, GetError),
-                set: null,
-                false,
-                true
-            )
-        );
+        RegisterConstant("EMPTY", FileReaderReadyState.EMPTY);
+        RegisterConstant("LOADING", FileReaderReadyState.LOADING);
+        RegisterConstant("DONE", FileReaderReadyState.DONE);
 
-        FastSetProperty(
-            nameof(FileReaderState.EMPTY),
-            new((int)FileReaderState.EMPTY, false, false, true)
-        );
-        FastSetProperty(
-            nameof(FileReaderState.LOADING),
-            new((int)FileReaderState.LOADING, false, false, true)
-        );
-        FastSetProperty(
-            nameof(FileReaderState.DONE),
-            new((int)FileReaderState.DONE, false, false, true)
-        );
+        RegisterMethod("readAsArrayBuffer", ReadAsArrayBuffer, 1);
+        RegisterMethod("readAsText", ReadAsText, 1);
+        RegisterMethod("readAsDataURL", ReadAsDataURL, 1);
+        RegisterMethod("readAsBinaryString", ReadAsBinaryString, 1);
+        RegisterMethod("abort", Abort);
 
-        FastSetProperty(
-            ReadAsArrayBufferName,
-            new(
-                new ClrFunction(Engine, ReadAsArrayBufferName, ReadAsArrayBuffer),
-                false,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ReadAsTextName,
-            new(new ClrFunction(Engine, ReadAsTextName, ReadAsText), false, false, true)
-        );
-        FastSetProperty(
-            ReadAsDataURLName,
-            new(new ClrFunction(Engine, ReadAsDataURLName, ReadAsDataURL), false, false, true)
-        );
-        FastSetProperty(
-            AbortName,
-            new(new ClrFunction(Engine, AbortName, Abort), false, false, true)
-        );
-
-        // Event handler properties
-        FastSetProperty(
-            OnLoadStartName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnLoadStartName.ToJsGetterName(), GetOnLoadStart),
-                set: new ClrFunction(engine, OnLoadStartName.ToJsSetterName(), SetOnLoadStart),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnLoadName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnLoadName.ToJsGetterName(), GetOnLoad),
-                set: new ClrFunction(engine, OnLoadName.ToJsSetterName(), SetOnLoad),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnLoadEndName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnLoadEndName.ToJsGetterName(), GetOnLoadEnd),
-                set: new ClrFunction(engine, OnLoadEndName.ToJsSetterName(), SetOnLoadEnd),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnErrorName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnErrorName.ToJsGetterName(), GetOnError),
-                set: new ClrFunction(engine, OnErrorName.ToJsSetterName(), SetOnError),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnAbortName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnAbortName.ToJsGetterName(), GetOnAbort),
-                set: new ClrFunction(engine, OnAbortName.ToJsSetterName(), SetOnAbort),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnProgressName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnProgressName.ToJsGetterName(), GetOnProgress),
-                set: new ClrFunction(engine, OnProgressName.ToJsSetterName(), SetOnProgress),
-                false,
-                true
-            )
-        );
+        RegisterProperty("onloadstart", GetOnLoadStart, SetOnLoadStart);
+        RegisterProperty("onload", GetOnLoad, SetOnLoad);
+        RegisterProperty("onloadend", GetOnLoadEnd, SetOnLoadEnd);
+        RegisterProperty("onerror", GetOnError, SetOnError);
+        RegisterProperty("onabort", GetOnAbort, SetOnAbort);
+        RegisterProperty("onprogress", GetOnProgress, SetOnProgress);
     }
 
-    private JsValue GetReadyState(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReadAsArrayBuffer(FileReaderInstance reader, JsValue[] arguments)
     {
-        return (int)thisObject.EnsureThisObject<FileReaderInstance>().ReadyState;
-    }
-
-    private JsValue GetResult(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<FileReaderInstance>().Result;
-    }
-
-    private JsValue GetError(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<FileReaderInstance>().Error;
-    }
-
-    private JsValue ReadAsArrayBuffer(JsValue thisObject, JsValue[] arguments)
-    {
-        var reader = thisObject.EnsureThisObject<FileReaderInstance>();
-        arguments.EnsureCount(Engine, 1, ReadAsArrayBufferName, nameof(FileReader));
-
         reader.ReadAsArrayBuffer(arguments.At(0));
-
         return Undefined;
     }
 
-    private JsValue ReadAsText(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReadAsText(FileReaderInstance reader, JsValue[] arguments)
     {
-        var reader = thisObject.EnsureThisObject<FileReaderInstance>();
-
-        arguments.EnsureCount(Engine, 1, ReadAsTextName, nameof(FileReader));
-
         var encoding = arguments.Length > 1 ? arguments[1].ToString() : "UTF-8";
         reader.ReadAsText(arguments.At(0), encoding);
         return Undefined;
     }
 
-    private JsValue ReadAsDataURL(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReadAsDataURL(FileReaderInstance reader, JsValue[] arguments)
     {
-        var reader = thisObject.EnsureThisObject<FileReaderInstance>();
-        arguments.EnsureCount(Engine, 1, ReadAsDataURLName, nameof(FileReader));
         reader.ReadAsDataURL(arguments.At(0));
-
         return Undefined;
     }
 
-    private JsValue ReadAsBinaryString(JsValue thisObject, JsValue[] arguments)
+    private static JsValue ReadAsBinaryString(FileReaderInstance reader, JsValue[] arguments)
     {
-        var reader = thisObject.EnsureThisObject<FileReaderInstance>();
-        arguments.EnsureCount(Engine, 1, ReadAsBinaryStringName, nameof(FileReaderSync));
-
         return reader.ReadAsBinaryString(arguments[0]);
     }
 
-    private JsValue Abort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Abort(FileReaderInstance reader, JsValue[] arguments)
     {
-        thisObject.EnsureThisObject<FileReaderInstance>().Abort();
+        reader.Abort();
         return Undefined;
     }
 
-    private JsValue GetOnLoadStart(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoadStart(FileReaderInstance reader)
     {
-        return thisObject.EnsureThisObject<FileReaderInstance>().OnLoadStart;
+        return reader.OnLoadStart;
     }
 
-    private JsValue SetOnLoadStart(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoadStart(FileReaderInstance reader, JsValue value)
     {
-        var instance = thisObject.EnsureThisObject<FileReaderInstance>();
-        instance.OnLoadStart = arguments.At(0);
-        return instance.OnLoadStart;
+        reader.OnLoadStart = value;
+        return reader.OnLoadStart;
     }
 
-    private JsValue GetOnLoad(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoad(FileReaderInstance reader)
     {
-        return thisObject.EnsureThisObject<FileReaderInstance>().OnLoad;
+        return reader.OnLoad;
     }
 
-    private JsValue SetOnLoad(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoad(FileReaderInstance reader, JsValue value)
     {
-        var instance = thisObject.EnsureThisObject<FileReaderInstance>();
-        instance.OnLoad = arguments.At(0);
-        return instance.OnLoad;
+        reader.OnLoad = value;
+        return reader.OnLoad;
     }
 
-    private JsValue GetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnLoadEnd(FileReaderInstance reader)
     {
-        return thisObject.EnsureThisObject<FileReaderInstance>().OnLoadEnd;
+        return reader.OnLoadEnd;
     }
 
-    private JsValue SetOnLoadEnd(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnLoadEnd(FileReaderInstance reader, JsValue value)
     {
-        var instance = thisObject.EnsureThisObject<FileReaderInstance>();
-        instance.OnLoadEnd = arguments.At(0);
-        return instance.OnLoadEnd;
+        reader.OnLoadEnd = value;
+        return reader.OnLoadEnd;
     }
 
-    private JsValue GetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnError(FileReaderInstance reader)
     {
-        return thisObject.EnsureThisObject<FileReaderInstance>().OnError;
+        return reader.OnError;
     }
 
-    private JsValue SetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnError(FileReaderInstance reader, JsValue value)
     {
-        var instance = thisObject.EnsureThisObject<FileReaderInstance>();
-        instance.OnError = arguments.At(0);
-        return instance.OnError;
+        reader.OnError = value;
+        return reader.OnError;
     }
 
-    private JsValue GetOnAbort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnAbort(FileReaderInstance reader)
     {
-        return thisObject.EnsureThisObject<FileReaderInstance>().OnAbort;
+        return reader.OnAbort;
     }
 
-    private JsValue SetOnAbort(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnAbort(FileReaderInstance reader, JsValue value)
     {
-        var instance = thisObject.EnsureThisObject<FileReaderInstance>();
-        instance.OnAbort = arguments.At(0);
-        return instance.OnAbort;
+        reader.OnAbort = value;
+        return reader.OnAbort;
     }
 
-    private JsValue GetOnProgress(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnProgress(FileReaderInstance reader)
     {
-        return thisObject.EnsureThisObject<FileReaderInstance>().OnProgress;
+        return reader.OnProgress;
     }
 
-    private JsValue SetOnProgress(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnProgress(FileReaderInstance reader, JsValue value)
     {
-        var instance = thisObject.EnsureThisObject<FileReaderInstance>();
-        instance.OnProgress = arguments.At(0);
-        return instance.OnProgress;
+        reader.OnProgress = value;
+        return reader.OnProgress;
     }
 }

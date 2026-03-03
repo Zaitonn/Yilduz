@@ -142,7 +142,7 @@ public sealed class EventTests : TestBase
         var storage = GetActiveStorage(type);
 
         StorageInstance? eventStorageArea = null;
-        storage.Updated += (_, args) => eventStorageArea = args.StorageArea;
+        storage.Updated += (_, args) => eventStorageArea = args.Storage;
 
         Execute($"{type}.setItem('areaKey', 'areaValue');");
 

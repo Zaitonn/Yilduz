@@ -1,18 +1,14 @@
 using Jint;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
+using Yilduz.Models;
 
 namespace Yilduz.Streams.ReadableByteStreamController;
 
-internal sealed class ReadableByteStreamControllerPrototype : ObjectInstance
+internal sealed class ReadableByteStreamControllerPrototype
+    : PrototypeBase<ReadableByteStreamControllerInstance>
 {
     public ReadableByteStreamControllerPrototype(
         Engine engine,
         ReadableByteStreamControllerConstructor constructor
     )
-        : base(engine)
-    {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(ReadableStream));
-        SetOwnProperty("constructor", new(constructor, false, false, true));
-    }
+        : base(engine, nameof(ReadableByteStreamController), constructor) { }
 }

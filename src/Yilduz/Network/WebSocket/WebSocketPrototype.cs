@@ -1,263 +1,115 @@
 using Jint;
 using Jint.Native;
-using Jint.Native.Object;
-using Jint.Native.Symbol;
 using Jint.Runtime;
-using Jint.Runtime.Descriptors;
-using Jint.Runtime.Interop;
-using Yilduz.Extensions;
+using Yilduz.Models;
 
 namespace Yilduz.Network.WebSocket;
 
-internal sealed class WebSocketPrototype : ObjectInstance
+internal sealed class WebSocketPrototype : PrototypeBase<WebSocketInstance>
 {
-    private static readonly string UrlName = nameof(WebSocketInstance.Url).ToJsStyleName();
-    private static readonly string ReadyStateName = nameof(WebSocketInstance.ReadyState)
-        .ToJsStyleName();
-    private static readonly string BufferedAmountName = nameof(WebSocketInstance.BufferedAmount)
-        .ToJsStyleName();
-    private static readonly string ExtensionsName = nameof(WebSocketInstance.Extensions)
-        .ToJsStyleName();
-    private static readonly string ProtocolName = nameof(WebSocketInstance.Protocol)
-        .ToJsStyleName();
-    private static readonly string BinaryTypeName = nameof(WebSocketInstance.BinaryType)
-        .ToJsStyleName();
-    private static readonly string OnOpenName = nameof(WebSocketInstance.OnOpen).ToLowerInvariant();
-    private static readonly string OnMessageName = nameof(WebSocketInstance.OnMessage)
-        .ToLowerInvariant();
-    private static readonly string OnErrorName = nameof(WebSocketInstance.OnError)
-        .ToLowerInvariant();
-    private static readonly string OnCloseName = nameof(WebSocketInstance.OnClose)
-        .ToLowerInvariant();
-    private static readonly string SendName = nameof(WebSocketInstance.Send).ToJsStyleName();
-    private static readonly string CloseName = nameof(WebSocketInstance.Close).ToJsStyleName();
-
     public WebSocketPrototype(Engine engine, WebSocketConstructor constructor)
-        : base(engine)
+        : base(engine, nameof(WebSocket), constructor)
     {
-        Set(GlobalSymbolRegistry.ToStringTag, nameof(WebSocket));
-        SetOwnProperty("constructor", new(constructor, false, false, true));
-
         // Ready state constants (also exposed on prototype per Web IDL spec)
-        FastSetProperty(
+        RegisterConstant(
             nameof(WebSocketReadyState.Connecting).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Connecting), false, false, false)
+            WebSocketReadyState.Connecting
         );
-        FastSetProperty(
+        RegisterConstant(
             nameof(WebSocketReadyState.Open).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Open), false, false, false)
+            WebSocketReadyState.Open
         );
-        FastSetProperty(
+        RegisterConstant(
             nameof(WebSocketReadyState.Closing).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Closing), false, false, false)
+            WebSocketReadyState.Closing
         );
-        FastSetProperty(
+        RegisterConstant(
             nameof(WebSocketReadyState.Closed).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Closed), false, false, false)
+            WebSocketReadyState.Closed
         );
 
         // Readonly getters
-        FastSetProperty(
-            UrlName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, UrlName.ToJsGetterName(), GetUrl),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ReadyStateName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ReadyStateName.ToJsGetterName(), GetReadyState),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            BufferedAmountName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(
-                    engine,
-                    BufferedAmountName.ToJsGetterName(),
-                    GetBufferedAmount
-                ),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ExtensionsName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ExtensionsName.ToJsGetterName(), GetExtensions),
-                set: null,
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            ProtocolName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, ProtocolName.ToJsGetterName(), GetProtocol),
-                set: null,
-                false,
-                true
-            )
-        );
+        RegisterProperty("url", ws => ws.Url);
+        RegisterProperty("readyState", ws => (int)ws.ReadyState);
+        RegisterProperty("bufferedAmount", ws => (long)ws.BufferedAmount);
+        RegisterProperty("extensions", ws => ws.Extensions);
+        RegisterProperty("protocol", ws => ws.Protocol);
 
         // Read-write properties
-        FastSetProperty(
-            BinaryTypeName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, BinaryTypeName.ToJsGetterName(), GetBinaryType),
-                set: new ClrFunction(engine, BinaryTypeName.ToJsSetterName(), SetBinaryType),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnOpenName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnOpenName.ToJsGetterName(), GetOnOpen),
-                set: new ClrFunction(engine, OnOpenName.ToJsSetterName(), SetOnOpen),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnMessageName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnMessageName.ToJsGetterName(), GetOnMessage),
-                set: new ClrFunction(engine, OnMessageName.ToJsSetterName(), SetOnMessage),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnErrorName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnErrorName.ToJsGetterName(), GetOnError),
-                set: new ClrFunction(engine, OnErrorName.ToJsSetterName(), SetOnError),
-                false,
-                true
-            )
-        );
-        FastSetProperty(
-            OnCloseName,
-            new GetSetPropertyDescriptor(
-                get: new ClrFunction(engine, OnCloseName.ToJsGetterName(), GetOnClose),
-                set: new ClrFunction(engine, OnCloseName.ToJsSetterName(), SetOnClose),
-                false,
-                true
-            )
-        );
+        RegisterProperty("binaryType", GetBinaryType, SetBinaryType);
+        RegisterProperty("onopen", GetOnOpen, SetOnOpen);
+        RegisterProperty("onmessage", GetOnMessage, SetOnMessage);
+        RegisterProperty("onerror", GetOnError, SetOnError);
+        RegisterProperty("onclose", GetOnClose, SetOnClose);
 
         // Methods
-        FastSetProperty(SendName, new(new ClrFunction(engine, SendName, Send), false, false, true));
-        FastSetProperty(
-            CloseName,
-            new(new ClrFunction(engine, CloseName, Close), false, false, true)
-        );
+        RegisterMethod("send", Send);
+        RegisterMethod("close", Close);
     }
 
-    private static JsValue GetUrl(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetBinaryType(WebSocketInstance instance)
     {
-        return thisObject.EnsureThisObject<WebSocketInstance>().Url;
-    }
-
-    private static JsValue GetReadyState(JsValue thisObject, JsValue[] arguments)
-    {
-        return (int)thisObject.EnsureThisObject<WebSocketInstance>().ReadyState;
-    }
-
-    private static JsValue GetBufferedAmount(JsValue thisObject, JsValue[] arguments)
-    {
-        return (long)thisObject.EnsureThisObject<WebSocketInstance>().BufferedAmount;
-    }
-
-    private static JsValue GetExtensions(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<WebSocketInstance>().Extensions;
-    }
-
-    private static JsValue GetProtocol(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<WebSocketInstance>().Protocol;
-    }
-
-    private static JsValue GetBinaryType(JsValue thisObject, JsValue[] arguments)
-    {
-        return thisObject.EnsureThisObject<WebSocketInstance>().BinaryType;
-    }
-
-    private static JsValue SetBinaryType(JsValue thisObject, JsValue[] arguments)
-    {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
-        // Validation is handled inside the BinaryType setter
-        instance.BinaryType = arguments.At(0).ToString();
         return instance.BinaryType;
     }
 
-    private static JsValue GetOnOpen(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetBinaryType(WebSocketInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<WebSocketInstance>().OnOpen;
+        instance.BinaryType = argument.ToString();
+        return instance.BinaryType;
     }
 
-    private static JsValue SetOnOpen(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnOpen(WebSocketInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
-        instance.OnOpen = arguments.At(0);
         return instance.OnOpen;
     }
 
-    private static JsValue GetOnMessage(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnOpen(WebSocketInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<WebSocketInstance>().OnMessage;
+        instance.OnOpen = argument;
+        return instance.OnOpen;
     }
 
-    private static JsValue SetOnMessage(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnMessage(WebSocketInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
-        instance.OnMessage = arguments.At(0);
         return instance.OnMessage;
     }
 
-    private static JsValue GetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnMessage(WebSocketInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<WebSocketInstance>().OnError;
+        instance.OnMessage = argument;
+        return instance.OnMessage;
     }
 
-    private static JsValue SetOnError(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnError(WebSocketInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
-        instance.OnError = arguments.At(0);
         return instance.OnError;
     }
 
-    private static JsValue GetOnClose(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnError(WebSocketInstance instance, JsValue argument)
     {
-        return thisObject.EnsureThisObject<WebSocketInstance>().OnClose;
+        instance.OnError = argument;
+        return instance.OnError;
     }
 
-    private static JsValue SetOnClose(JsValue thisObject, JsValue[] arguments)
+    private static JsValue GetOnClose(WebSocketInstance instance)
     {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
-        instance.OnClose = arguments.At(0);
         return instance.OnClose;
     }
 
-    private JsValue Send(JsValue thisObject, JsValue[] arguments)
+    private static JsValue SetOnClose(WebSocketInstance instance, JsValue argument)
     {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
+        instance.OnClose = argument;
+        return instance.OnClose;
+    }
+
+    private static JsValue Send(WebSocketInstance instance, JsValue[] arguments)
+    {
         instance.Send(arguments.At(0));
         return Undefined;
     }
 
-    private JsValue Close(JsValue thisObject, JsValue[] arguments)
+    private static JsValue Close(WebSocketInstance instance, JsValue[] arguments)
     {
-        var instance = thisObject.EnsureThisObject<WebSocketInstance>();
         ushort? code = null;
         string? reason = null;
 

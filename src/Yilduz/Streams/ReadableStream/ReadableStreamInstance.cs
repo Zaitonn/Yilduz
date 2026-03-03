@@ -1,7 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 using Jint;
 using Jint.Native;
-using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Runtime;
 using Yilduz.Aborting.AbortSignal;

@@ -41,7 +41,7 @@ public sealed class FileReaderSyncInstance : ObjectInstance
     /// </summary>
     public JsValue ReadAsArrayBuffer(JsValue blob)
     {
-        EnsureBlob(blob, FileReaderSyncPrototype.ReadAsArrayBufferName, out var blobInstance);
+        EnsureBlob(blob, "readAsArrayBuffer", out var blobInstance);
 
         return blobInstance.ArrayBuffer();
     }
@@ -51,7 +51,7 @@ public sealed class FileReaderSyncInstance : ObjectInstance
     /// </summary>
     public JsValue ReadAsText(JsValue blob, string encoding = "UTF-8")
     {
-        EnsureBlob(blob, FileReaderSyncPrototype.ReadAsTextName, out var blobInstance);
+        EnsureBlob(blob, "readAsText", out var blobInstance);
 
         try
         {
@@ -84,7 +84,7 @@ public sealed class FileReaderSyncInstance : ObjectInstance
     /// </summary>
     public JsValue ReadAsDataURL(JsValue blob)
     {
-        EnsureBlob(blob, FileReaderSyncPrototype.ReadAsDataURLName, out var blobInstance);
+        EnsureBlob(blob, "readAsDataURL", out var blobInstance);
 
         try
         {
@@ -113,7 +113,7 @@ public sealed class FileReaderSyncInstance : ObjectInstance
     /// </summary>
     public JsValue ReadAsBinaryString(JsValue blob)
     {
-        EnsureBlob(blob, FileReaderSyncPrototype.ReadAsBinaryStringName, out var blobInstance);
+        EnsureBlob(blob, "readAsBinaryString", out var blobInstance);
 
         try
         {
