@@ -36,11 +36,11 @@ public sealed class RuntimeTests : HttpRouteTestBase
         await WaitForJsConditionAsync("done === true");
 
         Assert.Equal("hello world", Evaluate("body").AsString());
-        Assert.Equal(200, Evaluate("status").AsNumber());
+        Assert.Equal(200, Evaluate("status"));
 
         var url = Evaluate("responseUrl").AsString();
         Assert.Contains("xhr-basic", url);
-        Assert.Equal(4, Evaluate("finalState").AsNumber());
+        Assert.Equal(4, Evaluate("finalState"));
     }
 
     [Fact]
@@ -138,8 +138,8 @@ public sealed class RuntimeTests : HttpRouteTestBase
 
         await WaitForJsConditionAsync("aborted === true");
         Assert.True(Evaluate("aborted").AsBoolean());
-        Assert.Equal(4, Evaluate("readyStateAfterAbort").AsNumber());
-        Assert.Equal(0, Evaluate("xhr.status").AsNumber());
+        Assert.Equal(4, Evaluate("readyStateAfterAbort"));
+        Assert.Equal(0, Evaluate("xhr.status"));
     }
 
     [Fact]
@@ -174,8 +174,8 @@ public sealed class RuntimeTests : HttpRouteTestBase
 
         Assert.True(Evaluate("errorFired").AsBoolean());
         Assert.False(Evaluate("loadFired").AsBoolean());
-        Assert.Equal(4, Evaluate("ready").AsNumber());
-        Assert.Equal(0, Evaluate("xhr.status").AsNumber());
+        Assert.Equal(4, Evaluate("ready"));
+        Assert.Equal(0, Evaluate("xhr.status"));
     }
 
     [Fact]
@@ -216,7 +216,7 @@ public sealed class RuntimeTests : HttpRouteTestBase
         await WaitForJsConditionAsync("done === true");
 
         Assert.Equal("redirected", Evaluate("body").AsString());
-        Assert.Equal(200, Evaluate("status").AsNumber());
+        Assert.Equal(200, Evaluate("status"));
         Assert.Contains("xhr-final", Evaluate("url").AsString());
     }
 
@@ -250,7 +250,7 @@ public sealed class RuntimeTests : HttpRouteTestBase
         await WaitForJsConditionAsync("done === true");
 
         Assert.Equal("override-body", Evaluate("text").AsString());
-        Assert.Equal(200, Evaluate("status").AsNumber());
+        Assert.Equal(200, Evaluate("status"));
     }
 
     [Fact]
@@ -311,8 +311,8 @@ public sealed class RuntimeTests : HttpRouteTestBase
         await WaitForJsConditionAsync("done === true");
 
         Assert.True(Evaluate("isArrayBuffer").AsBoolean());
-        Assert.Equal(5, Evaluate("byteLength").AsNumber()); // "Hello"
-        Assert.Equal(72, Evaluate("firstByte").AsNumber()); // 'H'
+        Assert.Equal(5, Evaluate("byteLength")); // "Hello"
+        Assert.Equal(72, Evaluate("firstByte")); // 'H'
     }
 
     [Fact]
@@ -346,7 +346,7 @@ public sealed class RuntimeTests : HttpRouteTestBase
         await WaitForJsConditionAsync("done === true");
 
         Assert.True(Evaluate("isBlob").AsBoolean());
-        Assert.Equal(12, Evaluate("blobSize").AsNumber()); // "blob content"
+        Assert.Equal(12, Evaluate("blobSize")); // "blob content"
     }
 
     [Fact]
@@ -386,7 +386,7 @@ public sealed class RuntimeTests : HttpRouteTestBase
         await WaitForJsConditionAsync("done === true");
 
         Assert.Equal("Yilduz", Evaluate("name").AsString());
-        Assert.Equal(42, Evaluate("count").AsNumber());
+        Assert.Equal(42, Evaluate("count"));
     }
 
     [Fact]

@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Jint;
 using Xunit;
@@ -6,6 +7,23 @@ namespace Yilduz.Tests.Timers;
 
 public sealed class SetTimeoutTests : TestBase
 {
+    [Fact]
+    public async Task ShouldExecuteCallbackAsync()
+    {
+        Engine.SetValue("assert", new Action<bool>(Assert.False));
+
+        Execute(
+            """
+            let executed = false;
+            setTimeout(() => { executed = true; }, 0);
+            assert(executed);
+            """
+        );
+
+        await Task.Delay(100);
+        Assert.True(Evaluate("executed").AsBoolean());
+    }
+
     [Fact]
     public async Task ShouldHandleStringCode()
     {
@@ -97,7 +115,6 @@ public sealed class SetTimeoutTests : TestBase
         Execute("setTimeout(() => { executed = true; }, 0);");
 
         await WaitForJsConditionAsync("executed === true");
-        // Explicit assertion for test clarity and documentation
         Assert.True(Evaluate("executed").AsBoolean());
     }
 

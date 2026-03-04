@@ -7,6 +7,13 @@ namespace Yilduz.Tests.Blob;
 public sealed class ConstructorTests : TestBase
 {
     [Fact]
+    public void ShouldBeGlobalConstructor()
+    {
+        Assert.True(Evaluate("typeof Blob === 'function'").AsBoolean());
+        Assert.True(Evaluate("Blob.prototype").IsObject());
+    }
+
+    [Fact]
     public void ShouldCreateBlobWithoutAnyArguments()
     {
         Execute("const blob = new Blob();");
@@ -152,5 +159,61 @@ public sealed class ConstructorTests : TestBase
         Assert.Equal(4, Evaluate("blobWithBoolean.size").AsNumber());
         Assert.Equal(4, Evaluate("blobWithNull.size").AsNumber());
         Assert.Equal(9, Evaluate("blobWithUndefined.size").AsNumber());
+    }
+
+    [Fact]
+    public void ShouldCreateBlobFromDataView()
+    {
+        Execute(
+            """
+            const buffer = new ArrayBuffer(4);
+            const view = new DataView(buffer);
+            view.setUint8(0, 1);
+            view.setUint8(1, 2);
+            view.setUint8(2, 3);
+            view.setUint8(3, 4);
+            const blob = new Blob([view]);
+            """
+        );
+
+        Assert.Equal(4, Evaluate("blob.size").AsNumber());
+    }
+
+    [Fact]
+    public void ShouldCombineDataViewWithOtherParts()
+    {
+        Execute(
+            """
+            const buffer = new ArrayBuffer(3);
+            const view = new DataView(buffer);
+            view.setUint8(0, 65); // A
+            view.setUint8(1, 66); // B
+            view.setUint8(2, 67); // C
+            const blob = new Blob([view, 'DEF', new Uint8Array([71, 72, 73])]); // ABC + DEF + GHI
+            """
+        );
+
+        Assert.Equal(9, Evaluate("blob.size").AsNumber());
+    }
+
+    [Fact]
+    public void ShouldCreateBlobFromMultipleDataViews()
+    {
+        Execute(
+            """
+            const buf1 = new ArrayBuffer(2);
+            const buf2 = new ArrayBuffer(3);
+            const view1 = new DataView(buf1);
+            const view2 = new DataView(buf2);
+            view1.setUint8(0, 10);
+            view1.setUint8(1, 20);
+            view2.setUint8(0, 30);
+            view2.setUint8(1, 40);
+            view2.setUint8(2, 50);
+            const blob = new Blob([view1, view2]);
+            """
+        );
+
+        Assert.Equal(5, Evaluate("blob.size").AsNumber());
     }
 }

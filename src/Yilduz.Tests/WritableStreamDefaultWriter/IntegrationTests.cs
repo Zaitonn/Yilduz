@@ -148,14 +148,14 @@ public sealed class IntegrationTests : TestBase
         // Chunks should be written in order despite random delays
         Assert.Equal(5, Evaluate("writtenChunks.length").AsNumber());
         Assert.Equal(
-            ("chunk1", "chunk2", "chunk3", "chunk4", "chunk5"),
-            (
+            ["chunk1", "chunk2", "chunk3", "chunk4", "chunk5"],
+            [
                 Evaluate("writtenChunks[0]").AsString(),
                 Evaluate("writtenChunks[1]").AsString(),
                 Evaluate("writtenChunks[2]").AsString(),
                 Evaluate("writtenChunks[3]").AsString(),
-                Evaluate("writtenChunks[4]").AsString()
-            )
+                Evaluate("writtenChunks[4]").AsString(),
+            ]
         );
     }
 

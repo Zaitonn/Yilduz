@@ -2,12 +2,14 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Jint;
 
 namespace Yilduz.Services;
 
 internal sealed class EventLoop
 {
     private readonly Options _options;
+    private readonly Engine _engine;
 
     private readonly object _lock = new();
 
@@ -25,8 +27,9 @@ internal sealed class EventLoop
 
     private long _timerId;
 
-    public EventLoop(Options options)
+    public EventLoop(Engine engine, Options options)
     {
+        _engine = engine ?? throw new ArgumentNullException(nameof(engine));
         _options = options ?? throw new ArgumentNullException(nameof(options));
         _unhandledExceptionHandler = options.UnhandledExceptionHandler is null
             ? null
@@ -205,7 +208,7 @@ internal sealed class EventLoop
     {
         try
         {
-            action();
+            ExecuteWithEngineLock(action);
         }
         catch (Exception ex)
         {
@@ -233,11 +236,37 @@ internal sealed class EventLoop
 
             try
             {
-                microtask();
+                ExecuteWithEngineLock(microtask);
             }
             catch (Exception ex)
             {
                 _unhandledExceptionHandler?.Invoke(ex);
+            }
+        }
+    }
+
+    private void ExecuteWithEngineLock(Action action)
+    {
+        bool entered = false;
+        try
+        {
+            Monitor.TryEnter(_engine, _options.WaitingTimeout, ref entered);
+            if (entered)
+            {
+                action();
+            }
+            else
+            {
+                throw new TimeoutException(
+                    "Could not acquire the engine lock within the waiting timeout."
+                );
+            }
+        }
+        finally
+        {
+            if (entered)
+            {
+                Monitor.Exit(_engine);
             }
         }
     }

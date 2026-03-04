@@ -1,12 +1,10 @@
 using System;
-using System.Threading;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
 using Yilduz.Data.Blob;
 using Yilduz.Data.FileReaderSync;
 using Yilduz.Events.EventTarget;
-using Yilduz.Events.ProgressEvent;
 using Yilduz.Utils;
 
 namespace Yilduz.Data.FileReader;
@@ -109,13 +107,13 @@ public sealed class FileReaderInstance : EventTargetInstance
         {
             try
             {
-                DispatchEvent("loadstart");
+                FireEvent("loadstart");
 
                 Result = _fileReaderSyncInstance.ReadAsArrayBuffer(blob);
                 ReadyState = FileReaderReadyState.DONE;
 
-                DispatchEvent("progress");
-                DispatchEvent("load");
+                FireEvent("progress");
+                FireEvent("load");
             }
             catch (Exception ex)
             {
@@ -124,7 +122,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             finally
             {
                 _isReading = false;
-                DispatchEvent("loadend");
+                FireEvent("loadend");
             }
         });
     }
@@ -140,13 +138,13 @@ public sealed class FileReaderInstance : EventTargetInstance
         {
             try
             {
-                DispatchEvent("loadstart");
+                FireEvent("loadstart");
 
                 Result = _fileReaderSyncInstance.ReadAsText(blob, encoding);
                 ReadyState = FileReaderReadyState.DONE;
 
-                DispatchEvent("progress");
-                DispatchEvent("load");
+                FireEvent("progress");
+                FireEvent("load");
             }
             catch (Exception ex)
             {
@@ -155,7 +153,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             finally
             {
                 _isReading = false;
-                DispatchEvent("loadend");
+                FireEvent("loadend");
             }
         });
     }
@@ -171,13 +169,13 @@ public sealed class FileReaderInstance : EventTargetInstance
         {
             try
             {
-                DispatchEvent("loadstart");
+                FireEvent("loadstart");
 
                 Result = _fileReaderSyncInstance.ReadAsDataURL(blob);
                 ReadyState = FileReaderReadyState.DONE;
 
-                DispatchEvent("progress");
-                DispatchEvent("load");
+                FireEvent("progress");
+                FireEvent("load");
             }
             catch (Exception ex)
             {
@@ -186,7 +184,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             finally
             {
                 _isReading = false;
-                DispatchEvent("loadend");
+                FireEvent("loadend");
             }
         });
     }
@@ -226,7 +224,7 @@ public sealed class FileReaderInstance : EventTargetInstance
         Result = Undefined;
         _isReading = false;
 
-        DispatchEvent("abort");
+        FireEvent("abort");
     }
 
     private void SetError(Exception ex)
@@ -238,39 +236,13 @@ public sealed class FileReaderInstance : EventTargetInstance
             );
 
         ReadyState = FileReaderReadyState.DONE;
-        DispatchEvent("error");
+        FireEvent("error");
     }
 
-    private void DispatchEvent(string eventType)
+    internal override void FireEvent(string type)
     {
-        bool entered = false;
-        try
-        {
-            Monitor.TryEnter(Engine, _webApiIntrinsics.Options.WaitingTimeout, ref entered);
+        var progressEvent = _webApiIntrinsics.ProgressEvent.CreateInstance(type, 0, 0, true);
 
-            if (entered)
-            {
-                var progressEvent = (ProgressEventInstance)
-                    _webApiIntrinsics.ProgressEvent.Construct([eventType], Undefined);
-
-                progressEvent.LengthComputable = true;
-
-                if (_currentTotal.HasValue)
-                {
-                    progressEvent.Total = _currentTotal.Value;
-                    progressEvent.Loaded =
-                        ReadyState == FileReaderReadyState.DONE ? _currentTotal.Value : 0;
-                }
-
-                DispatchEvent(progressEvent);
-            }
-        }
-        finally
-        {
-            if (entered)
-            {
-                Monitor.Exit(Engine);
-            }
-        }
+        DispatchEvent(progressEvent);
     }
 }

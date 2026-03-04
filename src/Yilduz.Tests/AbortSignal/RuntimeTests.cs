@@ -93,4 +93,12 @@ public sealed class RuntimeTests : TestBase
         Assert.True(Evaluate("signal.aborted").AsBoolean());
         Assert.Equal("Static abort reason", Evaluate("signal.reason").AsString());
     }
+
+    [Fact]
+    public void ShouldThrowWhenArrayContainsNonAbortSignal()
+    {
+        Assert.Throws<JavaScriptException>(
+            () => Execute("AbortSignal.any([{}, new AbortController().signal])")
+        );
+    }
 }

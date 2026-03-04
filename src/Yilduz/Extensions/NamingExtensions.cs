@@ -13,14 +13,4 @@ internal static class NamingExtensions
 
         return name.ToLowerInvariant();
     }
-
-    public static string ToJsGetterName(this string name)
-    {
-        return "get " + name.ToJsStyleName();
-    }
-
-    public static string ToJsSetterName(this string name)
-    {
-        return "set " + name.ToJsStyleName();
-    }
 }

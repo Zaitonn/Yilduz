@@ -181,7 +181,7 @@ public sealed class WebApiIntrinsics
         Storage = new(_engine);
 
         Base64Provider = new(_engine);
-        EventLoop = new(Options);
+        EventLoop = new(_engine, Options);
         TimerProvider = new(_engine, Options, EventLoop);
 
         Console = new(

@@ -1,8 +1,8 @@
+using System;
 using Jint;
 using Jint.Native;
 using Jint.Runtime;
 using Yilduz.Models;
-using Yilduz.Utils;
 
 namespace Yilduz.Data.Blob;
 
@@ -23,22 +23,26 @@ internal sealed class BlobPrototype : PrototypeBase<BlobInstance>
 
     private JsValue Text(BlobInstance blob, JsValue[] arguments)
     {
-        return PromiseHelper.CreateResolvedPromise(Engine, blob.Text()).Promise;
+        return QueueBlobTask(() => blob.Text());
     }
 
+    /// <summary>
+    /// https://w3c.github.io/FileAPI/#dom-blob-stream
+    /// Returns a ReadableStream synchronously — not a Promise.
+    /// </summary>
     private JsValue Stream(BlobInstance blob, JsValue[] arguments)
     {
-        return PromiseHelper.CreateResolvedPromise(Engine, blob.Stream()).Promise;
+        return blob.Stream();
     }
 
     private JsValue ArrayBuffer(BlobInstance blob, JsValue[] arguments)
     {
-        return PromiseHelper.CreateResolvedPromise(Engine, blob.ArrayBuffer()).Promise;
+        return QueueBlobTask(blob.ArrayBuffer);
     }
 
     private JsValue Bytes(BlobInstance blob, JsValue[] arguments)
     {
-        return PromiseHelper.CreateResolvedPromise(Engine, blob.Bytes()).Promise;
+        return QueueBlobTask(blob.Bytes);
     }
 
     private static JsValue Slice(BlobInstance blob, JsValue[] arguments)
@@ -48,5 +52,29 @@ internal sealed class BlobPrototype : PrototypeBase<BlobInstance>
         var contentType = arguments.At(2).IsUndefined() ? string.Empty : arguments.At(2).AsString();
 
         return blob.Slice(start, end, contentType);
+    }
+
+    private JsValue QueueBlobTask(Func<JsValue> work)
+    {
+        var promise = Engine.Advanced.RegisterPromise();
+        var eventLoop = Engine.GetWebApiIntrinsics().EventLoop;
+
+        eventLoop.QueueMacrotask(() =>
+        {
+            try
+            {
+                promise.Resolve(work());
+            }
+            catch (JavaScriptException ex)
+            {
+                promise.Reject(ex.Error);
+            }
+            catch (Exception ex)
+            {
+                promise.Reject(Engine.Intrinsics.Error.Construct(ex.Message));
+            }
+        });
+
+        return promise.Promise;
     }
 }

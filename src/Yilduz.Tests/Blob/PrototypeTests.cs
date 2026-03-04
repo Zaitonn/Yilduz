@@ -52,4 +52,22 @@ public sealed class PrototypeTests : TestBase
         Assert.True(Evaluate("blob instanceof Blob").AsBoolean());
         Assert.True(Evaluate("Object.getPrototypeOf(blob) === Blob.prototype").AsBoolean());
     }
+
+    [Fact]
+    public void ShouldHaveCorrectInstanceProperties()
+    {
+        Execute(
+            """
+            const blob = new Blob(['Test']);
+
+            const sizeDescriptor = Object.getOwnPropertyDescriptor(Blob.prototype, 'size');
+            const typeDescriptor = Object.getOwnPropertyDescriptor(Blob.prototype, 'type');
+
+            const isSizeGetter = sizeDescriptor && typeof sizeDescriptor.get === 'function';
+            const isTypeGetter = typeDescriptor && typeof typeDescriptor.get === 'function';
+            """
+        );
+        Assert.True(Evaluate("isSizeGetter").AsBoolean());
+        Assert.True(Evaluate("isTypeGetter").AsBoolean());
+    }
 }

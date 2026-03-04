@@ -49,14 +49,6 @@ public abstract class TestBase : IDisposable
         return new() { CancellationToken = Token };
     }
 
-    /// <summary>
-    /// Waits for a JavaScript condition to become true by polling at regular intervals.
-    /// This is more reliable than fixed delays as it responds immediately when the condition is met.
-    /// </summary>
-    /// <param name="condition">JavaScript expression that should evaluate to true</param>
-    /// <param name="timeoutMs">Maximum time to wait in milliseconds (default: 5000)</param>
-    /// <param name="pollingIntervalMs">Interval between condition checks in milliseconds (default: 10)</param>
-    /// <returns>A task that completes when the condition is true or throws TimeoutException if timeout is reached</returns>
     protected async Task WaitForJsConditionAsync(
         string condition,
         int timeoutMs = 5000,
