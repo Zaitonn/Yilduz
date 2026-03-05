@@ -107,16 +107,11 @@ cts.Cancel();
 
 ## Try Yilduz.Repl
 
-*Want to try these features right now?*
+>Want to try these features right now?
 
 Just use Yilduz.Repl, a JavaScript REPL (Read-Eval-Print-Loop) program with Web API support, syntax error hints and syntax highlighting. Grab the latest artifact from the [build workflow](https://github.com/Zaitonn/Yilduz/actions/workflows/build.yml).
 
-<details>
-<summary>Example (click to expand)</summary>
-
-![repl](https://github.com/user-attachments/assets/c3e224d0-29b6-4634-9ac1-37f427120e72)
-
-</details>
+![repl](docs/repl.jpg)
 
 ## Known Issues
 
@@ -139,6 +134,18 @@ engine.Evaluate("new TextDecoder('gb_2312').encoding"); // = 'gbk'
 ```
 
 This enables support for legacy encodings such as Windows-1252, Shift-JIS, and other code page encodings.
+
+### Compression Support
+
+By default, Yilduz supports the following compression formats specified in [the WHATWG standard](https://compression.spec.whatwg.org/#supported-formats):
+
+| Format        | Underlying .NET Implementation        | Note                 |
+| ------------- | ------------------------------------- | -------------------- |
+| `gzip`        | `System.IO.Compression.GZipStream`    |                      |
+| `deflate-raw` | `System.IO.Compression.DeflateStream` |                      |
+| `deflate`     | `System.IO.Compression.ZLibStream`    | Available in .NET 6+ |
+
+Additionally, you can completely customize the underlying compression implementations or add new formats (such as Brotli) by overriding `Options.Compression.CompressorFactory` and `Options.Compression.DecompressorFactory` during initialization. You can turn to [CustomProviderTests.cs](src/Yilduz.Tests/Compression/CustomProviderTests.cs) for examples of how to do this.
 
 ### Spec Deviations
 
