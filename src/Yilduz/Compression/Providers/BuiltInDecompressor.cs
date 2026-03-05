@@ -21,7 +21,12 @@ internal sealed class BuiltInDecompressor : ICompressionProvider
     public byte[] Transform(ReadOnlySpan<byte> input)
     {
         _inputBuffer.Position = _inputBuffer.Length;
+#if NETSTANDARD2_0
+        var bytes = input.ToArray();
+        _inputBuffer.Write(bytes, 0, bytes.Length);
+#else
         _inputBuffer.Write(input);
+#endif
         return Decompress(isFlush: false);
     }
 

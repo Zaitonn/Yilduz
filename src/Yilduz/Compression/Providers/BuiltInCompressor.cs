@@ -21,7 +21,12 @@ internal sealed class BuiltInCompressor : ICompressionProvider
 
     public byte[] Transform(ReadOnlySpan<byte> input)
     {
+#if NETSTANDARD2_0
+        var bytes = input.ToArray();
+        _stream.Write(bytes, 0, bytes.Length);
+#else
         _stream.Write(input);
+#endif
         _stream.Flush();
         return ReadPending();
     }
