@@ -48,7 +48,7 @@ internal sealed class ReadableStreamBYOBRequestPrototype
     /// <summary>
     /// https://webidl.spec.whatwg.org/#es-unsigned-long-long
     /// </summary>
-    private static ulong ToEnforcedUnsignedLongLong(Engine engine, JsValue value, string methodName)
+    private static long ToEnforcedUnsignedLongLong(Engine engine, JsValue value, string methodName)
     {
         if (!value.IsNumber())
         {
@@ -63,7 +63,7 @@ internal sealed class ReadableStreamBYOBRequestPrototype
             double.IsNaN(number)
             || double.IsInfinity(number)
             || number < 0
-            || number > ulong.MaxValue
+            || number > long.MaxValue
         )
         {
             TypeErrorHelper.Throw(
@@ -81,6 +81,6 @@ internal sealed class ReadableStreamBYOBRequestPrototype
             );
         }
 
-        return (ulong)truncated;
+        return (long)truncated;
     }
 }

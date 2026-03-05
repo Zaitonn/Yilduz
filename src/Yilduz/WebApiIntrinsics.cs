@@ -5,6 +5,8 @@ using Jint.Native;
 using Jint.Runtime.Interop;
 using Yilduz.Aborting.AbortController;
 using Yilduz.Aborting.AbortSignal;
+using Yilduz.Compression.CompressionStream;
+using Yilduz.Compression.DecompressionStream;
 using Yilduz.Console;
 using Yilduz.Data.Blob;
 using Yilduz.Data.File;
@@ -89,6 +91,8 @@ public sealed class WebApiIntrinsics
     internal ByteLengthQueuingStrategyConstructor ByteLengthQueuingStrategy { get; }
     internal TransformStreamConstructor TransformStream { get; }
     internal TransformStreamDefaultControllerConstructor TransformStreamDefaultController { get; }
+    internal CompressionStreamConstructor CompressionStream { get; }
+    internal DecompressionStreamConstructor DecompressionStream { get; }
 
     internal StorageConstructor Storage { get; }
     public StorageInstance LocalStorage { get; }
@@ -164,6 +168,9 @@ public sealed class WebApiIntrinsics
         TransformStream = new(_engine);
         TransformStreamDefaultController = new(_engine);
 
+        CompressionStream = new(_engine, this);
+        DecompressionStream = new(_engine, this);
+
         CountQueuingStrategy = new(_engine);
         ByteLengthQueuingStrategy = new(_engine);
 
@@ -236,6 +243,8 @@ public sealed class WebApiIntrinsics
         FastSet(WritableStreamDefaultController);
         FastSet(TransformStream);
         FastSet(TransformStreamDefaultController);
+        FastSet(CompressionStream);
+        FastSet(DecompressionStream);
         FastSet(Storage);
         FastSet(FormData);
         FastSet(Request);

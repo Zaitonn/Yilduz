@@ -6,7 +6,7 @@
     <Title>Yilduz</Title>
     <Authors>Zaitonn</Authors>
     <Description>An extension library for Jint that adds Web API implementations such as ReadableStream, localStorage, fetch, setTimeout, etc.</Description>
-    <Version>0.0.17</Version>
+    <Version>0.0.18</Version>
     <Copyright>Zaitonn</Copyright>
     <RepositoryUrl>https://github.com/Zaitonn/Yilduz</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -26,7 +26,7 @@
     <InternalsVisibleTo Include="Yilduz.Repl" />
     <InternalsVisibleTo Include="Yilduz.Tests" />
 
-    <None Include="../../README.md" Pack="true" PackagePath="/" />
+    <None Include="README.md" Pack="true" PackagePath="/" />
 
     <PackageReference Include="Jint" Version="4.5.0" />
     <PackageReference Include="PolySharp" Version="1.15.0">

@@ -248,7 +248,7 @@ public sealed class SetTimeoutTests : TestBase
             """
         );
 
-        await Task.Delay(100);
+        await WaitForJsConditionAsync("timerExecuted === true && errorHandled === true");
 
         var timerExecuted = Evaluate("timerExecuted").AsBoolean();
         var errorHandled = Evaluate("errorHandled").AsBoolean();

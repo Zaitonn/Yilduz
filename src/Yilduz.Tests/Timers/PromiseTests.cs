@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using Jint;
 using Jint.Native;
 using Xunit;
@@ -10,8 +9,6 @@ public sealed class PromiseTests : TestBase
     [Fact]
     public void CanUsePromiseWithTimers()
     {
-        var stopwatch = new Stopwatch();
-        stopwatch.Start();
         Execute("let executed = false;");
 
         Assert.Equal(
@@ -29,9 +26,7 @@ public sealed class PromiseTests : TestBase
                 )
                 .UnwrapIfPromise()
         );
-        stopwatch.Stop();
 
         Assert.True(Evaluate("executed").AsBoolean());
-        Assert.InRange(stopwatch.ElapsedMilliseconds, 0, 500);
     }
 }

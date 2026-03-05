@@ -5,6 +5,9 @@ using Yilduz.Console;
 
 namespace Yilduz;
 
+/// <summary>
+/// Options for configuring the Yilduz web API.
+/// </summary>
 public sealed partial class Options
 {
     public Func<Engine, IConsole>? ConsoleFactory { get; init; }

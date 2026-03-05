@@ -60,6 +60,6 @@ internal sealed class MessageEventConstructor : Constructor
     /// </summary>
     public MessageEventInstance CreateInstance(string type, JsValue data, string origin)
     {
-        return new MessageEventInstance(Engine, type, data, origin) { Prototype = PrototypeObject };
+        return new(Engine, type, data, origin) { Prototype = PrototypeObject };
     }
 }

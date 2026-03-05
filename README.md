@@ -42,8 +42,8 @@ cts.Cancel();
   - [x] `atob()`
   - [x] `btoa()`
 - Compression
-  - [ ] `CompressionStream`
-  - [ ] `DecompressionStream`
+  - [x] `CompressionStream`
+  - [x] `DecompressionStream`
 - Console
   - [x] `console`
 - Data

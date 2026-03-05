@@ -35,4 +35,10 @@ internal static class TypeErrorHelper
             );
         }
     }
+
+    [DoesNotReturn]
+    public static void ThrowForIllegalConstructor(Engine engine, string name)
+    {
+        Throw(engine, $"Failed to construct '{name}': Illegal constructor");
+    }
 }

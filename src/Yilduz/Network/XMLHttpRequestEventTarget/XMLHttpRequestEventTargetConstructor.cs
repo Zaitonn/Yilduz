@@ -19,10 +19,8 @@ internal sealed class XMLHttpRequestEventTargetConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(
-            Engine,
-            "Failed to construct 'XMLHttpRequestEventTarget': Illegal constructor"
-        );
+        TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(XMLHttpRequestEventTarget));
+
         return null;
     }
 

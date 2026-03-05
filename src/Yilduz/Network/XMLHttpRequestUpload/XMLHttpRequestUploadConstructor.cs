@@ -23,10 +23,7 @@ internal sealed class XMLHttpRequestUploadConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(
-            Engine,
-            "Failed to construct 'XMLHttpRequestUpload': Illegal constructor"
-        );
+        TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(XMLHttpRequestUpload));
         return null;
     }
 

@@ -73,7 +73,7 @@ internal static class JsValueExtensions
         }
     }
 
-    public static byte[]? TryAsBytes(this JsValue input)
+    public static byte[]? TryAsBytes(this JsValue input, bool allowArray = true)
     {
         if (input.IsArrayBuffer())
         {
@@ -89,23 +89,37 @@ internal static class JsValueExtensions
         {
             var buffer = typedArray.Get("buffer");
             var arrayBuffer = buffer.AsArrayBuffer()!;
-            var byteOffset = (int)typedArray.Get("byteOffset").AsNumber();
-            var byteLength = (int)typedArray.Get("byteLength").AsNumber();
+            var byteOffset = typedArray.GetByteOffset();
+            var byteLength = typedArray.GetByteLength();
 
-            return [.. arrayBuffer.Skip(byteOffset).Take(byteLength)];
+            return [.. arrayBuffer.Skip((int)byteOffset).Take((int)byteLength)];
         }
 
-        if (!input.IsArray())
+        if (!input.IsArray() || !allowArray)
         {
             return null;
         }
 
         var array = input.AsArray();
-        var bytes = (
-            from element in array
-            where element.IsNumber()
-            select (byte)((int)element.AsNumber() & 0xFF)
-        ).ToList();
+        var bytes = new List<byte>();
+
+        foreach (var element in array)
+        {
+            if (element.IsNumber())
+            {
+                var value = element.AsNumber();
+                if (value is >= 0 && value <= 255)
+                {
+                    bytes.Add((byte)((int)value & 0xFF));
+                    continue;
+                }
+            }
+
+            TypeErrorHelper.Throw(
+                array.Engine,
+                $"Invalid byte value: {element}. Expected a number between 0 and 255."
+            );
+        }
 
         return [.. bytes];
     }
@@ -168,13 +182,13 @@ internal static class JsValueExtensions
         return clonedObj;
     }
 
-    public static ulong GetByteLength(this JsValue typedArray)
+    public static long GetByteLength(this JsValue typedArray)
     {
-        return (ulong)typedArray.Get("byteLength").AsNumber();
+        return (long)typedArray.Get("byteLength").AsNumber();
     }
 
-    public static ulong GetByteOffset(this JsValue typedArray)
+    public static long GetByteOffset(this JsValue typedArray)
     {
-        return (ulong)typedArray.Get("byteOffset").AsNumber();
+        return (long)typedArray.Get("byteOffset").AsNumber();
     }
 }

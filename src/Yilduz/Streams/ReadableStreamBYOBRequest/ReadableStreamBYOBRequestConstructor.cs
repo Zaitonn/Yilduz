@@ -19,7 +19,7 @@ internal sealed class ReadableStreamBYOBRequestConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(Engine, "Illegal constructor");
+        TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(ReadableStreamBYOBRequest));
         return null;
     }
 

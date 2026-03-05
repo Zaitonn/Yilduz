@@ -19,9 +19,9 @@ internal sealed class TransformStreamDefaultControllerConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(
+        TypeErrorHelper.ThrowForIllegalConstructor(
             Engine,
-            "Failed to construct 'TransformStreamDefaultController': Illegal constructor"
+            nameof(TransformStreamDefaultController)
         );
         return null;
     }

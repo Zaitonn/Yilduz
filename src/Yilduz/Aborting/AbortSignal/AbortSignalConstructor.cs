@@ -40,7 +40,7 @@ public sealed class AbortSignalConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(Engine, "Failed to construct 'AbortSignal': Illegal constructor");
+        TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(AbortSignal));
         return null;
     }
 

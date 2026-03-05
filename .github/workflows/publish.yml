@@ -23,7 +23,7 @@ jobs:
       - name: Build and Pack
         run: |
           dotnet test
-          dotnet pack --configuration Release -p:IncludeSymbols=true -p:ContinuousIntegrationBuild=true
+          dotnet pack src\Yilduz\Yilduz.csproj --configuration Release -p:IncludeSymbols=true -p:ContinuousIntegrationBuild=true
 
       - name: Add private GitHub registry to NuGet
         run: |
@@ -31,5 +31,5 @@ jobs:
 
       - name: Push generated package to GitHub registry and NuGet
         run: |
-          dotnet nuget push src\Yilduz\bin\Release\*.nupkg --source "github" --api-key ${{ secrets.GH_TOKEN }}
-          dotnet nuget push src\Yilduz\bin\Release\*.nupkg --source "nuget.org" --api-key ${{ secrets.NUGETAPIKEY }}
+          dotnet nuget push src\Yilduz\bin\Release\*.symbols.nupkg --skip-duplicate --source "github" --api-key ${{ secrets.GH_TOKEN }}
+          dotnet nuget push src\Yilduz\bin\Release\*.symbols.nupkg --skip-duplicate --source "nuget.org" --api-key ${{ secrets.NUGETAPIKEY }}

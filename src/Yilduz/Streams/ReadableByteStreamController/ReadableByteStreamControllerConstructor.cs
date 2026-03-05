@@ -19,7 +19,7 @@ internal sealed class ReadableByteStreamControllerConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(Engine, "Illegal constructor");
+        TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(ReadableByteStreamController));
         return null;
     }
 

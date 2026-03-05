@@ -27,7 +27,7 @@ internal sealed class StorageConstructor : Constructor
 
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        TypeErrorHelper.Throw(Engine, "Failed to construct 'Storage': Illegal constructor");
+        TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(Storage));
         return null;
     }
 }

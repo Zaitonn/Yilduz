@@ -50,7 +50,7 @@ public sealed class ReadableStreamBYOBRequestInstance : ObjectInstance
     /// <br />
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamBYOBRequest/respond
     /// </summary>
-    public void Respond(ulong bytesWritten)
+    public void Respond(long bytesWritten)
     {
         var view = ValidateRespondable();
         var currentByteLength = view.GetByteLength();

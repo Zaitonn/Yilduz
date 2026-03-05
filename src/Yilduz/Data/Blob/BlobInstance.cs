@@ -66,28 +66,19 @@ public class BlobInstance : ObjectInstance
             {
                 Value.AddRange(blob.Value);
             }
-            else if (part.IsArrayBuffer())
+            else if (part.TryAsBytes() is { } bytes)
             {
-                Value.AddRange(part.AsArrayBuffer()!);
-            }
-            else if (part.IsDataView())
-            {
-                Value.AddRange(part.AsDataView()!);
-            }
-            else if (part is JsTypedArray)
-            {
-                Value.AddRange(part.Get("buffer").AsArrayBuffer()!);
+                Value.AddRange(bytes);
             }
             else
             {
-                var result = part.IsArray() ? string.Join(",", part.AsArray()) : part.ToString();
-
-                if (endings == "native" && Environment.NewLine != "\n")
+                var str = part.ToString();
+                if (endings == "native")
                 {
-                    result = result.Replace("\r\n", "\n").Replace("\n", "\r\n");
+                    str = str.Replace("\r\n", "\n").Replace("\n", Environment.NewLine);
                 }
 
-                Value.AddRange(SystemEncoding.UTF8.GetBytes(result));
+                Value.AddRange(SystemEncoding.UTF8.GetBytes(str));
             }
         }
     }
