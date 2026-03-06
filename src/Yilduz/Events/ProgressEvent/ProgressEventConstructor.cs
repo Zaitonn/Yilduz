@@ -2,24 +2,28 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Events.Event;
 using Yilduz.Extensions;
 
 namespace Yilduz.Events.ProgressEvent;
 
-internal sealed class ProgressEventConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/ProgressEvent/ProgressEvent
+/// </summary>
+public sealed class ProgressEventConstructor : EventConstructor
 {
-    public ProgressEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal ProgressEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(ProgressEvent))
     {
-        PrototypeObject = new ProgressEventPrototype(engine, this)
-        {
-            Prototype = webApiIntrinsics.Event.PrototypeObject,
-        };
+        PrototypeObject = new(engine, this) { Prototype = webApiIntrinsics.Event.PrototypeObject };
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public ProgressEventPrototype PrototypeObject { get; }
+    internal new ProgressEventPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         arguments.EnsureCount(Engine, 1, "Failed to construct 'Event'");
@@ -30,7 +34,7 @@ internal sealed class ProgressEventConstructor : Constructor
         };
     }
 
-    public ProgressEventInstance CreateInstance(
+    internal ProgressEventInstance CreateInstance(
         string type,
         ulong loaded,
         ulong total,

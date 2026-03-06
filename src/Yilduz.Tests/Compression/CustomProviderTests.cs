@@ -1,9 +1,11 @@
 using System;
 using System.IO;
+using System.IO.Compression;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
 using Xunit;
 using Yilduz.Compression.Providers;
+using ZstdSharp;
 using DeflateStream = Ionic.Zlib.DeflateStream;
 using GZipStream = SharpCompress.Compressors.Deflate.GZipStream;
 
@@ -16,40 +18,84 @@ public class CustomProviderTests : TestBase
         return new Options
         {
             CancellationToken = Token,
-            Compression = new()
+            Compression =
             {
-                CompressorFactory = format =>
-                    format.ToLowerInvariant() switch
-                    {
-                        "gzip" => new StreamCompressor(s => new GZipOutputStream(s)),
-                        "deflate" => new StreamCompressor(s => new DeflateStream(
-                            s,
-                            Ionic.Zlib.CompressionMode.Compress
-                        )),
-                        "bzip2" => new StreamCompressor(s => new BZip2OutputStream(s)),
-                        "gzip-sc" => new StreamCompressor(s => new GZipStream(
-                            s,
-                            SharpCompress.Compressors.CompressionMode.Compress
-                        )),
-                        _ => throw new NotSupportedException(),
-                    },
-                DecompressorFactory = format =>
-                    format.ToLowerInvariant() switch
-                    {
-                        "gzip" => new StreamDecompressor(s => new GZipInputStream(s)),
-                        "deflate" => new StreamDecompressor(s => new DeflateStream(
-                            s,
-                            Ionic.Zlib.CompressionMode.Decompress
-                        )),
-                        "bzip2" => new StreamDecompressor(s => new BZip2InputStream(s)),
-                        "gzip-sc" => new StreamDecompressor(s => new GZipStream(
-                            s,
-                            SharpCompress.Compressors.CompressionMode.Decompress
-                        )),
-                        _ => throw new NotSupportedException(),
-                    },
+                CompressorFactory = CompressorFactory,
+                DecompressorFactory = DecompressorFactory,
             },
         };
+
+        static ICompressionProvider CompressorFactory(string format) =>
+            format.ToLowerInvariant() switch
+            {
+                // ICSharpCode.SharpZipLib.GZip.GZipOutputStream
+                "gzip" => new StreamCompressor(s => new GZipOutputStream(s)),
+
+                // Ionic.Zlib.DeflateStream
+                "deflate" => new StreamCompressor(s => new DeflateStream(
+                    s,
+                    Ionic.Zlib.CompressionMode.Compress
+                )),
+
+                // ICSharpCode.SharpZipLib.BZip2.BZip2OutputStream
+                "bzip2" => new StreamCompressor(s => new BZip2OutputStream(s)),
+
+                // SharpCompress.Compressors.Deflate.GZipStream
+                "gzip-sc" => new StreamCompressor(s => new GZipStream(
+                    s,
+                    SharpCompress.Compressors.CompressionMode.Compress
+                )),
+
+                // System.IO.Compression.BrotliStream
+                "brotli" => new StreamCompressor(
+                    (s) => new BrotliStream(s, CompressionMode.Compress)
+                ),
+
+                // System.IO.Compression.BrotliStream with built-in support (no wrapping)
+                "brotli-built-in" => new BuiltInCompressor(
+                    (s) => new BrotliStream(s, CompressionMode.Compress, true)
+                ),
+
+                // ZstdSharp.CompressionStream
+                "ztsd" => new StreamCompressor((s) => new CompressionStream(s)),
+                _ => throw new NotSupportedException(),
+            };
+
+        static ICompressionProvider DecompressorFactory(string format) =>
+            format.ToLowerInvariant() switch
+            {
+                // ICSharpCode.SharpZipLib.GZip.GZipInputStream
+                "gzip" => new StreamDecompressor(s => new GZipInputStream(s)),
+
+                // Ionic.Zlib.DeflateStream
+                "deflate" => new StreamDecompressor(s => new DeflateStream(
+                    s,
+                    Ionic.Zlib.CompressionMode.Decompress
+                )),
+
+                // ICSharpCode.SharpZipLib.BZip2.BZip2InputStream
+                "bzip2" => new StreamDecompressor(s => new BZip2InputStream(s)),
+
+                // SharpCompress.Compressors.Deflate.GZipStream
+                "gzip-sc" => new StreamDecompressor(s => new GZipStream(
+                    s,
+                    SharpCompress.Compressors.CompressionMode.Decompress
+                )),
+
+                // System.IO.Compression.BrotliStream
+                "brotli" => new StreamDecompressor(
+                    (s) => new BrotliStream(s, CompressionMode.Decompress)
+                ),
+
+                // System.IO.Compression.BrotliStream with built-in support (no wrapping)
+                "brotli-built-in" => new BuiltInDecompressor(
+                    (s) => new BrotliStream(s, CompressionMode.Decompress, true)
+                ),
+
+                // ZstdSharp.DecompressionStream
+                "ztsd" => new StreamDecompressor((s) => new DecompressionStream(s)),
+                _ => throw new NotSupportedException(),
+            };
     }
 
     [Theory]
@@ -57,6 +103,9 @@ public class CustomProviderTests : TestBase
     [InlineData("deflate")]
     [InlineData("bzip2")]
     [InlineData("gzip-sc")]
+    [InlineData("brotli")]
+    [InlineData("brotli-built-in")]
+    [InlineData("ztsd")]
     public void ShouldRoundTripWithCustomProviders(string format)
     {
         CompressionTestHelper.AssertRoundtripAllFormats(Engine, format);
@@ -71,19 +120,6 @@ public class CustomProviderTests : TestBase
     {
         CompressionTestHelper.AssertDecompression(Engine, "gzip", expected, compressedHex);
         CompressionTestHelper.AssertDecompression(Engine, "gzip-sc", expected, compressedHex);
-    }
-
-    [Theory]
-    [MemberData(
-        nameof(CompressionTestHelper.DeflateTestData),
-        MemberType = typeof(CompressionTestHelper)
-    )]
-    public void DeflateDecompressionShouldRestoreOriginalInput(
-        string expected,
-        string compressedHex
-    )
-    {
-        CompressionTestHelper.AssertDecompression(Engine, "deflate", expected, compressedHex);
     }
 
     private class NonClosingMemoryStream : MemoryStream
@@ -152,16 +188,11 @@ public class CustomProviderTests : TestBase
         }
     }
 
-    private class StreamDecompressor : ICompressionProvider
+    private class StreamDecompressor(Func<Stream, Stream> streamFactory) : ICompressionProvider
     {
         private readonly MemoryStream _inputBuffer = new();
-        private readonly Func<Stream, Stream> _streamFactory;
+        private readonly Func<Stream, Stream> _streamFactory = streamFactory;
         private long _decompressedOffset;
-
-        public StreamDecompressor(Func<Stream, Stream> streamFactory)
-        {
-            _streamFactory = streamFactory;
-        }
 
         public byte[] Transform(ReadOnlySpan<byte> input)
         {

@@ -11,11 +11,14 @@ using Yilduz.Utils;
 
 namespace Yilduz.Network.Response;
 
-internal sealed class ResponseConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Response/Response
+/// </summary>
+public sealed class ResponseConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public ResponseConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal ResponseConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(Response))
     {
         _webApiIntrinsics = webApiIntrinsics;
@@ -49,6 +52,9 @@ internal sealed class ResponseConstructor : Constructor
 
     internal ResponsePrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         var body = arguments.At(0);

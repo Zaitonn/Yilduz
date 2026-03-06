@@ -5,11 +5,11 @@ namespace Yilduz.Network.WebSocket;
 /// </summary>
 public enum WebSocketReadyState : ushort
 {
-    Connecting = 0,
+    CONNECTING = 0,
 
-    Open = 1,
+    OPEN = 1,
 
-    Closing = 2,
+    CLOSING = 2,
 
-    Closed = 3,
+    CLOSED = 3,
 }

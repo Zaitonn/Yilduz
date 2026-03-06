@@ -9,12 +9,15 @@ using Yilduz.Utils;
 
 namespace Yilduz.URLs.URL;
 
-internal sealed partial class URLConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/URL/URL
+/// </summary>
+public sealed partial class URLConstructor : Constructor
 {
     private static readonly string CanParseName = nameof(CanParse).ToJsStyleName();
     private static readonly string ParseName = nameof(Parse).ToJsStyleName();
 
-    public URLConstructor(Engine engine)
+    internal URLConstructor(Engine engine)
         : base(engine, nameof(URL))
     {
         PrototypeObject = new(engine, this);
@@ -30,11 +33,14 @@ internal sealed partial class URLConstructor : Constructor
         );
     }
 
-    public URLPrototype PrototypeObject { get; }
+    internal URLPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(Engine, 1, "Failed to construct 'URL'");
+        arguments.EnsureCountForConstructor(Engine, 1, nameof(URL));
 
         try
         {
@@ -53,15 +59,23 @@ internal sealed partial class URLConstructor : Constructor
     private JsValue CanParse(JsValue thisObject, JsValue[] arguments)
     {
         arguments.EnsureCount(Engine, 1, CanParseName, nameof(URL));
+        return CanParse(
+            arguments.At(0).ToString(),
+            arguments.Length == 1 ? null : arguments.At(1).ToString()
+        );
+    }
+
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/URL/canParse_static
+    /// </summary>
+    public bool CanParse(string url, string? baseUrl = null)
+    {
         try
         {
-            Parse(
-                arguments.At(0).ToString(),
-                arguments.Length == 1 ? null : arguments.At(1).ToString()
-            );
+            Parse(url, baseUrl);
             return true;
         }
-        catch
+        catch (Exception)
         {
             return false;
         }
@@ -116,7 +130,10 @@ internal sealed partial class URLConstructor : Constructor
         }
     }
 
-    internal URLInstance Parse(string url, string? baseUrl = null)
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/URL/parse_static
+    /// </summary>
+    public URLInstance Parse(string url, string? baseUrl = null)
     {
         var uri = new Uri(url, UriKind.RelativeOrAbsolute);
 

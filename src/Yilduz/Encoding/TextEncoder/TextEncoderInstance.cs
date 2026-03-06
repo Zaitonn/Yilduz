@@ -2,7 +2,6 @@ using System;
 using Jint;
 using Jint.Native;
 using Jint.Native.Object;
-using Jint.Runtime;
 using SystemEncoding = System.Text.Encoding;
 
 namespace Yilduz.Encoding.TextEncoder;
@@ -23,17 +22,17 @@ public sealed class TextEncoderInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encode
     /// </summary>
-    public JsTypedArray Encode(string input)
+    public byte[] Encode(string input)
     {
         var utf8Bytes = SystemEncoding.UTF8.GetBytes(input);
 
-        return Engine.Intrinsics.Uint8Array.Construct(utf8Bytes);
+        return utf8Bytes;
     }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoder/encodeInto
     /// </summary>
-    public ObjectInstance EncodeInto(string input, JsTypedArray destination)
+    public (int Read, int Written) EncodeInto(string input, JsTypedArray destination)
     {
         var destinationArray = destination.AsObject();
         var byteLength = (int)destinationArray.Get("byteLength").AsNumber();
@@ -82,11 +81,7 @@ public sealed class TextEncoderInstance : ObjectInstance
             }
         }
 
-        var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
-        result.Set("read", read);
-        result.Set("written", written);
-
-        return result;
+        return (read, written);
     }
 
     private static bool IsValidUtf8Sequence(byte[] bytes, int length)

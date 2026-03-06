@@ -15,7 +15,7 @@ public sealed class BaseUrlTests : TestBase
         {
             CancellationToken = Token,
             BaseUrl = new("https://example.test/base/"),
-            Network = new()
+            Network =
             {
                 HttpClientFactory = () => new(CapturingHandler.Instance, disposeHandler: false),
             },

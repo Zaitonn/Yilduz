@@ -10,13 +10,15 @@ using Yilduz.Utils;
 namespace Yilduz.Network.WebSocket;
 
 /// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/WebSocket
+/// <br/>
 /// https://websockets.spec.whatwg.org/#dom-websocket
 /// </summary>
-internal sealed class WebSocketConstructor : Constructor
+public sealed class WebSocketConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public WebSocketConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal WebSocketConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(WebSocket))
     {
         _webApiIntrinsics = webApiIntrinsics;
@@ -29,24 +31,24 @@ internal sealed class WebSocketConstructor : Constructor
 
         // Static ready state constants: https://websockets.spec.whatwg.org/#dom-websocket-connecting
         SetOwnProperty(
-            nameof(WebSocketReadyState.Connecting).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Connecting), false, false, false)
+            nameof(WebSocketReadyState.CONNECTING),
+            new((int)WebSocketReadyState.CONNECTING, false, false, false)
         );
         SetOwnProperty(
-            nameof(WebSocketReadyState.Open).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Open), false, false, false)
+            nameof(WebSocketReadyState.OPEN),
+            new((int)WebSocketReadyState.OPEN, false, false, false)
         );
         SetOwnProperty(
-            nameof(WebSocketReadyState.Closing).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Closing), false, false, false)
+            nameof(WebSocketReadyState.CLOSING),
+            new((int)WebSocketReadyState.CLOSING, false, false, false)
         );
         SetOwnProperty(
-            nameof(WebSocketReadyState.Closed).ToUpperInvariant(),
-            new(JsNumber.Create((int)WebSocketReadyState.Closed), false, false, false)
+            nameof(WebSocketReadyState.CLOSED),
+            new((int)WebSocketReadyState.CLOSED, false, false, false)
         );
     }
 
-    public WebSocketPrototype PrototypeObject { get; }
+    private WebSocketPrototype PrototypeObject { get; }
 
     /// <summary>
     /// https://websockets.spec.whatwg.org/#dom-websocket-websocket

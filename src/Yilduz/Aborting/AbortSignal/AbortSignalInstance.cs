@@ -55,7 +55,7 @@ public sealed class AbortSignalInstance : EventTargetInstance
 
         Abort?.Invoke(this, EventArgs.Empty);
 
-        DispatchEvent(_webApiIntrinsics.Event.CreateInstanceWithEventName("abort", Undefined));
+        FireEvent("abort");
     }
 
     /// <summary>

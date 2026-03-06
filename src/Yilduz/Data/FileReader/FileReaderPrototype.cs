@@ -24,12 +24,12 @@ internal sealed class FileReaderPrototype : PrototypeBase<FileReaderInstance>
         RegisterMethod("readAsBinaryString", ReadAsBinaryString, 1);
         RegisterMethod("abort", Abort);
 
-        RegisterProperty("onloadstart", GetOnLoadStart, SetOnLoadStart);
-        RegisterProperty("onload", GetOnLoad, SetOnLoad);
-        RegisterProperty("onloadend", GetOnLoadEnd, SetOnLoadEnd);
-        RegisterProperty("onerror", GetOnError, SetOnError);
-        RegisterProperty("onabort", GetOnAbort, SetOnAbort);
-        RegisterProperty("onprogress", GetOnProgress, SetOnProgress);
+        RegisterProperty("onloadstart", GetOnLoadStart, SetOnLoadStart, Types.Object);
+        RegisterProperty("onload", GetOnLoad, SetOnLoad, Types.Object);
+        RegisterProperty("onloadend", GetOnLoadEnd, SetOnLoadEnd, Types.Object);
+        RegisterProperty("onerror", GetOnError, SetOnError, Types.Object);
+        RegisterProperty("onabort", GetOnAbort, SetOnAbort, Types.Object);
+        RegisterProperty("onprogress", GetOnProgress, SetOnProgress, Types.Object);
     }
 
     private static JsValue ReadAsArrayBuffer(FileReaderInstance reader, JsValue[] arguments)

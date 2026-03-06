@@ -191,7 +191,6 @@ public sealed class FileReaderInstance : EventTargetInstance
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/FileReaderSync/readAsBinaryString
-    /// Note: This method is deprecated but still implemented for compatibility
     /// </summary>
     public JsValue ReadAsBinaryString(JsValue blob)
     {

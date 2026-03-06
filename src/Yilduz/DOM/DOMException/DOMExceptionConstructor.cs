@@ -39,7 +39,7 @@ public sealed class DOMExceptionConstructor : Constructor
         return new DOMExceptionInstance(Engine, message, name) { Prototype = PrototypeObject };
     }
 
-    public DOMExceptionInstance CreateInstance(string name, string message = "")
+    internal DOMExceptionInstance CreateInstance(string name, string message = "")
     {
         return new(Engine, message, name) { Prototype = PrototypeObject };
     }

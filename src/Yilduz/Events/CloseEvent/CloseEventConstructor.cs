@@ -2,17 +2,19 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Events.Event;
 using Yilduz.Extensions;
 
 namespace Yilduz.Events.CloseEvent;
 
 /// <summary>
-/// Constructor for <see cref="CloseEventInstance"/>.
+/// https://developer.mozilla.org/en-US/docs/Web/API/CloseEvent/CloseEvent
+/// <br/>
 /// https://websockets.spec.whatwg.org/#the-closeevent-interface
 /// </summary>
-internal sealed class CloseEventConstructor : Constructor
+public sealed class CloseEventConstructor : EventConstructor
 {
-    public CloseEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal CloseEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(CloseEvent))
     {
         PrototypeObject = new CloseEventPrototype(engine, this)
@@ -22,10 +24,10 @@ internal sealed class CloseEventConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public CloseEventPrototype PrototypeObject { get; }
+    private new CloseEventPrototype PrototypeObject { get; }
 
     /// <summary>
-    /// https://websockets.spec.whatwg.org/#dom-closeevent
+    /// <inheritdoc/>
     /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
@@ -60,11 +62,7 @@ internal sealed class CloseEventConstructor : Constructor
         return CreateInstance(wasClean, code, reason);
     }
 
-    /// <summary>
-    /// Creates a <see cref="CloseEventInstance"/> with typed parameters.
-    /// https://websockets.spec.whatwg.org/#the-closeevent-interface
-    /// </summary>
-    public CloseEventInstance CreateInstance(bool wasClean, ushort code, string reason)
+    internal CloseEventInstance CreateInstance(bool wasClean, ushort code, string reason)
     {
         return new CloseEventInstance(Engine, wasClean, code, reason)
         {

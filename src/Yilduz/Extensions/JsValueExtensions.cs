@@ -7,6 +7,7 @@ using Jint.Native.Function;
 using Jint.Native.Object;
 using Jint.Native.Symbol;
 using Jint.Runtime;
+using Jint.Runtime.Interop;
 using Yilduz.Utils;
 
 namespace Yilduz.Extensions;
@@ -190,5 +191,17 @@ internal static class JsValueExtensions
     public static long GetByteOffset(this JsValue typedArray)
     {
         return (long)typedArray.Get("byteOffset").AsNumber();
+    }
+
+    public static void FastSetMethod(
+        this ObjectInstance obj,
+        string name,
+        Func<JsValue, JsValue[], JsValue> method
+    )
+    {
+        obj.FastSetProperty(
+            name,
+            new(new ClrFunction(obj.Engine, name, method), false, false, true)
+        );
     }
 }

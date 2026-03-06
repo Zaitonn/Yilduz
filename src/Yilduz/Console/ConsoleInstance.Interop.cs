@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using Jint;
 using Jint.Native;
@@ -11,8 +10,7 @@ public sealed partial class ConsoleInstance
     private JsValue Assert(JsValue thisObject, JsValue[] arguments)
     {
         var condition = arguments.Length > 0 && arguments[0].ConvertToBoolean();
-        var data = arguments.Length > 1 ? arguments.Skip(1).ToArray() : Array.Empty<JsValue>();
-        Assert(condition, data);
+        Assert(condition, arguments.Length > 1 ? [.. arguments.Skip(1)] : []);
         return Undefined;
     }
 
@@ -127,8 +125,7 @@ public sealed partial class ConsoleInstance
     private JsValue TimeLog(JsValue thisObject, JsValue[] arguments)
     {
         var label = arguments.Length > 0 ? arguments[0].ToString() : "default";
-        var data = arguments.Length > 1 ? arguments.Skip(1).ToArray() : Array.Empty<JsValue>();
-        TimeLog(label, data);
+        TimeLog(label, arguments.Length > 1 ? [.. arguments.Skip(1)] : []);
         return Undefined;
     }
 

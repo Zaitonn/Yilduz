@@ -23,6 +23,11 @@ public class EventTargetPrototype : PrototypeBase<EventTargetInstance>
         RegisterMethod("addEventListener", AddEventListener, 2);
         RegisterMethod("removeEventListener", RemoveEventListener, 2);
         RegisterMethod("dispatchEvent", DispatchEvent, 1);
+
+        RegisterConstant(nameof(EventPhase.AT_TARGET), EventPhase.AT_TARGET);
+        RegisterConstant(nameof(EventPhase.BUBBLING_PHASE), EventPhase.BUBBLING_PHASE);
+        RegisterConstant(nameof(EventPhase.CAPTURING_PHASE), EventPhase.CAPTURING_PHASE);
+        RegisterConstant(nameof(EventPhase.NONE), EventPhase.NONE);
     }
 
     private static JsValue AddEventListener(EventTargetInstance eventTarget, JsValue[] arguments)

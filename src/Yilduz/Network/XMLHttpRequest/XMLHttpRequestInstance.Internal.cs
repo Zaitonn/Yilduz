@@ -1,19 +1,104 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using Jint;
 using Jint.Native;
 using Jint.Native.Json;
 using Jint.Runtime;
 using Yilduz.Extensions;
+using Yilduz.Network.Body;
+using Yilduz.Network.Fetch;
 using Yilduz.Network.Headers;
 using Yilduz.Network.Response;
+using Yilduz.URLs.URL;
 using Yilduz.Utils;
 
 namespace Yilduz.Network.XMLHttpRequest;
 
 public sealed partial class XMLHttpRequestInstance
 {
+    private FetchController _fetchController;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#send-flag
+    /// </summary>
+    private bool _sendFlag;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#upload-listener-flag
+    /// </summary>
+    private bool _uploadListenerFlag;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#timed-out-flag
+    /// </summary>
+    private bool _timedOutFlag;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#upload-complete-flag
+    /// </summary>
+    private bool _uploadCompleteFlag;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#synchronous-flag
+    /// </summary>
+    private bool _synchronousFlag;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#request-method
+    /// </summary>
+    private string? _requestMethod;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#request-url
+    /// </summary>
+    private URLInstance? _requestUrl;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#response-object
+    /// </summary>
+    private JsValue _responseObject = Null;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#override-mime-type
+    /// </summary>
+    private string? _overrideMimeType;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#timeout
+    /// </summary>
+    private long _timeout;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#cross-origin-credentials
+    /// </summary>
+    private bool _crossOriginCredentials;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#received-bytes
+    /// </summary>
+    private readonly List<byte> _receivedBytes = [];
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#author-request-headers
+    /// </summary>
+    private readonly HeaderList _authorRequestHeaders = [];
+
+    private readonly HeaderList _responseHeaders = [];
+    private CancellationTokenSource? _activeRequestCts;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#request-body
+    /// </summary>
+    private BodyConcept? _requestBody;
+
+    /// <summary>
+    /// https://xhr.spec.whatwg.org/#response
+    /// </summary>
+    private ResponseConcept? _xhrResponse;
+
     internal void SetResponseHeaders(HeaderList headers)
     {
         _responseHeaders.Clear();
@@ -48,10 +133,10 @@ public sealed partial class XMLHttpRequestInstance
         SetResponseHeaders(response.HeaderList);
 
         // Step 12.11.5. Fire readystatechange (done by TransitionReadyState).
-        TransitionReadyState(XMLHttpRequestReadyState.Headers_Received);
+        TransitionReadyState(XMLHttpRequestReadyState.HEADERS_RECEIVED);
 
         // Step 12.11.6. If this's state is not headers received, then return.
-        if (ReadyState != XMLHttpRequestReadyState.Headers_Received)
+        if (ReadyState != XMLHttpRequestReadyState.HEADERS_RECEIVED)
         {
             return;
         }
@@ -75,9 +160,9 @@ public sealed partial class XMLHttpRequestInstance
         }
 
         // Transition to Loading on first (and only) chunk.
-        if (ReadyState == XMLHttpRequestReadyState.Headers_Received)
+        if (ReadyState == XMLHttpRequestReadyState.HEADERS_RECEIVED)
         {
-            TransitionReadyState(XMLHttpRequestReadyState.Loading);
+            TransitionReadyState(XMLHttpRequestReadyState.LOADING);
         }
 
         FireProgressEvent("progress", (ulong)_receivedBytes.Count, (ulong)contentLength);
@@ -117,7 +202,7 @@ public sealed partial class XMLHttpRequestInstance
         _sendFlag = false;
 
         // Step 9. Fire readystatechange (done by TransitionReadyState).
-        TransitionReadyState(XMLHttpRequestReadyState.Done);
+        TransitionReadyState(XMLHttpRequestReadyState.DONE);
 
         // Step 10. Fire a progress event named load.
         FireProgressEvent("load", transmitted, length);
@@ -175,7 +260,7 @@ public sealed partial class XMLHttpRequestInstance
     private void RequestErrorSteps(string eventName, JsError? jsError)
     {
         // Step 1. Set xhr's state to done.
-        ReadyState = XMLHttpRequestReadyState.Done;
+        ReadyState = XMLHttpRequestReadyState.DONE;
 
         // Step 2. Unset xhr's send() flag.
         _sendFlag = false;

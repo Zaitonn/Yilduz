@@ -72,7 +72,13 @@ public static class ErrorCodes
 #endif
     }
 
+    /// <summary>
+    /// https://webidl.spec.whatwg.org/#dom-domexception-code
+    /// </summary>
     public static readonly IReadOnlyDictionary<string, int> Codes;
 
+    /// <summary>
+    /// https://webidl.spec.whatwg.org/#dom-domexception-name
+    /// </summary>
     public static readonly IReadOnlyDictionary<int, string> CodeConstantNames;
 }

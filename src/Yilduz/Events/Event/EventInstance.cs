@@ -12,7 +12,7 @@ namespace Yilduz.Events.Event;
 /// </summary>
 public class EventInstance : ObjectInstance
 {
-    public EventInstance(Engine engine, JsValue type, JsValue options)
+    internal EventInstance(Engine engine, JsValue type, JsValue options)
         : base(engine)
     {
         Type = type.ToString();
@@ -55,7 +55,7 @@ public class EventInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/eventPhase
     /// </summary>
-    public int EventPhase { get; protected internal set; } = EventPhases.NONE;
+    public EventPhase EventPhase { get; protected internal set; } = EventPhase.NONE;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Event/isTrusted

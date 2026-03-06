@@ -4,19 +4,25 @@ using Jint.Native.Object;
 
 namespace Yilduz.Data.FormData;
 
-internal sealed class FormDataConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/FormData/FormData
+/// </summary>
+public sealed class FormDataConstructor : Constructor
 {
-    public FormDataConstructor(Engine engine)
+    internal FormDataConstructor(Engine engine)
         : base(engine, nameof(FormData))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         return new FormDataInstance(Engine) { Prototype = PrototypeObject };
     }
 
-    public FormDataPrototype PrototypeObject { get; }
+    private FormDataPrototype PrototypeObject { get; }
 }

@@ -17,7 +17,7 @@ namespace Yilduz.Data.Blob;
 /// </summary>
 public class BlobInstance : ObjectInstance
 {
-    private readonly Lazy<WebApiIntrinsics> _webApiIntrinsics;
+    private readonly WebApiIntrinsics _webApiIntrinsics;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/type
@@ -29,12 +29,21 @@ public class BlobInstance : ObjectInstance
     /// </summary>
     public int Size => Value.Count;
 
+    /// <summary>
+    /// Represents the raw byte data of the Blob.
+    /// This property is not directly exposed in JavaScript, but is used internally to implement the Blob's functionality.
+    /// </summary>
     protected internal List<byte> Value { get; set; } = [];
 
-    internal BlobInstance(Engine engine, JsValue blobParts, JsValue options)
+    internal BlobInstance(
+        Engine engine,
+        WebApiIntrinsics webApiIntrinsics,
+        JsValue blobParts,
+        JsValue options
+    )
         : base(engine)
     {
-        _webApiIntrinsics = new(Engine.GetWebApiIntrinsics);
+        _webApiIntrinsics = webApiIntrinsics;
 
         var optionsObject = !options.IsUndefined() ? options.AsObject() : null;
 
@@ -115,7 +124,7 @@ public class BlobInstance : ObjectInstance
     public ReadableStreamInstance Stream()
     {
         var readableStream = (ReadableStreamInstance)
-            _webApiIntrinsics.Value.ReadableStream.Construct(Arguments.Empty, Undefined);
+            _webApiIntrinsics.ReadableStream.Construct(Arguments.Empty, Undefined);
         var chunk = Bytes();
 
         // Let chunk be a new Uint8Array wrapping an ArrayBuffer containing bytes.
@@ -149,11 +158,8 @@ public class BlobInstance : ObjectInstance
             start < 0 || start >= Size || end < 0 || start > end
                 ? []
                 : Value.Skip(start).Take((int)(end - start)).ToList();
-        var blobInstance = (BlobInstance)
-            _webApiIntrinsics.Value.Blob.Construct(Arguments.Empty, Undefined);
 
-        blobInstance.Value = slicedValue;
-        blobInstance.Type = contentType;
+        var blobInstance = _webApiIntrinsics.Blob.CreateInstance([.. slicedValue], contentType);
 
         return blobInstance;
     }

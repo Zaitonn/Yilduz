@@ -14,6 +14,8 @@ using Yilduz.Utils;
 namespace Yilduz.Encoding.TextEncoderStream;
 
 /// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream
+/// <br/>
 /// https://encoding.spec.whatwg.org/#interface-textencoderstream
 /// </summary>
 public sealed class TextEncoderStreamInstance : ObjectInstance, IGenericTransformStream
@@ -22,17 +24,19 @@ public sealed class TextEncoderStreamInstance : ObjectInstance, IGenericTransfor
     private readonly TransformStreamInstance _transformStream;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream/encoding
+    /// <br/>
     /// https://encoding.spec.whatwg.org/#dom-textencoderstream-encoding
     /// </summary>
     public string Encoding => _encoder.Encoding;
 
     /// <summary>
-    /// The ReadableStream instance controlled by this object
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream/readable
     /// </summary>
     public ReadableStreamInstance Readable => _transformStream.Readable;
 
     /// <summary>
-    /// The WritableStream instance controlled by this object
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextEncoderStream/writable
     /// </summary>
     public WritableStreamInstance Writable => _transformStream.Writable;
 
@@ -61,7 +65,7 @@ public sealed class TextEncoderStreamInstance : ObjectInstance, IGenericTransfor
         if (controller is TransformStreamDefaultControllerInstance tsdc)
         {
             var encoded = _encoder.Encode(input.ToArgumentString());
-            tsdc.Enqueue(encoded);
+            tsdc.Enqueue(Engine.Intrinsics.Uint8Array.Construct(encoded));
         }
         else
         {

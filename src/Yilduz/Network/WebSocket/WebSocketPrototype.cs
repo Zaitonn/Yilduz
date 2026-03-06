@@ -11,22 +11,10 @@ internal sealed class WebSocketPrototype : PrototypeBase<WebSocketInstance>
         : base(engine, nameof(WebSocket), constructor)
     {
         // Ready state constants (also exposed on prototype per Web IDL spec)
-        RegisterConstant(
-            nameof(WebSocketReadyState.Connecting).ToUpperInvariant(),
-            WebSocketReadyState.Connecting
-        );
-        RegisterConstant(
-            nameof(WebSocketReadyState.Open).ToUpperInvariant(),
-            WebSocketReadyState.Open
-        );
-        RegisterConstant(
-            nameof(WebSocketReadyState.Closing).ToUpperInvariant(),
-            WebSocketReadyState.Closing
-        );
-        RegisterConstant(
-            nameof(WebSocketReadyState.Closed).ToUpperInvariant(),
-            WebSocketReadyState.Closed
-        );
+        RegisterConstant(nameof(WebSocketReadyState.CONNECTING), WebSocketReadyState.CONNECTING);
+        RegisterConstant(nameof(WebSocketReadyState.OPEN), WebSocketReadyState.OPEN);
+        RegisterConstant(nameof(WebSocketReadyState.CLOSING), WebSocketReadyState.CLOSING);
+        RegisterConstant(nameof(WebSocketReadyState.CLOSED), WebSocketReadyState.CLOSED);
 
         // Readonly getters
         RegisterProperty("url", ws => ws.Url);
@@ -37,10 +25,11 @@ internal sealed class WebSocketPrototype : PrototypeBase<WebSocketInstance>
 
         // Read-write properties
         RegisterProperty("binaryType", GetBinaryType, SetBinaryType);
-        RegisterProperty("onopen", GetOnOpen, SetOnOpen);
-        RegisterProperty("onmessage", GetOnMessage, SetOnMessage);
-        RegisterProperty("onerror", GetOnError, SetOnError);
-        RegisterProperty("onclose", GetOnClose, SetOnClose);
+
+        RegisterProperty("onopen", GetOnOpen, SetOnOpen, Types.Object);
+        RegisterProperty("onmessage", GetOnMessage, SetOnMessage, Types.Object);
+        RegisterProperty("onerror", GetOnError, SetOnError, Types.Object);
+        RegisterProperty("onclose", GetOnClose, SetOnClose, Types.Object);
 
         // Methods
         RegisterMethod("send", Send);

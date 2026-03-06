@@ -89,19 +89,19 @@ internal sealed class FormDataPrototype : PrototypeBase<FormDataInstance>
         return Undefined;
     }
 
-    private JsValue Entries(FormDataInstance formData, JsValue[] arguments)
+    private FormDataIterator Entries(FormDataInstance formData, JsValue[] arguments)
     {
-        return new FormDataIterator(Engine, formData, IteratorType.KeyAndValue);
+        return new(Engine, formData, IteratorType.KeyAndValue);
     }
 
-    private JsValue Keys(FormDataInstance formData, JsValue[] arguments)
+    private FormDataIterator Keys(FormDataInstance formData, JsValue[] arguments)
     {
-        return new FormDataIterator(Engine, formData, IteratorType.Key);
+        return new(Engine, formData, IteratorType.Key);
     }
 
-    private JsValue Values(FormDataInstance formData, JsValue[] arguments)
+    private FormDataIterator Values(FormDataInstance formData, JsValue[] arguments)
     {
-        return new FormDataIterator(Engine, formData, IteratorType.Value);
+        return new(Engine, formData, IteratorType.Value);
     }
 
     private JsValue ForEach(FormDataInstance formData, JsValue[] arguments)

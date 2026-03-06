@@ -5,7 +5,6 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Function;
 using Jint.Native.Promise;
-using Jint.Runtime;
 using Jint.Runtime.Interop;
 using Yilduz.Streams.WritableStreamDefaultController;
 using Yilduz.Streams.WritableStreamDefaultWriter;

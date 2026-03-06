@@ -5,11 +5,14 @@ using Yilduz.Utils;
 
 namespace Yilduz.Network.XMLHttpRequestUpload;
 
-internal sealed class XMLHttpRequestUploadConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestUpload
+/// </summary>
+public sealed class XMLHttpRequestUploadConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public XMLHttpRequestUploadConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal XMLHttpRequestUploadConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(XMLHttpRequestUpload))
     {
         _webApiIntrinsics = webApiIntrinsics;
@@ -21,15 +24,18 @@ internal sealed class XMLHttpRequestUploadConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, true));
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(XMLHttpRequestUpload));
         return null;
     }
 
-    public XMLHttpRequestUploadPrototype PrototypeObject { get; }
+    private XMLHttpRequestUploadPrototype PrototypeObject { get; }
 
-    public XMLHttpRequestUploadInstance CreateInstance()
+    internal XMLHttpRequestUploadInstance CreateInstance()
     {
         return new(Engine, _webApiIntrinsics) { Prototype = PrototypeObject };
     }

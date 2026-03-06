@@ -4,27 +4,33 @@ using Jint.Native.Object;
 
 namespace Yilduz.Aborting.AbortController;
 
-internal sealed class AbortControllerConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/AbortController/AbortController
+/// </summary>
+public sealed class AbortControllerConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public AbortControllerConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal AbortControllerConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(AbortController))
     {
+        _webApiIntrinsics = webApiIntrinsics;
         PrototypeObject = new(engine, this);
 
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
-        _webApiIntrinsics = webApiIntrinsics;
     }
 
-    public AbortControllerPrototype PrototypeObject { get; }
+    private AbortControllerPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         return CreateInstance();
     }
 
-    public AbortControllerInstance CreateInstance()
+    internal AbortControllerInstance CreateInstance()
     {
         return new(Engine)
         {

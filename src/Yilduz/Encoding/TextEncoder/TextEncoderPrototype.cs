@@ -18,15 +18,10 @@ internal sealed class TextEncoderPrototype : PrototypeBase<TextEncoderInstance>
         RegisterMethod("encodeInto", EncodeInto, 2);
     }
 
-    private static JsValue GetEncoding(TextEncoderInstance encoder)
-    {
-        return encoder.Encoding;
-    }
-
-    private static JsValue Encode(TextEncoderInstance encoder, JsValue[] arguments)
+    private JsValue Encode(TextEncoderInstance encoder, JsValue[] arguments)
     {
         var input = arguments.Length > 0 ? arguments[0].ToArgumentString() : string.Empty;
-        return encoder.Encode(input);
+        return Engine.Intrinsics.Uint8Array.Construct(encoder.Encode(input));
     }
 
     private JsValue EncodeInto(TextEncoderInstance encoder, JsValue[] arguments)
@@ -44,6 +39,10 @@ internal sealed class TextEncoderPrototype : PrototypeBase<TextEncoderInstance>
             return Undefined;
         }
 
-        return encoder.EncodeInto(arguments.At(0).ToString(), de);
+        var (read, written) = encoder.EncodeInto(arguments.At(0).ToString(), de);
+        var result = Engine.Intrinsics.Object.Construct(Arguments.Empty);
+        result.Set("read", read);
+        result.Set("written", written);
+        return result;
     }
 }

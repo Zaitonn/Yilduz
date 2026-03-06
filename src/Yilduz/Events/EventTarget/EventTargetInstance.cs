@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Jint;
 using Jint.Native;
+using Jint.Native.Function;
 using Jint.Native.Object;
 using Yilduz.Events.Event;
 using EventPair = (
@@ -118,15 +119,15 @@ public class EventTargetInstance : ObjectInstance
                 copy = [.. listeners];
             }
 
-            evt.EventPhase = EventPhases.AT_TARGET;
+            evt.EventPhase = EventPhase.AT_TARGET;
 
             foreach (var pair in copy)
             {
-                if (pair.Listener is ObjectInstance objectInstance1)
+                if (pair.Listener is Function function)
                 {
                     try
                     {
-                        objectInstance1.Call(this, [evt]);
+                        function.Call(this, [evt]);
                     }
                     catch { }
                 }
@@ -145,15 +146,12 @@ public class EventTargetInstance : ObjectInstance
             toRemove.ForEach(pair => listeners.Remove(pair));
         }
 
-        if (
-            !evt.IsImmediatePropagationStopped
-            && this["on" + evt.Type] is ObjectInstance objectInstance2
-        )
+        if (!evt.IsImmediatePropagationStopped && this["on" + evt.Type] is Function function2)
         {
-            objectInstance2.Call(this, [evt]);
+            function2.Call(this, [evt]);
         }
 
-        evt.EventPhase = EventPhases.NONE;
+        evt.EventPhase = EventPhase.NONE;
 
         return !(evt.Cancelable && evt.DefaultPrevented);
     }

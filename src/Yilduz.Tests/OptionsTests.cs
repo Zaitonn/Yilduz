@@ -18,7 +18,7 @@ public static class OptionsTests
     public static void ShouldThrowWhenWaitingTimeoutIsNegative()
     {
         var engine = new Engine();
-        Assert.Throws<ArgumentOutOfRangeException>(
+        Assert.Throws<ArgumentException>(
             () =>
                 engine.InitializeWebApi(
                     new()

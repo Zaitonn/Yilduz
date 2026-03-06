@@ -8,24 +8,39 @@ using Yilduz.Utils;
 
 namespace Yilduz.Data.File;
 
-internal sealed class FileConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/File/File
+/// </summary>
+public sealed class FileConstructor : Constructor
 {
-    public FileConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    private readonly WebApiIntrinsics _webApiIntrinsics;
+
+    internal FileConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(File))
     {
-        PrototypeObject = new(engine, this) { Prototype = webApiIntrinsics.Blob.PrototypeObject };
+        _webApiIntrinsics = webApiIntrinsics;
+        PrototypeObject = new(engine, this) { Prototype = _webApiIntrinsics.Blob.PrototypeObject };
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public FilePrototype PrototypeObject { get; }
+    private FilePrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(Engine, 2, "Failed to construct 'File'");
+        arguments.EnsureCountForConstructor(Engine, 2, nameof(File));
 
         try
         {
-            return new FileInstance(Engine, arguments.At(0), arguments.At(1), arguments.At(2))
+            return new FileInstance(
+                Engine,
+                _webApiIntrinsics,
+                arguments.At(0),
+                arguments.At(1),
+                arguments.At(2)
+            )
             {
                 Prototype = PrototypeObject,
             };

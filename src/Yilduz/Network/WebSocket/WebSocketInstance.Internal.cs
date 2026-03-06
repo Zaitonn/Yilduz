@@ -45,7 +45,7 @@ public sealed partial class WebSocketInstance
 
             _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
             {
-                ReadyState = WebSocketReadyState.Open;
+                ReadyState = WebSocketReadyState.OPEN;
                 FireEvent("open");
             });
 
@@ -59,7 +59,7 @@ public sealed partial class WebSocketInstance
         {
             _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
             {
-                ReadyState = WebSocketReadyState.Closed;
+                ReadyState = WebSocketReadyState.CLOSED;
 
                 FireEvent("error");
                 FireCloseEvent(false, 1006, string.Empty);
@@ -106,7 +106,7 @@ public sealed partial class WebSocketInstance
 
                 _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
                 {
-                    ReadyState = WebSocketReadyState.Closed;
+                    ReadyState = WebSocketReadyState.CLOSED;
                     // wasClean=true because we completed the handshake.
                     FireCloseEvent(true, closeStatus, closeDesc);
                 });
@@ -120,7 +120,7 @@ public sealed partial class WebSocketInstance
 
             _webApiIntrinsics.EventLoop.QueueMacrotask(() =>
             {
-                if (ReadyState != WebSocketReadyState.Open)
+                if (ReadyState != WebSocketReadyState.OPEN)
                 {
                     return;
                 }

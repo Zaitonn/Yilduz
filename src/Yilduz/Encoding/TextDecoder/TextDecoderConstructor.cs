@@ -4,17 +4,23 @@ using Jint.Native.Object;
 
 namespace Yilduz.Encoding.TextDecoder;
 
-internal sealed class TextDecoderConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoder/TextDecoder
+/// </summary>
+public sealed class TextDecoderConstructor : Constructor
 {
-    public TextDecoderConstructor(Engine engine)
+    internal TextDecoderConstructor(Engine engine)
         : base(engine, nameof(TextDecoder))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public TextDecoderPrototype PrototypeObject { get; }
+    private TextDecoderPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         var label = arguments.Length > 0 ? arguments[0] : Undefined;

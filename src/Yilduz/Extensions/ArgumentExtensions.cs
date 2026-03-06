@@ -45,6 +45,22 @@ internal static class ArgumentExtensions
         }
     }
 
+    public static void EnsureCountForConstructor(
+        this JsValue[] arguments,
+        Engine engine,
+        int count,
+        string className
+    )
+    {
+        if (arguments.Length < count)
+        {
+            TypeErrorHelper.Throw(
+                engine,
+                $"Failed to construct '{className}': {GetMessage(count, arguments.Length)}"
+            );
+        }
+    }
+
     public static string ToArgumentString(this JsValue jsValue)
     {
         return jsValue is JsArray jsArray ? string.Join(",", jsArray) : jsValue.ToString();

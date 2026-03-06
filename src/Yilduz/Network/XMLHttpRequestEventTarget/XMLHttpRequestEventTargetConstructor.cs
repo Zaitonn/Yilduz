@@ -5,9 +5,12 @@ using Yilduz.Utils;
 
 namespace Yilduz.Network.XMLHttpRequestEventTarget;
 
-internal sealed class XMLHttpRequestEventTargetConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestEventTarget
+/// </summary>
+public sealed class XMLHttpRequestEventTargetConstructor : Constructor
 {
-    public XMLHttpRequestEventTargetConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal XMLHttpRequestEventTargetConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(XMLHttpRequestEventTarget))
     {
         PrototypeObject = new(_engine, this)
@@ -17,6 +20,9 @@ internal sealed class XMLHttpRequestEventTargetConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(XMLHttpRequestEventTarget));
@@ -24,5 +30,5 @@ internal sealed class XMLHttpRequestEventTargetConstructor : Constructor
         return null;
     }
 
-    public XMLHttpRequestEventTargetPrototype PrototypeObject { get; }
+    internal XMLHttpRequestEventTargetPrototype PrototypeObject { get; }
 }

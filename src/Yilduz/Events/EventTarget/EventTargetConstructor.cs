@@ -4,9 +4,12 @@ using Jint.Native.Object;
 
 namespace Yilduz.Events.EventTarget;
 
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/EventTarget
+/// </summary>
 public sealed class EventTargetConstructor : Constructor
 {
-    public EventTargetConstructor(Engine engine)
+    internal EventTargetConstructor(Engine engine)
         : base(engine, nameof(EventTarget))
     {
         PrototypeObject = new(engine, this);
@@ -16,6 +19,9 @@ public sealed class EventTargetConstructor : Constructor
 
     public EventTargetPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         return new EventTargetInstance(Engine) { Prototype = PrototypeObject };

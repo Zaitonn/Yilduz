@@ -8,20 +8,26 @@ using Yilduz.Utils;
 
 namespace Yilduz.Streams.ReadableStreamBYOBReader;
 
-internal sealed class ReadableStreamBYOBReaderConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamBYOBReader/ReadableStreamBYOBReader
+/// </summary>
+public sealed class ReadableStreamBYOBReaderConstructor : Constructor
 {
-    public ReadableStreamBYOBReaderConstructor(Engine engine)
+    internal ReadableStreamBYOBReaderConstructor(Engine engine)
         : base(engine, nameof(ReadableStreamBYOBReader))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public ReadableStreamBYOBReaderPrototype PrototypeObject { get; }
+    private ReadableStreamBYOBReaderPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(Engine, 1, "Failed to construct 'ReadableStreamBYOBReader'");
+        arguments.EnsureCountForConstructor(Engine, 1, nameof(ReadableStreamBYOBReader));
 
         var streamArg = arguments.At(0);
         if (streamArg is not ReadableStreamInstance stream)
@@ -36,7 +42,7 @@ internal sealed class ReadableStreamBYOBReaderConstructor : Constructor
         return CreateInstance(stream);
     }
 
-    public ReadableStreamBYOBReaderInstance CreateInstance(ReadableStreamInstance readableStream)
+    internal ReadableStreamBYOBReaderInstance CreateInstance(ReadableStreamInstance readableStream)
     {
         return new(Engine, readableStream) { Prototype = PrototypeObject };
     }

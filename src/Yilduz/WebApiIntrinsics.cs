@@ -54,65 +54,64 @@ namespace Yilduz;
 public sealed class WebApiIntrinsics
 {
     public Options Options { get; }
-    internal AbortControllerConstructor AbortController { get; }
+    public AbortControllerConstructor AbortController { get; }
     public AbortSignalConstructor AbortSignal { get; }
 
-    internal BlobConstructor Blob { get; }
-    internal FileConstructor File { get; }
-    internal FileReaderConstructor FileReader { get; }
-    internal FileReaderSyncConstructor FileReaderSync { get; }
+    public BlobConstructor Blob { get; }
+    public FileConstructor File { get; }
+    public FileReaderConstructor FileReader { get; }
+    public FileReaderSyncConstructor FileReaderSync { get; }
 
-    internal TextEncoderConstructor TextEncoder { get; }
-    internal TextDecoderConstructor TextDecoder { get; }
-    internal TextEncoderStreamConstructor TextEncoderStream { get; }
-    internal TextDecoderStreamConstructor TextDecoderStream { get; }
+    public TextEncoderConstructor TextEncoder { get; }
+    public TextDecoderConstructor TextDecoder { get; }
+    public TextEncoderStreamConstructor TextEncoderStream { get; }
+    public TextDecoderStreamConstructor TextDecoderStream { get; }
 
-    internal DOMExceptionConstructor DOMException { get; }
+    public DOMExceptionConstructor DOMException { get; }
 
     public EventTargetConstructor EventTarget { get; }
     public EventConstructor Event { get; }
-    internal ProgressEventConstructor ProgressEvent { get; }
-    internal MessageEventConstructor MessageEvent { get; }
-    internal CloseEventConstructor CloseEvent { get; }
+    public ProgressEventConstructor ProgressEvent { get; }
+    public MessageEventConstructor MessageEvent { get; }
+    public CloseEventConstructor CloseEvent { get; }
 
-    internal URLConstructor URL { get; }
-    internal URLSearchParamsConstructor URLSearchParams { get; }
+    public URLConstructor URL { get; }
+    public URLSearchParamsConstructor URLSearchParams { get; }
 
-    internal ReadableStreamConstructor ReadableStream { get; }
+    public ReadableStreamConstructor ReadableStream { get; }
     internal ReadableStreamDefaultControllerConstructor ReadableStreamDefaultController { get; }
     internal ReadableStreamDefaultReaderConstructor ReadableStreamDefaultReader { get; }
-    internal ReadableStreamBYOBReaderConstructor ReadableStreamBYOBReader { get; }
+    public ReadableStreamBYOBReaderConstructor ReadableStreamBYOBReader { get; }
     internal ReadableStreamBYOBRequestConstructor ReadableStreamBYOBRequest { get; }
     internal ReadableByteStreamControllerConstructor ReadableByteStreamController { get; }
-    internal WritableStreamConstructor WritableStream { get; }
+    public WritableStreamConstructor WritableStream { get; }
     internal WritableStreamDefaultWriterConstructor WritableStreamDefaultWriter { get; }
     internal WritableStreamDefaultControllerConstructor WritableStreamDefaultController { get; }
-    internal CountQueuingStrategyConstructor CountQueuingStrategy { get; }
-    internal ByteLengthQueuingStrategyConstructor ByteLengthQueuingStrategy { get; }
-    internal TransformStreamConstructor TransformStream { get; }
+    public CountQueuingStrategyConstructor CountQueuingStrategy { get; }
+    public ByteLengthQueuingStrategyConstructor ByteLengthQueuingStrategy { get; }
+    public TransformStreamConstructor TransformStream { get; }
     internal TransformStreamDefaultControllerConstructor TransformStreamDefaultController { get; }
-    internal CompressionStreamConstructor CompressionStream { get; }
-    internal DecompressionStreamConstructor DecompressionStream { get; }
+    public CompressionStreamConstructor CompressionStream { get; }
+    public DecompressionStreamConstructor DecompressionStream { get; }
 
     internal StorageConstructor Storage { get; }
     public StorageInstance LocalStorage { get; }
     public StorageInstance SessionStorage { get; }
 
+    internal FetchProvider FetchProvider { get; }
     internal Base64Provider Base64Provider { get; }
     internal EventLoop EventLoop { get; }
     internal TimerProvider TimerProvider { get; }
     public ConsoleInstance Console { get; }
 
-    internal FormDataConstructor FormData { get; }
-    internal RequestConstructor Request { get; }
-    internal ResponseConstructor Response { get; }
-    internal HeadersConstructor Headers { get; }
-    internal WebSocketConstructor WebSocket { get; }
-    internal XMLHttpRequestConstructor XMLHttpRequest { get; }
-    internal XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
-    internal XMLHttpRequestUploadConstructor XMLHttpRequestUpload { get; }
-
-    internal FetchProvider FetchProvider { get; }
+    public FormDataConstructor FormData { get; }
+    public RequestConstructor Request { get; }
+    public ResponseConstructor Response { get; }
+    public HeadersConstructor Headers { get; }
+    public WebSocketConstructor WebSocket { get; }
+    public XMLHttpRequestConstructor XMLHttpRequest { get; }
+    public XMLHttpRequestEventTargetConstructor XMLHttpRequestEventTarget { get; }
+    public XMLHttpRequestUploadConstructor XMLHttpRequestUpload { get; }
 
     private readonly Engine _engine;
 
@@ -121,6 +120,14 @@ public sealed class WebApiIntrinsics
         _engine = engine ?? throw new ArgumentNullException(nameof(engine));
         Options = options ?? throw new ArgumentNullException(nameof(options));
         Options.CancellationToken.ThrowIfCancellationRequested();
+
+        if (!Options.CancellationToken.CanBeCanceled)
+        {
+            throw new ArgumentException(
+                "The provided cancellation token must be cancellable.",
+                nameof(options)
+            );
+        }
 
         if (Options.WaitingTimeout < TimeSpan.Zero)
         {
@@ -139,7 +146,7 @@ public sealed class WebApiIntrinsics
         AbortSignal = new(_engine, this);
         AbortController = new(_engine, this);
 
-        Blob = new(_engine);
+        Blob = new(_engine, this);
         File = new(_engine, this);
         FileReader = new(_engine, this);
         FileReaderSync = new(_engine);
@@ -202,58 +209,58 @@ public sealed class WebApiIntrinsics
             )
         );
 
-        LocalStorage = Storage.CreateInstance(Options.Storage.LocalStorageDataProvider);
-        SessionStorage = Storage.CreateInstance(Options.Storage.SessionStorageDataProvider);
-        Options.Storage.LocalStorageConfigurator?.Invoke(LocalStorage);
-        Options.Storage.SessionStorageConfigurator?.Invoke(SessionStorage);
+        LocalStorage = Storage.CreateInstance(Options.Storage.LocalStorage.DataProvider);
+        SessionStorage = Storage.CreateInstance(Options.Storage.SessionStorage.DataProvider);
+        Options.Storage.LocalStorage.Configurator?.Invoke(LocalStorage);
+        Options.Storage.SessionStorage.Configurator?.Invoke(SessionStorage);
 
         ConfigureEngine();
     }
 
     private void ConfigureEngine()
     {
-        FastSet(AbortController);
-        FastSet(AbortSignal);
-        FastSet(Blob);
-        FastSet(File);
-        FastSet(FileReader);
-        FastSet(FileReaderSync);
-        FastSet(TextEncoder);
-        FastSet(TextDecoder);
-        FastSet(TextEncoderStream);
-        FastSet(TextDecoderStream);
-        FastSet(DOMException);
-        FastSet(Event);
-        FastSet(ProgressEvent);
-        FastSet(MessageEvent);
-        FastSet(CloseEvent);
-        FastSet(EventTarget);
-        FastSet(URL);
-        FastSet(URLSearchParams);
-        FastSet(CountQueuingStrategy);
-        FastSet(ByteLengthQueuingStrategy);
-        FastSet(ReadableStream);
-        FastSet(ReadableStreamDefaultController);
-        FastSet(ReadableStreamDefaultReader);
-        FastSet(ReadableStreamBYOBReader);
-        FastSet(ReadableStreamBYOBRequest);
-        FastSet(ReadableByteStreamController);
-        FastSet(WritableStream);
-        FastSet(WritableStreamDefaultWriter);
-        FastSet(WritableStreamDefaultController);
-        FastSet(TransformStream);
-        FastSet(TransformStreamDefaultController);
-        FastSet(CompressionStream);
-        FastSet(DecompressionStream);
-        FastSet(Storage);
-        FastSet(FormData);
-        FastSet(Request);
-        FastSet(Response);
-        FastSet(Headers);
-        FastSet(WebSocket);
-        FastSet(XMLHttpRequest);
-        FastSet(XMLHttpRequestEventTarget);
-        FastSet(XMLHttpRequestUpload);
+        Set(AbortController);
+        Set(AbortSignal);
+        Set(Blob);
+        Set(File);
+        Set(FileReader);
+        Set(FileReaderSync);
+        Set(TextEncoder);
+        Set(TextDecoder);
+        Set(TextEncoderStream);
+        Set(TextDecoderStream);
+        Set(DOMException);
+        Set(Event);
+        Set(ProgressEvent);
+        Set(MessageEvent);
+        Set(CloseEvent);
+        Set(EventTarget);
+        Set(URL);
+        Set(URLSearchParams);
+        Set(CountQueuingStrategy);
+        Set(ByteLengthQueuingStrategy);
+        Set(ReadableStream);
+        Set(ReadableStreamDefaultController);
+        Set(ReadableStreamDefaultReader);
+        Set(ReadableStreamBYOBReader);
+        Set(ReadableStreamBYOBRequest);
+        Set(ReadableByteStreamController);
+        Set(WritableStream);
+        Set(WritableStreamDefaultWriter);
+        Set(WritableStreamDefaultController);
+        Set(TransformStream);
+        Set(TransformStreamDefaultController);
+        Set(CompressionStream);
+        Set(DecompressionStream);
+        Set(Storage);
+        Set(FormData);
+        Set(Request);
+        Set(Response);
+        Set(Headers);
+        Set(WebSocket);
+        Set(XMLHttpRequest);
+        Set(XMLHttpRequestEventTarget);
+        Set(XMLHttpRequestUpload);
 
         Set("console", Console);
         Set("localStorage", LocalStorage);
@@ -265,15 +272,15 @@ public sealed class WebApiIntrinsics
         Set("setInterval", new ClrFunction(_engine, "setInterval", TimerProvider.SetInterval));
         Set("clearTimeout", new ClrFunction(_engine, "clearTimeout", TimerProvider.Clear));
         Set("clearInterval", new ClrFunction(_engine, "clearInterval", TimerProvider.Clear));
+    }
 
-        void Set(string key, JsValue jsValue)
-        {
-            _engine.SetValue(key, jsValue);
-        }
+    private void Set(string key, JsValue jsValue)
+    {
+        _engine.SetValue(key, jsValue);
+    }
 
-        void FastSet(JsValue jsValue, [CallerArgumentExpression(nameof(jsValue))] string key = "")
-        {
-            _engine.SetValue(key, jsValue);
-        }
+    private void Set(JsValue jsValue, [CallerArgumentExpression(nameof(jsValue))] string key = "")
+    {
+        _engine.SetValue(key, jsValue);
     }
 }

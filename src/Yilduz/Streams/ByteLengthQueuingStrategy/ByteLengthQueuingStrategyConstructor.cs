@@ -5,23 +5,29 @@ using Yilduz.Extensions;
 
 namespace Yilduz.Streams.ByteLengthQueuingStrategy;
 
-internal sealed class ByteLengthQueuingStrategyConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/ByteLengthQueuingStrategy/ByteLengthQueuingStrategy
+/// </summary>
+public sealed class ByteLengthQueuingStrategyConstructor : Constructor
 {
-    public ByteLengthQueuingStrategyConstructor(Engine engine)
+    internal ByteLengthQueuingStrategyConstructor(Engine engine)
         : base(engine, nameof(ByteLengthQueuingStrategy))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, true));
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(Engine, 1, "Failed to construct 'ByteLengthQueuingStrategy'");
+        arguments.EnsureCountForConstructor(Engine, 1, nameof(ByteLengthQueuingStrategy));
         return new ByteLengthQueuingStrategyInstance(Engine, arguments[0])
         {
             Prototype = PrototypeObject,
         };
     }
 
-    public ByteLengthQueuingStrategyPrototype PrototypeObject { get; }
+    private ByteLengthQueuingStrategyPrototype PrototypeObject { get; }
 }

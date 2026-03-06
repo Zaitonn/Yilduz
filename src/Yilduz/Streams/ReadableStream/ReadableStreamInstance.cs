@@ -18,8 +18,6 @@ namespace Yilduz.Streams.ReadableStream;
 public sealed partial class ReadableStreamInstance : ObjectInstance
 {
     /// <summary>
-    /// Returns a boolean indicating whether or not the readable stream is locked to a reader.
-    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-locked
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/locked
@@ -28,8 +26,6 @@ public sealed partial class ReadableStreamInstance : ObjectInstance
     public bool Locked => Reader is not null;
 
     /// <summary>
-    /// Creates a new ReadableStream object from the given handlers.
-    /// <br/>
     /// https://streams.spec.whatwg.org/#rs-constructor
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream/ReadableStream

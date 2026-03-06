@@ -6,31 +6,40 @@ using Yilduz.Extensions;
 
 namespace Yilduz.Events.Event;
 
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Event/Event
+/// </summary>
 public class EventConstructor : Constructor
 {
-    public EventConstructor(Engine engine)
-        : base(engine, nameof(Event))
+    internal EventConstructor(Engine engine)
+        : this(engine, nameof(Event)) { }
+
+    internal EventConstructor(Engine engine, string name)
+        : base(engine, name)
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
 
-        SetOwnProperty(nameof(EventPhases.NONE), new(EventPhases.NONE, true, false, true));
+        SetOwnProperty(nameof(EventPhase.NONE), new((int)EventPhase.NONE, true, false, true));
         SetOwnProperty(
-            nameof(EventPhases.CAPTURING_PHASE),
-            new(EventPhases.CAPTURING_PHASE, false, false, true)
+            nameof(EventPhase.CAPTURING_PHASE),
+            new((int)EventPhase.CAPTURING_PHASE, false, false, true)
         );
         SetOwnProperty(
-            nameof(EventPhases.AT_TARGET),
-            new(EventPhases.AT_TARGET, false, false, true)
+            nameof(EventPhase.AT_TARGET),
+            new((int)EventPhase.AT_TARGET, false, false, true)
         );
         SetOwnProperty(
-            nameof(EventPhases.BUBBLING_PHASE),
-            new(EventPhases.BUBBLING_PHASE, false, false, true)
+            nameof(EventPhase.BUBBLING_PHASE),
+            new((int)EventPhase.BUBBLING_PHASE, false, false, true)
         );
     }
 
-    public EventPrototype PrototypeObject { get; }
+    internal EventPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         arguments.EnsureCount(Engine, 1, "Failed to construct 'Event'");
@@ -38,6 +47,9 @@ public class EventConstructor : Constructor
         return CreateInstanceWithEventName(arguments.At(0).ToString(), arguments.At(1));
     }
 
+    /// <summary>
+    /// Creates an instance of the Event object with the specified event name and options.
+    /// </summary>
     public EventInstance CreateInstanceWithEventName(string eventName, JsValue options)
     {
         return new(Engine, eventName, options) { Prototype = PrototypeObject };

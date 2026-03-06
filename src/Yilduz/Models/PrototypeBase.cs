@@ -10,6 +10,11 @@ using Yilduz.Extensions;
 
 namespace Yilduz.Models;
 
+/// <summary>
+/// Base class for prototypes of Web API objects.
+/// <br/>
+/// Provides helper methods to register properties and methods on the prototype.
+/// </summary>
 public abstract class PrototypeBase<T> : ObjectInstance
     where T : ObjectInstance
 {
@@ -58,7 +63,8 @@ public abstract class PrototypeBase<T> : ObjectInstance
     private protected void RegisterProperty(
         string name,
         Func<T, JsValue>? getter = null,
-        Func<T, JsValue, JsValue>? setter = null
+        Func<T, JsValue, JsValue>? setter = null,
+        Types? type = null
     )
     {
         FastSetProperty(
@@ -83,13 +89,17 @@ public abstract class PrototypeBase<T> : ObjectInstance
         Func<JsValue, JsValue[], JsValue> WrapSetter(Func<T, JsValue, JsValue> setter)
         {
             return (thisObject, arguments) =>
-                setter(thisObject.EnsureThisObject<T>(), arguments.At(0));
-        }
-    }
+            {
+                var value = arguments.At(0);
 
-    private protected void RegisterConstant(string name, int value)
-    {
-        FastSetProperty(name, new(value, false, false, true));
+                if (type is not null && value.Type != type)
+                {
+                    return Null;
+                }
+
+                return setter(thisObject.EnsureThisObject<T>(), arguments.At(0));
+            };
+        }
     }
 
     private protected void RegisterConstant<TEnum>(string name, TEnum value)

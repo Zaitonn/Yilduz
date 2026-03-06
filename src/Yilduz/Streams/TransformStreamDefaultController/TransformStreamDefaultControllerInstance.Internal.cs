@@ -7,9 +7,6 @@ using Yilduz.Utils;
 
 namespace Yilduz.Streams.TransformStreamDefaultController;
 
-/// <summary>
-/// Internal methods for TransformStreamDefaultControllerInstance
-/// </summary>
 public sealed partial class TransformStreamDefaultControllerInstance
 {
     /// <summary>

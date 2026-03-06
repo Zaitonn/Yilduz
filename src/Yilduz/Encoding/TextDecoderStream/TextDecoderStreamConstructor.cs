@@ -5,17 +5,23 @@ using Jint.Runtime;
 
 namespace Yilduz.Encoding.TextDecoderStream;
 
-internal sealed class TextDecoderStreamConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream/TextDecoderStream
+/// </summary>
+public sealed class TextDecoderStreamConstructor : Constructor
 {
-    public TextDecoderStreamConstructor(Engine engine)
+    internal TextDecoderStreamConstructor(Engine engine)
         : base(engine, nameof(TextDecoderStream))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public TextDecoderStreamPrototype PrototypeObject { get; }
+    private TextDecoderStreamPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         var label = arguments.At(0);

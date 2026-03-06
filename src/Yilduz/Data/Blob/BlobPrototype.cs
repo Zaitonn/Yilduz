@@ -26,10 +26,6 @@ internal sealed class BlobPrototype : PrototypeBase<BlobInstance>
         return QueueBlobTask(() => blob.Text());
     }
 
-    /// <summary>
-    /// https://w3c.github.io/FileAPI/#dom-blob-stream
-    /// Returns a ReadableStream synchronously — not a Promise.
-    /// </summary>
     private JsValue Stream(BlobInstance blob, JsValue[] arguments)
     {
         return blob.Stream();

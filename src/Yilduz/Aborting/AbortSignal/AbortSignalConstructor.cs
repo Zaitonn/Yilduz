@@ -10,6 +10,9 @@ using Yilduz.Utils;
 
 namespace Yilduz.Aborting.AbortSignal;
 
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/AbortSignal
+/// </summary>
 public sealed class AbortSignalConstructor : Constructor
 {
     private static readonly string AbortName = nameof(Abort).ToJsStyleName();
@@ -38,6 +41,9 @@ public sealed class AbortSignalConstructor : Constructor
 
     internal AbortSignalPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         TypeErrorHelper.ThrowForIllegalConstructor(Engine, nameof(AbortSignal));

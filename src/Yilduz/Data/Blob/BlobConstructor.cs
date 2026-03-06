@@ -7,22 +7,31 @@ using Yilduz.Utils;
 
 namespace Yilduz.Data.Blob;
 
-internal sealed class BlobConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Blob/Blob
+/// </summary>
+public sealed class BlobConstructor : Constructor
 {
-    public BlobConstructor(Engine engine)
+    private readonly WebApiIntrinsics _webApiIntrinsics;
+
+    internal BlobConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(Blob))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
+        _webApiIntrinsics = webApiIntrinsics;
     }
 
-    public BlobPrototype PrototypeObject { get; }
+    internal BlobPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         try
         {
-            return new BlobInstance(Engine, arguments.At(0), arguments.At(1))
+            return new BlobInstance(Engine, _webApiIntrinsics, arguments.At(0), arguments.At(1))
             {
                 Prototype = PrototypeObject,
             };
@@ -34,12 +43,9 @@ internal sealed class BlobConstructor : Constructor
         }
     }
 
-    /// <summary>
-    /// Creates a <see cref="BlobInstance"/> from a raw byte array with an explicit MIME type.
-    /// </summary>
-    public BlobInstance CreateInstance(byte[] bytes, string mimeType)
+    internal BlobInstance CreateInstance(byte[] bytes, string mimeType)
     {
-        var instance = new BlobInstance(Engine, Undefined, Undefined)
+        var instance = new BlobInstance(Engine, _webApiIntrinsics, Undefined, Undefined)
         {
             Prototype = PrototypeObject,
             Type = mimeType,

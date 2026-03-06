@@ -5,17 +5,23 @@ using Jint.Runtime;
 
 namespace Yilduz.Streams.TransformStream;
 
-internal sealed class TransformStreamConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/TransformStream/TransformStream
+/// </summary>
+public sealed class TransformStreamConstructor : Constructor
 {
-    public TransformStreamConstructor(Engine engine)
+    internal TransformStreamConstructor(Engine engine)
         : base(engine, nameof(TransformStream))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public TransformStreamPrototype PrototypeObject { get; }
+    private TransformStreamPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         var transformer = arguments.At(0);
@@ -25,7 +31,7 @@ internal sealed class TransformStreamConstructor : Constructor
         return CreateInstance(transformer, writableStrategy, readableStrategy);
     }
 
-    public TransformStreamInstance CreateInstance(
+    internal TransformStreamInstance CreateInstance(
         JsValue transformer,
         JsValue writableStrategy,
         JsValue readableStrategy

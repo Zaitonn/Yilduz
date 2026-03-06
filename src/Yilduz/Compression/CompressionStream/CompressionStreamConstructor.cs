@@ -5,11 +5,14 @@ using Yilduz.Extensions;
 
 namespace Yilduz.Compression.CompressionStream;
 
-internal sealed class CompressionStreamConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream/CompressionStream
+/// </summary>
+public sealed class CompressionStreamConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public CompressionStreamConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal CompressionStreamConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(CompressionStream))
     {
         _webApiIntrinsics = webApiIntrinsics;
@@ -18,11 +21,14 @@ internal sealed class CompressionStreamConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public CompressionStreamPrototype PrototypeObject { get; }
+    private CompressionStreamPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(Engine, 1, "Failed to construct 'CompressionStream'");
+        arguments.EnsureCountForConstructor(Engine, 1, nameof(CompressionStream));
         var format = arguments[0];
 
         return new CompressionStreamInstance(Engine, _webApiIntrinsics, format)

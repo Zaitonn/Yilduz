@@ -10,10 +10,21 @@ public sealed partial class Options
 
     public sealed class StorageOptions
     {
-        public IDictionary<string, string>? LocalStorageDataProvider { get; init; }
-        public IDictionary<string, string>? SessionStorageDataProvider { get; init; }
+        public StorageConfiguration LocalStorage { get; } = new();
+        public StorageConfiguration SessionStorage { get; } = new();
+    }
 
-        public Action<StorageInstance>? LocalStorageConfigurator { get; init; }
-        public Action<StorageInstance>? SessionStorageConfigurator { get; init; }
+    public sealed class StorageConfiguration
+    {
+        /// <summary>
+        /// Initial data for the storage instance. When null, the storage starts empty.
+        /// </summary>
+        public IDictionary<string, string>? DataProvider { get; set; }
+
+        /// <summary>
+        /// Configurator that is called with the created <see cref="StorageInstance"/>.
+        /// This can be used to subscribe to events.
+        /// </summary>
+        public Action<StorageInstance>? Configurator { get; set; }
     }
 }

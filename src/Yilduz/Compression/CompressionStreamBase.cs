@@ -15,6 +15,10 @@ using Yilduz.Utils;
 
 namespace Yilduz.Compression;
 
+/// <summary>
+/// Base class for compression and decompression streams.
+/// It implements the common logic for handling the TransformStream and delegating to the ICompressionProvider.
+/// </summary>
 public abstract class CompressionStreamBase : ObjectInstance, IGenericTransformStream
 {
     private readonly ICompressionProvider _provider;
@@ -148,7 +152,17 @@ public abstract class CompressionStreamBase : ObjectInstance, IGenericTransformS
         }
     }
 
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream/readable
+    /// <br/>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/DecompressionStream/readable
+    /// </summary>
     public ReadableStreamInstance Readable => _transformStream.Readable;
 
+    /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/CompressionStream/writable
+    /// <br/>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/DecompressionStream/writable
+    /// </summary>
     public WritableStreamInstance Writable => _transformStream.Writable;
 }

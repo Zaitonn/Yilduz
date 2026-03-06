@@ -191,7 +191,7 @@ public sealed class RuntimeTests : TestBase
 
         Assert.True(Evaluate("eventData.target").AsBoolean());
         Assert.True(Evaluate("eventData.currentTarget").AsBoolean());
-        Assert.Equal(EventPhases.AT_TARGET, Evaluate("eventData.eventPhase").AsNumber());
+        Assert.Equal((double)EventPhase.AT_TARGET, Evaluate("eventData.eventPhase").AsNumber());
     }
 
     [Fact]

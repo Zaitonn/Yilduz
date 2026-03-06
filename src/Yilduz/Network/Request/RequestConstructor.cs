@@ -13,11 +13,14 @@ using Yilduz.Utils;
 
 namespace Yilduz.Network.Request;
 
-internal sealed class RequestConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Request/Request
+/// </summary>
+public sealed class RequestConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public RequestConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal RequestConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(Request))
     {
         _webApiIntrinsics = webApiIntrinsics;
@@ -28,6 +31,9 @@ internal sealed class RequestConstructor : Constructor
 
     internal RequestPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         arguments.EnsureCount(Engine, 1, "Failed to construct 'Request'");

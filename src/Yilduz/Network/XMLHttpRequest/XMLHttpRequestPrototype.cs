@@ -13,24 +13,24 @@ internal sealed class XMLHttpRequestPrototype : PrototypeBase<XMLHttpRequestInst
         : base(engine, nameof(XMLHttpRequest), constructor)
     {
         RegisterConstant(
-            nameof(XMLHttpRequestReadyState.Unsent).ToUpperInvariant(),
-            XMLHttpRequestReadyState.Unsent
+            nameof(XMLHttpRequestReadyState.UNSENT).ToUpperInvariant(),
+            XMLHttpRequestReadyState.UNSENT
         );
         RegisterConstant(
-            nameof(XMLHttpRequestReadyState.Opened).ToUpperInvariant(),
-            XMLHttpRequestReadyState.Opened
+            nameof(XMLHttpRequestReadyState.OPENED).ToUpperInvariant(),
+            XMLHttpRequestReadyState.OPENED
         );
         RegisterConstant(
-            nameof(XMLHttpRequestReadyState.Headers_Received).ToUpperInvariant(),
-            XMLHttpRequestReadyState.Headers_Received
+            nameof(XMLHttpRequestReadyState.HEADERS_RECEIVED).ToUpperInvariant(),
+            XMLHttpRequestReadyState.HEADERS_RECEIVED
         );
         RegisterConstant(
-            nameof(XMLHttpRequestReadyState.Loading).ToUpperInvariant(),
-            XMLHttpRequestReadyState.Loading
+            nameof(XMLHttpRequestReadyState.LOADING).ToUpperInvariant(),
+            XMLHttpRequestReadyState.LOADING
         );
         RegisterConstant(
-            nameof(XMLHttpRequestReadyState.Done).ToUpperInvariant(),
-            XMLHttpRequestReadyState.Done
+            nameof(XMLHttpRequestReadyState.DONE).ToUpperInvariant(),
+            XMLHttpRequestReadyState.DONE
         );
 
         RegisterMethod("open", Open, 2);

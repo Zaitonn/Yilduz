@@ -13,6 +13,8 @@ using Yilduz.Utils;
 namespace Yilduz.Encoding.TextDecoderStream;
 
 /// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream
+/// <br/>
 /// https://encoding.spec.whatwg.org/#interface-textdecoderstream
 /// </summary>
 public sealed class TextDecoderStreamInstance : ObjectInstance, IGenericTransformStream
@@ -23,27 +25,33 @@ public sealed class TextDecoderStreamInstance : ObjectInstance, IGenericTransfor
     private readonly ObjectInstance _streamFalseOptions;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream/encoding
+    /// <br/>
     /// https://encoding.spec.whatwg.org/#dom-textdecoderstream-encoding
     /// </summary>
     public string Encoding => _decoder.Encoding;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream/fatal
+    /// <br/>
     /// https://encoding.spec.whatwg.org/#dom-textdecoderstream-fatal
     /// </summary>
     public bool Fatal => _decoder.Fatal;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream/ignoreBOM
+    /// <br/>
     /// https://encoding.spec.whatwg.org/#dom-textdecoderstream-ignorebom
     /// </summary>
     public bool IgnoreBOM => _decoder.IgnoreBOM;
 
     /// <summary>
-    /// The ReadableStream instance controlled by this object
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream/readable
     /// </summary>
     public ReadableStreamInstance Readable => _transformStream.Readable;
 
     /// <summary>
-    /// The WritableStream instance controlled by this object
+    /// https://developer.mozilla.org/en-US/docs/Web/API/TextDecoderStream/writable
     /// </summary>
     public WritableStreamInstance Writable => _transformStream.Writable;
 

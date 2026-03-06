@@ -1,6 +1,6 @@
 namespace Yilduz.Streams.WritableStream;
 
-public enum WritableStreamState
+internal enum WritableStreamState
 {
     Writable,
 

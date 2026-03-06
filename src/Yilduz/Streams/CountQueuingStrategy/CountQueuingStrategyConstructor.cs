@@ -5,15 +5,21 @@ using Yilduz.Extensions;
 
 namespace Yilduz.Streams.CountQueuingStrategy;
 
-internal sealed class CountQueuingStrategyConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/CountQueuingStrategy/CountQueuingStrategy
+/// </summary>
+public sealed class CountQueuingStrategyConstructor : Constructor
 {
-    public CountQueuingStrategyConstructor(Engine engine)
+    internal CountQueuingStrategyConstructor(Engine engine)
         : base(engine, nameof(CountQueuingStrategy))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, true));
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         arguments.EnsureCount(Engine, 1, "Failed to construct 'CountQueuingStrategy'");
@@ -23,5 +29,5 @@ internal sealed class CountQueuingStrategyConstructor : Constructor
         };
     }
 
-    public CountQueuingStrategyPrototype PrototypeObject { get; }
+    private CountQueuingStrategyPrototype PrototypeObject { get; }
 }

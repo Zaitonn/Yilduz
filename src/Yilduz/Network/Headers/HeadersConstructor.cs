@@ -5,28 +5,34 @@ using Jint.Runtime;
 
 namespace Yilduz.Network.Headers;
 
-internal class HeadersConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Headers/Headers
+/// </summary>
+public class HeadersConstructor : Constructor
 {
-    public HeadersConstructor(Engine engine)
+    internal HeadersConstructor(Engine engine)
         : base(engine, nameof(Headers))
     {
         PrototypeObject = new(engine, this);
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public HeadersPrototype PrototypeObject { get; }
+    internal HeadersPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         return CreateInstance(arguments.At(0), Guard.None);
     }
 
-    public HeadersInstance CreateInstance(JsValue init, Guard guard)
+    internal HeadersInstance CreateInstance(JsValue init, Guard guard)
     {
         return new HeadersInstance(Engine, init, guard) { Prototype = PrototypeObject };
     }
 
-    public HeadersInstance CreateInstance(HeaderList list, Guard guard)
+    internal HeadersInstance CreateInstance(HeaderList list, Guard guard)
     {
         return new HeadersInstance(Engine, list, guard) { Prototype = PrototypeObject };
     }

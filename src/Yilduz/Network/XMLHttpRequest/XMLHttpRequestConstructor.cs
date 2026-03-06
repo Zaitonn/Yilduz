@@ -4,11 +4,14 @@ using Jint.Native.Object;
 
 namespace Yilduz.Network.XMLHttpRequest;
 
-internal sealed class XMLHttpRequestConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/XMLHttpRequest
+/// </summary>
+public sealed class XMLHttpRequestConstructor : Constructor
 {
     private readonly WebApiIntrinsics _webApiIntrinsics;
 
-    public XMLHttpRequestConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal XMLHttpRequestConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(XMLHttpRequest))
     {
         _webApiIntrinsics = webApiIntrinsics;
@@ -18,28 +21,31 @@ internal sealed class XMLHttpRequestConstructor : Constructor
         };
 
         SetOwnProperty(
-            nameof(XMLHttpRequestReadyState.Unsent).ToUpperInvariant(),
-            new((int)XMLHttpRequestReadyState.Unsent, false, false, false)
+            nameof(XMLHttpRequestReadyState.UNSENT),
+            new((int)XMLHttpRequestReadyState.UNSENT, false, false, false)
         );
         SetOwnProperty(
-            nameof(XMLHttpRequestReadyState.Opened).ToUpperInvariant(),
-            new((int)XMLHttpRequestReadyState.Opened, false, false, false)
+            nameof(XMLHttpRequestReadyState.OPENED),
+            new((int)XMLHttpRequestReadyState.OPENED, false, false, false)
         );
         SetOwnProperty(
-            nameof(XMLHttpRequestReadyState.Headers_Received).ToUpperInvariant(),
-            new((int)XMLHttpRequestReadyState.Headers_Received, false, false, false)
+            nameof(XMLHttpRequestReadyState.HEADERS_RECEIVED),
+            new((int)XMLHttpRequestReadyState.HEADERS_RECEIVED, false, false, false)
         );
         SetOwnProperty(
-            nameof(XMLHttpRequestReadyState.Loading).ToUpperInvariant(),
-            new((int)XMLHttpRequestReadyState.Loading, false, false, false)
+            nameof(XMLHttpRequestReadyState.LOADING),
+            new((int)XMLHttpRequestReadyState.LOADING, false, false, false)
         );
         SetOwnProperty(
-            nameof(XMLHttpRequestReadyState.Done).ToUpperInvariant(),
-            new((int)XMLHttpRequestReadyState.Done, false, false, false)
+            nameof(XMLHttpRequestReadyState.DONE),
+            new((int)XMLHttpRequestReadyState.DONE, false, false, false)
         );
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
+    /// <summary>
+    /// <inheritdoc />
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         return new XMLHttpRequestInstance(Engine, _webApiIntrinsics)
@@ -48,5 +54,5 @@ internal sealed class XMLHttpRequestConstructor : Constructor
         };
     }
 
-    public XMLHttpRequestPrototype PrototypeObject { get; }
+    private XMLHttpRequestPrototype PrototypeObject { get; }
 }

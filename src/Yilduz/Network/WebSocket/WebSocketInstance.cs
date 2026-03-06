@@ -11,6 +11,8 @@ using SystemEncoding = System.Text.Encoding;
 namespace Yilduz.Network.WebSocket;
 
 /// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket
+/// <br/>
 /// https://websockets.spec.whatwg.org/#the-websocket-interface
 /// </summary>
 public sealed partial class WebSocketInstance : EventTargetInstance
@@ -32,7 +34,7 @@ public sealed partial class WebSocketInstance : EventTargetInstance
             _webApiIntrinsics.Options.CancellationToken
         );
 
-        _client = new();
+        _client = _webApiIntrinsics.Options.Network.WebSocketFactory?.Invoke() ?? new();
 
         _cancellationTokenSource.Token.Register(() =>
         {
@@ -49,26 +51,36 @@ public sealed partial class WebSocketInstance : EventTargetInstance
     }
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/url
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-url
     /// </summary>
     public string Url { get; }
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/readyState
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-readystate
     /// </summary>
-    public WebSocketReadyState ReadyState { get; private set; } = WebSocketReadyState.Connecting;
+    public WebSocketReadyState ReadyState { get; private set; } = WebSocketReadyState.CONNECTING;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/bufferedAmount
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-bufferedamount
     /// </summary>
     public ulong BufferedAmount { get; private set; } = 0;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/extensions
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-extensions
     /// </summary>
     public string? Extensions { get; private set; } = string.Empty;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/protocol
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-protocol
     /// </summary>
     public string Protocol { get; private set; } = string.Empty;
@@ -76,6 +88,8 @@ public sealed partial class WebSocketInstance : EventTargetInstance
     private string _binaryType = "blob";
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/binaryType
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-binarytype
     /// </summary>
     public string BinaryType
@@ -98,32 +112,42 @@ public sealed partial class WebSocketInstance : EventTargetInstance
     }
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/open_event
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#handler-websocket-onopen
     /// </summary>
     public JsValue OnOpen { get; set; } = Null;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/message_event
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#handler-websocket-onmessage
     /// </summary>
     public JsValue OnMessage { get; set; } = Null;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/error_event
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#handler-websocket-onerror
     /// </summary>
     public JsValue OnError { get; set; } = Null;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close_event
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#handler-websocket-onclose
     /// </summary>
     public JsValue OnClose { get; set; } = Null;
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/send
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-send
     /// </summary>
     public void Send(JsValue data)
     {
         // If this’s ready state is CONNECTING, then throw an "InvalidStateError" DOMException.
-        if (ReadyState == WebSocketReadyState.Connecting)
+        if (ReadyState == WebSocketReadyState.CONNECTING)
         {
             DOMExceptionHelper
                 .CreateInvalidStateError(
@@ -133,7 +157,7 @@ public sealed partial class WebSocketInstance : EventTargetInstance
                 .Throw();
         }
 
-        if (ReadyState == WebSocketReadyState.Closing || ReadyState == WebSocketReadyState.Closed)
+        if (ReadyState == WebSocketReadyState.CLOSING || ReadyState == WebSocketReadyState.CLOSED)
         {
             return;
         }
@@ -166,6 +190,8 @@ public sealed partial class WebSocketInstance : EventTargetInstance
     }
 
     /// <summary>
+    /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/close_event
+    /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-close
     /// </summary>
     public void Close(ushort? code = null, string? reason = null)
@@ -198,7 +224,7 @@ public sealed partial class WebSocketInstance : EventTargetInstance
 
         // If this’s ready state is CLOSING (2) or CLOSED (3)
         //  Do nothing.
-        if (ReadyState == WebSocketReadyState.Closing || ReadyState == WebSocketReadyState.Closed)
+        if (ReadyState == WebSocketReadyState.CLOSING || ReadyState == WebSocketReadyState.CLOSED)
         {
             return;
         }
@@ -209,7 +235,7 @@ public sealed partial class WebSocketInstance : EventTargetInstance
             //  Fail the WebSocket connection and set this’s ready state to CLOSING
             case WebSocketState.Connecting:
                 _client.Abort();
-                ReadyState = WebSocketReadyState.Closing;
+                ReadyState = WebSocketReadyState.CLOSING;
                 break;
 
             // If the WebSocket closing handshake has not yet been started
@@ -225,7 +251,7 @@ public sealed partial class WebSocketInstance : EventTargetInstance
             // Otherwise
             //  Set this’s ready state to CLOSING
             default:
-                ReadyState = WebSocketReadyState.Closing;
+                ReadyState = WebSocketReadyState.CLOSING;
                 break;
         }
     }

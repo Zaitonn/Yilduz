@@ -13,6 +13,10 @@ namespace Yilduz.Data.FormData;
 /// </summary>
 public sealed class FormDataInstance : ObjectInstance
 {
+    /// <summary>
+    /// The list of entries in the <see cref="FormDataInstance"/>.
+    /// Each entry is a tuple of the name, value, and an optional file name (if the value is a <see cref="BlobInstance"/>). The value can be either a string or a <see cref="BlobInstance"/>.
+    /// </summary>
     public List<Entry> EntryList { get; } = [];
 
     internal FormDataInstance(Engine engine)

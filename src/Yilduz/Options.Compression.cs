@@ -6,7 +6,7 @@ namespace Yilduz;
 
 public sealed partial class Options
 {
-    public CompressionOptions Compression { get; init; } = new();
+    public CompressionOptions Compression { get; } = new();
 
     public sealed class CompressionOptions
     {
@@ -18,7 +18,7 @@ public sealed partial class Options
         /// Throw <see cref="NotSupportedException"/> for unsupported formats; any other exception will be
         /// surfaced as a JavaScript <c>TypeError</c>.
         /// </summary>
-        public Func<string, ICompressionProvider> CompressorFactory { get; init; } =
+        public Func<string, ICompressionProvider> CompressorFactory { get; set; } =
             DefaultCompressorFactory;
 
         /// <summary>
@@ -29,7 +29,7 @@ public sealed partial class Options
         /// Throw <see cref="NotSupportedException"/> for unsupported formats; any other exception will be
         /// surfaced as a JavaScript <c>TypeError</c>.
         /// </summary>
-        public Func<string, ICompressionProvider> DecompressorFactory { get; init; } =
+        public Func<string, ICompressionProvider> DecompressorFactory { get; set; } =
             DefaultDecompressorFactory;
 
         private static ICompressionProvider DefaultCompressorFactory(string format) =>

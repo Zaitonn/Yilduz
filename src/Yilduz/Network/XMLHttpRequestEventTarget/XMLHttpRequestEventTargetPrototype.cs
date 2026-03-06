@@ -1,5 +1,6 @@
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using Yilduz.Models;
 
 namespace Yilduz.Network.XMLHttpRequestEventTarget;
@@ -13,13 +14,13 @@ internal sealed class XMLHttpRequestEventTargetPrototype
     )
         : base(engine, nameof(XMLHttpRequestEventTarget), constructor)
     {
-        RegisterProperty("onabort", GetOnAbort, SetOnAbort);
-        RegisterProperty("onerror", GetOnError, SetOnError);
-        RegisterProperty("onload", GetOnLoad, SetOnLoad);
-        RegisterProperty("onloadstart", GetOnLoadStart, SetOnLoadStart);
-        RegisterProperty("onprogress", GetOnProgress, SetOnProgress);
-        RegisterProperty("ontimeout", GetOnTimeout, SetOnTimeout);
-        RegisterProperty("onloadend", GetOnLoadEnd, SetOnLoadEnd);
+        RegisterProperty("onabort", GetOnAbort, SetOnAbort, Types.Object);
+        RegisterProperty("onerror", GetOnError, SetOnError, Types.Object);
+        RegisterProperty("onload", GetOnLoad, SetOnLoad, Types.Object);
+        RegisterProperty("onloadstart", GetOnLoadStart, SetOnLoadStart, Types.Object);
+        RegisterProperty("onprogress", GetOnProgress, SetOnProgress, Types.Object);
+        RegisterProperty("ontimeout", GetOnTimeout, SetOnTimeout, Types.Object);
+        RegisterProperty("onloadend", GetOnLoadEnd, SetOnLoadEnd, Types.Object);
     }
 
     private static JsValue GetOnAbort(XMLHttpRequestEventTargetInstance instance)

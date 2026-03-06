@@ -1,5 +1,4 @@
 using System;
-using Jint;
 using Xunit;
 using Yilduz.Storages.Storage;
 
@@ -28,8 +27,8 @@ public sealed class EventTests : TestBase
             CancellationToken = Token,
             Storage = new()
             {
-                LocalStorageConfigurator = storage => _localStorage = storage,
-                SessionStorageConfigurator = storage => _sessionStorage = storage,
+                LocalStorage = { Configurator = storage => _localStorage = storage },
+                SessionStorage = { Configurator = storage => _sessionStorage = storage },
             },
         };
     }

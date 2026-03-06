@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,12 +7,9 @@ using Jint.Native;
 using Jint.Native.Function;
 using Yilduz.Network.Body;
 using Yilduz.Network.Fetch;
-using Yilduz.Network.Headers;
 using Yilduz.Network.Request;
-using Yilduz.Network.Response;
 using Yilduz.Network.XMLHttpRequestEventTarget;
 using Yilduz.Network.XMLHttpRequestUpload;
-using Yilduz.URLs.URL;
 using Yilduz.Utils;
 
 namespace Yilduz.Network.XMLHttpRequest;
@@ -32,7 +28,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/readyState
     /// </summary>
     public XMLHttpRequestReadyState ReadyState { get; private set; } =
-        XMLHttpRequestReadyState.Unsent;
+        XMLHttpRequestReadyState.UNSENT;
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/response
@@ -101,8 +97,8 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
         set
         {
             if (
-                ReadyState != XMLHttpRequestReadyState.Unsent
-                    && ReadyState != XMLHttpRequestReadyState.Opened
+                ReadyState != XMLHttpRequestReadyState.UNSENT
+                    && ReadyState != XMLHttpRequestReadyState.OPENED
                 || _sendFlag
             )
             {
@@ -117,87 +113,6 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/upload
     /// </summary>
     public XMLHttpRequestUploadInstance Upload { get; }
-
-    private FetchController _fetchController;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#send-flag
-    /// </summary>
-    private bool _sendFlag;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#upload-listener-flag
-    /// </summary>
-    private bool _uploadListenerFlag;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#timed-out-flag
-    /// </summary>
-    private bool _timedOutFlag;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#upload-complete-flag
-    /// </summary>
-    private bool _uploadCompleteFlag;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#synchronous-flag
-    /// </summary>
-    private bool _synchronousFlag;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#request-method
-    /// </summary>
-    private string? _requestMethod;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#request-url
-    /// </summary>
-    private URLInstance? _requestUrl;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#response-object
-    /// </summary>
-    private JsValue _responseObject = Null;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#override-mime-type
-    /// </summary>
-    private string? _overrideMimeType;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#timeout
-    /// </summary>
-    private long _timeout;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#cross-origin-credentials
-    /// </summary>
-    private bool _crossOriginCredentials;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#received-bytes
-    /// </summary>
-    private readonly List<byte> _receivedBytes = [];
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#author-request-headers
-    /// </summary>
-    private readonly HeaderList _authorRequestHeaders = [];
-
-    private readonly HeaderList _responseHeaders = [];
-    private CancellationTokenSource? _activeRequestCts;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#request-body
-    /// </summary>
-    private BodyConcept? _requestBody;
-
-    /// <summary>
-    /// https://xhr.spec.whatwg.org/#response
-    /// The response concept received from the fetch, used by handle-errors.
-    /// </summary>
-    private ResponseConcept? _xhrResponse;
 
     internal XMLHttpRequestInstance(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, webApiIntrinsics)
@@ -319,7 +234,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
         // If this’s state is not opened, then
         // Set this’s state to opened.
         // Fire an event named readystatechange at this.
-        TransitionReadyState(XMLHttpRequestReadyState.Opened);
+        TransitionReadyState(XMLHttpRequestReadyState.OPENED);
     }
 
     /// <summary>
@@ -330,7 +245,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     public void SetRequestHeader(string name, string value)
     {
         // If this’s state is not opened, then throw an "InvalidStateError" DOMException.
-        if (ReadyState != XMLHttpRequestReadyState.Opened)
+        if (ReadyState != XMLHttpRequestReadyState.OPENED)
         {
             DOMExceptionHelper.CreateInvalidStateError(Engine, "Request not opened").Throw();
         }
@@ -379,8 +294,8 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     public void OverrideMimeType(string mimeType)
     {
         if (
-            ReadyState == XMLHttpRequestReadyState.Loading
-            || ReadyState == XMLHttpRequestReadyState.Done
+            ReadyState == XMLHttpRequestReadyState.LOADING
+            || ReadyState == XMLHttpRequestReadyState.DONE
             || _sendFlag
         )
         {
@@ -409,8 +324,8 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
         }
 
         if (
-            ReadyState == XMLHttpRequestReadyState.Unsent
-            || ReadyState == XMLHttpRequestReadyState.Opened
+            ReadyState == XMLHttpRequestReadyState.UNSENT
+            || ReadyState == XMLHttpRequestReadyState.OPENED
         )
         {
             return null;
@@ -431,8 +346,8 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     public string GetAllResponseHeaders()
     {
         if (
-            ReadyState == XMLHttpRequestReadyState.Unsent
-            || ReadyState == XMLHttpRequestReadyState.Opened
+            ReadyState == XMLHttpRequestReadyState.UNSENT
+            || ReadyState == XMLHttpRequestReadyState.OPENED
         )
         {
             return string.Empty;
@@ -464,7 +379,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     {
         // If this’s state is not opened, then throw an "InvalidStateError" DOMException.
         if (
-            ReadyState != XMLHttpRequestReadyState.Opened
+            ReadyState != XMLHttpRequestReadyState.OPENED
             || _requestMethod is null
             || _requestUrl is null
         )
@@ -639,7 +554,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
             }
 
             // Step 12.6. If state is not opened or send() flag is unset, return.
-            if (ReadyState != XMLHttpRequestReadyState.Opened || !_sendFlag)
+            if (ReadyState != XMLHttpRequestReadyState.OPENED || !_sendFlag)
             {
                 return;
             }
@@ -756,18 +671,18 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
         // If this’s state is opened with this’s send() flag set, headers received, or loading,
         // then run the request error steps for this and abort.
         if (
-            ReadyState == XMLHttpRequestReadyState.Opened && _sendFlag
-            || ReadyState == XMLHttpRequestReadyState.Headers_Received
-            || ReadyState == XMLHttpRequestReadyState.Loading
+            ReadyState == XMLHttpRequestReadyState.OPENED && _sendFlag
+            || ReadyState == XMLHttpRequestReadyState.HEADERS_RECEIVED
+            || ReadyState == XMLHttpRequestReadyState.LOADING
         )
         {
             RequestErrorSteps("abort", null);
         }
 
         // If this’s state is done, then set this’s state to unsent and this’s response to a network error.
-        if (ReadyState == XMLHttpRequestReadyState.Done)
+        if (ReadyState == XMLHttpRequestReadyState.DONE)
         {
-            ReadyState = XMLHttpRequestReadyState.Unsent;
+            ReadyState = XMLHttpRequestReadyState.UNSENT;
             ResetResponse();
         }
     }

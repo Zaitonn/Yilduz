@@ -1,10 +1,9 @@
 namespace Yilduz.Streams.ReadableStream;
 
 /// <summary>
-/// Represents the state of a ReadableStream
 /// https://streams.spec.whatwg.org/#rs-internal-slots
 /// </summary>
-public enum ReadableStreamState
+internal enum ReadableStreamState
 {
     /// <summary>
     /// The stream is readable - data can be read from it

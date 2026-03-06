@@ -4,9 +4,12 @@ using Jint.Native.Object;
 
 namespace Yilduz.Data.FileReader;
 
-internal sealed class FileReaderConstructor : Constructor
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/FileReader/FileReader
+/// </summary>
+public sealed class FileReaderConstructor : Constructor
 {
-    public FileReaderConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal FileReaderConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(FileReader))
     {
         PrototypeObject = new(engine, this)
@@ -29,8 +32,11 @@ internal sealed class FileReaderConstructor : Constructor
         );
     }
 
-    public FileReaderPrototype PrototypeObject { get; }
+    private FileReaderPrototype PrototypeObject { get; }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
         return new FileReaderInstance(Engine) { Prototype = PrototypeObject };

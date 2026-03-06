@@ -2,105 +2,108 @@ using Jint.Native;
 
 namespace Yilduz.Console;
 
+/// <summary>
+/// Represents the console object.
+/// </summary>
 public interface IConsole
 {
     /// <summary>
-    /// Writes an error message if the specified condition is false.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/assert_static
     /// </summary>
     void Assert(bool condition, params JsValue[] data);
 
     /// <summary>
-    /// Clears the console.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/clear_static
     /// </summary>
     void Clear();
 
     /// <summary>
-    /// Logs the number of times this count has been called with the given label.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/count_static
     /// </summary>
     void Count(string label);
 
     /// <summary>
-    /// Resets the count for the given label.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/countReset_static
     /// </summary>
     void CountReset(string label);
 
     /// <summary>
-    /// Outputs a debug message.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/debug_static
     /// </summary>
     void Debug(params JsValue[] data);
 
     /// <summary>
-    /// Displays an interactive list of the properties of the specified object.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/dir_static
     /// </summary>
     void Dir(JsValue item, JsValue options);
 
     /// <summary>
-    /// Displays an XML/HTML element representation.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/dirxml_static
     /// </summary>
     void Dirxml(params JsValue[] data);
 
     /// <summary>
-    /// Outputs an error message.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/error_static
     /// </summary>
     void Error(params JsValue[] data);
 
     /// <summary>
-    /// Creates a new inline group.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/group_static
     /// </summary>
     void Group(params JsValue[] data);
 
     /// <summary>
-    /// Creates a new inline group that is initially collapsed.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/groupCollapsed_static
     /// </summary>
     void GroupCollapsed(params JsValue[] data);
 
     /// <summary>
-    /// Ends the current inline group.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/groupEnd_static
     /// </summary>
     void GroupEnd();
 
     /// <summary>
-    /// Outputs an informational message.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/info_static
     /// </summary>
     void Info(params JsValue[] data);
 
     /// <summary>
-    /// Outputs a message to the console.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/log_static
     /// </summary>
     void Log(params JsValue[] data);
 
     /// <summary>
-    /// Displays tabular data as a table.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/table_static
     /// </summary>
     void Table(JsValue tabularData, string[]? properties = null);
 
     /// <summary>
-    /// Starts a timer with a label.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/time_static
     /// </summary>
     void Time(string label);
 
     /// <summary>
-    /// Stops a timer with a label.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/timeEnd_static
     /// </summary>
     void TimeEnd(string label);
 
     /// <summary>
-    /// Logs the current value of a timer.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/timeLog_static
     /// </summary>
     void TimeLog(string label, params JsValue[] data);
 
     /// <summary>
-    /// Adds a timestamp with an optional label.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/timeStamp_static
     /// </summary>
     void TimeStamp(string label);
 
     /// <summary>
-    /// Outputs a stack trace.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/trace_static
     /// </summary>
     void Trace(params JsValue[] data);
 
     /// <summary>
-    /// Outputs a warning message.
+    /// https://developer.mozilla.org/en-US/docs/Web/API/console/warn_static
     /// </summary>
     void Warn(params JsValue[] data);
 }

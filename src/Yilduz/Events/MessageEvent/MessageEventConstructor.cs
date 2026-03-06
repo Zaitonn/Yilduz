@@ -2,17 +2,19 @@ using Jint;
 using Jint.Native;
 using Jint.Native.Object;
 using Jint.Runtime;
+using Yilduz.Events.Event;
 using Yilduz.Extensions;
 
 namespace Yilduz.Events.MessageEvent;
 
 /// <summary>
-/// Constructor for <see cref="MessageEventInstance"/>.
+/// https://developer.mozilla.org/en-US/docs/Web/API/MessageEvent/MessageEvent
+/// <br/>
 /// https://html.spec.whatwg.org/multipage/comms.html#the-messageevent-interface
 /// </summary>
-internal sealed class MessageEventConstructor : Constructor
+public sealed class MessageEventConstructor : EventConstructor
 {
-    public MessageEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
+    internal MessageEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(MessageEvent))
     {
         PrototypeObject = new MessageEventPrototype(engine, this)
@@ -22,14 +24,14 @@ internal sealed class MessageEventConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    public MessageEventPrototype PrototypeObject { get; }
+    private new MessageEventPrototype PrototypeObject { get; }
 
     /// <summary>
-    /// https://html.spec.whatwg.org/multipage/comms.html#dom-messageevent
+    /// <inheritdoc/>
     /// </summary>
     public override ObjectInstance Construct(JsValue[] arguments, JsValue newTarget)
     {
-        arguments.EnsureCount(Engine, 1, "Failed to construct 'MessageEvent'");
+        arguments.EnsureCountForConstructor(Engine, 1, nameof(MessageEvent));
 
         var type = arguments.At(0).ToString();
         var init = arguments.At(1);
@@ -55,10 +57,7 @@ internal sealed class MessageEventConstructor : Constructor
         return CreateInstance(type, data, origin);
     }
 
-    /// <summary>
-    /// Creates a <see cref="MessageEventInstance"/> with typed parameters.
-    /// </summary>
-    public MessageEventInstance CreateInstance(string type, JsValue data, string origin)
+    internal MessageEventInstance CreateInstance(string type, JsValue data, string origin)
     {
         return new(Engine, type, data, origin) { Prototype = PrototypeObject };
     }

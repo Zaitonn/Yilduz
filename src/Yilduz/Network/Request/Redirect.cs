@@ -1,5 +1,8 @@
 namespace Yilduz.Network.Request;
 
+/// <summary>
+/// https://developer.mozilla.org/en-US/docs/Web/API/Request/redirect
+/// </summary>
 public static class Redirect
 {
     public static readonly string Follow = "follow";

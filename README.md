@@ -124,7 +124,7 @@ If you need to use additional character encodings beyond the common ones, you'll
 ```cs
 using System.Text;
 
-var engine = new Engine().InitializeWebApi(new() { CancellationToken = CancellationToken.None });
+var engine = new Engine().InitializeWebApi(new() { CancellationToken = token });
 // engine.Evaluate("new TextDecoder('gb_2312').encoding"); // throws an error
 
 // Register additional encoding providers

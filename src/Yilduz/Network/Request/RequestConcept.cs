@@ -19,10 +19,7 @@ internal sealed class RequestConcept
     /// <br/>
     /// Implementations are encouraged to make this a pointer to the first URL in request’s URL list. It is provided as a distinct field solely for the convenience of other standards hooking into Fetch.
     /// </summary>
-    public URLInstance Url
-    {
-        get => URLList.First();
-    }
+    public URLInstance Url => URLList.First();
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#local-urls-only-flag

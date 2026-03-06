@@ -1,5 +1,6 @@
 using Jint;
 using Jint.Native;
+using Jint.Runtime;
 using Yilduz.Models;
 
 namespace Yilduz.Aborting.AbortSignal;
@@ -13,7 +14,7 @@ internal sealed class AbortSignalPrototype : PrototypeBase<AbortSignalInstance>
 
         RegisterProperty("aborted", signal => signal.Aborted);
         RegisterProperty("reason", signal => signal.Reason);
-        RegisterProperty("onabort", GetOnabort, SetOnabort);
+        RegisterProperty("onabort", GetOnabort, SetOnabort, Types.Object);
     }
 
     private static JsValue ThrowIfAborted(AbortSignalInstance thisObject, JsValue[] arguments)

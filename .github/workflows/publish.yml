@@ -33,3 +33,8 @@ jobs:
         run: |
           dotnet nuget push src\Yilduz\bin\Release\*.symbols.nupkg --skip-duplicate --source "github" --api-key ${{ secrets.GH_TOKEN }}
           dotnet nuget push src\Yilduz\bin\Release\*.symbols.nupkg --skip-duplicate --source "nuget.org" --api-key ${{ secrets.NUGETAPIKEY }}
+
+      - name: Upload package as artifact
+        uses: actions/upload-artifact@v6
+        with:
+          path: src/Yilduz/bin/Release/*.symbols.nupkg
