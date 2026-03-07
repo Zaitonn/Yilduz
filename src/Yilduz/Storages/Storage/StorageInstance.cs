@@ -29,7 +29,7 @@ public sealed class StorageInstance : ObjectInstance
 
     private void OnUpdated(string? key, string? newValue, string? oldValue)
     {
-        Updated?.Invoke(this, new StorageEventArgs(key, newValue, oldValue, this));
+        Updated?.Invoke(this, new(key, newValue, oldValue, this));
     }
 
     /// <summary>
@@ -128,9 +128,12 @@ public sealed class StorageInstance : ObjectInstance
         if (property.IsString())
         {
             var key = property.ToString();
-            if (_map.ContainsKey(key))
+            lock (_map)
             {
-                return true;
+                if (_map.ContainsKey(key))
+                {
+                    return true;
+                }
             }
         }
         return base.HasProperty(property);
@@ -143,9 +146,12 @@ public sealed class StorageInstance : ObjectInstance
     {
         if (IsStorageKey(property, out var key))
         {
-            return _map.TryGetValue(key, out var value)
-                ? new PropertyDescriptor(value, true, false, true)
-                : new PropertyDescriptor(Null, false, false, true);
+            lock (_map)
+            {
+                return _map.TryGetValue(key, out var value)
+                    ? new(value, true, false, true)
+                    : new(Null, false, false, true);
+            }
         }
 
         return base.GetOwnProperty(property);

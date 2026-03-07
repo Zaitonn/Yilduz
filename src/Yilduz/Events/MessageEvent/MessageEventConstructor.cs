@@ -17,10 +17,7 @@ public sealed class MessageEventConstructor : EventConstructor
     internal MessageEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(MessageEvent))
     {
-        PrototypeObject = new MessageEventPrototype(engine, this)
-        {
-            Prototype = webApiIntrinsics.Event.PrototypeObject,
-        };
+        PrototypeObject = new(engine, this) { Prototype = webApiIntrinsics.Event.PrototypeObject };
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 

@@ -111,7 +111,7 @@ internal static class CompressionTestHelper
         var str = "";
         for (var i = 0; i < compressedHex.Length; i += 2)
         {
-            str += string.Concat("0x", compressedHex.AsSpan(i, 2), ",");
+            str += string.Concat("0x", compressedHex.Substring(i, 2), ",");
         }
 
         engine.Execute(

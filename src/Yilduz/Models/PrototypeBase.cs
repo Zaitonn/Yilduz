@@ -39,8 +39,9 @@ public abstract class PrototypeBase<T> : ObjectInstance
             name,
             new(new ClrFunction(Engine, name, WrapMethod(method)), false, false, true)
         );
+        return;
 
-        Func<JsValue, JsValue[], JsValue> WrapMethod(Func<T, JsValue[], JsValue> method)
+        Func<JsValue, JsValue[], JsValue> WrapMethod(Func<T, JsValue[], JsValue> methodImpl)
         {
             return (thisObject, arguments) =>
             {
@@ -55,7 +56,7 @@ public abstract class PrototypeBase<T> : ObjectInstance
                     );
                 }
 
-                return method(t, arguments);
+                return methodImpl(t, arguments);
             };
         }
     }
@@ -80,13 +81,14 @@ public abstract class PrototypeBase<T> : ObjectInstance
                 true
             )
         );
+        return;
 
-        Func<JsValue, JsValue[], JsValue> WrapGetter(Func<T, JsValue> getter)
+        Func<JsValue, JsValue[], JsValue> WrapGetter(Func<T, JsValue> getterImpl)
         {
-            return (thisObject, arguments) => getter(thisObject.EnsureThisObject<T>());
+            return (thisObject, _) => getterImpl(thisObject.EnsureThisObject<T>());
         }
 
-        Func<JsValue, JsValue[], JsValue> WrapSetter(Func<T, JsValue, JsValue> setter)
+        Func<JsValue, JsValue[], JsValue> WrapSetter(Func<T, JsValue, JsValue> setterImpl)
         {
             return (thisObject, arguments) =>
             {
@@ -97,7 +99,7 @@ public abstract class PrototypeBase<T> : ObjectInstance
                     return Null;
                 }
 
-                return setter(thisObject.EnsureThisObject<T>(), arguments.At(0));
+                return setterImpl(thisObject.EnsureThisObject<T>(), arguments.At(0));
             };
         }
     }

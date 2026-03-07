@@ -42,7 +42,7 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
         // Step 4. If requestObject's signal is aborted, then:
         if (requestObject.Signal.Aborted)
         {
-            AbortFetchCall(promise, request, responseObject: null, requestObject.Signal.Reason);
+            AbortFetchCall(promise, responseObject: null, error: requestObject.Signal.Reason);
             return promise.Promise;
         }
 
@@ -56,7 +56,7 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
         FetchController controller = default;
 
         // CancellationTokenSource wired to the AbortSignal so that the HttpClient
-        // request is cancelled when the JS signal fires.
+        // request is canceled when the JS signal fires.
         var cts = CancellationTokenSource.CreateLinkedTokenSource(
             webApiIntrinsics.Options.CancellationToken
         );
@@ -76,7 +76,7 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
             cts.Cancel();
 
             // Step 12.4. Abort the fetch() call.
-            AbortFetchCall(promise, request, responseObject, requestObject.Signal.Reason);
+            AbortFetchCall(promise, responseObject, requestObject.Signal.Reason);
         };
 
         // Step 13. Set controller to the result of calling fetch given request and
@@ -101,7 +101,7 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
                     var deserializedError = controller.DeserializeAbortReason(
                         controller.SerializedAbortReason ?? JsValue.Null
                     );
-                    AbortFetchCall(promise, request, responseObject, deserializedError);
+                    AbortFetchCall(promise, responseObject, deserializedError);
                     return;
                 }
 
@@ -134,7 +134,6 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
     /// </summary>
     private static void AbortFetchCall(
         ManualPromise promise,
-        RequestConcept request,
         ResponseInstance? responseObject,
         JsValue error
     )
@@ -159,7 +158,7 @@ internal sealed class FetchProvider(Engine engine, WebApiIntrinsics webApiIntrin
         // Step 4. Let response be responseObject's response.
         // Step 5. If response's body is non-null and is readable, then error it.
         var responseBody = responseObject.ResponseConcept.Body?.Stream;
-        if (responseBody is not null && !responseBody.Disturbed && !responseBody.Locked)
+        if (responseBody is { Disturbed: false, Locked: false })
         {
             try
             {

@@ -11,10 +11,7 @@ namespace Yilduz.Events.Event;
 /// </summary>
 public class EventConstructor : Constructor
 {
-    internal EventConstructor(Engine engine)
-        : this(engine, nameof(Event)) { }
-
-    internal EventConstructor(Engine engine, string name)
+    internal EventConstructor(Engine engine, string name = nameof(Event))
         : base(engine, name)
     {
         PrototypeObject = new(engine, this);

@@ -14,7 +14,7 @@ namespace Yilduz.Network.Headers;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/Headers
 /// </summary>
-public sealed partial class HeadersInstance : ObjectInstance
+public sealed class HeadersInstance : ObjectInstance
 {
     private readonly HeaderList _headers;
     internal Guard Guard { get; set; }
@@ -344,7 +344,7 @@ public sealed partial class HeadersInstance : ObjectInstance
     private void RemovePrivilegedNoCORSRequestHeaders()
     {
         // For each headerName of privileged no-CORS request-header names:
-        // Delete headerName from headers’s header list.
+        // Delete headerName from headers’ header list.
         _headers.RemoveAll(header => HttpHelper.IsPrivilegedNoCORSRequestHeaderName(header.Name));
     }
 }

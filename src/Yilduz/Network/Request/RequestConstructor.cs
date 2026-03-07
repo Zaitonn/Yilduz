@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using Jint;
 using Jint.Native;
@@ -67,10 +66,8 @@ public sealed class RequestConstructor : Constructor
     /// </summary>
     internal RequestInstance Create(JsValue input, JsValue init)
     {
-        var headerList = new List<(string Name, string Value)>();
-
         // Let request be null.
-        RequestConcept? request = null;
+        RequestConcept? request;
 
         // Let fallbackMode be null.
         string? fallbackMode = null;
@@ -234,7 +231,7 @@ public sealed class RequestConstructor : Constructor
                     //  parsedReferrer’s origin is not same origin with origin
                     // then set request’s referrer to "client".
                     if (
-                        (parsedReferrer.Protocol == "about:" && parsedReferrer.Pathname == "client")
+                        parsedReferrer is { Protocol: "about:", Pathname: "client" }
                         || (origin is not null && parsedReferrer.Origin != origin)
                     )
                     {
@@ -403,7 +400,7 @@ public sealed class RequestConstructor : Constructor
 
         // Set this’s request to request.
         // Let signals be « signal » if signal is non-null; otherwise « ».
-        var signals = signal is not null ? new[] { signal } : [];
+        // var signals = signal is not null ? new[] { signal } : [];
 
         // Set this’s signal to the result of creating a dependent abort signal from signals, using AbortSignal and this’s relevant realm.
         // Set this’s headers to a new Headers object with this’s relevant realm, whose header list is request’s header list and guard is "request".

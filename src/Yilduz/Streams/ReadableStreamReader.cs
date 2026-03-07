@@ -93,7 +93,7 @@ public abstract class ReadableStreamReader : ObjectInstance
         PromiseIsHandled = true;
 
         // Perform ! stream.[[controller]].[[ReleaseSteps]]().
-        Stream.Controller?.ReleaseSteps();
+        Stream.Controller.ReleaseSteps();
 
         // Set stream.[[reader]] to undefined.
         Stream.Reader = null;

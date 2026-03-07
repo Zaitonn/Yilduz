@@ -44,10 +44,17 @@ public sealed class MultipartTests : HttpRouteTestBase
         Assert.NotNull(body);
         Assert.Contains("multipart/form-data", contentType);
 
+#if NETCOREAPP
         var boundaryParts = contentType!.Split(
             "boundary=",
             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
         );
+#else
+        var boundaryParts = contentType!.Split(
+            new[] { "boundary=" },
+            StringSplitOptions.RemoveEmptyEntries
+        );
+#endif
         Assert.Equal(2, boundaryParts.Length);
         var boundary = boundaryParts[1];
         Assert.Contains($"--{boundary}\r\n", body);
@@ -94,10 +101,18 @@ public sealed class MultipartTests : HttpRouteTestBase
         Assert.NotNull(body);
         Assert.Contains("multipart/form-data", contentType);
 
+#if NETCOREAPP
         var boundaryParts = contentType!.Split(
             "boundary=",
             StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
         );
+#else
+        var boundaryParts = contentType!.Split(
+            new[] { "boundary=" },
+            StringSplitOptions.RemoveEmptyEntries
+        );
+#endif
+
         Assert.Equal(2, boundaryParts.Length);
         var boundary = boundaryParts[1];
         Assert.Contains($"--{boundary}\r\n", body);

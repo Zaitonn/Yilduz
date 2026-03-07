@@ -33,7 +33,7 @@ public sealed class RequestInstance : BodyInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Request/url
     /// </summary>
-    public string Url => RequestConcept.Url?.ToString() ?? string.Empty;
+    public string Url => RequestConcept.Url.ToString();
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Request/headers
@@ -147,7 +147,7 @@ public sealed class RequestInstance : BodyInstance
         // Let clonedSignal be the result of creating a dependent abort signal from « this’s signal », using AbortSignal and this’s relevant realm.
         var clonedSignal = _webApiIntrinsics.AbortSignal.CreateDependentSignal(Signal);
 
-        // Let clonedRequestObject be the result of creating a Request object, given clonedRequest, this’s headers’s guard, clonedSignal and this’s relevant realm.
+        // Let clonedRequestObject be the result of creating a Request object, given clonedRequest, this’s headers’ guard, clonedSignal and this’s relevant realm.
         var clonedRequestObject = new RequestInstance(Engine, _webApiIntrinsics, clonedConcept)
         {
             Prototype = _webApiIntrinsics.Request.PrototypeObject,

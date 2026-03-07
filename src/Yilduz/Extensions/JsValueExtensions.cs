@@ -109,7 +109,7 @@ internal static class JsValueExtensions
             if (element.IsNumber())
             {
                 var value = element.AsNumber();
-                if (value is >= 0 && value <= 255)
+                if (value is >= 0 and <= 255)
                 {
                     bytes.Add((byte)((int)value & 0xFF));
                     continue;
@@ -173,7 +173,7 @@ internal static class JsValueExtensions
 
         foreach (var prop in properties)
         {
-            if (prop.Value.Enumerable == true)
+            if (prop.Value.Enumerable)
             {
                 var propValue = obj.Get(prop.Key);
                 clonedObj.Set(prop.Key, propValue.StructuredClone());

@@ -9,7 +9,7 @@ using Yilduz.Network.Response;
 
 namespace Yilduz.Network;
 
-internal static partial class MIMETypeHelper
+internal static class MIMETypeHelper
 {
     /// <summary>
     /// https://fetch.spec.whatwg.org/#concept-body-mime-type
@@ -44,7 +44,7 @@ internal static partial class MIMETypeHelper
         var values =
             HttpHelper.GetDecodeAndSplit(headers.Get("Content-Type"))
             ?? throw new InvalidOperationException("Content-Type header is not set");
-        var charset = (string?)null;
+        string? charset = null;
         var essence = string.Empty;
         MIMEType? mimeType = null;
 
@@ -75,10 +75,7 @@ internal static partial class MIMETypeHelper
                     mimeType.Parameters["charset"] = charset;
                 }
             }
-            catch
-            {
-                continue;
-            }
+            catch { }
         }
 
         if (mimeType == null)
@@ -178,7 +175,7 @@ internal static partial class MIMETypeHelper
             }
 
             // 11.7. Let parameterValue be null.
-            string? parameterValue = null;
+            string? parameterValue;
 
             // 11.8. If the code point at position within input is U+0022 ("), then:
             if (input[position] == '"')
@@ -208,13 +205,19 @@ internal static partial class MIMETypeHelper
             if (
                 !string.IsNullOrEmpty(parameterName)
                 && parameterName.All(c => char.IsLetterOrDigit(c) || TokenCodePoints.Contains(c))
-                && parameterValue != null
                 && parameterValue.All(IsHTTPQuotedStringTokenCodePoint)
+#if NETCOREAPP
+            )
+            {
+                mimeType.Parameters.TryAdd(parameterName, parameterValue);
+            }
+#else
                 && !mimeType.Parameters.ContainsKey(parameterName)
             )
             {
                 mimeType.Parameters[parameterName] = parameterValue;
             }
+#endif
         }
 
         // 13. Return mimeType.
@@ -224,7 +227,7 @@ internal static partial class MIMETypeHelper
     private static bool IsHTTPWhitespace(char c)
     {
         // Helper: HTTP whitespace is HTAB, SP, CR, or LF.
-        return c == '\t' || c == '\n' || c == '\r' || c == ' ';
+        return c is '\t' or '\n' or '\r' or ' ';
     }
 
     private static bool IsHTTPQuotedStringTokenCodePoint(char c)
@@ -310,7 +313,7 @@ internal static partial class MIMETypeHelper
             if (string.IsNullOrEmpty(value) || value.Any(c => !TokenCodePoints.Contains(c)))
             {
                 // Precede each occurrence of U+0022 (") or U+005C (\) in value with U+005C (\).
-                var v = value.Replace("\\", "\\\\").Replace("\"", "\\\"");
+                var v = value.Replace("\\", @"\\").Replace("\"", "\\\"");
 
                 // Prepend U+0022 (") to value
                 // Append U+0022 (") to value

@@ -93,26 +93,22 @@ public sealed partial class WritableStreamDefaultControllerInstance
         }
 
         // If stream.[[inFlightWriteRequest]] is not undefined, return.
-        if (Stream?.InFlightWriteRequest != null)
+        if (Stream.InFlightWriteRequest != null)
         {
             return;
         }
 
-        // Let state be stream.[[state]].
-        // Assert: state is not "closed" or "errored".
-        if (
-            Stream?.State == WritableStreamState.Closed
-            || Stream?.State == WritableStreamState.Errored
-        )
+        switch (Stream.State)
         {
-            throw new InvalidOperationException("Stream state should not be closed or errored");
-        }
-
-        // If state is "erroring",
-        if (Stream?.State == WritableStreamState.Erroring)
-        {
-            Stream.FinishErroring();
-            return;
+            // Let state be stream.[[state]].
+            // Assert: state is not "closed" or "errored".
+            case WritableStreamState.Closed or WritableStreamState.Errored:
+                throw new InvalidOperationException("Stream state should not be closed or errored");
+            
+            // If state is "erroring",
+            case WritableStreamState.Erroring:
+                Stream.FinishErroring();
+                return;
         }
 
         // If controller.[[queue]] is empty, return.

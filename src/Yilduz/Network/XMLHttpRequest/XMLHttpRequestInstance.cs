@@ -58,7 +58,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/status
     /// </summary>
-    public ushort Status { get; private set; } = 0;
+    public ushort Status { get; private set; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/statusText
@@ -304,7 +304,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
                 .Throw();
         }
 
-        mimeType = mimeType?.Trim() ?? string.Empty;
+        mimeType = mimeType.Trim();
         if (mimeType.Length == 0)
         {
             DOMExceptionHelper.CreateSyntaxError(Engine, "Invalid MIME type").Throw();
@@ -408,7 +408,7 @@ public sealed partial class XMLHttpRequestInstance : XMLHttpRequestEventTargetIn
         if (body is not null && !body.IsNull() && !body.IsUndefined())
         {
             // Let extractedContentType be null.
-            string? extractedContentType = null;
+            string? extractedContentType;
 
             // If body is a Document, then set this’s request body to body, serialized, converted, and UTF-8 encoded.
             // TODO

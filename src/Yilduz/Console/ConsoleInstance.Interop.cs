@@ -36,8 +36,7 @@ public sealed partial class ConsoleInstance
 
     private JsValue Debug(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Debug(data);
+        Debug(arguments);
         return Undefined;
     }
 
@@ -51,29 +50,25 @@ public sealed partial class ConsoleInstance
 
     private JsValue Dirxml(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Dirxml(data);
+        Dirxml(arguments);
         return Undefined;
     }
 
     private JsValue Error(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Error(data);
+        Error(arguments);
         return Undefined;
     }
 
     private JsValue Group(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Group(data);
+        Group(arguments);
         return Undefined;
     }
 
     private JsValue GroupCollapsed(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        GroupCollapsed(data);
+        GroupCollapsed(arguments);
         return Undefined;
     }
 
@@ -85,15 +80,13 @@ public sealed partial class ConsoleInstance
 
     private JsValue Info(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Info(data);
+        Info(arguments);
         return Undefined;
     }
 
     private JsValue Log(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Log(data);
+        Log(arguments);
         return Undefined;
     }
 
@@ -138,15 +131,13 @@ public sealed partial class ConsoleInstance
 
     private JsValue Trace(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Trace(data);
+        Trace(arguments);
         return Undefined;
     }
 
     private JsValue Warn(JsValue thisObject, JsValue[] arguments)
     {
-        var data = arguments;
-        Warn(data);
+        Warn(arguments);
         return Undefined;
     }
 }

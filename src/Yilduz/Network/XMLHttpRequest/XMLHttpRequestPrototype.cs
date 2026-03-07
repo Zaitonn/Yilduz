@@ -125,7 +125,7 @@ internal sealed class XMLHttpRequestPrototype : PrototypeBase<XMLHttpRequestInst
 
     private JsValue GetResponseText(XMLHttpRequestInstance instance)
     {
-        var responseType = instance.ResponseType ?? string.Empty;
+        var responseType = instance.ResponseType;
         if (responseType is not ("" or "text"))
         {
             DOMExceptionHelper

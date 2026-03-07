@@ -7,9 +7,13 @@ public sealed class ConstructorTests : TestBase
 {
     [Theory]
     [InlineData("CompressionStream", "gzip")]
-    [InlineData("CompressionStream", "deflate")]
     [InlineData("DecompressionStream", "gzip")]
+    [InlineData("CompressionStream", "deflate-raw")]
+    [InlineData("DecompressionStream", "deflate-raw")]
+#if NET6_0_OR_GREATER
+    [InlineData("CompressionStream", "deflate")]
     [InlineData("DecompressionStream", "deflate")]
+#endif
     public void ShouldConstructWithSupportedFormats(string ctor, string format)
     {
         Execute($"const stream = new {ctor}('{format}');");

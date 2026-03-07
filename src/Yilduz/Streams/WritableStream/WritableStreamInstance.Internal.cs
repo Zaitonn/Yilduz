@@ -293,10 +293,6 @@ public sealed partial class WritableStreamInstance
         // Assert: stream.[[state]] is "writable".
         // Let controller be stream.[[controller]].
         // Assert: controller is not undefined.
-        if (Controller is null)
-        {
-            return;
-        }
 
         // Set stream.[[state]] to "erroring".
         State = WritableStreamState.Erroring;
@@ -327,7 +323,7 @@ public sealed partial class WritableStreamInstance
         State = WritableStreamState.Errored;
 
         // Perform ! stream.[[controller]].[[ErrorSteps]]().
-        Controller?.ErrorSteps();
+        Controller.ErrorSteps();
 
         // Let storedError be stream.[[storedError]].
         var storedError = StoredError;

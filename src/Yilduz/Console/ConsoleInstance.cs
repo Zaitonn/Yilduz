@@ -1,7 +1,6 @@
 using System;
 using Jint;
 using Jint.Native.Object;
-using Jint.Runtime.Interop;
 using Yilduz.Extensions;
 
 namespace Yilduz.Console;

@@ -15,7 +15,6 @@ namespace Yilduz.Data.FileReader;
 public sealed class FileReaderInstance : EventTargetInstance
 {
     private bool _isReading;
-    private ulong? _currentTotal;
     private readonly FileReaderSyncInstance _fileReaderSyncInstance;
 
     /// <summary>
@@ -78,7 +77,7 @@ public sealed class FileReaderInstance : EventTargetInstance
             );
         }
 
-        if (blob is not BlobInstance blobInstance)
+        if (blob is not BlobInstance)
         {
             TypeErrorHelper.Throw(
                 Engine,
@@ -89,7 +88,6 @@ public sealed class FileReaderInstance : EventTargetInstance
             return;
         }
 
-        _currentTotal = (ulong)blobInstance.Value.Count;
         _isReading = true;
         ReadyState = FileReaderReadyState.LOADING;
         Result = Undefined;

@@ -324,7 +324,7 @@ public sealed partial class ReadableStreamInstance
         try
         {
             // Let startResult be the result of performing startAlgorithm. (This might throw an exception.)
-            startResult = startAlgorithm?.Call(controller) ?? Undefined;
+            startResult = startAlgorithm.Call(controller);
         }
         catch (JavaScriptException ex)
         {
@@ -485,7 +485,7 @@ public sealed partial class ReadableStreamInstance
         if (autoAllocateChunkSize is not null)
         {
             // Assert: ! IsInteger(autoAllocateChunkSize) is true.
-            if ((long)autoAllocateChunkSize.Value != autoAllocateChunkSize.Value)
+            if (autoAllocateChunkSize.Value % 1 != 0)
             {
                 TypeErrorHelper.Throw(Engine, "autoAllocateChunkSize must be an integer");
             }
@@ -1116,8 +1116,7 @@ public sealed partial class ReadableStreamInstance
 
             var writesPromise = PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
             if (
-                destination.State == WritableStreamState.Writable
-                && !destination.IsCloseQueuedOrInFlight
+                destination is { State: WritableStreamState.Writable, IsCloseQueuedOrInFlight: false }
                 && currentWrites.Count > 0
             )
             {

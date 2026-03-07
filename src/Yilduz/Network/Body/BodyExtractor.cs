@@ -17,7 +17,7 @@ internal static class BodyExtractor
     internal static BodyWithType Extract(Engine engine, JsValue obj, bool keepalive = false)
     {
         // Step 1: Let stream be null.
-        ReadableStreamInstance? stream = null;
+        ReadableStreamInstance? stream;
 
         switch (obj)
         {

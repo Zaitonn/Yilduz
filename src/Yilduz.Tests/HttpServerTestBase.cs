@@ -104,7 +104,13 @@ public abstract class HttpServerTestBase : TestBase
         context.Response.ContentType = contentType;
         var bytes = System.Text.Encoding.UTF8.GetBytes(body);
         context.Response.ContentLength64 = bytes.Length;
+#if NETCOREAPP
         await context.Response.OutputStream.WriteAsync(bytes).ConfigureAwait(false);
+#else
+        await context
+            .Response.OutputStream.WriteAsync(bytes, 0, bytes.Length)
+            .ConfigureAwait(false);
+#endif
         context.Response.Close();
     }
 
@@ -118,7 +124,11 @@ public abstract class HttpServerTestBase : TestBase
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = contentType;
         context.Response.ContentLength64 = body.Length;
+#if NETCOREAPP
         await context.Response.OutputStream.WriteAsync(body).ConfigureAwait(false);
+#else
+        await context.Response.OutputStream.WriteAsync(body, 0, body.Length).ConfigureAwait(false);
+#endif
         context.Response.Close();
     }
 }

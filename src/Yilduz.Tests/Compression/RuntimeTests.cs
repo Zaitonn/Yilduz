@@ -11,7 +11,9 @@ public sealed class RuntimeTests : TestBase
     [Theory]
     [InlineData("gzip")]
     [InlineData("deflate-raw")]
+#if NET6_0_OR_GREATER
     [InlineData("deflate")]
+#endif
     public void ShouldRoundtripAllFormats(string format)
     {
         CompressionTestHelper.AssertRoundtripAllFormats(Engine, format);
@@ -20,7 +22,9 @@ public sealed class RuntimeTests : TestBase
     [Theory]
     [InlineData("gzip")]
     [InlineData("deflate-raw")]
+#if NET6_0_OR_GREATER
     [InlineData("deflate")]
+#endif
     public void CompressedOutputShouldBeSmallerForRepetitiveInput(string format)
     {
         var repetitive = new string('B', 50);
@@ -78,6 +82,7 @@ public sealed class RuntimeTests : TestBase
         CompressionTestHelper.AssertDecompression(Engine, "deflate-raw", expected, compressedHex);
     }
 
+#if NET6_0_OR_GREATER
     [Theory]
     [MemberData(
         nameof(CompressionTestHelper.DeflateTestData),
@@ -90,6 +95,7 @@ public sealed class RuntimeTests : TestBase
     {
         CompressionTestHelper.AssertDecompression(Engine, "deflate", expected, compressedHex);
     }
+#endif
 
     [Fact]
     public void ShouldRejectNonBufferOnCompression()

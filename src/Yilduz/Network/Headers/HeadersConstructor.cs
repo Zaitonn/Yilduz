@@ -8,7 +8,7 @@ namespace Yilduz.Network.Headers;
 /// <summary>
 /// https://developer.mozilla.org/en-US/docs/Web/API/Headers/Headers
 /// </summary>
-public class HeadersConstructor : Constructor
+public sealed class HeadersConstructor : Constructor
 {
     internal HeadersConstructor(Engine engine)
         : base(engine, nameof(Headers))
@@ -17,7 +17,7 @@ public class HeadersConstructor : Constructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    internal HeadersPrototype PrototypeObject { get; }
+    private HeadersPrototype PrototypeObject { get; }
 
     /// <summary>
     /// <inheritdoc />
@@ -29,11 +29,11 @@ public class HeadersConstructor : Constructor
 
     internal HeadersInstance CreateInstance(JsValue init, Guard guard)
     {
-        return new HeadersInstance(Engine, init, guard) { Prototype = PrototypeObject };
+        return new(Engine, init, guard) { Prototype = PrototypeObject };
     }
 
     internal HeadersInstance CreateInstance(HeaderList list, Guard guard)
     {
-        return new HeadersInstance(Engine, list, guard) { Prototype = PrototypeObject };
+        return new(Engine, list, guard) { Prototype = PrototypeObject };
     }
 }

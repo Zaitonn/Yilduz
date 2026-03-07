@@ -72,22 +72,25 @@ public sealed partial class ReadableStreamDefaultReaderInstance
         // Set stream.[[disturbed]] to true.
         Stream.Disturbed = true;
 
-        // If stream.[[state]] is "closed", perform readRequest’s close steps.
-        if (Stream.State == ReadableStreamState.Closed)
+        switch (Stream.State)
         {
-            readRequest.CloseSteps(Undefined);
-        }
-        // Otherwise, if stream.[[state]] is "errored", perform readRequest’s error steps given stream.[[storedError]].
-        else if (Stream.State == ReadableStreamState.Errored)
-        {
-            readRequest.ErrorSteps(Stream.StoredError);
-        }
-        // Otherwise,
-        else
-        {
-            // Assert: stream.[[state]] is "readable".
-            // Perform ! stream.[[controller]].[[PullSteps]](readRequest).
-            Stream.Controller?.PullSteps(readRequest);
+            // If stream.[[state]] is "closed", perform readRequest’s close steps.
+            case ReadableStreamState.Closed:
+                readRequest.CloseSteps(Undefined);
+                break;
+
+            // Otherwise, if stream.[[state]] is "errored", perform readRequest’s error steps given stream.[[storedError]].
+            case ReadableStreamState.Errored:
+                readRequest.ErrorSteps(Stream.StoredError);
+                break;
+
+            // Otherwise,
+            case ReadableStreamState.Readable:
+            default:
+                // Assert: stream.[[state]] is "readable".
+                // Perform ! stream.[[controller]].[[PullSteps]](readRequest).
+                Stream.Controller.PullSteps(readRequest);
+                break;
         }
     }
 }

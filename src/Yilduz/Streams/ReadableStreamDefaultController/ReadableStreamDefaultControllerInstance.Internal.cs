@@ -305,7 +305,6 @@ public sealed partial class ReadableStreamDefaultControllerInstance
     internal override void ReleaseSteps()
     {
         // Return.
-        return;
     }
 
     /// <summary>

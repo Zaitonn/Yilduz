@@ -19,7 +19,7 @@ public sealed class ProgressEventConstructor : EventConstructor
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
-    internal new ProgressEventPrototype PrototypeObject { get; }
+    private new ProgressEventPrototype PrototypeObject { get; }
 
     /// <summary>
     /// <inheritdoc/>

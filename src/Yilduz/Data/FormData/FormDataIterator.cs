@@ -13,9 +13,7 @@ internal sealed class FormDataIterator(Engine engine, FormDataInstance formData,
 
         if (index < list.Count)
         {
-            var (name, val, _) = list[index];
-            key = name;
-            value = val;
+            (key, value, _) = list[index];
             return true;
         }
 

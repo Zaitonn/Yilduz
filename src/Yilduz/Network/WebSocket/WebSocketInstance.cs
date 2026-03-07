@@ -69,7 +69,7 @@ public sealed partial class WebSocketInstance : EventTargetInstance
     /// <br/>
     /// https://websockets.spec.whatwg.org/#dom-websocket-bufferedamount
     /// </summary>
-    public ulong BufferedAmount { get; private set; } = 0;
+    public ulong BufferedAmount { get; private set; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/WebSocket/extensions

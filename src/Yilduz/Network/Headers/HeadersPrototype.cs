@@ -54,18 +54,16 @@ internal sealed class HeadersPrototype : PrototypeBase<HeadersInstance>
     private JsValue GetSetCookie(HeadersInstance instance, JsValue[] arguments)
     {
         var result = instance.GetSetCookie();
-        return result is null
-            ? Null
-            : Engine.Intrinsics.Array.Construct([.. result.Select<string, JsValue>(r => r)]);
+        return Engine.Intrinsics.Array.Construct([.. result.Select<string, JsValue>(r => r)]);
     }
 
-    private JsValue Has(HeadersInstance instance, JsValue[] arguments)
+    private static JsValue Has(HeadersInstance instance, JsValue[] arguments)
     {
         var name = arguments[0].ToString();
         return instance.Has(name);
     }
 
-    private JsValue Set(HeadersInstance instance, JsValue[] arguments)
+    private static JsValue Set(HeadersInstance instance, JsValue[] arguments)
     {
         var name = arguments[0].ToString();
         var value = arguments[1].ToString();

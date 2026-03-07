@@ -17,10 +17,7 @@ public sealed class CloseEventConstructor : EventConstructor
     internal CloseEventConstructor(Engine engine, WebApiIntrinsics webApiIntrinsics)
         : base(engine, nameof(CloseEvent))
     {
-        PrototypeObject = new CloseEventPrototype(engine, this)
-        {
-            Prototype = webApiIntrinsics.Event.PrototypeObject,
-        };
+        PrototypeObject = new(engine, this) { Prototype = webApiIntrinsics.Event.PrototypeObject };
         SetOwnProperty("prototype", new(PrototypeObject, false, false, false));
     }
 
@@ -64,9 +61,6 @@ public sealed class CloseEventConstructor : EventConstructor
 
     internal CloseEventInstance CreateInstance(bool wasClean, ushort code, string reason)
     {
-        return new CloseEventInstance(Engine, wasClean, code, reason)
-        {
-            Prototype = PrototypeObject,
-        };
+        return new(Engine, wasClean, code, reason) { Prototype = PrototypeObject };
     }
 }

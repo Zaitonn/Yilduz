@@ -5,13 +5,8 @@ namespace Yilduz.Network.Fetch;
 /// <summary>
 /// https://fetch.spec.whatwg.org/#fetch-timing-info
 /// </summary>
-internal struct FetchTimingInfo
+internal struct FetchTimingInfo()
 {
-    public FetchTimingInfo()
-    {
-        ServerTimingHeaders = [];
-    }
-
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-timing-info-start-time
     /// </summary>
@@ -70,7 +65,7 @@ internal struct FetchTimingInfo
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-timing-info-server-timing-headers
     /// </summary>
-    public List<string> ServerTimingHeaders { get; init; }
+    public List<string> ServerTimingHeaders { get; init; } = [];
 
     /// <summary>
     /// https://fetch.spec.whatwg.org/#fetch-timing-info-render-blocking

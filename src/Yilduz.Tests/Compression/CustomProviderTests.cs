@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.IO.Compression;
 using ICSharpCode.SharpZipLib.BZip2;
 using ICSharpCode.SharpZipLib.GZip;
 using Xunit;
@@ -8,6 +7,9 @@ using Yilduz.Compression.Providers;
 using ZstdSharp;
 using DeflateStream = Ionic.Zlib.DeflateStream;
 using GZipStream = SharpCompress.Compressors.Deflate.GZipStream;
+#if NETCOREAPP
+using System.IO.Compression;
+#endif
 
 namespace Yilduz.Tests.Compression;
 
@@ -46,6 +48,7 @@ public class CustomProviderTests : TestBase
                     SharpCompress.Compressors.CompressionMode.Compress
                 )),
 
+#if NETCOREAPP
                 // System.IO.Compression.BrotliStream
                 "brotli" => new StreamCompressor(
                     (s) => new BrotliStream(s, CompressionMode.Compress)
@@ -55,7 +58,7 @@ public class CustomProviderTests : TestBase
                 "brotli-built-in" => new BuiltInCompressor(
                     (s) => new BrotliStream(s, CompressionMode.Compress, true)
                 ),
-
+#endif
                 // ZstdSharp.CompressionStream
                 "ztsd" => new StreamCompressor((s) => new CompressionStream(s)),
                 _ => throw new NotSupportedException(),
@@ -82,6 +85,7 @@ public class CustomProviderTests : TestBase
                     SharpCompress.Compressors.CompressionMode.Decompress
                 )),
 
+#if NETCOREAPP
                 // System.IO.Compression.BrotliStream
                 "brotli" => new StreamDecompressor(
                     (s) => new BrotliStream(s, CompressionMode.Decompress)
@@ -91,6 +95,7 @@ public class CustomProviderTests : TestBase
                 "brotli-built-in" => new BuiltInDecompressor(
                     (s) => new BrotliStream(s, CompressionMode.Decompress, true)
                 ),
+#endif
 
                 // ZstdSharp.DecompressionStream
                 "ztsd" => new StreamDecompressor((s) => new DecompressionStream(s)),
@@ -103,8 +108,10 @@ public class CustomProviderTests : TestBase
     [InlineData("deflate")]
     [InlineData("bzip2")]
     [InlineData("gzip-sc")]
+#if NETCOREAPP
     [InlineData("brotli")]
     [InlineData("brotli-built-in")]
+#endif
     [InlineData("ztsd")]
     public void ShouldRoundTripWithCustomProviders(string format)
     {

@@ -37,7 +37,7 @@ public sealed partial class WritableStreamDefaultControllerInstance : ObjectInst
     {
         // Let state be this.[[stream]].[[state]].
         // If state is not "writable", return.
-        if (Stream?.State != WritableStreamState.Writable)
+        if (Stream.State != WritableStreamState.Writable)
         {
             return;
         }

@@ -45,7 +45,7 @@ internal sealed class DefaultConsole(Engine engine) : IConsole
 
     public void Count(string label)
     {
-        int count = 0;
+        int count;
         lock (_counters)
         {
             _counters.TryGetValue(label, out count);

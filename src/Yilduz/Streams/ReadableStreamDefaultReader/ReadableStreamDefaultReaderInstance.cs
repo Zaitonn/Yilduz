@@ -29,7 +29,7 @@ public sealed partial class ReadableStreamDefaultReaderInstance : ReadableStream
     /// <br/>
     /// https://developer.mozilla.org/en-US/docs/Web/API/ReadableStreamDefaultReader/closed
     /// </summary>
-    public override JsValue Closed => ClosedPromise?.Promise ?? Null;
+    public override JsValue Closed => ClosedPromise.Promise;
 
     /// <summary>
     /// https://streams.spec.whatwg.org/#default-reader-cancel

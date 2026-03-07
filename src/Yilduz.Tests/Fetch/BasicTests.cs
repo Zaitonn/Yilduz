@@ -168,7 +168,7 @@ public sealed class BasicTests : HttpRouteTestBase
     {
         MapGet(
             "/blob",
-            async ctx => await WriteResponseAsync(ctx, 200, "blob content", "text/plain")
+            async ctx => await WriteResponseAsync(ctx, 200, "blob content")
         );
 
         Execute(

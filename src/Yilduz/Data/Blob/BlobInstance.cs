@@ -22,7 +22,7 @@ public class BlobInstance : ObjectInstance
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/type
     /// </summary>
-    public new string Type { get; protected internal set; } = string.Empty;
+    public new string Type { get; protected internal init; }
 
     /// <summary>
     /// https://developer.mozilla.org/en-US/docs/Web/API/Blob/size
@@ -33,7 +33,7 @@ public class BlobInstance : ObjectInstance
     /// Represents the raw byte data of the Blob.
     /// This property is not directly exposed in JavaScript, but is used internally to implement the Blob's functionality.
     /// </summary>
-    protected internal List<byte> Value { get; set; } = [];
+    protected internal List<byte> Value { get; } = [];
 
     internal BlobInstance(
         Engine engine,
@@ -51,7 +51,7 @@ public class BlobInstance : ObjectInstance
 
         var endings = optionsObject?.Get("endings");
         var endingsStr =
-            endings is null || endings.IsUndefined() == true ? "transparent" : endings.ToString();
+            endings is null || endings.IsUndefined() ? "transparent" : endings.ToString();
 
         if (endingsStr != "transparent" && endingsStr != "native")
         {

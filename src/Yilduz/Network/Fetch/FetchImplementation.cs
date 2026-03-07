@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading;
@@ -204,8 +205,7 @@ internal static class FetchImplementation
                     engine,
                     webApiIntrinsics,
                     httpResponse,
-                    responseBytes,
-                    cancellationToken
+                    responseBytes
                 )
                 .ConfigureAwait(false);
         }
@@ -247,7 +247,7 @@ internal static class FetchImplementation
                     )
                     : new ByteArrayContent(bodyBytes);
         }
-        else
+        else if (httpMethod != HttpMethod.Get && httpMethod != HttpMethod.Head)
         {
             httpRequest.Content = new StringContent(string.Empty);
         }
@@ -258,7 +258,7 @@ internal static class FetchImplementation
             // must be added to Content.Headers; all others go on the request.
             if (!httpRequest.Headers.TryAddWithoutValidation(header.Name, header.Value))
             {
-                httpRequest.Content.Headers.TryAddWithoutValidation(header.Name, header.Value);
+                httpRequest.Content?.Headers.TryAddWithoutValidation(header.Name, header.Value);
             }
         }
 
@@ -269,8 +269,7 @@ internal static class FetchImplementation
         Engine engine,
         WebApiIntrinsics webApiIntrinsics,
         HttpResponseMessage httpResponse,
-        byte[] responseBytes,
-        CancellationToken cancellationToken
+        byte[] responseBytes
     )
     {
         // Capture all data we need from the HttpResponseMessage before handing back to the
@@ -299,7 +298,7 @@ internal static class FetchImplementation
                     stream.Enqueue(engine.Intrinsics.Uint8Array.Construct(responseBytes));
                     stream.Controller.CloseInternal();
 
-                    bodyConcept = new BodyConcept(
+                    bodyConcept = new(
                         stream,
                         JsValue.FromObject(engine, responseBytes),
                         responseBytes.LongLength
@@ -343,25 +342,17 @@ internal static class FetchImplementation
     private static HeaderList BuildHeaderList(HttpResponseMessage httpResponse)
     {
         var headerList = new HeaderList();
+        headerList.AddRange(
+            from header in httpResponse.Headers
+            from value in header.Value
+            select new HeaderEntry(header.Key, value)
+        );
 
-        foreach (var header in httpResponse.Headers)
-        {
-            foreach (var value in header.Value)
-            {
-                headerList.Add(new(header.Key, value));
-            }
-        }
-
-        if (httpResponse.Content is not null)
-        {
-            foreach (var header in httpResponse.Content.Headers)
-            {
-                foreach (var value in header.Value)
-                {
-                    headerList.Add(new(header.Key, value));
-                }
-            }
-        }
+        headerList.AddRange(
+            from header in httpResponse.Content.Headers
+            from value in header.Value
+            select new HeaderEntry(header.Key, value)
+        );
 
         return headerList;
     }
@@ -374,26 +365,24 @@ internal static class FetchImplementation
     private static byte[]? GetRequestBodyBytes(RequestConcept request)
     {
         var body = request.Body;
-        if (body is null)
+
+        // Fast path: body source is already a byte array (covers string, ArrayBuffer,
+        // URLSearchParams body types set by BodyExtractor).
+        if (body?.Source is null)
         {
             return null;
         }
 
-        // Fast path: body source is already a byte array (covers string, ArrayBuffer,
-        // URLSearchParams body types set by BodyExtractor).
-        if (body.Source is not null)
+        var bytes = body.Source.TryAsBytes();
+        if (bytes is not null)
         {
-            var bytes = body.Source.TryAsBytes();
-            if (bytes is not null)
-            {
-                return bytes;
-            }
+            return bytes;
+        }
 
-            // Blob body type.
-            if (body.Source is BlobInstance blob)
-            {
-                return [.. blob.Value];
-            }
+        // Blob body type.
+        if (body.Source is BlobInstance blob)
+        {
+            return [.. blob.Value];
         }
 
         return null;

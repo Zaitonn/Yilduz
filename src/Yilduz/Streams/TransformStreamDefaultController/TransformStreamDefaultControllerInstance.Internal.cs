@@ -113,7 +113,7 @@ public sealed partial class TransformStreamDefaultControllerInstance
         var error = ErrorHelper.Create(Engine, "TypeError", "Transform stream has been terminated");
 
         // Perform ! TransformStreamErrorWritableAndUnblockWrite(stream, error).
-        stream?.ErrorWritableAndUnblockWrite(error);
+        stream.ErrorWritableAndUnblockWrite(error);
     }
 
     /// <summary>

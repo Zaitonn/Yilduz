@@ -222,7 +222,7 @@ internal sealed class EventLoop
     {
         while (true)
         {
-            Action? microtask = null;
+            Action? microtask;
 
             lock (_lock)
             {

@@ -42,7 +42,7 @@ public sealed partial class TransformStreamInstance
         // Let startAlgorithm be an algorithm that returns startPromise.
         underlyingSink.Set(
             "start",
-            new ClrFunction(Engine, "start", (thisObj, args) => startPromise.Promise)
+            new ClrFunction(Engine, "start", (_, _) => startPromise.Promise)
         );
 
         // Let writeAlgorithm be the following steps, taking a chunk argument:
@@ -52,7 +52,7 @@ public sealed partial class TransformStreamInstance
             new ClrFunction(
                 Engine,
                 "write",
-                (thisObj, args) => DefaultSinkWriteAlgorithm(args.At(0))
+                (_, args) => DefaultSinkWriteAlgorithm(args.At(0))
             )
         );
 
@@ -60,7 +60,7 @@ public sealed partial class TransformStreamInstance
         //   Return ! TransformStreamDefaultSinkCloseAlgorithm(stream).
         underlyingSink.Set(
             "close",
-            new ClrFunction(Engine, "close", (thisObj, args) => DefaultSinkCloseAlgorithm())
+            new ClrFunction(Engine, "close", (_, _) => DefaultSinkCloseAlgorithm())
         );
 
         // Let abortAlgorithm be the following steps, taking a reason argument:
@@ -70,7 +70,7 @@ public sealed partial class TransformStreamInstance
             new ClrFunction(
                 Engine,
                 "abort",
-                (thisObj, args) => DefaultSinkAbortAlgorithm(args.At(0))
+                (_, args) => DefaultSinkAbortAlgorithm(args.At(0))
             )
         );
 
@@ -85,14 +85,14 @@ public sealed partial class TransformStreamInstance
 
         underlyingSource.Set(
             "start",
-            new ClrFunction(Engine, "start", (thisObj, args) => startPromise.Promise)
+            new ClrFunction(Engine, "start", (_, _) => startPromise.Promise)
         );
 
         // Let pullAlgorithm be the following steps:
         //   Return ! TransformStreamDefaultSourcePullAlgorithm(stream).
         underlyingSource.Set(
             "pull",
-            new ClrFunction(Engine, "pull", (thisObj, args) => DefaultSourcePullAlgorithm())
+            new ClrFunction(Engine, "pull", (_, _) => DefaultSourcePullAlgorithm())
         );
 
         // Let cancelAlgorithm be the following steps, taking a reason argument:
@@ -102,7 +102,7 @@ public sealed partial class TransformStreamInstance
             new ClrFunction(
                 Engine,
                 "cancel",
-                (thisObj, args) => DefaultSourceCancelAlgorithm(args.At(0))
+                (_, args) => DefaultSourceCancelAlgorithm(args.At(0))
             )
         );
 
@@ -563,7 +563,7 @@ public sealed partial class TransformStreamInstance
             onRejected: (r) =>
             {
                 // Perform ! WritableStreamDefaultControllerErrorIfNeeded(writable.[[controller]], r).
-                Writable.Controller?.ErrorIfNeeded(r);
+                Writable.Controller.ErrorIfNeeded(r);
 
                 // Perform ! TransformStreamUnblockWrite(stream).
                 UnblockWrite();
@@ -607,7 +607,7 @@ public sealed partial class TransformStreamInstance
 
         // Perform ! WritableStreamDefaultControllerErrorIfNeeded(stream.[[writable]].[[controller]], e).
         var writableController = Writable.Controller;
-        writableController?.ErrorIfNeeded(error);
+        writableController.ErrorIfNeeded(error);
 
         // Perform ! TransformStreamUnblockWrite(stream).
         UnblockWrite();

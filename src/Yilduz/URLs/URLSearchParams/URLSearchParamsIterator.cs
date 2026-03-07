@@ -10,11 +10,10 @@ internal sealed class URLSearchParamsIterator(
     IteratorType kind
 ) : BaseIterator(engine, kind, "URLSearchParams Iterator")
 {
-    private readonly URLSearchParamsInstance _searchParams = searchParams;
 
     protected override bool TryGetEntry(int index, out JsValue key, out JsValue value)
     {
-        var list = _searchParams.QueryList;
+        var list = searchParams.QueryList;
 
         if (index < list.Count)
         {
