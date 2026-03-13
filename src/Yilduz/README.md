@@ -1,6 +1,6 @@
 # Yilduz
 
-An extension library for Jint that adds [Web API](https://developer.mozilla.org/en-US/docs/Web/API) implementations such as [`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream), [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.
+An extension library for [Jint](https://github.com/sebastienros/jint) that adds [Web API](https://developer.mozilla.org/en-US/docs/Web/API) implementations such as [`ReadableStream`](https://developer.mozilla.org/en-US/docs/Web/API/ReadableStream), [`localStorage`](https://developer.mozilla.org/en-US/docs/Web/API/Window/localStorage), [`fetch`](https://developer.mozilla.org/en-US/docs/Web/API/Window/fetch), [`setTimeout`](https://developer.mozilla.org/en-US/docs/Web/API/Window/setTimeout), etc.
 
 ## Usage
 

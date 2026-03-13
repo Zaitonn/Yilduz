@@ -1,0 +1,13 @@
+version: 2
+updates:
+  - package-ecosystem: "nuget"
+    directories:
+      - "src/Yilduz"
+      # - "src/Yilduz.Repl"
+      # - "src/Yilduz.Tests"
+    schedule:
+      interval: "weekly"
+    groups:
+      all-dependencies:
+        patterns:
+          - "*"
