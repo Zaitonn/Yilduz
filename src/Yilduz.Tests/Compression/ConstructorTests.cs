@@ -13,6 +13,17 @@ public sealed class ConstructorTests : TestBase
 #if NET6_0_OR_GREATER
     [InlineData("CompressionStream", "deflate")]
     [InlineData("DecompressionStream", "deflate")]
+#else
+    [InlineData(
+        "CompressionStream",
+        "deflate",
+        Skip = "Deflate format is not supported in .NET versions prior to 6.0"
+    )]
+    [InlineData(
+        "DecompressionStream",
+        "deflate",
+        Skip = "Deflate format is not supported in .NET versions prior to 6.0"
+    )]
 #endif
     public void ShouldConstructWithSupportedFormats(string ctor, string format)
     {

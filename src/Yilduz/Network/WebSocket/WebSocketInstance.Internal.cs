@@ -28,7 +28,7 @@ public sealed partial class WebSocketInstance
                 _client.Options.AddSubProtocol(protocol);
             }
 
-            await _client.ConnectAsync(new Uri(Url), token).ConfigureAwait(false);
+            await _client.ConnectAsync(new(Url), token).ConfigureAwait(false);
 
             Protocol = _client.SubProtocol ?? string.Empty;
 
@@ -78,9 +78,7 @@ public sealed partial class WebSocketInstance
 
             do
             {
-                result = await _client
-                    .ReceiveAsync(new ArraySegment<byte>(buffer), token)
-                    .ConfigureAwait(false);
+                result = await _client.ReceiveAsync(new(buffer), token).ConfigureAwait(false);
 
                 messageBuffer.Write(buffer, 0, result.Count);
             } while (!result.EndOfMessage);
@@ -156,12 +154,7 @@ public sealed partial class WebSocketInstance
         try
         {
             await _client
-                .SendAsync(
-                    new ArraySegment<byte>(bytes),
-                    msgType,
-                    true,
-                    _cancellationTokenSource.Token
-                )
+                .SendAsync(new(bytes), msgType, true, _cancellationTokenSource.Token)
                 .ConfigureAwait(false);
         }
         catch

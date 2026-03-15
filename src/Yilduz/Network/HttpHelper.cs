@@ -255,7 +255,22 @@ internal static class HttpHelper
                 // Let mimeType be the result of parsing the result of isomorphic decoding value.
                 // If mimeType is failure, then return false.
                 // If mimeType’s essence is not "application/x-www-form-urlencoded", "multipart/form-data", or "text/plain", then return false.
-                throw new NotImplementedException();
+                try
+                {
+                    var mimeType = MIMETypeHelper.Parse(value);
+                    var essence = mimeType.Essence;
+
+                    return essence.Equals(
+                            "application/x-www-form-urlencoded",
+                            StringComparison.OrdinalIgnoreCase
+                        )
+                        || essence.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase)
+                        || essence.Equals("text/plain", StringComparison.OrdinalIgnoreCase);
+                }
+                catch
+                {
+                    return false;
+                }
 
             case "range":
                 try
@@ -288,12 +303,106 @@ internal static class HttpHelper
     /// <summary>
     /// https://fetch.spec.whatwg.org/#simple-range-header-value
     /// </summary>
-    private static (int? Start, int? End) ParseSingleRangeHeaderValue(
+    public static (int? Start, int? End) ParseSingleRangeHeaderValue(
         string value,
         bool allowWhitespace
     )
     {
-        throw new NotImplementedException();
+        // If data does not start with "bytes", then return failure.
+        if (!value.StartsWith("bytes"))
+        {
+            throw new InvalidOperationException("Range header value must start with 'bytes'");
+        }
+
+        // Let position be a position variable for data, initially pointing at the 5th code point of data.
+        var position = 5;
+
+        // If allowWhitespace is true, collect a sequence of code points that are HTTP tab or space, from data given position.
+        if (allowWhitespace)
+        {
+            CollectSequenceOfCodePoints(value, ref position, c => c == '\x20' || c == '\x09');
+        }
+
+        // If the code point at position within data is not U+003D (=), then return failure.
+        if (position >= value.Length || value[position] != '=')
+        {
+            throw new InvalidOperationException(
+                "Range header value must contain '=' after 'bytes'"
+            );
+        }
+
+        // Advance position by 1.
+        position++;
+
+        // If allowWhitespace is true, collect a sequence of code points that are HTTP tab or space, from data given position.
+        if (allowWhitespace)
+        {
+            CollectSequenceOfCodePoints(value, ref position, c => c == '\x20' || c == '\x09');
+        }
+
+        // Let rangeStart be the result of collecting a sequence of code points that are ASCII digits, from data given position.
+        var rangeStartStr = CollectSequenceOfCodePoints(value, ref position, char.IsDigit);
+
+        // Let rangeStartValue be rangeStart, interpreted as decimal number, if rangeStart is not the empty string; otherwise null.
+        int? rangeStartValue = string.IsNullOrEmpty(rangeStartStr)
+            ? null
+            : int.Parse(rangeStartStr);
+
+        // If allowWhitespace is true, collect a sequence of code points that are HTTP tab or space, from data given position.
+        if (allowWhitespace)
+        {
+            CollectSequenceOfCodePoints(value, ref position, c => c == '\x20' || c == '\x09');
+        }
+
+        // If the code point at position within data is not U+002D (-), then return failure.
+        if (position >= value.Length || value[position] != '-')
+        {
+            throw new InvalidOperationException(
+                "Range header value must contain '-' after range start"
+            );
+        }
+
+        // Advance position by 1.
+        position++;
+
+        // If allowWhitespace is true, collect a sequence of code points that are HTTP tab or space, from data given position.
+        if (allowWhitespace)
+        {
+            CollectSequenceOfCodePoints(value, ref position, c => c == '\x20' || c == '\x09');
+        }
+
+        // Let rangeEnd be the result of collecting a sequence of code points that are ASCII digits, from data given position.
+        var rangeEndStr = CollectSequenceOfCodePoints(value, ref position, char.IsDigit);
+
+        // Let rangeEndValue be rangeEnd, interpreted as decimal number, if rangeEnd is not the empty string; otherwise null.
+        int? rangeEndValue = string.IsNullOrEmpty(rangeEndStr) ? null : int.Parse(rangeEndStr);
+
+        // If position is not past the end of data, then return failure.
+        if (position < value.Length)
+        {
+            throw new InvalidOperationException(
+                "Unexpected characters after valid range header value"
+            );
+        }
+
+        // If rangeEndValue and rangeStartValue are null, then return failure.
+        if (rangeEndValue == null && rangeStartValue == null)
+        {
+            throw new InvalidOperationException(
+                "Range header value must specify at least a start or an end"
+            );
+        }
+
+        // If rangeStartValue and rangeEndValue are numbers, and rangeStartValue is greater than rangeEndValue, then return failure.
+        if (rangeStartValue != null && rangeEndValue != null && rangeStartValue > rangeEndValue)
+        {
+            throw new InvalidOperationException(
+                "Range header start value cannot be greater than end value"
+            );
+        }
+
+        // Return (rangeStartValue, rangeEndValue).
+        return (rangeStartValue, rangeEndValue);
     }
 
     /// <summary>

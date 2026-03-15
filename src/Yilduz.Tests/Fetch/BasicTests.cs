@@ -166,10 +166,7 @@ public sealed class BasicTests : HttpRouteTestBase
     [Fact]
     public void ShouldReturnResponseAsBlob()
     {
-        MapGet(
-            "/blob",
-            async ctx => await WriteResponseAsync(ctx, 200, "blob content")
-        );
+        MapGet("/blob", async ctx => await WriteResponseAsync(ctx, 200, "blob content"));
 
         Execute(
             $$"""
@@ -246,5 +243,99 @@ public sealed class BasicTests : HttpRouteTestBase
         Evaluate("run()").UnwrapIfPromise();
         Assert.Equal(204, Evaluate("status").AsNumber());
         Assert.True(Evaluate("bodyIsNull").AsBoolean());
+    }
+
+    [Fact]
+    public void ShouldFetchUrlEncodedFormDataResponse()
+    {
+        MapGet(
+            "/form-data-urlencoded",
+            async ctx =>
+                await WriteResponseAsync(
+                    ctx,
+                    200,
+                    "name=Yilduz&version=1&spaced=hello+world",
+                    "application/x-www-form-urlencoded"
+                )
+        );
+
+        Execute(
+            $$"""
+            var name;
+            var version;
+            var spaced;
+            var done = false;
+            async function run() {
+                const res = await fetch('{{BaseUrl}}form-data-urlencoded');
+                const fd = await res.formData();
+                name = fd.get('name');
+                version = fd.get('version');
+                spaced = fd.get('spaced');
+                done = true;
+            }
+            run();
+            """
+        );
+
+        Evaluate("run()").UnwrapIfPromise();
+
+        Assert.Equal("Yilduz", Evaluate("name").AsString());
+        Assert.Equal("1", Evaluate("version").AsString());
+        Assert.Equal("hello world", Evaluate("spaced").AsString());
+    }
+
+    [Fact]
+    public void ShouldFetchMultipartFormDataResponse()
+    {
+        var boundary = "----WebKitFormBoundary7MA4YWxkTrZu0gW";
+        var body = $"""
+            --{boundary}
+            Content-Disposition: form-data; name="username"
+
+            admin
+            --{boundary}
+            Content-Disposition: form-data; name="info"; filename="info.txt"
+            Content-Type: text/plain
+
+            binarydata
+            --{boundary}--
+            """.Replace("\r\n", "\n").Replace("\n", "\r\n");
+
+        MapGet(
+            "/form-data-multipart",
+            async ctx =>
+                await WriteResponseAsync(
+                    ctx,
+                    200,
+                    body,
+                    $"multipart/form-data; boundary={boundary}"
+                )
+        );
+
+        Execute(
+            $$"""
+            var username;
+            var infoName;
+            var infoText;
+            var done = false;
+            async function run() {
+                const res = await fetch('{{BaseUrl}}form-data-multipart');
+                const fd = await res.formData();
+                username = fd.get('username');
+                
+                const file = fd.get('info');
+                infoName = file.name;
+                infoText = await file.text();
+                done = true;
+            }
+            run();
+            """
+        );
+
+        Evaluate("run()").UnwrapIfPromise();
+
+        Assert.Equal("admin", Evaluate("username").AsString());
+        Assert.Equal("info.txt", Evaluate("infoName").AsString());
+        Assert.Equal("binarydata", Evaluate("infoText").AsString());
     }
 }

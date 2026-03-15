@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace Yilduz.Network;
 
-sealed record MIMEType
+internal sealed record MIMEType
 {
     public MIMEType(string type, string subtype)
     {
@@ -11,11 +11,11 @@ sealed record MIMEType
         Parameters = [];
     }
 
-    internal string Type { get; }
+    public string Type { get; }
 
-    internal string Subtype { get; }
+    public string Subtype { get; }
 
-    internal Dictionary<string, string> Parameters { get; }
+    public Dictionary<string, string> Parameters { get; }
 
-    internal string Essence => $"{Type}/{Subtype}";
+    public string Essence => $"{Type}/{Subtype}";
 }

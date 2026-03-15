@@ -111,6 +111,15 @@ public class CustomProviderTests : TestBase
 #if NETCOREAPP
     [InlineData("brotli")]
     [InlineData("brotli-built-in")]
+#else
+    [InlineData(
+        "brotli",
+        Skip = "Brotli format is not supported in .NET Standard or .NET Framework"
+    )]
+    [InlineData(
+        "brotli-built-in",
+        Skip = "Brotli format is not supported in .NET Standard or .NET Framework"
+    )]
 #endif
     [InlineData("ztsd")]
     public void ShouldRoundTripWithCustomProviders(string format)

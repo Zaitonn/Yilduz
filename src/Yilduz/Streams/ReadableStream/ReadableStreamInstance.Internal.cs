@@ -1116,7 +1116,8 @@ public sealed partial class ReadableStreamInstance
 
             var writesPromise = PromiseHelper.CreateResolvedPromise(Engine, Undefined).Promise;
             if (
-                destination is { State: WritableStreamState.Writable, IsCloseQueuedOrInFlight: false }
+                destination
+                    is { State: WritableStreamState.Writable, IsCloseQueuedOrInFlight: false }
                 && currentWrites.Count > 0
             )
             {

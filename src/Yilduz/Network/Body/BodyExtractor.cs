@@ -204,14 +204,14 @@ internal static class BodyExtractor
 
             var disposition = new StringBuilder("Content-Disposition: form-data; name=\"")
                 .Append(EscapeQuotes(name))
-                .Append('\"');
+                .Append('"');
 
             if (value is BlobInstance)
             {
                 disposition
                     .Append("; filename=\"")
                     .Append(EscapeQuotes(string.IsNullOrEmpty(fileName) ? "blob" : fileName))
-                    .Append('\"');
+                    .Append('"');
             }
 
             WriteString(ms, disposition.ToString());

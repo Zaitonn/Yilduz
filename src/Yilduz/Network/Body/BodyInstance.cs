@@ -1,10 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using HttpMultipartParser;
 using Jint;
 using Jint.Native;
 using Jint.Native.Json;
 using Jint.Native.Object;
+using Jint.Runtime;
 using Yilduz.Data.Blob;
+using Yilduz.Data.File;
+using Yilduz.Data.FormData;
 using Yilduz.Extensions;
 using Yilduz.Streams.ReadableStream;
 using Yilduz.Streams.ReadableStreamDefaultReader;
@@ -177,10 +183,107 @@ public abstract class BodyInstance : ObjectInstance
                 switch (mimeType.Essence)
                 {
                     case "application/x-www-form-urlencoded":
-                        throw new NotImplementedException();
+                        // https://url.spec.whatwg.org/#concept-urlencoded-parser
+
+                        // Let sequences be the result of splitting input on 0x26 (&).
+                        var input = System.Text.Encoding.UTF8.GetString(bytes);
+                        var sequences = input.Split('&');
+
+                        // Let output be an initially empty list of name-value tuples where both name and value hold a string.
+                        var output = new List<(string Name, string Value)>();
+
+                        // For each byte sequence bytes in sequences:
+                        foreach (var part in sequences)
+                        {
+                            // If bytes is the empty byte sequence, then continue.
+                            if (string.IsNullOrEmpty(part))
+                            {
+                                continue;
+                            }
+
+                            // If bytes contains a 0x3D (=), then let name be the bytes from the start of bytes up to but excluding its first 0x3D (=),
+                            // and let value be the bytes, if any, after the first 0x3D (=) up to the end of bytes.
+                            // If 0x3D (=) is the first byte, then name will be the empty byte sequence.
+                            // If it is the last, then value will be the empty byte sequence.
+                            var equalIndex = part.IndexOf('=');
+                            string name,
+                                value;
+                            if (equalIndex >= 0)
+                            {
+                                name = part[..equalIndex];
+                                value = part[(equalIndex + 1)..];
+                            }
+                            else
+                            {
+                                // Otherwise, let name be bytes and value be the empty byte sequence.
+                                name = part;
+                                value = string.Empty;
+                            }
+
+                            // Replace any 0x2B (+) in name and value with 0x20 (SP).
+                            name = name.Replace('+', ' ');
+                            value = value.Replace('+', ' ');
+
+                            // Let nameString and valueString be the result of running UTF-8 decode without BOM on the percent-decoding of name and value, respectively.
+                            name = Uri.UnescapeDataString(name);
+                            value = Uri.UnescapeDataString(value);
+
+                            output.Add((name, value));
+                        }
+
+                        var formData1 = (FormDataInstance)
+                            _webApiIntrinsics.FormData.Construct([Undefined], Undefined);
+
+                        formData1.EntryList.AddRange(
+                            output.Select(o => (o.Name, (JsValue)o.Value, (string?)null))
+                        );
+                        return formData1;
 
                     case "multipart/form-data":
-                        throw new NotImplementedException();
+                        try
+                        {
+                            using var stream = new MemoryStream(bytes);
+                            var formDataParser = MultipartFormDataParser.Parse(
+                                stream,
+                                mimeType.Parameters.TryGetValue("boundary", out var boundary)
+                                    ? boundary
+                                    : null
+                            );
+
+                            var formData2 = (FormDataInstance)
+                                _webApiIntrinsics.FormData.Construct([Undefined], Undefined);
+
+                            formData2.EntryList.AddRange(
+                                formDataParser.Parameters.Select(p =>
+                                    (p.Name, (JsValue)p.Data, (string?)null)
+                                )
+                            );
+
+                            foreach (var file in formDataParser.Files)
+                            {
+                                using var ms = new MemoryStream();
+                                file.Data.CopyTo(ms);
+
+                                var fileInstance = (FileInstance)
+                                    _webApiIntrinsics.File.Construct(
+                                        [Undefined, file.FileName],
+                                        Undefined
+                                    );
+
+                                fileInstance.Value.AddRange(ms.ToArray());
+                                formData2.EntryList.Add((file.Name, fileInstance, file.FileName));
+                            }
+
+                            return formData2;
+                        }
+                        catch (Exception ex) when (ex is not JavaScriptException)
+                        {
+                            TypeErrorHelper.Throw(
+                                Engine,
+                                "Failed to parse multipart/form-data: " + ex.Message
+                            );
+                            break;
+                        }
                 }
             }
 

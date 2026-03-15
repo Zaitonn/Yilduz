@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFrameworks>net8.0;net7.0;net6.0;netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net8.0;net7.0;net6.0;net5.0;netstandard2.0</TargetFrameworks>
     <Deterministic>true</Deterministic>
 
     <Title>Yilduz</Title>
     <Authors>Zaitonn</Authors>
     <Description>An extension library for Jint that adds Web API implementations such as ReadableStream, localStorage, fetch, setTimeout, etc.</Description>
-    <Version>0.1.1</Version>
+    <Version>0.1.2</Version>
     <Copyright>Zaitonn</Copyright>
     <RepositoryUrl>https://github.com/Zaitonn/Yilduz</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
@@ -28,6 +28,7 @@
 
     <None Include="README.md" Pack="true" PackagePath="/" />
 
+    <PackageReference Include="HttpMultipartParser" Version="10.0.0" />
     <PackageReference Include="Jint" Version="4.6.3" />
     <PackageReference Include="PolySharp" Version="1.15.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

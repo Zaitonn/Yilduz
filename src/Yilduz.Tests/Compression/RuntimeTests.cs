@@ -13,6 +13,8 @@ public sealed class RuntimeTests : TestBase
     [InlineData("deflate-raw")]
 #if NET6_0_OR_GREATER
     [InlineData("deflate")]
+#else
+    [InlineData("deflate", Skip = "Deflate format is not supported in .NET versions prior to 6.0")]
 #endif
     public void ShouldRoundtripAllFormats(string format)
     {
@@ -24,6 +26,8 @@ public sealed class RuntimeTests : TestBase
     [InlineData("deflate-raw")]
 #if NET6_0_OR_GREATER
     [InlineData("deflate")]
+#else
+    [InlineData("deflate", Skip = "Deflate format is not supported in .NET versions prior to 6.0")]
 #endif
     public void CompressedOutputShouldBeSmallerForRepetitiveInput(string format)
     {
@@ -84,6 +88,9 @@ public sealed class RuntimeTests : TestBase
 
 #if NET6_0_OR_GREATER
     [Theory]
+#else
+    [Theory(Skip = "Deflate format is not supported in .NET versions prior to 6.0")]
+#endif
     [MemberData(
         nameof(CompressionTestHelper.DeflateTestData),
         MemberType = typeof(CompressionTestHelper)
@@ -95,7 +102,6 @@ public sealed class RuntimeTests : TestBase
     {
         CompressionTestHelper.AssertDecompression(Engine, "deflate", expected, compressedHex);
     }
-#endif
 
     [Fact]
     public void ShouldRejectNonBufferOnCompression()
