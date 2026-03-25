@@ -29,7 +29,7 @@
     <None Include="README.md" Pack="true" PackagePath="/" />
 
     <PackageReference Include="HttpMultipartParser" Version="10.0.0" />
-    <PackageReference Include="Jint" Version="4.6.3" />
+    <PackageReference Include="Jint" Version="4.6.4" />
     <PackageReference Include="PolySharp" Version="1.15.0">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
